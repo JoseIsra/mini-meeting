@@ -1,8 +1,8 @@
 {
   "name": "conference-room",
   "version": "0.0.1",
-  "description": "A Quasar Framework app",
-  "productName": "Quasar App",
+  "description": "A FractalUp project",
+  "productName": "Cooperate",
   "author": "dialguiba <dialguiba@gmail.com>",
   "private": true,
   "scripts": {

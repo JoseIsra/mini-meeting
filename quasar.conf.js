@@ -68,7 +68,6 @@ module.exports = configure(function (ctx) {
 
       // Options below are automatically set depending on the env, set them if you want to override
       // extractCSS: false,
-
       extendWebpack(cfg) {
         cfg.resolve.alias = {
           ...cfg.resolve.alias,
@@ -80,7 +79,6 @@ module.exports = configure(function (ctx) {
           pages: resolve(__dirname, './src/components/pages'),
         };
       },
-
       // https://v2.quasar.dev/quasar-cli/handling-webpack
       // "chain" is a webpack-chain object https://github.com/neutrinojs/webpack-chain
       chainWebpack(chain) {
@@ -112,8 +110,8 @@ module.exports = configure(function (ctx) {
         },
       },
 
-      // iconSet: 'material-icons', // Quasar icon set
-      // lang: 'en-US', // Quasar language pack
+      iconSet: 'material-icons', // Quasar icon set
+      lang: 'es', // Quasar language pack
 
       // For special cases outside of where the auto-import strategy can have an impact
       // (like functional components as one of the examples),
@@ -121,7 +119,6 @@ module.exports = configure(function (ctx) {
       //
       // components: [],
       // directives: [],
-
       importStrategy: 'auto',
       // Quasar plugins
       plugins: ['LoadingBar'],
@@ -132,7 +129,6 @@ module.exports = configure(function (ctx) {
       store: 'src/store/index',
       indexHtmlTemplate: 'src/index.template.html',
     },
-
     // animations: 'all', // --- includes all animations
     // https://v2.quasar.dev/options/animations
     animations: [],

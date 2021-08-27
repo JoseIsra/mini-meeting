@@ -24,6 +24,7 @@
     ".quasar",
     "node_modules",
     "babel.config.js",
-    "scripts/*"
+    "scripts/*",
+    "quasar.conf.js"
   ]
 }

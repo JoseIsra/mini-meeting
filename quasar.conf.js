@@ -6,11 +6,11 @@
 // Configuration for your app
 // https://v2.quasar.dev/quasar-cli/quasar-conf-js
 
-/* eslint-env node */
-/* eslint-disable @typescript-eslint/no-var-requires */
 const { configure } = require('quasar/wrappers');
 const fs = require('fs');
 const ospath = require('os');
+const { resolve } = require('path');
+const ESLintPlugin = require('eslint-webpack-plugin');
 
 module.exports = configure(function (ctx) {
   return {
@@ -39,7 +39,7 @@ module.exports = configure(function (ctx) {
     extras: [
       // 'ionicons-v4',
       // 'mdi-v5',
-      // 'fontawesome-v5',
+      'fontawesome-v5',
       // 'eva-icons',
       // 'themify',
       // 'line-awesome',
@@ -69,10 +69,31 @@ module.exports = configure(function (ctx) {
       // Options below are automatically set depending on the env, set them if you want to override
       // extractCSS: false,
 
+      extendWebpack(cfg) {
+        cfg.module.rules.push({
+          enforce: 'pre',
+          test: /\.(js|vue)$/,
+          loader: 'eslint-loader',
+          exclude: /node_modules/,
+        });
+
+        cfg.resolve.alias = {
+          ...cfg.resolve.alias,
+          '@': resolve(__dirname, './src'),
+          layouts: resolve(__dirname, './src/components/layouts'),
+          organisms: resolve(__dirname, './src/components/organisms'),
+          molecules: resolve(__dirname, './src/components/molecules'),
+          templates: resolve(__dirname, './src/components/templates'),
+          pages: resolve(__dirname, './src/components/pages'),
+        };
+      },
+
       // https://v2.quasar.dev/quasar-cli/handling-webpack
       // "chain" is a webpack-chain object https://github.com/neutrinojs/webpack-chain
-      chainWebpack(/* chain */) {
-        //
+      chainWebpack(chain) {
+        chain
+          .plugin('eslint-webpack-plugin')
+          .use(ESLintPlugin, [{ extensions: ['js', 'vue'] }]);
       },
     },
 
@@ -90,7 +111,13 @@ module.exports = configure(function (ctx) {
 
     // https://v2.quasar.dev/quasar-cli/quasar-conf-js#Property%3A-framework
     framework: {
-      config: {},
+      config: {
+        loadingBar: {
+          color: 'blue',
+          size: '5px',
+          position: 'top',
+        },
+      },
 
       // iconSet: 'material-icons', // Quasar icon set
       // lang: 'en-US', // Quasar language pack
@@ -102,8 +129,15 @@ module.exports = configure(function (ctx) {
       // components: [],
       // directives: [],
 
+      importStrategy: 'auto',
       // Quasar plugins
-      plugins: [],
+      plugins: ['LoadingBar'],
+    },
+    sourceFiles: {
+      rootComponent: 'src/App.vue',
+      router: 'src/router/index',
+      store: 'src/store/index',
+      indexHtmlTemplate: 'src/index.template.html',
     },
 
     // animations: 'all', // --- includes all animations

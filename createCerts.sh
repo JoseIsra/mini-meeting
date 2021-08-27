@@ -14,6 +14,6 @@ mkdir -p $HOME/web-certs
 
 mkcert -key-file $HOME/web-certs/localhost-key.pem -cert-file $HOME/web-certs/localhost-cert.pem localhost 127.0.0.1 $ip
 
-cd $HOME/
+cd $HOME/web-certs
 
 mkcert -install

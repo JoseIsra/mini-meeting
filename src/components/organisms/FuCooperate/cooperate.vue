@@ -18,20 +18,93 @@
         />
       </figure>
     </main>
-    <div class="o-cooperate__menuBar">iconos aqui</div>
+    <div class="o-cooperate__menuBar">
+      <aside class="o-cooperate__menuBar__periferics">
+        <q-btn
+          flat
+          round
+          :class="['o-cooperate__menuBar__icon', { active: icon.active }]"
+          v-for="icon in iconsLeft"
+          :key="icon.id"
+          :icon="icon.active ? icon.onState : icon.offState"
+          size="14px"
+          @click="icon.active = !icon.active"
+        >
+          <q-tooltip class="bg-grey-10">
+            <label class="o-cooperate__menuBar__icon__tooltip">
+              {{ icon.toolTipMessage }}
+            </label>
+          </q-tooltip>
+        </q-btn>
+      </aside>
+      <div class="o-cooperate__menuBar__functions">
+        <q-btn
+          flat
+          round
+          v-for="icon in iconsMiddle"
+          :class="['o-cooperate__menuBar__icon', { active: icon.active }]"
+          :key="icon.id"
+          :icon="icon.onState"
+          size="14px"
+          @click="icon.active = !icon.active"
+        >
+          <q-tooltip class="bg-grey-10">
+            <label class="o-cooperate__menuBar__icon__tooltip">
+              {{ icon.toolTipMessage }}
+            </label>
+          </q-tooltip>
+        </q-btn>
+      </div>
+      <aside class="o-cooperate__menuBar__options">
+        <q-btn
+          round
+          flat
+          :ripple="false"
+          v-for="icon in iconsRight"
+          :key="icon.id"
+          :icon="icon.onState"
+          class="o-cooperate__menuBar__icon"
+          size="14px"
+        >
+          <q-tooltip class="bg-grey-10">
+            <label class="o-cooperate__menuBar__icon__tooltip">
+              {{ icon.toolTipMessage }}
+            </label>
+          </q-tooltip>
+        </q-btn>
+      </aside>
+    </div>
   </section>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
-// import { iconList } from '@/helpers/iconsMenuBar';
-// interface Icons {
-//   id: string;
-//   name: string;
-// }
+import { defineComponent, ref } from 'vue';
+import {
+  iconsLeftPosition,
+  iconsMiddlePosition,
+  iconsRightPosition,
+} from '@/helpers/iconsMenuBar';
+interface Icons {
+  id: string;
+  onState: string;
+  offState: string;
+  active: boolean;
+  toolTipMessage: string;
+}
 
 export default defineComponent({
   name: 'FuCooperate',
+  setup() {
+    const iconsLeft = ref<Icons[]>(iconsLeftPosition);
+    const iconsMiddle = ref<Icons[]>(iconsMiddlePosition);
+    const iconsRight = ref<Icons[]>(iconsRightPosition);
+
+    return {
+      iconsLeft,
+      iconsMiddle,
+      iconsRight,
+    };
+  },
 });
 </script>
 

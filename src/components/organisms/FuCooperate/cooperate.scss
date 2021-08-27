@@ -1,7 +1,7 @@
 .o-cooperate {
   width: 100%;
   min-height: 100vh;
-  background-color: #23272a;
+  background-color: #36393f;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -32,9 +32,34 @@
   }
   &__menuBar {
     position: absolute;
-    bottom: 2rem;
+    bottom: 4rem;
     width: 30rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
     height: 60px;
     background: linear-gradient(350deg, mediumslateblue 0%, #009bff 75%);
+    .active {
+      background-color: rgba(0, 0, 0, 0.15);
+      border: 1px solid #fffffe;
+    }
+    &__icon {
+      color: rgba(255, 255, 255, 0.6) !important;
+      &__tooltip {
+        font-size: 0.65rem;
+      }
+    }
+    &__periferics {
+      display: flex;
+      align-items: center;
+    }
+    &__functions {
+      display: flex;
+      align-items: center;
+    }
+    &__options {
+      display: flex;
+      align-items: center;
+    }
   }
 }

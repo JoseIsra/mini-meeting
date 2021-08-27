@@ -1,6 +1,6 @@
 export const iconList = [
   {
     id: '1',
-    name: '',
+    name: 'mic',
   },
 ];

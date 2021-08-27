@@ -22,8 +22,13 @@
   </section>
 </template>
 
-<script>
+<script lang="ts">
 import { defineComponent } from 'vue';
+// import { iconList } from '@/helpers/iconsMenuBar';
+// interface Icons {
+//   id: string;
+//   name: string;
+// }
 
 export default defineComponent({
   name: 'FuCooperate',

@@ -1,8 +1,8 @@
 {
   "name": "conference-room",
   "version": "0.0.1",
-  "description": "A Quasar Framework app",
-  "productName": "Quasar App",
+  "description": "A FractalUp project",
+  "productName": "Cooperate",
   "author": "dialguiba <dialguiba@gmail.com>",
   "private": true,
   "scripts": {
@@ -25,6 +25,7 @@
     "@typescript-eslint/parser": "^4.16.1",
     "eslint": "^7.14.0",
     "eslint-config-prettier": "^8.1.0",
+    "eslint-loader": "^3.0.3",
     "eslint-plugin-vue": "^7.0.0"
   },
   "browserslist": [

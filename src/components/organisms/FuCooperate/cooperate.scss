@@ -30,36 +30,10 @@
       }
     }
   }
-  &__menuBar {
+  &__userVideoStreams {
     position: absolute;
-    bottom: 4rem;
-    width: 30rem;
     display: flex;
     align-items: center;
-    justify-content: space-around;
-    height: 60px;
-    background: linear-gradient(350deg, mediumslateblue 0%, #009bff 75%);
-    .active {
-      background-color: rgba(0, 0, 0, 0.15);
-      border: 1px solid #fffffe;
-    }
-    &__icon {
-      color: rgba(255, 255, 255, 0.6) !important;
-      &__tooltip {
-        font-size: 0.65rem;
-      }
-    }
-    &__periferics {
-      display: flex;
-      align-items: center;
-    }
-    &__functions {
-      display: flex;
-      align-items: center;
-    }
-    &__options {
-      display: flex;
-      align-items: center;
-    }
+    bottom: 10px;
   }
 }

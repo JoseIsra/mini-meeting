@@ -9,6 +9,7 @@
       "components/*": ["src/components/*"],
       "layouts/*": ["src/components/layouts/*"],
       "organisms/*": ["src/components/organisms/*"],
+      "atoms/*": ["src/components/atoms/*"],
       "templates/*": ["src/components/templates/*"],
       "pages/*": ["src/components/pages/*"],
       "assets/*": ["src/assets/*"],

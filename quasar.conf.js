@@ -75,6 +75,7 @@ module.exports = configure(function (ctx) {
           layouts: resolve(__dirname, './src/components/layouts'),
           organisms: resolve(__dirname, './src/components/organisms'),
           molecules: resolve(__dirname, './src/components/molecules'),
+          atoms: resolve(__dirname, './src/components/atoms'),
           templates: resolve(__dirname, './src/components/templates'),
           pages: resolve(__dirname, './src/components/pages'),
         };

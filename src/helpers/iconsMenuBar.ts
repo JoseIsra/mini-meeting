@@ -1,4 +1,4 @@
-export const iconsLeftPosition = [
+export const iconsPeriferics = [
   {
     id: '1',
     onState: 'mic',
@@ -14,7 +14,7 @@ export const iconsLeftPosition = [
     toolTipMessage: 'Compartir webcam',
   },
 ];
-export const iconsMiddlePosition = [
+export const iconsFunctions = [
   {
     id: '1',
     onState: 'monitor',
@@ -58,13 +58,15 @@ export const iconsMiddlePosition = [
     toolTipMessage: 'Estado de la conexión',
   },
 ];
-export const iconsRightPosition = [
+
+export const iconsOptions = [
   {
     id: '1',
     onState: 'add_circle',
     offState: 'add_circle',
     active: false,
     toolTipMessage: 'Acciones',
+    ubication: 'left',
   },
   {
     id: '2',
@@ -72,5 +74,6 @@ export const iconsRightPosition = [
     offState: 'more_vert',
     active: false,
     toolTipMessage: 'Opciones',
+    ubication: 'right',
   },
 ];

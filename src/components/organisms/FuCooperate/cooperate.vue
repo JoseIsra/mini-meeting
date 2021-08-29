@@ -4,7 +4,7 @@
       <figure class="o-cooperate__header__logo">
         <img
           class="o-cooperate__header__logo__image"
-          src="https://encrypted.fractalup.com/file/MainPublic/fractalup_assets/logo/LogoFU_head.svg"
+          src="https://encrypted.fractalup.com/file/MainPublic/fractalup_assets/logo/FractalUp-Collaborate.svg"
           alt="logo-collaborate"
         />
       </figure>
@@ -18,91 +18,29 @@
         />
       </figure>
     </main>
-    <div class="o-cooperate__menuBar">
-      <aside class="o-cooperate__menuBar__periferics">
-        <q-btn
-          flat
-          round
-          :class="['o-cooperate__menuBar__icon', { active: icon.active }]"
-          v-for="icon in iconsLeft"
-          :key="icon.id"
-          :icon="icon.active ? icon.onState : icon.offState"
-          size="14px"
-          @click="icon.active = !icon.active"
-        >
-          <q-tooltip class="bg-grey-10">
-            <label class="o-cooperate__menuBar__icon__tooltip">
-              {{ icon.toolTipMessage }}
-            </label>
-          </q-tooltip>
-        </q-btn>
-      </aside>
-      <div class="o-cooperate__menuBar__functions">
-        <q-btn
-          flat
-          round
-          v-for="icon in iconsMiddle"
-          :class="['o-cooperate__menuBar__icon', { active: icon.active }]"
-          :key="icon.id"
-          :icon="icon.onState"
-          size="14px"
-          @click="icon.active = !icon.active"
-        >
-          <q-tooltip class="bg-grey-10">
-            <label class="o-cooperate__menuBar__icon__tooltip">
-              {{ icon.toolTipMessage }}
-            </label>
-          </q-tooltip>
-        </q-btn>
-      </div>
-      <aside class="o-cooperate__menuBar__options">
-        <q-btn
-          round
-          flat
-          :ripple="false"
-          v-for="icon in iconsRight"
-          :key="icon.id"
-          :icon="icon.onState"
-          class="o-cooperate__menuBar__icon"
-          size="14px"
-        >
-          <q-tooltip class="bg-grey-10">
-            <label class="o-cooperate__menuBar__icon__tooltip">
-              {{ icon.toolTipMessage }}
-            </label>
-          </q-tooltip>
-        </q-btn>
-      </aside>
-    </div>
+    <fu-cooperate-menu-bar />
+    <!-- <section class="o-cooperate__userVideoStreams">
+      <fu-cooperate-user-video v-for="user in users" :key="user.id" />
+    </section> -->
   </section>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
-import {
-  iconsLeftPosition,
-  iconsMiddlePosition,
-  iconsRightPosition,
-} from '@/helpers/iconsMenuBar';
-interface Icons {
+import { userStreams } from '@/helpers/usersVideo';
+import FuCooperateMenuBar from 'organisms/FuCooperateMenuBar';
+interface UserStream {
   id: string;
-  onState: string;
-  offState: string;
-  active: boolean;
-  toolTipMessage: string;
+  name: string;
 }
 
 export default defineComponent({
   name: 'FuCooperate',
+  components: { FuCooperateMenuBar },
   setup() {
-    const iconsLeft = ref<Icons[]>(iconsLeftPosition);
-    const iconsMiddle = ref<Icons[]>(iconsMiddlePosition);
-    const iconsRight = ref<Icons[]>(iconsRightPosition);
-
+    const users = ref<UserStream[]>(userStreams);
     return {
-      iconsLeft,
-      iconsMiddle,
-      iconsRight,
+      users,
     };
   },
 });

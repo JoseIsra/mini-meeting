@@ -4,12 +4,16 @@
   position: absolute;
   bottom: 0;
   left: 0;
+  padding: 5px;
   &__box {
     border-radius: 10px;
+    width: 200px;
+    height: 150px;
+    overflow: hidden;
+    // border: 1px solid red;
     &__stream {
-      width: 200px;
-      height: 180px;
-      border: 1px solid blue;
+      width: 100%;
+      object-fit: contain;
     }
   }
 }

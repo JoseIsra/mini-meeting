@@ -8,6 +8,7 @@
   height: 60px;
   background: linear-gradient(350deg, mediumslateblue 0%, #009bff 75%);
   border-radius: 7px;
+  z-index: 9999;
   .active {
     background-color: rgba(0, 0, 0, 0.15);
     border: 1px solid #fffffe;

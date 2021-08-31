@@ -6,11 +6,4 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-
-  &__userVideoStreams {
-    position: absolute;
-    display: flex;
-    align-items: center;
-    bottom: 10px;
-  }
 }

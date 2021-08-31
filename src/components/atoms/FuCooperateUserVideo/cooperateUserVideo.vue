@@ -1,23 +1,35 @@
 <template>
-  <div class="a-userVideo">
-    <video
-      class="a-userVideo__video"
-      src="https://www.youtube.com/watch?v=g_BBc7zXEts"
-      controls
-      autoplay
-    ></video>
-  </div>
+  <section class="a-userVideo">
+    <div class="a-userVideo__box">
+      <video
+        id="localVideo"
+        class="a-userVideo__box__stream"
+        autoplay
+        muted
+        controls
+        playsinline
+      ></video>
+    </div>
+  </section>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, ref } from 'vue';
+import { userStreams } from '@/helpers/usersVideo';
+
+interface UserStream {
+  id: string;
+  name: string;
+}
 
 export default defineComponent({
   name: 'FuCooperateUserVideo',
-  // setup() {
-  //   return {
-  //   };
-  // },
+  setup() {
+    const users = ref<UserStream[]>(userStreams);
+    return {
+      users,
+    };
+  },
 });
 </script>
 

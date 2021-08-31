@@ -6,7 +6,7 @@
 
 <script>
 import { defineComponent } from 'vue';
-import FuTCooperate from 'templates/FuGeneral/FuCooperate';
+import FuTCooperate from 'templates/FuCooperate';
 
 export default defineComponent({
   name: 'FuPCooperate',

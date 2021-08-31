@@ -86,7 +86,7 @@ export default defineComponent({
   components: {
     FuCooperateMenu,
   },
-  setup() {
+  setup(_, { emit }) {
     const periferics = ref<Icons[]>(iconsPeriferics);
     const functions = ref<Icons[]>(iconsFunctions);
     const options = ref<Icons[]>(iconsOptions);
@@ -105,7 +105,7 @@ export default defineComponent({
         return;
       }
       actionSelectionID.value = ID;
-      // this.$emit('show-sidebar',interaction);
+      emit('show-sidebar', interaction);
     };
 
     return {

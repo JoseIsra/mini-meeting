@@ -3,7 +3,7 @@ import { RouteRecordRaw } from 'vue-router';
 const routes: RouteRecordRaw[] = [
   {
     path: '/',
-    component: () => import('pages/FuGeneral/FuCooperate'),
+    component: () => import('pages/FuCooperate'),
   },
 
   // Always leave this as last one,

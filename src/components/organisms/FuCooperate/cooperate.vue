@@ -3,25 +3,19 @@
     <fu-cooperate-header />
     <fu-cooperate-body />
     <fu-cooperate-menu-bar v-show="showMenuBar" />
-    <!-- <section class="o-cooperate__userVideoStreams">
-      <fu-cooperate-user-video v-for="user in users" :key="user.id" />
-    </section> -->
-    <fu-cooperate-side-bar />
+    <!-- <fu-cooperate-side-bar /> -->
+    <fu-cooperate-user-video />
   </section>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
-import { userStreams } from '@/helpers/usersVideo';
 import FuCooperateMenuBar from 'organisms/FuCooperateMenuBar';
 import FuCooperateHeader from 'atoms/FuCooperateHeader';
 import FuCooperateBody from 'molecules/FuCooperateBody';
-import FuCooperateSideBar from 'molecules/FuCooperateSideBar';
+import FuCooperateUserVideo from 'atoms/FuCooperateUserVideo';
+// import FuCooperateSideBar from 'molecules/FuCooperateSideBar';
 import _ from 'lodash';
-interface UserStream {
-  id: string;
-  name: string;
-}
 
 export default defineComponent({
   name: 'FuCooperate',
@@ -29,10 +23,9 @@ export default defineComponent({
     FuCooperateMenuBar,
     FuCooperateHeader,
     FuCooperateBody,
-    FuCooperateSideBar,
+    FuCooperateUserVideo,
   },
   setup() {
-    const users = ref<UserStream[]>(userStreams);
     let showMenuBar = ref<boolean>(false);
     const hideMenuBar = _.debounce(() => {
       showMenuBar.value = false;
@@ -46,7 +39,6 @@ export default defineComponent({
       }
     };
     return {
-      users,
       toogleMenuBar,
       showMenuBar,
     };

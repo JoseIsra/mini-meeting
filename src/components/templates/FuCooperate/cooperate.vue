@@ -298,7 +298,7 @@ export default defineComponent({
               isCameraOff.value = true;
             }
             handleCameraButtons();
-
+            joinRoom();
             //joinRoom();
             /* join_publish_button.disabled = false;
           stop_publish_button.disabled = true; */
@@ -512,7 +512,8 @@ export default defineComponent({
             camera.value = true;
             //camera_checkbox.checked = true;
           }
-          alert(errorMessage);
+          console.log(errorMessage);
+          //alert(errorMessage);
         },
       }) as WebRTCAdaptorType;
 

@@ -82,9 +82,12 @@ module.exports = configure(function (ctx) {
       // https://v2.quasar.dev/quasar-cli/handling-webpack
       // "chain" is a webpack-chain object https://github.com/neutrinojs/webpack-chain
       chainWebpack(chain) {
-        chain
-          .plugin('eslint-webpack-plugin')
-          .use(ESLintPlugin, [{ extensions: ['js', 'vue', 'ts'] }]);
+        chain.plugin('eslint-webpack-plugin').use(ESLintPlugin, [
+          {
+            extensions: ['vue', 'ts'],
+            exclude: ['node_modules', 'src/utils/webrtc'],
+          },
+        ]);
       },
     },
 

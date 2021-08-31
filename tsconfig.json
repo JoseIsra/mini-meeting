@@ -25,6 +25,7 @@
     "node_modules",
     "babel.config.js",
     "scripts/*",
-    "quasar.conf.js"
+    "quasar.conf.js",
+    "src/utils/webrtc"
   ]
 }

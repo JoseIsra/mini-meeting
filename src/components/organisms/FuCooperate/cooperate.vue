@@ -19,6 +19,7 @@
       </figure>
     </main>
     <div class="o-cooperate__menuBar">iconos aqui</div>
+    <video id="localVideo" autoplay muted controls playsinline></video>
   </section>
 </template>
 

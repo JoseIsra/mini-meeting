@@ -1,4 +1,4 @@
-interface Options {
+export interface Options {
   id: string;
   iconName: string;
   description: string;
@@ -12,7 +12,32 @@ export interface MenuOptions {
   fourthSection: Options[];
 }
 
-export const menuActions = [];
+export const menuActions = [
+  {
+    id: '1',
+    iconName: 'format_list_bulleted',
+    description: 'Iniciar una encuesta',
+    important: false,
+  },
+  {
+    id: '2',
+    iconName: 'monitor',
+    description: 'Gestionar presentaciones',
+    important: false,
+  },
+  {
+    id: '3',
+    iconName: 'videocam',
+    description: 'Compartir un video externo',
+    important: false,
+  },
+  {
+    id: '4',
+    iconName: 'person',
+    description: 'Seleccionar usuario aleatoriamente',
+    important: false,
+  },
+];
 
 export const menuOptions = {
   firstSection: [
@@ -74,7 +99,7 @@ export const menuOptions = {
       id: '9',
       iconName: 'call_end',
       description: 'Finalizar reunión',
-      important: true,
+      important: false,
     },
     {
       id: '10',

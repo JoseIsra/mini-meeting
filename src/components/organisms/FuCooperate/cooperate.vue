@@ -1,27 +1,12 @@
 <template>
-  <section class="o-cooperate">
-    <header class="o-cooperate__header">
-      <figure class="o-cooperate__header__logo">
-        <img
-          class="o-cooperate__header__logo__image"
-          src="https://encrypted.fractalup.com/file/MainPublic/fractalup_assets/logo/FractalUp-Collaborate.svg"
-          alt="logo-collaborate"
-        />
-      </figure>
-    </header>
-    <main class="o-cooperate__screen">
-      <figure class="o-cooperate__screen__imgBox">
-        <img
-          class="o-cooperate__screen__imgBox__image"
-          alt="fractalitos"
-          src="https://encrypted.fractalup.com/file/MainPublic/fractalup_assets/landing/main.png"
-        />
-      </figure>
-    </main>
-    <fu-cooperate-menu-bar />
+  <section class="o-cooperate" @mousemove="toogleMenuBar">
+    <fu-cooperate-header />
+    <fu-cooperate-body />
+    <fu-cooperate-menu-bar v-show="showMenuBar" />
     <!-- <section class="o-cooperate__userVideoStreams">
       <fu-cooperate-user-video v-for="user in users" :key="user.id" />
     </section> -->
+    <fu-cooperate-side-bar />
   </section>
 </template>
 
@@ -29,6 +14,10 @@
 import { defineComponent, ref } from 'vue';
 import { userStreams } from '@/helpers/usersVideo';
 import FuCooperateMenuBar from 'organisms/FuCooperateMenuBar';
+import FuCooperateHeader from 'atoms/FuCooperateHeader';
+import FuCooperateBody from 'molecules/FuCooperateBody';
+import FuCooperateSideBar from 'molecules/FuCooperateSideBar';
+import _ from 'lodash';
 interface UserStream {
   id: string;
   name: string;
@@ -36,11 +25,30 @@ interface UserStream {
 
 export default defineComponent({
   name: 'FuCooperate',
-  components: { FuCooperateMenuBar },
+  components: {
+    FuCooperateMenuBar,
+    FuCooperateHeader,
+    FuCooperateBody,
+    FuCooperateSideBar,
+  },
   setup() {
     const users = ref<UserStream[]>(userStreams);
+    let showMenuBar = ref<boolean>(false);
+    const hideMenuBar = _.debounce(() => {
+      showMenuBar.value = false;
+    }, 6000);
+
+    const toogleMenuBar = () => {
+      if (!showMenuBar.value) {
+        showMenuBar.value = true;
+      } else {
+        hideMenuBar();
+      }
+    };
     return {
       users,
+      toogleMenuBar,
+      showMenuBar,
     };
   },
 });

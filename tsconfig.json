@@ -10,6 +10,7 @@
       "layouts/*": ["src/components/layouts/*"],
       "organisms/*": ["src/components/organisms/*"],
       "atoms/*": ["src/components/atoms/*"],
+      "molecules/*": ["src/components/molecules/*"],
       "templates/*": ["src/components/templates/*"],
       "pages/*": ["src/components/pages/*"],
       "assets/*": ["src/assets/*"],

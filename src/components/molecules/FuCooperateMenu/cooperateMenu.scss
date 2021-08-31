@@ -1,0 +1,15 @@
+.a-cooperateMenu {
+  position: absolute;
+  left: 50%;
+  background-color: #202125;
+  width: 280px;
+  bottom: 120%;
+  &__tail {
+    position: absolute;
+    bottom: -10%;
+    color: #202125;
+  }
+  .--specialcase {
+    bottom: -25%;
+  }
+}

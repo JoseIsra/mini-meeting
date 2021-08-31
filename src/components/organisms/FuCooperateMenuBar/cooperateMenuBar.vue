@@ -5,7 +5,7 @@
         flat
         round
         :class="['a-menuBar__icon', { active: icon.active }]"
-        v-for="icon in iconsLeft"
+        v-for="icon in periferics"
         :key="icon.id"
         :icon="icon.active ? icon.onState : icon.offState"
         size="14px"
@@ -22,12 +22,12 @@
       <q-btn
         flat
         round
-        v-for="icon in iconsMiddle"
-        :class="['a-menuBar__icon', { active: icon.active }]"
+        v-for="icon in functions"
+        :class="['a-menuBar__icon', { active: icon.id === actionSelectionID }]"
         :key="icon.id"
         :icon="icon.onState"
         size="14px"
-        @click="icon.active = !icon.active"
+        @click="handleFunctionSelected(icon.interaction, icon.id)"
       >
         <q-tooltip class="bg-grey-10">
           <label class="a-menuBar__icon__tooltip">
@@ -41,7 +41,7 @@
         round
         flat
         :ripple="false"
-        v-for="icon in iconsRight"
+        v-for="icon in options"
         :key="icon.id"
         :icon="icon.onState"
         class="a-menuBar__icon"
@@ -56,7 +56,8 @@
       </q-btn>
       <fu-cooperate-menu
         v-show="renderMenu"
-        :class="{ 'a-menuBar__menuLeft': isLeft }"
+        :isActions="isActions"
+        :class="{ 'a-menuBar__menuAction': isActions }"
       />
     </aside>
   </div>
@@ -69,7 +70,7 @@ import {
   iconsFunctions,
   iconsOptions,
 } from '@/helpers/iconsMenuBar';
-import { FuCooperateMenu } from 'atoms/index';
+import FuCooperateMenu from 'molecules/FuCooperateMenu';
 
 interface Icons {
   id: string;
@@ -78,6 +79,7 @@ interface Icons {
   active: boolean;
   toolTipMessage: string;
   ubication?: string;
+  interaction?: string;
 }
 export default defineComponent({
   name: 'FuCooperateMenuBar',
@@ -85,24 +87,36 @@ export default defineComponent({
     FuCooperateMenu,
   },
   setup() {
-    const iconsLeft = ref<Icons[]>(iconsPeriferics);
-    const iconsMiddle = ref<Icons[]>(iconsFunctions);
-    const iconsRight = ref<Icons[]>(iconsOptions);
-    let isLeft = ref<boolean>(false);
+    const periferics = ref<Icons[]>(iconsPeriferics);
+    const functions = ref<Icons[]>(iconsFunctions);
+    const options = ref<Icons[]>(iconsOptions);
+    let isActions = ref<boolean>(false);
     let renderMenu = ref<boolean>(false);
+    // let actionSelected = ref<boolean>(false);
+    let actionSelectionID = ref<string>('');
 
     const handleMenuPosition = (ubication: string) => {
-      // renderMenu.value = false;
-      isLeft.value = ubication === 'left' ? true : false;
+      isActions.value = ubication === 'actions' ? true : false;
       renderMenu.value = !renderMenu.value;
     };
+    const handleFunctionSelected = (interaction: string, ID: string) => {
+      if (actionSelectionID.value == ID) {
+        actionSelectionID.value = '';
+        return;
+      }
+      actionSelectionID.value = ID;
+      // this.$emit('show-sidebar',interaction);
+    };
+
     return {
-      iconsLeft,
-      iconsMiddle,
-      iconsRight,
+      periferics,
+      functions,
+      options,
       handleMenuPosition,
-      isLeft,
+      isActions,
       renderMenu,
+      handleFunctionSelected,
+      actionSelectionID,
     };
   },
 });

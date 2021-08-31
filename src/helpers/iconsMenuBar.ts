@@ -5,6 +5,8 @@ enum interactionType {
   SHARENOTES = 'SHARENOTES',
   USERLIST = 'USERLIST',
   CONNECTION = 'CONNECTION',
+  WEBCAM = 'WEBCAM',
+  MIC = 'MIC',
 }
 export const iconsPeriferics = [
   {
@@ -13,13 +15,17 @@ export const iconsPeriferics = [
     offState: 'mic_off',
     active: false,
     toolTipMessage: 'Habilitar audio',
+    toolTipSecondMessage: 'Deshabilitar audio',
+    interaction: interactionType.MIC,
   },
   {
     id: '2',
     onState: 'videocam',
     offState: 'videocam_off',
     active: false,
-    toolTipMessage: 'Compartir webcam',
+    toolTipMessage: 'Habilitar webcam',
+    toolTipSecondMessage: 'Deshabilitar webcam',
+    interaction: interactionType.WEBCAM,
   },
 ];
 export const iconsFunctions = [

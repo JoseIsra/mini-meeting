@@ -2,30 +2,45 @@
   <section class="o-cooperate" @mousemove="toogleMenuBar">
     <fu-cooperate-header />
     <fu-cooperate-body />
-    <fu-cooperate-menu-bar v-show="showMenuBar" />
+    <fu-cooperate-menu-bar
+      v-show="showMenuBar"
+      :toggleLocalCamera="toggleLocalCamera"
+      :toggleLocalMic="toggleLocalMic"
+    />
     <!-- <fu-cooperate-side-bar /> -->
-    <fu-cooperate-user-video />
+    <fu-cooperate-user-video :objStreams="objStreams" />
   </section>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
+import { defineComponent, ref, PropType, toRefs } from 'vue';
 import FuCooperateMenuBar from 'organisms/FuCooperateMenuBar';
 import FuCooperateHeader from 'atoms/FuCooperateHeader';
 import FuCooperateBody from 'molecules/FuCooperateBody';
 import FuCooperateUserVideo from 'atoms/FuCooperateUserVideo';
 // import FuCooperateSideBar from 'molecules/FuCooperateSideBar';
 import _ from 'lodash';
-
+import { objWebRTC } from '@/types';
 export default defineComponent({
   name: 'FuCooperate',
+  props: {
+    objStreams: {
+      type: Array as PropType<objWebRTC[]>,
+    },
+    toggleLocalCamera: {
+      type: Function,
+    },
+    toggleLocalMic: {
+      type: Function,
+    },
+  },
   components: {
     FuCooperateMenuBar,
     FuCooperateHeader,
     FuCooperateBody,
     FuCooperateUserVideo,
   },
-  setup() {
+  setup(props) {
     let showMenuBar = ref<boolean>(false);
     const hideMenuBar = _.debounce(() => {
       showMenuBar.value = false;
@@ -41,6 +56,7 @@ export default defineComponent({
     return {
       toogleMenuBar,
       showMenuBar,
+      ...toRefs(props),
     };
   },
 });

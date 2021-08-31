@@ -1,6 +1,10 @@
 <template>
   <div class="t-cooperate">
-    <fu-cooperate />
+    <fu-cooperate
+      :toggleLocalCamera="toggleLocalCamera"
+      :toggleLocalMic="toggleLocalMic"
+      :objStreams="objStreams"
+    />
   </div>
 </template>
 
@@ -99,6 +103,32 @@ export default defineComponent({
       } else {
         isTurnOffCameraDisabled.value = false;
         isTurnOnCameraDisabled.value = true;
+      }
+    };
+    const toggleLocalCamera = () => {
+      if (isCameraOff.value === false) {
+        webRTCAdaptor.value.turnOffLocalCamera?.();
+        isCameraOff.value = true;
+        handleCameraButtons();
+        sendNotificationEvent('CAM_TURNED_OFF');
+      } else {
+        webRTCAdaptor.value.turnOnLocalCamera?.();
+        isCameraOff.value = false;
+        handleCameraButtons();
+        sendNotificationEvent('CAM_TURNED_ON');
+      }
+    };
+    const toggleLocalMic = () => {
+      if (isMicMuted.value) {
+        webRTCAdaptor.value.unmuteLocalMic?.();
+        isMicMuted.value = false;
+        handleMicButtons();
+        sendNotificationEvent('MIC_UNMUTED');
+      } else {
+        webRTCAdaptor.value.muteLocalMic?.();
+        isMicMuted.value = true;
+        handleMicButtons();
+        sendNotificationEvent('MIC_MUTED');
       }
     };
 
@@ -543,6 +573,8 @@ export default defineComponent({
       changeVolume,
       isStreaming,
       leaveRoom,
+      toggleLocalCamera,
+      toggleLocalMic,
     };
   },
 });

@@ -12,8 +12,8 @@
 
 <script lang="ts">
 import { defineComponent, toRefs } from 'vue';
-import FuMenuContentOptions from 'atoms/FuMenuContentOptions';
-import FuMenuContentActions from 'atoms/FuMenuContentActions';
+import FuMenuContentOptions from 'molecules/FuMenuContentOptions';
+import FuMenuContentActions from 'molecules/FuMenuContentActions';
 
 export default defineComponent({
   name: 'FuCooperateMenu',

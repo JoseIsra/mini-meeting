@@ -4,16 +4,24 @@
       <q-btn
         flat
         round
-        :class="['a-menuBar__icon', { active: icon.active }]"
+        :class="['a-menuBar__icon', { active: icon.active === false }]"
         v-for="icon in periferics"
         :key="icon.id"
-        :icon="icon.active ? icon.onState : icon.offState"
+        :icon="icon.active ? icon.offState : icon.onState"
         size="14px"
-        @click="icon.active = !icon.active"
+        @click="
+          icon.active = !icon.active;
+          tooglePeriferic(icon.interaction);
+        "
       >
-        <q-tooltip class="bg-grey-10">
+        <q-tooltip class="bg-grey-10" v-if="icon.active">
           <label class="a-menuBar__icon__tooltip">
             {{ icon.toolTipMessage }}
+          </label>
+        </q-tooltip>
+        <q-tooltip class="bg-grey-10" v-if="!icon.active">
+          <label class="a-menuBar__icon__tooltip">
+            {{ icon.toolTipSecondMessage }}
           </label>
         </q-tooltip>
       </q-btn>
@@ -78,15 +86,24 @@ interface Icons {
   offState: string;
   active: boolean;
   toolTipMessage: string;
+  toolTipSecondMessage?: string;
   ubication?: string;
   interaction?: string;
 }
 export default defineComponent({
   name: 'FuCooperateMenuBar',
+  props: {
+    toggleLocalCamera: {
+      type: Function,
+    },
+    toggleLocalMic: {
+      type: Function,
+    },
+  },
   components: {
     FuCooperateMenu,
   },
-  setup(_, { emit }) {
+  setup(props, { emit }) {
     const periferics = ref<Icons[]>(iconsPeriferics);
     const functions = ref<Icons[]>(iconsFunctions);
     const options = ref<Icons[]>(iconsOptions);
@@ -107,6 +124,13 @@ export default defineComponent({
       actionSelectionID.value = ID;
       emit('show-sidebar', interaction);
     };
+    const tooglePeriferic = (interaction: string) => {
+      if (interaction == 'WEBCAM') {
+        props.toggleLocalCamera?.();
+      } else {
+        props.toggleLocalMic?.();
+      }
+    };
 
     return {
       periferics,
@@ -117,6 +141,7 @@ export default defineComponent({
       renderMenu,
       handleFunctionSelected,
       actionSelectionID,
+      tooglePeriferic,
     };
   },
 });

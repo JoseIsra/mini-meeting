@@ -6,7 +6,6 @@
         class="a-userVideo__box__stream"
         autoplay
         muted
-        controls
         playsinline
       ></video>
     </div>
@@ -18,7 +17,6 @@
       <video
         class="a-userVideo__box__stream"
         autoplay
-        controls
         playsinline
         :srcObject.prop="object.stream"
       ></video>

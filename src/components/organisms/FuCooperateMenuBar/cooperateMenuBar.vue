@@ -8,7 +8,7 @@
         v-for="icon in periferics"
         :key="icon.id"
         :icon="icon.active ? icon.offState : icon.onState"
-        size="14px"
+        size="0.7rem"
         @click="
           icon.active = !icon.active;
           tooglePeriferic(icon.interaction);
@@ -43,6 +43,9 @@
           </label>
         </q-tooltip>
       </q-btn>
+    </div>
+    <div class="a-menuBar__functions__responsive">
+      <q-btn icon="search" flat round />
     </div>
     <aside class="a-menuBar__options">
       <q-btn

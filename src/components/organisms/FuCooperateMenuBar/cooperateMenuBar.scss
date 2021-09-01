@@ -1,14 +1,17 @@
 .a-menuBar {
-  position: absolute;
+  position: fixed;
   bottom: 4rem;
-  width: 30rem;
+  // width: clamp(300px, 40vw, 45vw);
   display: flex;
+  width: 40%;
   align-items: center;
+  margin: 0 auto;
+  padding: 8px;
   justify-content: space-around;
-  height: 60px;
+  height: fit-content;
   background: linear-gradient(350deg, mediumslateblue 0%, #009bff 75%);
   border-radius: 7px;
-  z-index: 9999;
+  z-index: 3;
   .active {
     background-color: rgba(0, 0, 0, 0.15);
     border: 1px solid #fffffe;
@@ -26,6 +29,9 @@
   &__functions {
     display: flex;
     align-items: center;
+    &__responsive {
+      display: none;
+    }
   }
   &__options {
     display: flex;
@@ -34,5 +40,18 @@
   }
   &__menuAction {
     left: 0;
+  }
+}
+
+@media only screen and (min-width: 300px) and (max-width: 578px) {
+  .a-menuBar {
+    &__functions {
+      display: flex;
+      align-items: center;
+      display: none;
+      &__responsive {
+        display: block;
+      }
+    }
   }
 }

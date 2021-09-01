@@ -1,9 +1,10 @@
 .m-body {
-  width: 60vw;
+  width: 70vw;
   &__imgBox {
     display: flex;
     align-items: center;
     justify-content: center;
+
     &__image {
       width: 100%;
       object-fit: contain;

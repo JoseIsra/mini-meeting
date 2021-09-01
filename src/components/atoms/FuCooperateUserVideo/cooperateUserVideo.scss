@@ -9,10 +9,11 @@
   align-items: center;
   &__box {
     border-radius: 10px;
-    width: 200px;
-    height: 150px;
+    width: 10rem;
+    height: 7rem;
     overflow: hidden;
     margin: 0 0.5rem;
+    cursor: pointer;
     // border: 1px solid red;
     &__stream {
       width: 100%;

@@ -1,76 +1,92 @@
 <template>
   <div class="a-menuBar">
-    <aside class="a-menuBar__periferics">
-      <q-btn
-        flat
-        round
-        :class="['a-menuBar__icon', { active: icon.active === false }]"
-        v-for="icon in periferics"
-        :key="icon.id"
-        :icon="icon.active ? icon.offState : icon.onState"
-        size="0.7rem"
-        @click="
-          icon.active = !icon.active;
-          tooglePeriferic(icon.interaction);
-        "
-      >
-        <q-tooltip class="bg-grey-10" v-if="icon.active">
-          <label class="a-menuBar__icon__tooltip">
-            {{ icon.toolTipMessage }}
-          </label>
-        </q-tooltip>
-        <q-tooltip class="bg-grey-10" v-if="!icon.active">
-          <label class="a-menuBar__icon__tooltip">
-            {{ icon.toolTipSecondMessage }}
-          </label>
-        </q-tooltip>
-      </q-btn>
-    </aside>
-    <div class="a-menuBar__functions">
-      <q-btn
-        flat
-        round
-        v-for="icon in functions"
-        :class="['a-menuBar__icon', { active: icon.id === actionSelectionID }]"
-        :key="icon.id"
-        :icon="icon.onState"
-        size="14px"
-        @click="handleFunctionSelected(icon.interaction, icon.id)"
-      >
-        <q-tooltip class="bg-grey-10">
-          <label class="a-menuBar__icon__tooltip">
-            {{ icon.toolTipMessage }}
-          </label>
-        </q-tooltip>
-      </q-btn>
-    </div>
-    <div class="a-menuBar__functions__responsive">
-      <q-btn icon="search" flat round />
-    </div>
-    <aside class="a-menuBar__options">
-      <q-btn
-        round
-        flat
-        :ripple="false"
-        v-for="icon in options"
-        :key="icon.id"
-        :icon="icon.onState"
-        class="a-menuBar__icon"
-        @click="handleMenuPosition(icon.ubication)"
-        size="14px"
-      >
-        <q-tooltip class="bg-grey-10">
-          <label class="a-menuBar__icon__tooltip">
-            {{ icon.toolTipMessage }}
-          </label>
-        </q-tooltip>
-      </q-btn>
-      <fu-cooperate-menu
-        v-show="renderMenu"
-        :isActions="isActions"
-        :class="{ 'a-menuBar__menuAction': isActions }"
-      />
-    </aside>
+    <section class="a-menuBar__box">
+      <aside class="a-menuBar__periferics">
+        <q-btn
+          flat
+          round
+          :class="['a-menuBar__icon', { active: icon.active === false }]"
+          v-for="icon in periferics"
+          :key="icon.id"
+          :icon="icon.active ? icon.offState : icon.onState"
+          size="0.7rem"
+          @click="
+            icon.active = !icon.active;
+            tooglePeriferic(icon.interaction);
+          "
+        >
+          <q-tooltip class="bg-grey-10" v-if="icon.active">
+            <label class="a-menuBar__icon__tooltip">
+              {{ icon.toolTipMessage }}
+            </label>
+          </q-tooltip>
+          <q-tooltip class="bg-grey-10" v-if="!icon.active">
+            <label class="a-menuBar__icon__tooltip">
+              {{ icon.toolTipSecondMessage }}
+            </label>
+          </q-tooltip>
+        </q-btn>
+      </aside>
+      <div class="a-menuBar__functions">
+        <q-btn
+          flat
+          round
+          v-for="icon in functions"
+          :class="[
+            'a-menuBar__icon',
+            { active: icon.id === actionSelectionID },
+          ]"
+          :key="icon.id"
+          :icon="icon.onState"
+          size="14px"
+          @click="handleFunctionSelected(icon.interaction, icon.id)"
+        >
+          <q-tooltip class="bg-grey-10">
+            <label class="a-menuBar__icon__tooltip">
+              {{ icon.toolTipMessage }}
+            </label>
+          </q-tooltip>
+        </q-btn>
+      </div>
+      <div class="a-menuBar__functions__responsive">
+        <q-btn
+          icon="reorder"
+          flat
+          round
+          color="white"
+          @click="renderFunctionResponsiveMenu = !renderFunctionResponsiveMenu"
+        />
+        <fu-cooperate-menu
+          v-show="renderFunctionResponsiveMenu"
+          :isActions="false"
+          :renderFunctions="true"
+        />
+      </div>
+      <aside class="a-menuBar__options">
+        <q-btn
+          round
+          flat
+          :ripple="false"
+          v-for="icon in options"
+          :key="icon.id"
+          :icon="icon.onState"
+          class="a-menuBar__icon"
+          @click="handleMenuPosition(icon.ubication)"
+          size="14px"
+        >
+          <q-tooltip class="bg-grey-10">
+            <label class="a-menuBar__icon__tooltip">
+              {{ icon.toolTipMessage }}
+            </label>
+          </q-tooltip>
+        </q-btn>
+        <fu-cooperate-menu
+          v-show="renderMenu"
+          :isActions="isActions"
+          :renderFunctions="false"
+        />
+      </aside>
+    </section>
   </div>
 </template>
 
@@ -82,17 +98,7 @@ import {
   iconsOptions,
 } from '@/helpers/iconsMenuBar';
 import FuCooperateMenu from 'molecules/FuCooperateMenu';
-
-interface Icons {
-  id: string;
-  onState: string;
-  offState: string;
-  active: boolean;
-  toolTipMessage: string;
-  toolTipSecondMessage?: string;
-  ubication?: string;
-  interaction?: string;
-}
+import { Icons } from '@/types';
 export default defineComponent({
   name: 'FuCooperateMenuBar',
   props: {
@@ -112,7 +118,7 @@ export default defineComponent({
     const options = ref<Icons[]>(iconsOptions);
     let isActions = ref<boolean>(false);
     let renderMenu = ref<boolean>(false);
-    // let actionSelected = ref<boolean>(false);
+    let renderFunctionResponsiveMenu = ref<boolean>(false);
     let actionSelectionID = ref<string>('');
 
     const handleMenuPosition = (ubication: string) => {
@@ -145,6 +151,7 @@ export default defineComponent({
       handleFunctionSelected,
       actionSelectionID,
       tooglePeriferic,
+      renderFunctionResponsiveMenu,
     };
   },
 });

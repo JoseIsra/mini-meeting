@@ -8,3 +8,14 @@ export interface objWebRTC {
   stream: MediaStream;
   event: Record<string, string>;
 }
+
+export interface Icons {
+  id: string;
+  onState: string;
+  offState: string;
+  active: boolean;
+  toolTipMessage: string;
+  toolTipSecondMessage?: string;
+  ubication?: string;
+  interaction?: string;
+}

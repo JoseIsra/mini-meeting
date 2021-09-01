@@ -1,0 +1,25 @@
+.a-menu {
+  width: 100%;
+  padding: 10px;
+  &__actionList {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    &__item {
+      margin: 5px 0;
+      padding: 5px;
+      cursor: pointer;
+      color: rgba(255, 255, 255, 0.4);
+      display: flex;
+      align-items: center;
+      &:hover {
+        color: #dcddde;
+        background-color: rgba(79, 84, 92, 0.16);
+      }
+
+      &__description {
+        margin: 0 8px;
+      }
+    }
+  }
+}

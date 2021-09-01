@@ -1,6 +1,5 @@
 .a-cooperateMenu {
   position: absolute;
-  left: 50%;
   background-color: #202125;
   width: 280px;
   bottom: 120%;
@@ -9,12 +8,27 @@
     bottom: -10%;
     color: #202125;
   }
+
   .--specialcase {
     bottom: -25%;
   }
 }
+.--actions {
+  left: 0;
+}
+.--options {
+  left: 50%;
+}
 
-// @media only screen and (min-width: 300px) and (max-width: 578px) {
-//   .a-cooperateMenu {
-//   }
-// }
+@media only screen and (min-width: 300px) and (max-width: 578px) {
+  .a-cooperateMenu {
+    &__tail {
+      display: none;
+    }
+  }
+  .--functions {
+    border-radius: 10px;
+    bottom: 4rem;
+    width: 100%;
+  }
+}

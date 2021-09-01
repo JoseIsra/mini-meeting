@@ -18,12 +18,11 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
 import { menuActions, Options } from '@/helpers/menuOptions';
-
 export default defineComponent({
   name: 'FuMenuContentActions',
+
   setup() {
     const actions = ref<Options[]>(menuActions);
-
     return {
       actions,
     };

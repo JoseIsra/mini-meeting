@@ -35,6 +35,7 @@ export const iconsFunctions = [
     offState: 'desktop_access_disabled',
     active: false,
     toolTipMessage: 'Compartir pantalla',
+    toolTipSecondMessage: 'Dejar de compartir pantalla',
     interaction: interactionType.SHARESCREEN,
   },
   {
@@ -43,6 +44,7 @@ export const iconsFunctions = [
     offState: 'pan_tool',
     active: false,
     toolTipMessage: 'Levantar la mano',
+    toolTipSecondMessage: 'Bajar la mano',
     interaction: interactionType.HANDUP,
   },
   {
@@ -51,6 +53,7 @@ export const iconsFunctions = [
     offState: 'person',
     active: false,
     toolTipMessage: 'Alternar lista de usuarios',
+    toolTipSecondMessage: 'Alternar lista de usuarios',
     interaction: interactionType.USERLIST,
   },
   {
@@ -59,6 +62,7 @@ export const iconsFunctions = [
     offState: 'wechat',
     active: false,
     toolTipMessage: 'Chat',
+    toolTipSecondMessage: 'Ocultar chat',
     interaction: interactionType.CHAT,
   },
   {
@@ -67,6 +71,7 @@ export const iconsFunctions = [
     offState: 'description',
     active: false,
     toolTipMessage: 'Notas compartidas',
+    toolTipSecondMessage: 'Notas compartidas',
     interaction: interactionType.SHARENOTES,
   },
   {
@@ -75,6 +80,7 @@ export const iconsFunctions = [
     offState: 'signal_cellular_alt',
     active: false,
     toolTipMessage: 'Estado de la conexión',
+    toolTipSecondMessage: 'Estado de la conexión',
     interaction: interactionType.CONNECTION,
   },
 ];

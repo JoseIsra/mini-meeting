@@ -1,4 +1,4 @@
-/* eslint-disable */ 
+
 
 export class StreamMerger{
   constructor(width, height, autoMode, aspectRatio){

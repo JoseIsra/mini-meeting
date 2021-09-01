@@ -108,11 +108,14 @@ export default defineComponent({
     toggleLocalMic: {
       type: Function,
     },
+    toggleDesktopCapture: {
+      type: Function,
+    },
   },
   components: {
     FuCooperateMenu,
   },
-  setup(props, { emit }) {
+  setup(props) {
     const periferics = ref<Icons[]>(iconsPeriferics);
     const functions = ref<Icons[]>(iconsFunctions);
     const options = ref<Icons[]>(iconsOptions);
@@ -131,7 +134,9 @@ export default defineComponent({
         return;
       }
       actionSelectionID.value = ID;
-      emit('show-sidebar', interaction);
+      if (interaction === 'SHARESCREEN') {
+        props.toggleDesktopCapture?.();
+      }
     };
     const tooglePeriferic = (interaction: string) => {
       if (interaction == 'WEBCAM') {

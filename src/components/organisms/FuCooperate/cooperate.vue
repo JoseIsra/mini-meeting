@@ -6,6 +6,7 @@
       v-show="showMenuBar"
       :toggleLocalCamera="toggleLocalCamera"
       :toggleLocalMic="toggleLocalMic"
+      :toggleDesktopCapture="toggleDesktopCapture"
     />
     <!-- <fu-cooperate-side-bar /> -->
     <fu-cooperate-user-video :objStreams="objStreams" />
@@ -31,6 +32,9 @@ export default defineComponent({
       type: Function,
     },
     toggleLocalMic: {
+      type: Function,
+    },
+    toggleDesktopCapture: {
       type: Function,
     },
   },

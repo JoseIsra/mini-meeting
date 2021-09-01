@@ -1,4 +1,3 @@
-/* eslint-disable */ 
 export class PeerStats {
 
     constructor(streamId) {

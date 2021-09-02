@@ -13,6 +13,7 @@ export interface objWebRTC {
   streams: string[];
   stream: MediaStream;
   event: Record<string, string>;
+  data: string;
 }
 
 export interface Icons {
@@ -49,4 +50,15 @@ export interface WebRTCAdaptorType {
   currentVolume?: number;
   soundOriginGainNode?: SoundGainType;
   secondStreamGainNode?: SoundGainType;
+  switchVideoSource?: (
+    streamId: string,
+    mediaConstraints: Record<string, string>,
+    onEndedCallback: () => void
+  ) => void;
+}
+
+export interface dataType {
+  streamId: string;
+  message?: string;
+  type: string;
 }

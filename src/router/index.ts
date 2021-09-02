@@ -20,7 +20,9 @@ import routes from './routes';
 export default route<StateInterface>(function (/* { store, ssrContext } */) {
   const createHistory = process.env.SERVER
     ? createMemoryHistory
-    : (process.env.VUE_ROUTER_MODE === 'history' ? createWebHistory : createWebHashHistory);
+    : process.env.VUE_ROUTER_MODE === 'history'
+    ? createWebHistory
+    : createWebHashHistory;
 
   const Router = createRouter({
     scrollBehavior: () => ({ left: 0, top: 0 }),
@@ -32,6 +34,43 @@ export default route<StateInterface>(function (/* { store, ssrContext } */) {
     history: createHistory(
       process.env.MODE === 'ssr' ? void 0 : process.env.VUE_ROUTER_BASE
     ),
+  });
+
+  Router.beforeEach(async (to, from, next) => {
+    if (to.path === '/') {
+      const { roomId } = to.query;
+      if (roomId) {
+        const request = new Request(
+          `https://dialguiba.tech/WebRTCAppEE/rest/v2/broadcasts/conference-rooms/${
+            roomId as string
+          }`,
+          {
+            headers: {
+              Authorization:
+                'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiaWF0IjoxNTE2MjM5MDIyfQ.xyjk2jhpuI7IAL5hKOn1O6edBv8rcmQRAuVFZjs6c6M',
+            },
+          }
+        );
+        const res = await fetch(request);
+        if (res.status !== 404) {
+          next();
+        } else {
+          next({
+            path: '/error',
+            query: { errorMessage: 'Meeting not found' },
+          });
+        }
+      } else {
+        next({
+          path: '/error',
+          query: {
+            errorMessage: 'Please, provide a Room ID',
+          },
+        });
+      }
+    } else {
+      next();
+    }
   });
 
   return Router;

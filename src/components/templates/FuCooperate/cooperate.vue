@@ -27,7 +27,10 @@ export default defineComponent({
   },
   setup() {
     const route = useRoute();
-    const token = ref<string>((route.query.token as string) || '');
+    const playToken = ref<string>((route.query.playToken as string) || '');
+    const publishToken = ref<string>(
+      (route.query.publishToken as string) || ''
+    );
     const streamId = ref((route.query.streamId as string) || '');
     const playOnly = ref(!!route.query.playOnly || false);
     const isCameraOff = ref(false);
@@ -105,7 +108,7 @@ export default defineComponent({
     };
 
     const streamInformation = (obj: objWebRTC) => {
-      webRTCAdaptor.value.play?.(obj.streamId, token.value, roomName.value);
+      webRTCAdaptor.value.play?.(obj.streamId, playToken.value, roomName.value);
     };
 
     const handleNotificationEvent = (obj: objWebRTC) => {
@@ -227,13 +230,17 @@ export default defineComponent({
               //stop_publish_button.disabled = false;
               isCameraOff.value = true;
             } else {
-              publish(streamId, token.value);
+              publish(streamId, publishToken.value);
             }
 
             if (obj.streams != null) {
               obj.streams.forEach(function (item) {
                 console.log('Stream joined with ID: ' + item);
-                webRTCAdaptor.value.play?.(item, token.value, roomName.value);
+                webRTCAdaptor.value.play?.(
+                  item,
+                  playToken.value,
+                  roomName.value
+                );
               });
               streamsList.value = obj.streams;
             }
@@ -298,7 +305,11 @@ export default defineComponent({
             //Checks if any new stream has added, if yes, plays.
             for (let str of obj.streams) {
               if (!streamsList.value.includes(str)) {
-                webRTCAdaptor.value.play?.(str, token.value, roomName.value);
+                webRTCAdaptor.value.play?.(
+                  str,
+                  playToken.value,
+                  roomName.value
+                );
               }
             }
             for (let str of streamsList.value) {

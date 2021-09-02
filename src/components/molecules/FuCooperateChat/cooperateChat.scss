@@ -1,0 +1,52 @@
+.m-chat {
+  width: 100%;
+  position: relative;
+  height: 100%;
+  &__title {
+    width: 100%;
+    top: 0;
+    position: absolute;
+    height: 8%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.8);
+    &__text {
+      font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+    }
+  }
+  &__body {
+    position: absolute;
+    bottom: 0;
+    height: 92%;
+    width: 100%;
+  }
+  &__messagesBox {
+    width: 100%;
+    position: absolute;
+    height: 90%;
+    overflow-y: auto;
+  }
+  &__formBox {
+    position: absolute;
+    height: 10%;
+    bottom: 0;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    &__form {
+      display: flex;
+      align-items: center;
+      margin-left: 10px;
+      height: calc(100% - 20px);
+      width: calc(100% - 20px);
+      &__input {
+        color: #fffffe;
+        font-size: 15px;
+        margin-right: 10px;
+        width: calc(100% - 20px);
+      }
+    }
+  }
+}

@@ -2,17 +2,17 @@
   position: fixed;
   bottom: 0;
   width: 100%;
-  height: 40px;
-  right: 50%;
+  height: 0;
+  // right: 50%;
+  // transform: translateX(50%);
   display: flex;
-  transform: translateX(50%);
   justify-content: center;
-  border: 1px solid red;
+  z-index: 3;
   &__box {
     position: absolute;
-    z-index: 3;
     bottom: 4rem;
     display: flex;
+
     align-items: center;
     justify-content: space-around;
     background: linear-gradient(350deg, mediumslateblue 0%, #009bff 75%);
@@ -40,6 +40,7 @@
     justify-content: center;
     align-items: center;
     flex: 0.6;
+    margin: 0 1.2rem;
     &__responsive {
       display: none;
     }
@@ -51,16 +52,34 @@
     justify-content: center;
     flex: 0.2;
   }
+  &__responsiveOptions {
+    display: none;
+  }
 }
 
 @media only screen and (min-width: 300px) and (max-width: 578px) {
   .a-menuBar {
-    width: calc(80% - 16px);
     &__functions {
       display: none;
       &__responsive {
         display: block;
+        margin: 0 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
+    }
+    &__options {
+      &__menu {
+        display: none;
+      }
+    }
+    &__responsiveOptions {
+      display: block;
+      position: absolute;
+      bottom: 8rem;
+      margin-left: 20px;
+      width: calc(100% - 40px);
     }
   }
 }

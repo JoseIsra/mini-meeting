@@ -22,3 +22,14 @@
     }
   }
 }
+
+@media only screen and (min-width: 300px) and (max-width: 578px) {
+  .a-menu {
+    &__actionList {
+      &__item {
+        margin: 5px 0;
+        padding: 5px;
+      }
+    }
+  }
+}

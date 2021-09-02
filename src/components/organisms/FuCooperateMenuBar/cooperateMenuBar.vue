@@ -39,11 +39,19 @@
           :key="icon.id"
           :icon="icon.onState"
           size="14px"
-          @click="handleFunctionSelected(icon.interaction, icon.id)"
+          @click="
+            icon.active = !icon.active;
+            handleFunctionSelected(icon.interaction, icon.id);
+          "
         >
-          <q-tooltip class="bg-grey-10">
+          <q-tooltip class="bg-grey-10" v-if="!icon.active">
             <label class="a-menuBar__icon__tooltip">
               {{ icon.toolTipMessage }}
+            </label>
+          </q-tooltip>
+          <q-tooltip class="bg-grey-10" v-if="icon.active">
+            <label class="a-menuBar__icon__tooltip">
+              {{ icon.toolTipSecondMessage }}
             </label>
           </q-tooltip>
         </q-btn>
@@ -58,6 +66,7 @@
         />
         <fu-cooperate-menu
           v-show="renderFunctionResponsiveMenu"
+          class="a-menuBar__functions__responsive__menu"
           :isActions="false"
           :renderFunctions="true"
         />
@@ -82,23 +91,32 @@
         </q-btn>
         <fu-cooperate-menu
           v-show="renderMenu"
+          class="a-menuBar__options__menu"
           :isActions="isActions"
           :renderFunctions="false"
         />
       </aside>
     </section>
+    <fu-cooperate-menu
+      class="a-menuBar__responsiveOptions"
+      v-show="renderMenu"
+      :isActions="isActions"
+      :renderFunctions="false"
+    />
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
+import { defineComponent, ref, reactive } from 'vue';
 import {
   iconsPeriferics,
   iconsFunctions,
   iconsOptions,
 } from '@/helpers/iconsMenuBar';
 import FuCooperateMenu from 'molecules/FuCooperateMenu';
-import { Icons } from '@/types';
+import { Icons, Periferics, Functionalities } from '@/types';
+import useBtnToogle from '@/componsables';
+
 export default defineComponent({
   name: 'FuCooperateMenuBar',
   props: {
@@ -118,11 +136,27 @@ export default defineComponent({
   setup(props) {
     const periferics = ref<Icons[]>(iconsPeriferics);
     const functions = ref<Icons[]>(iconsFunctions);
+    const objectPeriferics = reactive<Periferics>({
+      WEBCAM: () => props.toggleLocalCamera?.() as void,
+      MIC: () => props.toggleLocalMic?.() as void,
+    });
+    const showChat = ref<boolean>(false);
+    const objectFunctionalities = reactive<Functionalities>({
+      CHAT: () => toogleChat(),
+      SHARESCREEN: () => props.toggleDesktopCapture?.() as void,
+    });
     const options = ref<Icons[]>(iconsOptions);
     let isActions = ref<boolean>(false);
     let renderMenu = ref<boolean>(false);
     let renderFunctionResponsiveMenu = ref<boolean>(false);
     let actionSelectionID = ref<string>('');
+    let { setButtonState } = useBtnToogle();
+
+    const toogleChat = () => {
+      console.log('working??');
+      showChat.value = !showChat.value;
+      setButtonState(showChat.value);
+    };
 
     const handleMenuPosition = (ubication: string) => {
       isActions.value = ubication === 'actions' ? true : false;
@@ -131,19 +165,15 @@ export default defineComponent({
     const handleFunctionSelected = (interaction: string, ID: string) => {
       if (actionSelectionID.value == ID) {
         actionSelectionID.value = '';
+        objectFunctionalities[interaction as keyof Functionalities]?.();
         return;
       }
       actionSelectionID.value = ID;
-      if (interaction === 'SHARESCREEN') {
-        props.toggleDesktopCapture?.();
-      }
+      objectFunctionalities[interaction as keyof Functionalities]?.();
     };
+
     const tooglePeriferic = (interaction: string) => {
-      if (interaction == 'WEBCAM') {
-        props.toggleLocalCamera?.();
-      } else {
-        props.toggleLocalMic?.();
-      }
+      objectPeriferics[interaction as keyof Periferics]();
     };
 
     return {

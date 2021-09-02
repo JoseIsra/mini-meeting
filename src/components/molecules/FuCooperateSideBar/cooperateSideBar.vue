@@ -1,14 +1,16 @@
 <template>
   <section class="m-sideBar">
-    <label> Barra lateral con contenido dinámico </label>
+    <fu-cooperate-chat />
   </section>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
+import FuCooperateChat from 'molecules/FuCooperateChat';
 
 export default defineComponent({
   name: 'FuCooperateSideBar',
+  components: { FuCooperateChat },
   setup() {
     return {};
   },

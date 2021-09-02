@@ -25,6 +25,7 @@ export interface Icons {
   ubication?: string;
   interaction?: string;
 }
+export const regexp = /^(?!\s*$).+/;
 
 export interface WebRTCAdaptorType {
   joinRoom?: (roomName: string, streamId: string, mode: string) => void;
@@ -49,4 +50,18 @@ export interface WebRTCAdaptorType {
   currentVolume?: number;
   soundOriginGainNode?: SoundGainType;
   secondStreamGainNode?: SoundGainType;
+}
+
+export interface Periferics {
+  WEBCAM: () => void;
+  MIC: () => void;
+}
+
+export interface Functionalities {
+  CHAT: () => void;
+  HANDUP?: () => void;
+  SHARESCREEN: () => void;
+  SHARENOTES?: () => void;
+  USERLIST?: () => void;
+  CONNECTION?: () => void;
 }

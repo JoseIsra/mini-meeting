@@ -8,7 +8,7 @@
       :toggleLocalMic="toggleLocalMic"
       :toggleDesktopCapture="toggleDesktopCapture"
     />
-    <!-- <fu-cooperate-side-bar /> -->
+    <fu-cooperate-side-bar v-show="buttonState" />
     <fu-cooperate-user-video :objStreams="objStreams" />
   </section>
 </template>
@@ -19,9 +19,11 @@ import FuCooperateMenuBar from 'organisms/FuCooperateMenuBar';
 import FuCooperateHeader from 'atoms/FuCooperateHeader';
 import FuCooperateBody from 'molecules/FuCooperateBody';
 import FuCooperateUserVideo from 'atoms/FuCooperateUserVideo';
-// import FuCooperateSideBar from 'molecules/FuCooperateSideBar';
+import FuCooperateSideBar from 'molecules/FuCooperateSideBar';
 import _ from 'lodash';
 import { objWebRTC } from '@/types';
+import useBtnToogle from '@/componsables';
+
 export default defineComponent({
   name: 'FuCooperate',
   props: {
@@ -42,10 +44,12 @@ export default defineComponent({
     FuCooperateMenuBar,
     FuCooperateHeader,
     FuCooperateBody,
+    FuCooperateSideBar,
     FuCooperateUserVideo,
   },
   setup(props) {
     let showMenuBar = ref<boolean>(false);
+    let { buttonState } = useBtnToogle();
     const hideMenuBar = _.debounce(() => {
       showMenuBar.value = false;
     }, 6000);
@@ -61,6 +65,7 @@ export default defineComponent({
       toogleMenuBar,
       showMenuBar,
       ...toRefs(props),
+      buttonState,
     };
   },
 });

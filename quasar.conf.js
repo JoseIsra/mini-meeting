@@ -123,9 +123,9 @@ module.exports = configure(function (ctx) {
       //
       // components: [],
       // directives: [],
-      importStrategy: 'auto',
       // Quasar plugins
-      plugins: ['LoadingBar'],
+      plugins: ['LoadingBar', 'Notify'],
+      importStrategy: 'auto',
     },
     sourceFiles: {
       rootComponent: 'src/App.vue',

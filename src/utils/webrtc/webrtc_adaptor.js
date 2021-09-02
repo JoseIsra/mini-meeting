@@ -184,7 +184,7 @@ export class WebRTCAdaptor {
             onEndedCallback(event);
           };
         }
-
+        //TODO: For change where is going to be placed the camera and screen
         //update the canvas
         setInterval(() => {
           //draw screen to canvas

@@ -5,6 +5,7 @@
   height: 100%;
   width: 14rem;
   color: #fffffe;
-  backdrop-filter: blur(2px);
+  background-color: #212121;
   border: 1px solid rgba(255, 255, 255, 0.2);
+  z-index: 9999;
 }

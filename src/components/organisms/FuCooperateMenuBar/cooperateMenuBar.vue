@@ -32,17 +32,11 @@
           flat
           round
           v-for="icon in functions"
-          :class="[
-            'a-menuBar__icon',
-            { active: icon.id === actionSelectionID },
-          ]"
+          :class="['a-menuBar__icon', { active: icon.id == actionSelectionID }]"
           :key="icon.id"
           :icon="icon.onState"
           size="14px"
-          @click="
-            icon.active = !icon.active;
-            handleFunctionSelected(icon.interaction, icon.id);
-          "
+          @click="handleFunctionSelected(icon.interaction, icon.id)"
         >
           <q-tooltip class="bg-grey-10" v-if="!icon.active">
             <label class="a-menuBar__icon__tooltip">
@@ -115,7 +109,11 @@ import {
 } from '@/helpers/iconsMenuBar';
 import FuCooperateMenu from 'molecules/FuCooperateMenu';
 import { Icons, Periferics, Functionalities } from '@/types';
-import useBtnToogle from '@/componsables';
+import {
+  useChatToogle,
+  useNotesToogle,
+  useSidebarToogle,
+} from '@/componsables';
 
 export default defineComponent({
   name: 'FuCooperateMenuBar',
@@ -140,28 +138,55 @@ export default defineComponent({
       WEBCAM: () => props.toggleLocalCamera?.() as void,
       MIC: () => props.toggleLocalMic?.() as void,
     });
-    const showChat = ref<boolean>(false);
     const objectFunctionalities = reactive<Functionalities>({
       CHAT: () => toogleChat(),
       SHARESCREEN: () => props.toggleDesktopCapture?.() as void,
+      SHARENOTES: () => toogleNotes(),
     });
     const options = ref<Icons[]>(iconsOptions);
     let isActions = ref<boolean>(false);
     let renderMenu = ref<boolean>(false);
     let renderFunctionResponsiveMenu = ref<boolean>(false);
     let actionSelectionID = ref<string>('');
-    let { setButtonState } = useBtnToogle();
+    let { functionsOnMenuBar, setShowChat } = useChatToogle();
+    let { renderNotes, setShowNotes } = useNotesToogle();
+    let { isSidebarRender, setSidebarState } = useSidebarToogle();
 
+    //**********************++FUNCIONES ********************** */
     const toogleChat = () => {
-      console.log('working??');
-      showChat.value = !showChat.value;
-      setButtonState(showChat.value);
+      if (!isSidebarRender.value) {
+        console.log('chat??');
+        setSidebarState(true);
+        setShowChat(true);
+        setShowNotes(false);
+        return;
+      } else if (isSidebarRender.value && functionsOnMenuBar.thechat) {
+        setSidebarState(false);
+        return;
+      }
+      setShowChat(true);
+      setShowNotes(false);
+    };
+    const toogleNotes = () => {
+      if (!isSidebarRender.value) {
+        console.log('notes');
+        setSidebarState(true);
+        setShowNotes(true);
+        setShowChat(false);
+        return;
+      } else if (isSidebarRender.value && renderNotes.value) {
+        setSidebarState(false);
+        return;
+      }
+      setShowNotes(true);
+      setShowChat(false);
     };
 
     const handleMenuPosition = (ubication: string) => {
       isActions.value = ubication === 'actions' ? true : false;
       renderMenu.value = !renderMenu.value;
     };
+
     const handleFunctionSelected = (interaction: string, ID: string) => {
       if (actionSelectionID.value == ID) {
         actionSelectionID.value = '';

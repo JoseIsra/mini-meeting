@@ -4,7 +4,6 @@
       <label class="m-chat__title__text">
         <q-icon name="wechat" color="white" size="35px" />
         Chat público
-        {{ buttonState }}
       </label>
     </header>
     <section class="m-chat__body">
@@ -45,12 +44,10 @@
 import { defineComponent, ref } from 'vue';
 import { regexp } from '@/types';
 import { warningMessage } from '@/utils/notify';
-import useBtnToogle from '@/componsables';
 
 export default defineComponent({
   setup() {
     let userMessage = ref<string>('');
-    let { buttonState } = useBtnToogle();
     const sendMessage = () => {
       if (!regexp.test(userMessage.value)) {
         warningMessage('Complete los campos');
@@ -61,7 +58,6 @@ export default defineComponent({
     return {
       userMessage,
       sendMessage,
-      buttonState,
     };
   },
 });

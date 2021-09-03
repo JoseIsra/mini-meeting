@@ -1,33 +1,75 @@
 import { ref, reactive } from 'vue';
 
-const theobject = {
-  thechat: false,
-  thenotes: false,
+interface FunctionState {
+  renderChat: boolean;
+  renderNotes: boolean;
+  renderUsers: boolean;
+}
+
+interface PerifericsState {
+  isMicOn: boolean;
+  isCameraOn: boolean;
+  isScreenShared: boolean;
+  cameraDeviceId: string;
+}
+
+const functionState = {
+  renderChat: false,
+  renderNotes: false,
+  renderUsers: false,
 };
 
-// const renderChat = ref<boolean>(false);
-const isSidebarRender = ref<boolean>(false);
-const renderNotes = ref<boolean>(false);
-const functionsOnMenuBar = reactive(theobject);
+const perifericsState = {
+  isMicOn: false,
+  isCameraOn: false,
+  isScreenShared: false,
+  cameraDeviceId: '',
+};
 
-export function useChatToogle() {
+const isSidebarRender = ref<boolean>(false);
+const functionsOnMenuBar = reactive<FunctionState>(functionState);
+const perifericsControl = reactive<PerifericsState>(perifericsState);
+
+export function useToogleFunctions() {
   const setShowChat = (value: boolean) => {
-    // renderChat.value = value;
-    functionsOnMenuBar.thechat = value;
+    functionsOnMenuBar.renderChat = value;
+  };
+  const setShowNotes = (value: boolean) => {
+    functionsOnMenuBar.renderNotes = value;
+  };
+  const setShowUsersList = (value: boolean) => {
+    functionsOnMenuBar.renderUsers = value;
   };
   return {
     functionsOnMenuBar,
     setShowChat,
+    setShowNotes,
+    setShowUsersList,
   };
 }
 
-export function useNotesToogle() {
-  const setShowNotes = (value: boolean) => {
-    renderNotes.value = value;
+export function usePerifericsControls() {
+  const setMicState = (value: boolean) => {
+    perifericsControl.isMicOn = value;
   };
+  const setCameraState = (value: boolean) => {
+    perifericsControl.isCameraOn = value;
+  };
+
+  const setScreenState = (value: boolean) => {
+    perifericsControl.isScreenShared = value;
+  };
+
+  const setCameraDevice = (value: string) => {
+    perifericsControl.cameraDeviceId = value;
+  };
+
   return {
-    renderNotes,
-    setShowNotes,
+    perifericsControl,
+    setMicState,
+    setCameraState,
+    setScreenState,
+    setCameraDevice,
   };
 }
 

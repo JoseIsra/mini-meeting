@@ -1,7 +1,20 @@
 <template>
   <section class="a-userVideo">
-    <div class="a-userVideo__box">
+    <div
+      class="a-userVideo__box"
+      :class="{ 'a-userVideo__box__avatar': perifericsControl.isCameraOn }"
+    >
+      <!-- <figure
+        v-show="perifericsControl.isCameraOn"
+        class="a-userVideo__box__avatar"
+      >
+        <img
+          class="a-userVideo__box__avatar__image"
+          src="https://cdn.quasar.dev/img/boy-avatar.png"
+        />
+      </figure> -->
       <video
+        v-show="!perifericsControl.isCameraOn"
         id="localVideo"
         class="a-userVideo__box__stream"
         autoplay
@@ -28,6 +41,7 @@
 import { defineComponent, ref, PropType } from 'vue';
 import { userStreams } from '@/helpers/usersVideo';
 import { objWebRTC } from '@/types';
+import { usePerifericsControls } from '@/componsables';
 
 interface UserStream {
   id: string;
@@ -43,8 +57,10 @@ export default defineComponent({
   },
   setup() {
     const users = ref<UserStream[]>(userStreams);
+    let { perifericsControl } = usePerifericsControls();
     return {
       users,
+      perifericsControl,
     };
   },
 });

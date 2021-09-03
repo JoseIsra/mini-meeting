@@ -15,6 +15,7 @@ import FuCooperate from 'organisms/FuCooperate';
 import { useRoute } from 'vue-router';
 import { WebRTCAdaptor } from '@/utils/webrtc/webrtc_adaptor';
 import { objWebRTC, WebRTCAdaptorType } from '@/types/index';
+import { usePerifericsControls } from '@/componsables';
 
 interface StringIndexedArray<TValue> {
   [id: string]: TValue;
@@ -26,6 +27,7 @@ export default defineComponent({
     FuCooperate,
   },
   setup() {
+    let { perifericsControl } = usePerifericsControls();
     const route = useRoute();
     const publishToken = ref<string>(
       (route.query.publishToken as string) || ''
@@ -57,74 +59,99 @@ export default defineComponent({
     );
     const streamName = ref<string | undefined>(
       (route.query.subscriberCode as string) || undefined
-    );    
+    );
 
-    const toggleVideoConstraint = () => {
-      const mediaConstraints = {
-        video: 'screen+camera',
-      };
-      const onEndedCallback = () => {
-        console.log('finished');
-      };
-      webRTCAdaptor.value.switchVideoSource?.(
-        streamId.value,
-        mediaConstraints,
-        onEndedCallback
-      );
-    };
     const toggleDesktopCapture = () => {
-      if (isSharingDesktop.value) {
-        if (isCameraOff.value) {
-          webRTCAdaptor.value.turnOnLocalCamera?.();
-          isCameraOff.value = false;
-          console.log('here here here here here');
-          sendNotificationEvent('CAM_TURNED_ON');
-        } else {
-          console.log('here here ');
-          webRTCAdaptor.value.turnOffLocalCamera?.();
-          isCameraOff.value = true;
-        }
-        isSharingDesktop.value = false;
-      } else {
-        if (isCameraOff.value) {
-          webRTCAdaptor.value.switchDesktopCapture?.(publishStreamId.value);
-          console.log('here here here');
-          isCameraOff.value = false;
-        } else {
-          webRTCAdaptor.value.switchDesktopCaptureWithCamera?.(
-            publishStreamId.value
-          );
-          isCameraOff.value = true;
-          console.log('here here here here');
-        }
-        isSharingDesktop.value = true;
+      if (perifericsControl.isCameraOn && perifericsControl.isScreenShared) {
+        //si no se comparte, compartir pantalla
+        console.log('solo encendido de pantalla');
+        webRTCAdaptor.value.turnOnLocalCamera?.();
+
+        webRTCAdaptor.value.switchDesktopCapture?.(publishStreamId.value);
+      } else if (
+        perifericsControl.isCameraOn &&
+        !perifericsControl.isScreenShared
+      ) {
+        webRTCAdaptor.value.switchDesktopCaptureWithCamera?.(
+          publishStreamId.value
+        );
       }
+      // if (isSharingDesktop.value) {
+      //   if (isCameraOff.value) {
+      //     webRTCAdaptor.value.turnOnLocalCamera?.();
+      //     isCameraOff.value = false;
+      //     sendNotificationEvent('CAM_TURNED_ON');
+      //   } else {
+      //     console.log('here here ');
+      //     webRTCAdaptor.value.turnOffLocalCamera?.();
+      //     isCameraOff.value = true;
+      //   }
+      //   isSharingDesktop.value = false;
+      // } else {
+      //   if (isCameraOff.value) {
+      //     webRTCAdaptor.value.switchDesktopCapture?.(publishStreamId.value);
+      //     console.log('here here here');
+      //     isCameraOff.value = false;
+      //   } else {
+      //     webRTCAdaptor.value.switchDesktopCaptureWithCamera?.(
+      //       publishStreamId.value
+      //     );
+      //     isCameraOff.value = true;
+      //   }
+      //   isSharingDesktop.value = true;
+      // }
     };
 
     const toggleLocalCamera = () => {
-      if (isCameraOff.value) {
-        if (isSharingDesktop.value) {
-          webRTCAdaptor.value.switchDesktopCaptureWithCamera?.(
-            publishStreamId.value
-          );
-          isSharingDesktop.value = false;
-        } else {
-          webRTCAdaptor.value.turnOnLocalCamera?.();
-          isSharingDesktop.value = true;
-        }
-        isCameraOff.value = false;
+      if (!perifericsControl.isCameraOn && !perifericsControl.isScreenShared) {
+        // si esta apagada sin proyección de escritorio, encender camara
+        console.log('encendiendo camara');
+        webRTCAdaptor.value.turnOnLocalCamera?.();
         sendNotificationEvent('CAM_TURNED_ON');
-      } else {
-        if (isSharingDesktop.value) {
-          webRTCAdaptor.value.switchDesktopCapture?.(publishStreamId.value);
-          isSharingDesktop.value = false;
-        } else {
-          webRTCAdaptor.value.turnOffLocalCamera?.();
-          isSharingDesktop.value = true;
-        }
-        isCameraOff.value = true;
+      } else if (
+        perifericsControl.isCameraOn &&
+        !perifericsControl.isScreenShared
+      ) {
+        console.log('apagando camara');
+        webRTCAdaptor.value.turnOffLocalCamera?.();
+        sendNotificationEvent('CAM_TURNED_OFF');
+      } else if (
+        !perifericsControl.isCameraOn &&
+        perifericsControl.isScreenShared
+      ) {
+        webRTCAdaptor.value.switchDesktopCaptureWithCamera?.(
+          publishStreamId.value
+        );
+      } else if (
+        perifericsControl.isCameraOn &&
+        perifericsControl.isScreenShared
+      ) {
+        webRTCAdaptor.value.turnOffLocalCamera?.();
         sendNotificationEvent('CAM_TURNED_OFF');
       }
+      // if (isCameraOff.value) {
+      //   if (isSharingDesktop.value) {
+      //     webRTCAdaptor.value.switchDesktopCaptureWithCamera?.(
+      //       publishStreamId.value
+      //     );
+      //     isSharingDesktop.value = false;
+      //   } else {
+      //     webRTCAdaptor.value.turnOnLocalCamera?.();
+      //     isSharingDesktop.value = true;
+      //   }
+      //   isCameraOff.value = false;
+      //   sendNotificationEvent('CAM_TURNED_ON');
+      // } else {
+      //   if (isSharingDesktop.value) {
+      //     webRTCAdaptor.value.switchDesktopCapture?.(publishStreamId.value);
+      //     isSharingDesktop.value = false;
+      //   } else {
+      //     webRTCAdaptor.value.turnOffLocalCamera?.();
+      //     isSharingDesktop.value = true;
+      //   }
+      //   isCameraOff.value = true;
+      //   sendNotificationEvent('CAM_TURNED_OFF');
+      // }
     };
     const toggleLocalMic = () => {
       if (isMicMuted.value) {
@@ -271,7 +298,7 @@ export default defineComponent({
           if (info == 'initialized') {
             console.log('initialized');
             if (playOnly.value) {
-              isCameraOff.value = true;
+              isCameraOff.value = false;
             }
             joinRoom();
           } else if (info == 'joinedTheRoom') {
@@ -468,7 +495,6 @@ export default defineComponent({
       toggleLocalCamera,
       toggleLocalMic,
       toggleDesktopCapture,
-      toggleVideoConstraint,
     };
   },
 });

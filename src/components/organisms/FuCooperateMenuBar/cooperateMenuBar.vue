@@ -110,9 +110,9 @@ import {
 import FuCooperateMenu from 'molecules/FuCooperateMenu';
 import { Icons, Periferics, Functionalities } from '@/types';
 import {
-  useChatToogle,
-  useNotesToogle,
+  useToogleFunctions,
   useSidebarToogle,
+  usePerifericsControls,
 } from '@/componsables';
 
 export default defineComponent({
@@ -134,24 +134,28 @@ export default defineComponent({
   setup(props) {
     const periferics = ref<Icons[]>(iconsPeriferics);
     const functions = ref<Icons[]>(iconsFunctions);
+    const options = ref<Icons[]>(iconsOptions);
+
     const objectPeriferics = reactive<Periferics>({
-      WEBCAM: () => props.toggleLocalCamera?.() as void,
+      WEBCAM: () => toggleCamera(),
       MIC: () => props.toggleLocalMic?.() as void,
     });
+
     const objectFunctionalities = reactive<Functionalities>({
       CHAT: () => toogleChat(),
-      SHARESCREEN: () => props.toggleDesktopCapture?.() as void,
+      SHARESCREEN: () => toggleDesktopScreenCapture(),
       SHARENOTES: () => toogleNotes(),
     });
-    const options = ref<Icons[]>(iconsOptions);
+
     let isActions = ref<boolean>(false);
     let renderMenu = ref<boolean>(false);
     let renderFunctionResponsiveMenu = ref<boolean>(false);
     let actionSelectionID = ref<string>('');
-    let { functionsOnMenuBar, setShowChat } = useChatToogle();
-    let { renderNotes, setShowNotes } = useNotesToogle();
+    let { functionsOnMenuBar, setShowChat, setShowNotes } =
+      useToogleFunctions();
     let { isSidebarRender, setSidebarState } = useSidebarToogle();
-
+    let { perifericsControl, setCameraState, setScreenState } =
+      usePerifericsControls();
     //**********************++FUNCIONES ********************** */
     const toogleChat = () => {
       if (!isSidebarRender.value) {
@@ -160,7 +164,7 @@ export default defineComponent({
         setShowChat(true);
         setShowNotes(false);
         return;
-      } else if (isSidebarRender.value && functionsOnMenuBar.thechat) {
+      } else if (isSidebarRender.value && functionsOnMenuBar.renderChat) {
         setSidebarState(false);
         return;
       }
@@ -174,12 +178,23 @@ export default defineComponent({
         setShowNotes(true);
         setShowChat(false);
         return;
-      } else if (isSidebarRender.value && renderNotes.value) {
+      } else if (isSidebarRender.value && functionsOnMenuBar.renderNotes) {
         setSidebarState(false);
         return;
       }
       setShowNotes(true);
       setShowChat(false);
+    };
+
+    const toggleCamera = () => {
+      perifericsControl.isCameraOn = !perifericsControl.isCameraOn;
+      setCameraState(perifericsControl.isCameraOn);
+      props.toggleLocalCamera?.();
+    };
+    const toggleDesktopScreenCapture = () => {
+      perifericsControl.isScreenShared = !perifericsControl.isScreenShared;
+      setScreenState(perifericsControl.isScreenShared);
+      props.toggleDesktopCapture?.();
     };
 
     const handleMenuPosition = (ubication: string) => {

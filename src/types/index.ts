@@ -32,7 +32,13 @@ export interface WebRTCAdaptorType {
   joinRoom?: (roomName: string, streamId: string, mode: string) => void;
   leaveFromRoom?: (roomName: string) => void;
   getRoomInfo?: (roomName: string, publishStreamId: string) => void;
-  publish?: (streamName: string, token: string) => void;
+  publish?: (
+    streamId: string,
+    token?: string,
+    subscriberId?: string,
+    subscriberCode?: string,
+    streamName?: string
+  ) => void;
   play?: (
     streamId: string,
     token: string,

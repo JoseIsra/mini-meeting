@@ -57,30 +57,15 @@ export default defineComponent({
     );
     const streamName = ref<string | undefined>(
       (route.query.subscriberCode as string) || undefined
-    );    
+    );
 
-    const toggleVideoConstraint = () => {
-      const mediaConstraints = {
-        video: 'screen+camera',
-      };
-      const onEndedCallback = () => {
-        console.log('finished');
-      };
-      webRTCAdaptor.value.switchVideoSource?.(
-        streamId.value,
-        mediaConstraints,
-        onEndedCallback
-      );
-    };
     const toggleDesktopCapture = () => {
       if (isSharingDesktop.value) {
         if (isCameraOff.value) {
           webRTCAdaptor.value.turnOnLocalCamera?.();
           isCameraOff.value = false;
-          console.log('here here here here here');
           sendNotificationEvent('CAM_TURNED_ON');
         } else {
-          console.log('here here ');
           webRTCAdaptor.value.turnOffLocalCamera?.();
           isCameraOff.value = true;
         }
@@ -88,14 +73,12 @@ export default defineComponent({
       } else {
         if (isCameraOff.value) {
           webRTCAdaptor.value.switchDesktopCapture?.(publishStreamId.value);
-          console.log('here here here');
           isCameraOff.value = false;
         } else {
           webRTCAdaptor.value.switchDesktopCaptureWithCamera?.(
             publishStreamId.value
           );
           isCameraOff.value = true;
-          console.log('here here here here');
         }
         isSharingDesktop.value = true;
       }
@@ -468,7 +451,6 @@ export default defineComponent({
       toggleLocalCamera,
       toggleLocalMic,
       toggleDesktopCapture,
-      toggleVideoConstraint,
     };
   },
 });

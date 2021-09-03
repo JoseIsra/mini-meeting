@@ -49,7 +49,15 @@ export default defineComponent({
     const currentVolume = ref(0.5);
     const isSharingDesktop = ref(false);
 
-    //    console.log(token.value, '#️⃣#️⃣#️⃣');
+    const subscriberId = ref<string | undefined>(
+      (route.query.subscriberId as string) || undefined
+    );
+    const subscriberCode = ref<string | undefined>(
+      (route.query.subscriberCode as string) || undefined
+    );
+    const streamName = ref<string | undefined>(
+      (route.query.subscriberCode as string) || undefined
+    );    
 
     const toggleVideoConstraint = () => {
       const mediaConstraints = {
@@ -136,9 +144,21 @@ export default defineComponent({
       webRTCAdaptor.value.joinRoom?.(roomId.value, streamId.value, 'legacy');
     };
 
-    const publish = (streamName: string, token: string) => {
-      publishStreamId.value = streamName;
-      webRTCAdaptor.value.publish?.(streamName, token);
+    const publish = (
+      streamId: string,
+      token: string,
+      subscriberId: string | undefined = undefined,
+      subscriberCode: string | undefined = undefined,
+      streamName: string | undefined = undefined
+    ) => {
+      publishStreamId.value = streamId;
+      webRTCAdaptor.value.publish?.(
+        streamId,
+        token,
+        subscriberId,
+        subscriberCode,
+        streamName
+      );
     };
 
     const removeRemoteVideo = (streamId: string) => {
@@ -270,7 +290,13 @@ export default defineComponent({
               //stop_publish_button.disabled = false;
               isCameraOff.value = true;
             } else {
-              publish(streamId, publishToken.value);
+              publish(
+                streamId,
+                publishToken.value,
+                subscriberId.value,
+                subscriberCode.value,
+                streamName.value
+              );
             }
 
             if (obj.streams != null) {

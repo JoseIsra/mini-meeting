@@ -47,17 +47,23 @@ export default route<StateInterface>(function (/* { store, ssrContext } */) {
           {
             headers: {
               Authorization:
-                'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiaWF0IjoxNTE2MjM5MDIyfQ.xyjk2jhpuI7IAL5hKOn1O6edBv8rcmQRAuVFZjs6c6M',
+                'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiaWF0IjoxNTE2MjM5MDIyfQ.dnwd9sjQmEAyWWpbaGWA9R6pW4Qxu5eYES9Xrpl5UsY',
             },
           }
         );
         const res = await fetch(request);
-        if (res.status !== 404) {
+        console.log(res, '*️⃣*️⃣*️⃣*️⃣');
+        if (res.status === 200) {
           next();
-        } else {
+        } else if (res.status === 404) {
           next({
             path: '/error',
             query: { errorMessage: 'Meeting not found' },
+          });
+        } else if (res.status === 403) {
+          next({
+            path: '/error',
+            query: { errorMessage: 'Not allowed' },
           });
         }
       } else {

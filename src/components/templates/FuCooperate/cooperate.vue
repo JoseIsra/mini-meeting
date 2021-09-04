@@ -319,6 +319,7 @@ export default defineComponent({
             console.log('screen share stopped');
           } else if (info == 'browser_screen_share_supported') {
             //enable camera and screenshare
+
             console.log('browser screen share supported');
           } else if (info == 'leavedFromRoom') {
             var room = obj.ATTR_ROOM_NAME;

@@ -138,24 +138,26 @@ export default defineComponent({
 
     const objectPeriferics = reactive<Periferics>({
       WEBCAM: () => toggleCamera(),
-      MIC: () => props.toggleLocalMic?.() as void,
+      MIC: () => toggleMIC(),
     });
 
     const objectFunctionalities = reactive<Functionalities>({
       CHAT: () => toogleChat(),
       SHARESCREEN: () => toggleDesktopScreenCapture(),
-      SHARENOTES: () => toogleNotes(),
+      SHARENOTES: () => toogleShareNotes(),
+      USERLIST: () => toggleUsersList(),
     });
 
     let isActions = ref<boolean>(false);
     let renderMenu = ref<boolean>(false);
     let renderFunctionResponsiveMenu = ref<boolean>(false);
     let actionSelectionID = ref<string>('');
-    let { functionsOnMenuBar, setShowChat, setShowNotes } =
+    let { functionsOnMenuBar, setShowChat, setShowNotes, setShowUsersList } =
       useToogleFunctions();
     let { isSidebarRender, setSidebarState } = useSidebarToogle();
-    let { perifericsControl, setCameraState, setScreenState } =
+    let { perifericsControl, setCameraState, setMicState } =
       usePerifericsControls();
+
     //**********************++FUNCIONES ********************** */
     const toogleChat = () => {
       if (!isSidebarRender.value) {
@@ -170,8 +172,10 @@ export default defineComponent({
       }
       setShowChat(true);
       setShowNotes(false);
+      setShowUsersList(false);
     };
-    const toogleNotes = () => {
+
+    const toogleShareNotes = () => {
       if (!isSidebarRender.value) {
         console.log('notes');
         setSidebarState(true);
@@ -184,6 +188,24 @@ export default defineComponent({
       }
       setShowNotes(true);
       setShowChat(false);
+      setShowUsersList(false);
+    };
+
+    const toggleUsersList = () => {
+      if (!isSidebarRender.value) {
+        console.log('userslitst');
+        setSidebarState(true);
+        setShowUsersList(true);
+        setShowNotes(false);
+        setShowChat(false);
+        return;
+      } else if (isSidebarRender.value && functionsOnMenuBar.renderUsersList) {
+        setSidebarState(false);
+        return;
+      }
+      setShowUsersList(true);
+      setShowNotes(false);
+      setShowChat(false);
     };
 
     const toggleCamera = () => {
@@ -191,10 +213,18 @@ export default defineComponent({
       setCameraState(perifericsControl.isCameraOn);
       props.toggleLocalCamera?.();
     };
+
+    const toggleMIC = () => {
+      perifericsControl.isMicOn = !perifericsControl.isMicOn;
+      setMicState(perifericsControl.isMicOn);
+      props.toggleLocalMic?.();
+    };
+
     const toggleDesktopScreenCapture = () => {
-      perifericsControl.isScreenShared = !perifericsControl.isScreenShared;
-      setScreenState(perifericsControl.isScreenShared);
-      props.toggleDesktopCapture?.();
+      // perifericsControl.isScreenShared = !perifericsControl.isScreenShared;
+      // setScreenState(perifericsControl.isScreenShared);
+      // props.toggleDesktopCapture?.();
+      console.log('PROCESO DE PROYECCIÓN DE PANTALLA');
     };
 
     const handleMenuPosition = (ubication: string) => {

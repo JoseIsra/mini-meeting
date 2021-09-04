@@ -1,18 +1,26 @@
 <template>
+  <!-- :class="{ 'a-userVideo__box__avatar': perifericsControl.isCameraOn }" -->
   <section class="a-userVideo">
-    <div
-      class="a-userVideo__box"
-      :class="{ 'a-userVideo__box__avatar': perifericsControl.isCameraOn }"
-    >
-      <!-- <figure
+    <div class="a-userVideo__box">
+      <div
         v-show="perifericsControl.isCameraOn"
         class="a-userVideo__box__avatar"
       >
-        <img
-          class="a-userVideo__box__avatar__image"
-          src="https://cdn.quasar.dev/img/boy-avatar.png"
-        />
-      </figure> -->
+        <figure class="a-userVideo__box__avatar__imageBox">
+          <img
+            class="a-userVideo__box__avatar__image"
+            src="https://f002.backblazeb2.com/file/FractalUp/Logos/logo_azul.svg"
+          />
+        </figure>
+        <div class="a-userVideo__box__avatar__info">
+          <label class="a-userVideo__box__avatar__info__userName">User</label>
+          <q-icon
+            :name="perifericsControl.isMicOn ? 'mic_off' : 'mic'"
+            size="20px"
+            color="white"
+          />
+        </div>
+      </div>
       <video
         v-show="!perifericsControl.isCameraOn"
         id="localVideo"

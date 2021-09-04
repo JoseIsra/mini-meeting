@@ -3,7 +3,7 @@ import { ref, reactive } from 'vue';
 interface FunctionState {
   renderChat: boolean;
   renderNotes: boolean;
-  renderUsers: boolean;
+  renderUsersList: boolean;
 }
 
 interface PerifericsState {
@@ -16,7 +16,7 @@ interface PerifericsState {
 const functionState = {
   renderChat: false,
   renderNotes: false,
-  renderUsers: false,
+  renderUsersList: false,
 };
 
 const perifericsState = {
@@ -38,7 +38,7 @@ export function useToogleFunctions() {
     functionsOnMenuBar.renderNotes = value;
   };
   const setShowUsersList = (value: boolean) => {
-    functionsOnMenuBar.renderUsers = value;
+    functionsOnMenuBar.renderUsersList = value;
   };
   return {
     functionsOnMenuBar,

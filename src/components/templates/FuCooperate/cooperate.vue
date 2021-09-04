@@ -45,11 +45,10 @@ export default defineComponent({
     const objStreams = ref<objWebRTC[]>([]);
     const isDataChannelOpen = ref(false);
     const camera = ref(false);
-    const isMicMuted = ref(false);
+    // const isMicMuted = ref(false);
     const isMuteMicButtonDisabled = ref(false);
     const isUnmuteMicButtonDisabled = ref(true);
     const currentVolume = ref(0.5);
-    const isSharingDesktop = ref(false);
 
     const subscriberId = ref<string | undefined>(
       (route.query.subscriberId as string) || undefined
@@ -62,15 +61,20 @@ export default defineComponent({
     );
 
     const toggleDesktopCapture = () => {
+      console.log(
+        perifericsControl.isCameraOn,
+        perifericsControl.isScreenShared
+      );
+
       if (perifericsControl.isCameraOn && perifericsControl.isScreenShared) {
         //si no se comparte, compartir pantalla
         console.log('solo encendido de pantalla');
-        webRTCAdaptor.value.turnOnLocalCamera?.();
+        // webRTCAdaptor.value.turnOnLocalCamera?.();
 
         webRTCAdaptor.value.switchDesktopCapture?.(publishStreamId.value);
       } else if (
-        perifericsControl.isCameraOn &&
-        !perifericsControl.isScreenShared
+        !perifericsControl.isCameraOn &&
+        perifericsControl.isScreenShared
       ) {
         webRTCAdaptor.value.switchDesktopCaptureWithCamera?.(
           publishStreamId.value
@@ -103,68 +107,59 @@ export default defineComponent({
     };
 
     const toggleLocalCamera = () => {
-      if (!perifericsControl.isCameraOn && !perifericsControl.isScreenShared) {
-        // si esta apagada sin proyección de escritorio, encender camara
-        console.log('encendiendo camara');
+      // if (!perifericsControl.isCameraOn && !perifericsControl.isScreenShared) {
+      // si esta apagada sin proyección de escritorio, encender camara
+      //   webRTCAdaptor.value.turnOnLocalCamera?.();
+      //   sendNotificationEvent('CAM_TURNED_ON');
+      // } else if (
+      //   perifericsControl.isCameraOn &&
+      //   !perifericsControl.isScreenShared
+      // ) {
+      //   console.log('apagando camara');
+      //   webRTCAdaptor.value.turnOffLocalCamera?.();
+      //   sendNotificationEvent('CAM_TURNED_OFF');
+      // } else if (
+      //   !perifericsControl.isCameraOn &&
+      //   perifericsControl.isScreenShared
+      // ) {
+      //   webRTCAdaptor.value.switchDesktopCaptureWithCamera?.(
+      //     publishStreamId.value
+      //   );
+      // } else if (
+      //   perifericsControl.isCameraOn &&
+      //   perifericsControl.isScreenShared
+      // ) {
+      //   webRTCAdaptor.value.turnOffLocalCamera?.();
+      //   sendNotificationEvent('CAM_TURNED_OFF');
+      // }
+      if (!perifericsControl.isCameraOn) {
         webRTCAdaptor.value.turnOnLocalCamera?.();
         sendNotificationEvent('CAM_TURNED_ON');
-      } else if (
-        perifericsControl.isCameraOn &&
-        !perifericsControl.isScreenShared
-      ) {
-        console.log('apagando camara');
-        webRTCAdaptor.value.turnOffLocalCamera?.();
-        sendNotificationEvent('CAM_TURNED_OFF');
-      } else if (
-        !perifericsControl.isCameraOn &&
-        perifericsControl.isScreenShared
-      ) {
-        webRTCAdaptor.value.switchDesktopCaptureWithCamera?.(
-          publishStreamId.value
-        );
-      } else if (
-        perifericsControl.isCameraOn &&
-        perifericsControl.isScreenShared
-      ) {
+      } else {
         webRTCAdaptor.value.turnOffLocalCamera?.();
         sendNotificationEvent('CAM_TURNED_OFF');
       }
-      // if (isCameraOff.value) {
-      //   if (isSharingDesktop.value) {
-      //     webRTCAdaptor.value.switchDesktopCaptureWithCamera?.(
-      //       publishStreamId.value
-      //     );
-      //     isSharingDesktop.value = false;
-      //   } else {
-      //     webRTCAdaptor.value.turnOnLocalCamera?.();
-      //     isSharingDesktop.value = true;
-      //   }
-      //   isCameraOff.value = false;
-      //   sendNotificationEvent('CAM_TURNED_ON');
-      // } else {
-      //   if (isSharingDesktop.value) {
-      //     webRTCAdaptor.value.switchDesktopCapture?.(publishStreamId.value);
-      //     isSharingDesktop.value = false;
-      //   } else {
-      //     webRTCAdaptor.value.turnOffLocalCamera?.();
-      //     isSharingDesktop.value = true;
-      //   }
-      //   isCameraOff.value = true;
-      //   sendNotificationEvent('CAM_TURNED_OFF');
-      // }
     };
     const toggleLocalMic = () => {
-      if (isMicMuted.value) {
+      if (!perifericsControl.isMicOn) {
         webRTCAdaptor.value.unmuteLocalMic?.();
-        isMicMuted.value = false;
-        handleMicButtons();
         sendNotificationEvent('MIC_UNMUTED');
       } else {
         webRTCAdaptor.value.muteLocalMic?.();
-        isMicMuted.value = true;
-        handleMicButtons();
         sendNotificationEvent('MIC_MUTED');
       }
+
+      // if (isMicMuted.value) {
+      //   webRTCAdaptor.value.unmuteLocalMic?.();
+      //   isMicMuted.value = false;
+      //   handleMicButtons();
+      //   sendNotificationEvent('MIC_UNMUTED');
+      // } else {
+      //   webRTCAdaptor.value.muteLocalMic?.();
+      //   isMicMuted.value = true;
+      //   handleMicButtons();
+      //   sendNotificationEvent('MIC_MUTED');
+      // }
     };
 
     const joinRoom = () => {
@@ -237,15 +232,15 @@ export default defineComponent({
       }
     };
 
-    const handleMicButtons = () => {
-      if (isMicMuted.value) {
-        isMuteMicButtonDisabled.value = true;
-        isUnmuteMicButtonDisabled.value = false;
-      } else {
-        isMuteMicButtonDisabled.value = false;
-        isUnmuteMicButtonDisabled.value = true;
-      }
-    };
+    // const handleMicButtons = () => {
+    //   if (isMicMuted.value) {
+    //     isMuteMicButtonDisabled.value = true;
+    //     isUnmuteMicButtonDisabled.value = false;
+    //   } else {
+    //     isMuteMicButtonDisabled.value = false;
+    //     isUnmuteMicButtonDisabled.value = true;
+    //   }
+    // };
 
     const changeVolume = () => {
       webRTCAdaptor.value.currentVolume = currentVolume.value;

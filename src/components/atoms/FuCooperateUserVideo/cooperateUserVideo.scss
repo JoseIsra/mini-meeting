@@ -1,5 +1,4 @@
 .a-userVideo {
-  // border: 1px solid red;
   width: 100%;
   position: absolute;
   bottom: 0;
@@ -7,6 +6,8 @@
   padding: 5px;
   display: flex;
   align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
   &__box {
     border-radius: 10px;
     width: 120px;
@@ -16,15 +17,34 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid black;
+    background-color: rgba(0, 0, 0, 0.8);
+    box-shadow: 2px 4px 6px rgba(0, 0, 0, 0.2);
     &__avatar {
-      // border: 1px solid red;
-      // &__image {
-      //   width: 100%;
-      //   object-fit: contain;
-      // }
-      background: url('https://cdn.quasar.dev/img/boy-avatar.png') center center;
-      background-size: cover;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      &__imageBox {
+        width: 50%;
+        &__image {
+          width: 100%;
+          object-fit: contain;
+        }
+      }
+      &__info {
+        display: flex;
+        width: 100%;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        bottom: 10px;
+        &__userName {
+          color: #fffffe;
+          font-size: 16px;
+        }
+      }
     }
     &__stream {
       width: 100%;

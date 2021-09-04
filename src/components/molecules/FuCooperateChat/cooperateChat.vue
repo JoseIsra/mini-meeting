@@ -7,7 +7,7 @@
       </label>
     </header>
     <section class="m-chat__body">
-      <main class="m-chat__messagesBox">asd</main>
+      <main class="m-chat__messagesBox">MENSAJES SE VERÁN AQUÍ</main>
       <div class="m-chat__formBox">
         <form
           class="m-chat__formBox__form"

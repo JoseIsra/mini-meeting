@@ -2,10 +2,33 @@
   position: absolute;
   left: 0;
   top: 0;
+  border-radius: 10px;
   height: 100%;
-  width: 14rem;
+  width: 17rem;
+  padding: 5px;
   color: #fffffe;
-  background-color: #212121;
+  background-color: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(3px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   z-index: 9999;
+}
+
+.slide-chat-enter-from {
+  opacity: 0;
+  transform: translateX(0);
+}
+.slide-chat-enter-to,
+.slide-chat-leave-to {
+  opacity: 1;
+}
+.slide-chat-enter-active {
+  transform: translateX(100%);
+}
+@keyframes thechatt {
+  0% {
+    tranform: translateX(0);
+  }
+  100% {
+    tranform: translateX(100%);
+  }
 }

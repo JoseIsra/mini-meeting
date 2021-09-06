@@ -1,6 +1,5 @@
 <template>
   <div class="t-cooperate">
-    <button @click="handleChatMessage('mi mensaje')">a</button>
     <fu-cooperate
       :toggleLocalCamera="toggleLocalCamera"
       :toggleLocalMic="toggleLocalMic"
@@ -15,15 +14,15 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onUnmounted, reactive } from 'vue';
+import { defineComponent, ref, onUnmounted } from 'vue';
 import FuCooperate from 'organisms/FuCooperate';
 import { useRoute } from 'vue-router';
 import { WebRTCAdaptor } from '@/utils/webrtc/webrtc_adaptor';
 import { objWebRTC, WebRTCAdaptorType } from '@/types/index';
-import { usePerifericsControls } from '@/componsables';
-// import { useHandleMessage } from '@/componsables/chat';
+import { usePerifericsControls } from '@/composables';
+import { Message, useHandleMessage } from '@/composables/chat';
 import { ZoidWindow } from '@/types/zoid';
-import { useInitWebRTC } from '@/componsables/ant-media-server-stuff';
+// import { useInitWebRTC } from '@/composables/ant-media-server-stuff';
 import FuTLoading from 'organisms/FuLoading';
 
 interface StringIndexedArray<TValue> {
@@ -38,8 +37,8 @@ export default defineComponent({
   },
   setup() {
     let { perifericsControl } = usePerifericsControls();
-    // let { userMessage } = useHandleMessage();
-    let { setWebRTC } = useInitWebRTC();
+    let { setUserMessage } = useHandleMessage();
+    // let { setWebRTC } = useInitWebRTC();
     const route = useRoute();
 
     const roomId =
@@ -60,7 +59,7 @@ export default defineComponent({
       '';
     const playOnly = ref(!!route.query.playOnly || false);
     const isCameraOff = ref(false);
-    let webRTCAdaptor = reactive<WebRTCAdaptorType>({});
+    let webRTCAdaptor = ref<WebRTCAdaptorType>({});
 
     const roomOfStream = ref<StringIndexedArray<string>>({});
     const roomTimerId = ref<ReturnType<typeof setInterval> | null>(null);
@@ -82,7 +81,6 @@ export default defineComponent({
       (window as ZoidWindow)?.xprops?.streamName ||
       (route.query.streamName as string) ||
       undefined;
-
     const toggleDesktopCapture = () => {
       console.log(
         perifericsControl.isCameraOn,
@@ -94,12 +92,12 @@ export default defineComponent({
         console.log('solo encendido de pantalla');
         // webRTCAdaptor.turnOnLocalCamera?.();
 
-        webRTCAdaptor.switchDesktopCapture?.(streamId);
+        webRTCAdaptor.value.switchDesktopCapture?.(streamId);
       } else if (
         !perifericsControl.isCameraOn &&
         perifericsControl.isScreenShared
       ) {
-        webRTCAdaptor.switchDesktopCaptureWithCamera?.(streamId);
+        webRTCAdaptor.value.switchDesktopCaptureWithCamera?.(streamId);
       }
       // if (isSharingDesktop.value) {
       //   if (isCameraOff.value) {
@@ -154,29 +152,29 @@ export default defineComponent({
       //   sendNotificationEvent('CAM_TURNED_OFF');
       // }
       if (!perifericsControl.isCameraOn) {
-        webRTCAdaptor.turnOnLocalCamera?.();
+        webRTCAdaptor.value.turnOnLocalCamera?.();
         sendNotificationEvent('CAM_TURNED_ON');
       } else {
-        webRTCAdaptor.turnOffLocalCamera?.();
+        webRTCAdaptor.value.turnOffLocalCamera?.();
         sendNotificationEvent('CAM_TURNED_OFF');
       }
     };
     const toggleLocalMic = () => {
       if (!perifericsControl.isMicOn) {
-        webRTCAdaptor.unmuteLocalMic?.();
+        webRTCAdaptor.value.unmuteLocalMic?.();
         sendNotificationEvent('MIC_UNMUTED');
       } else {
-        webRTCAdaptor.muteLocalMic?.();
+        webRTCAdaptor.value.muteLocalMic?.();
         sendNotificationEvent('MIC_MUTED');
       }
 
       // if (isMicMuted.value) {
-      //   webRTCAdaptor.unmuteLocalMic?.();
+      //   webRTCAdaptor.value.unmuteLocalMic?.();
       //   isMicMuted.value = false;
       //   handleMicButtons();
       //   sendNotificationEvent('MIC_UNMUTED');
       // } else {
-      //   webRTCAdaptor.muteLocalMic?.();
+      //   webRTCAdaptor.value.muteLocalMic?.();
       //   isMicMuted.value = true;
       //   handleMicButtons();
       //   sendNotificationEvent('MIC_MUTED');
@@ -184,7 +182,7 @@ export default defineComponent({
     };
 
     const joinRoom = () => {
-      webRTCAdaptor.joinRoom?.(roomId, streamId, 'legacy');
+      webRTCAdaptor.value.joinRoom?.(roomId, streamId, 'legacy');
     };
 
     const publish = (
@@ -195,7 +193,7 @@ export default defineComponent({
       streamName: string | undefined = undefined
     ) => {
       streamId = streamId;
-      webRTCAdaptor.publish?.(
+      webRTCAdaptor.value.publish?.(
         streamId,
         token,
         subscriberId,
@@ -211,17 +209,24 @@ export default defineComponent({
     };
 
     const streamInformation = (obj: objWebRTC) => {
-      webRTCAdaptor.play?.(obj.streamId, playToken, roomId);
+      webRTCAdaptor.value.play?.(obj.streamId, playToken, roomId);
     };
 
+    // const sendMessage = (message: string) => {
+    //   const notEvent = {
+    //     streamId,
+    //     streamName,
+    //     eventType: 'CHAT_MESSAGE',
+    //     message,
+    //   };
+    //   webRTCAdaptor.value.sendData?.(streamId, JSON.stringify(notEvent));
+    // };
+
     const handleNotificationEvent = (obj: objWebRTC) => {
-      const notificationEvent = JSON.parse(obj.event.data) as Record<
-        string,
-        string
-      >;
+      const notificationEvent = JSON.parse(obj.data) as Record<string, string>;
       if (notificationEvent != null && typeof notificationEvent == 'object') {
         const eventStreamId = notificationEvent.streamId;
-        const eventTyp = notificationEvent.eventType;
+        const eventTyp = notificationEvent.notificationType;
 
         if (eventTyp == 'CAM_TURNED_OFF') {
           console.log('Camera turned off for : ', eventStreamId);
@@ -235,18 +240,6 @@ export default defineComponent({
       }
     };
 
-    const handleChatMessage = (mess: string) => {
-      console.log(mess);
-      const message = {
-        streamId,
-        streamName,
-        eventType: 'CHAT_MESSAGE',
-        mess,
-      };
-      console.log(message);
-      webRTCAdaptor.sendData?.(streamId, JSON.stringify(message));
-    };
-
     const sendNotificationEvent = (notificationType: string) => {
       if (isDataChannelOpen.value) {
         var notEvent = {
@@ -255,7 +248,7 @@ export default defineComponent({
           eventType: 'NOTIFICATION',
         };
 
-        webRTCAdaptor.sendData?.(streamId, JSON.stringify(notEvent));
+        webRTCAdaptor.value.sendData?.(streamId, JSON.stringify(notEvent));
       } else {
         console.log(
           'Could not send the notification because data channel is not open.'
@@ -264,17 +257,19 @@ export default defineComponent({
     };
 
     const changeVolume = () => {
-      webRTCAdaptor.currentVolume = currentVolume.value;
-      if (webRTCAdaptor.soundOriginGainNode != null) {
-        webRTCAdaptor.soundOriginGainNode.gain.value = currentVolume.value;
+      webRTCAdaptor.value.currentVolume = currentVolume.value;
+      if (webRTCAdaptor.value.soundOriginGainNode != null) {
+        webRTCAdaptor.value.soundOriginGainNode.gain.value =
+          currentVolume.value;
       }
-      if (webRTCAdaptor.secondStreamGainNode != null) {
-        webRTCAdaptor.secondStreamGainNode.gain.value = currentVolume.value;
+      if (webRTCAdaptor.value.secondStreamGainNode != null) {
+        webRTCAdaptor.value.secondStreamGainNode.gain.value =
+          currentVolume.value;
       }
     };
 
     const leaveRoom = () => {
-      webRTCAdaptor.leaveFromRoom?.(roomId);
+      webRTCAdaptor.value.leaveFromRoom?.(roomId);
 
       objStreams.value = [];
     };
@@ -300,7 +295,7 @@ export default defineComponent({
         OfferToReceiveVideo: false,
       };
 
-      webRTCAdaptor = new WebRTCAdaptor({
+      webRTCAdaptor.value = new WebRTCAdaptor({
         websocket_url: websocketURL,
         mediaConstraints: mediaConstraints,
         peerconnection_config: pc_config,
@@ -343,12 +338,12 @@ export default defineComponent({
             if (obj.streams != null) {
               obj.streams.forEach(function (item) {
                 console.log('Stream joined with ID: ' + item);
-                webRTCAdaptor.play?.(item, playToken, roomId);
+                webRTCAdaptor.value.play?.(item, playToken, roomId);
               });
               streamsList.value = obj.streams;
             }
             roomTimerId.value = setInterval(() => {
-              webRTCAdaptor.getRoomInfo?.(roomId, streamId);
+              webRTCAdaptor.value.getRoomInfo?.(roomId, streamId);
             }, 5000);
           } else if (info == 'newStreamAvailable') {
             let isThere = objStreams.value.find(
@@ -406,7 +401,7 @@ export default defineComponent({
             //Checks if any new stream has added, if yes, plays.
             for (let str of obj.streams) {
               if (!streamsList.value.includes(str)) {
-                webRTCAdaptor.play?.(str, playToken, roomId);
+                webRTCAdaptor.value.play?.(str, playToken, roomId);
               }
             }
             for (let str of streamsList.value) {
@@ -424,22 +419,11 @@ export default defineComponent({
             isDataChannelOpen.value = false;
           } else if (info == 'data_received') {
             console.log(obj);
-            const objParsed = JSON.parse(obj.data) as Record<string, string>;
+            const objParsed = JSON.parse(obj.data) as Message;
             const { eventType } = objParsed;
             if (eventType === 'CHAT_MESSAGE') {
               console.log(objParsed);
-              // const { message } = objParsed;
-              // const globalArray = [];
-              // const messageObject = {
-              //   time: new Date(),
-              //   streamId,
-              //   streamName,
-              //   message,
-              // };
-              // globalArray.push(messageObject);
-              // console.log(globalArray);
-
-              // console.log(message);
+              setUserMessage(objParsed);
             } else if (eventType === 'NOTIFICATION') {
               handleNotificationEvent(obj);
             }
@@ -509,7 +493,7 @@ export default defineComponent({
         },
       }) as WebRTCAdaptorType;
     };
-    setWebRTC(webRTCAdaptor);
+    // setWebRTC(webRTCAdaptor);
     const loadingMessage = ref('Loading');
     const isLoadingOrError = ref(true);
     const existRoom = ref(false);
@@ -572,7 +556,6 @@ export default defineComponent({
       toggleLocalMic,
       toggleDesktopCapture,
       webRTCAdaptor,
-      handleChatMessage,
     };
   },
 });

@@ -1,9 +1,11 @@
 <template>
   <section class="m-sideBar">
-    <fu-cooperate-chat
-      v-show="functionsOnMenuBar.renderChat"
-      :webRTCAdaptor="webRTCAdaptor"
-    />
+    <transition name="slide-chat">
+      <fu-cooperate-chat
+        v-show="functionsOnMenuBar.renderChat"
+        :webRTCAdaptor="webRTCAdaptor"
+      />
+    </transition>
     <fu-cooperate-notes
       v-show="functionsOnMenuBar.renderNotes && !functionsOnMenuBar.renderChat"
     />
@@ -22,7 +24,7 @@ import { defineComponent, PropType, toRefs } from 'vue';
 import FuCooperateChat from 'molecules/FuCooperateChat';
 import FuCooperateUsersList from 'molecules/FuCooperateUsersList';
 import FuCooperateNotes from 'molecules/FuCooperateNotes';
-import { useToogleFunctions } from '@/componsables';
+import { useToogleFunctions } from '@/composables';
 import { WebRTCAdaptorType } from '@/types';
 
 export default defineComponent({

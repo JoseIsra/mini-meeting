@@ -25,7 +25,7 @@ import FuCooperateUserVideo from 'atoms/FuCooperateUserVideo';
 import FuCooperateSideBar from 'molecules/FuCooperateSideBar';
 import _ from 'lodash';
 import { objWebRTC, WebRTCAdaptorType } from '@/types';
-import { useSidebarToogle } from '@/componsables';
+import { useSidebarToogle } from '@/composables';
 
 export default defineComponent({
   name: 'FuCooperate',

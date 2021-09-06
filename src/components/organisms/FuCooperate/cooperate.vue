@@ -14,7 +14,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, PropType, toRefs } from 'vue';
+import { defineComponent, ref, PropType, toRefs, onMounted } from 'vue';
 import FuCooperateMenuBar from 'organisms/FuCooperateMenuBar';
 import FuCooperateHeader from 'atoms/FuCooperateHeader';
 import FuCooperateBody from 'molecules/FuCooperateBody';
@@ -47,7 +47,11 @@ export default defineComponent({
     FuCooperateSideBar,
     FuCooperateUserVideo,
   },
-  setup(props) {
+  setup(props, { emit }) {
+    onMounted(() => {
+      emit('mounted');
+    });
+
     let showMenuBar = ref<boolean>(false);
     let { isSidebarRender } = useSidebarToogle();
     const hideMenuBar = _.debounce(() => {

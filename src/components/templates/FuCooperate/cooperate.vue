@@ -5,17 +5,24 @@
       :toggleLocalMic="toggleLocalMic"
       :objStreams="objStreams"
       :toggleDesktopCapture="toggleDesktopCapture"
+      v-if="existRoom"
+      @mounted="fuCooperateMountedHandler"
     />
+    <fu-t-loading v-if="isLoadingOrError" :loadingMessage="loadingMessage" />
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted, onUnmounted } from 'vue';
+import { defineComponent, ref, onUnmounted } from 'vue';
 import FuCooperate from 'organisms/FuCooperate';
 import { useRoute } from 'vue-router';
 import { WebRTCAdaptor } from '@/utils/webrtc/webrtc_adaptor';
 import { objWebRTC, WebRTCAdaptorType } from '@/types/index';
 import { usePerifericsControls } from '@/componsables';
+
+import { ZoidWindow } from '@/types/zoid';
+
+import FuTLoading from 'organisms/FuLoading';
 
 interface StringIndexedArray<TValue> {
   [id: string]: TValue;
@@ -25,19 +32,33 @@ export default defineComponent({
   name: 'FuTCooperate',
   components: {
     FuCooperate,
+    FuTLoading,
   },
   setup() {
     let { perifericsControl } = usePerifericsControls();
     const route = useRoute();
-    const publishToken = ref<string>(
-      (route.query.publishToken as string) || ''
+
+    const roomId =
+      (window as ZoidWindow)?.xprops?.roomId ||
+      (route.query.roomId as string) ||
+      '';
+    const publishToken =
+      (window as ZoidWindow)?.xprops?.publishToken ||
+      (route.query.publishToken as string) ||
+      '';
+    const playToken =
+      (window as ZoidWindow)?.xprops?.playToken ||
+      (route.query.playToken as string) ||
+      '';
+    const streamId = ref(
+      (window as ZoidWindow)?.xprops?.streamId ||
+        (route.query.streamId as string) ||
+        ''
     );
-    const playToken = ref<string>((route.query.playToken as string) || '');
-    const streamId = ref((route.query.streamId as string) || '');
     const playOnly = ref(!!route.query.playOnly || false);
     const isCameraOff = ref(false);
     const webRTCAdaptor = ref<WebRTCAdaptorType>({});
-    const roomId = ref((route.query.roomId as string) || '');
+
     const roomOfStream = ref<StringIndexedArray<string>>({});
     const publishStreamId = ref('');
     const roomTimerId = ref<ReturnType<typeof setInterval> | null>(null);
@@ -57,7 +78,9 @@ export default defineComponent({
       (route.query.subscriberCode as string) || undefined
     );
     const streamName = ref<string | undefined>(
-      (route.query.subscriberCode as string) || undefined
+      (window as ZoidWindow)?.xprops?.streamName ||
+        (route.query.streamName as string) ||
+        undefined
     );
 
     const toggleDesktopCapture = () => {
@@ -163,7 +186,7 @@ export default defineComponent({
     };
 
     const joinRoom = () => {
-      webRTCAdaptor.value.joinRoom?.(roomId.value, streamId.value, 'legacy');
+      webRTCAdaptor.value.joinRoom?.(roomId, streamId.value, 'legacy');
     };
 
     const publish = (
@@ -190,7 +213,7 @@ export default defineComponent({
     };
 
     const streamInformation = (obj: objWebRTC) => {
-      webRTCAdaptor.value.play?.(obj.streamId, playToken.value, roomId.value);
+      webRTCAdaptor.value.play?.(obj.streamId, playToken, roomId);
     };
 
     const handleNotificationEvent = (obj: objWebRTC) => {
@@ -232,16 +255,6 @@ export default defineComponent({
       }
     };
 
-    // const handleMicButtons = () => {
-    //   if (isMicMuted.value) {
-    //     isMuteMicButtonDisabled.value = true;
-    //     isUnmuteMicButtonDisabled.value = false;
-    //   } else {
-    //     isMuteMicButtonDisabled.value = false;
-    //     isUnmuteMicButtonDisabled.value = true;
-    //   }
-    // };
-
     const changeVolume = () => {
       webRTCAdaptor.value.currentVolume = currentVolume.value;
       if (webRTCAdaptor.value.soundOriginGainNode != null) {
@@ -255,12 +268,12 @@ export default defineComponent({
     };
 
     const leaveRoom = () => {
-      webRTCAdaptor.value.leaveFromRoom?.(roomId.value);
+      webRTCAdaptor.value.leaveFromRoom?.(roomId);
 
       objStreams.value = [];
     };
 
-    onMounted(() => {
+    const createConnection = () => {
       const websocketURL = 'wss://dialguiba.tech/WebRTCAppEE/websocket';
 
       const mediaConstraints = {
@@ -314,7 +327,7 @@ export default defineComponent({
             } else {
               publish(
                 streamId,
-                publishToken.value,
+                publishToken,
                 subscriberId.value,
                 subscriberCode.value,
                 streamName.value
@@ -324,15 +337,12 @@ export default defineComponent({
             if (obj.streams != null) {
               obj.streams.forEach(function (item) {
                 console.log('Stream joined with ID: ' + item);
-                webRTCAdaptor.value.play?.(item, playToken.value, roomId.value);
+                webRTCAdaptor.value.play?.(item, playToken, roomId);
               });
               streamsList.value = obj.streams;
             }
             roomTimerId.value = setInterval(() => {
-              webRTCAdaptor.value.getRoomInfo?.(
-                roomId.value,
-                publishStreamId.value
-              );
+              webRTCAdaptor.value.getRoomInfo?.(roomId, publishStreamId.value);
             }, 5000);
           } else if (info == 'newStreamAvailable') {
             let isThere = objStreams.value.find(
@@ -390,7 +400,7 @@ export default defineComponent({
             //Checks if any new stream has added, if yes, plays.
             for (let str of obj.streams) {
               if (!streamsList.value.includes(str)) {
-                webRTCAdaptor.value.play?.(str, playToken.value, roomId.value);
+                webRTCAdaptor.value.play?.(str, playToken, roomId);
               }
             }
             for (let str of streamsList.value) {
@@ -473,13 +483,58 @@ export default defineComponent({
           //alert(errorMessage);
         },
       }) as WebRTCAdaptorType;
-    });
+    };
+
+    const loadingMessage = ref('Loading');
+    const isLoadingOrError = ref(true);
+    const existRoom = ref(false);
+
+    const checkRoom = async (roomId: string) => {
+      const request = new Request(
+        `https://dialguiba.tech/WebRTCAppEE/rest/v2/broadcasts/conference-rooms/${roomId}`,
+        {
+          headers: {
+            Authorization:
+              'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiaWF0IjoxNTE2MjM5MDIyfQ.dnwd9sjQmEAyWWpbaGWA9R6pW4Qxu5eYES9Xrpl5UsY',
+          },
+        }
+      );
+      const res = await fetch(request);
+
+      return res.status;
+    };
+
+    /* conditionals */
+    if (roomId) {
+      checkRoom(roomId)
+        .then((status) => {
+          if (status === 200) {
+            existRoom.value = true;
+          } else if (status === 404) {
+            loadingMessage.value = 'Meeting not found';
+          } else if (status === 403) {
+            loadingMessage.value = 'Not allowed';
+          }
+        })
+        .catch((error) => console.log(error));
+    }
+
+    //TODO: Dont dissapear loading until the host accept the user. Needed to implement logic for that (dont publish neither play streams)
+
+    const fuCooperateMountedHandler = () => {
+      createConnection();
+      isLoadingOrError.value = false;
+    };
 
     onUnmounted(() => {
       leaveRoom();
     });
 
     return {
+      fuCooperateMountedHandler,
+      isLoadingOrError,
+      loadingMessage,
+      existRoom,
       currentVolume,
       objStreams,
       roomId,

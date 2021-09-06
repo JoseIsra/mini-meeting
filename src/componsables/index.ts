@@ -1,4 +1,5 @@
 import { ref, reactive } from 'vue';
+import { ZoidWindow } from '@/types/zoid';
 
 interface FunctionState {
   renderChat: boolean;
@@ -21,7 +22,7 @@ const functionState = {
 
 const perifericsState = {
   isMicOn: false,
-  isCameraOn: false,
+  isCameraOn: ((window as ZoidWindow).xprops?.isCameraOn as boolean) || false,
   isScreenShared: false,
   cameraDeviceId: '',
 };

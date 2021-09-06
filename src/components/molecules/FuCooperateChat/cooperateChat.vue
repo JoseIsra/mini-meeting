@@ -7,7 +7,10 @@
       </label>
     </header>
     <section class="m-chat__body">
-      <main class="m-chat__messagesBox">MENSAJES SE VERÁN AQUÍ</main>
+      <main class="m-chat__messagesBox">
+        MENSAJES SE VERÁN AQUÍ
+        {{ userMessage.message }}
+      </main>
       <div class="m-chat__formBox">
         <form
           class="m-chat__formBox__form"
@@ -18,7 +21,7 @@
             class="m-chat__formBox__form__input"
             autofocus
             dense
-            v-model="userMessage"
+            v-model="userInput"
             color="grey"
             :input-style="{ color: '#fffffe' }"
             outlined
@@ -31,7 +34,7 @@
             round
             type="submit"
             color="indigo-8"
-            :disable="!userMessage"
+            :disable="!userInput"
             @click="sendMessage"
           />
         </form>
@@ -41,23 +44,53 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
+import { defineComponent, ref, PropType } from 'vue';
 import { regexp } from '@/types';
 import { warningMessage } from '@/utils/notify';
+import { useHandleMessage } from '@/componsables/chat';
+import { useRoute } from 'vue-router';
+import { WebRTCAdaptorType } from '@/types';
 
+// import { useInitWebRTC } from '@/componsables/ant-media-server-stuff';
+// interface Prueba {
+//   streamId: string
+//   streamName: string
+//   eventType: string;
+//   userMessage: string
+// }
 export default defineComponent({
-  setup() {
-    let userMessage = ref<string>('');
+  name: 'FuCooperateChat',
+  props: {
+    webRTCAdaptor: {
+      type: Object as PropType<WebRTCAdaptorType>,
+    },
+  },
+  setup(props) {
+    const route = useRoute();
+    let userInput = ref<string>('');
+    let { userMessage } = useHandleMessage();
     const sendMessage = () => {
-      if (!regexp.test(userMessage.value)) {
+      if (!regexp.test(userInput.value)) {
         warningMessage('Complete los campos');
         return;
       }
-      console.log(userMessage.value);
+      const mole = {
+        streamId: route.query.streamId as string,
+        streamName: route.query.streamName as string,
+        eventType: 'CHAT_MESSAGE',
+        message: userInput.value,
+      };
+
+      console.log(userInput.value, mole);
+      props.webRTCAdaptor?.sendData?.(
+        route.query.streamId as string,
+        JSON.stringify(mole)
+      );
     };
     return {
-      userMessage,
+      userInput,
       sendMessage,
+      userMessage,
     };
   },
 });

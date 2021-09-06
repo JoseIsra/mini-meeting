@@ -8,7 +8,10 @@
       :toggleLocalMic="toggleLocalMic"
       :toggleDesktopCapture="toggleDesktopCapture"
     />
-    <fu-cooperate-side-bar v-show="isSidebarRender" />
+    <fu-cooperate-side-bar
+      v-show="isSidebarRender"
+      :webRTCAdaptor="webRTCAdaptor"
+    />
     <fu-cooperate-user-video :objStreams="objStreams" />
   </section>
 </template>
@@ -21,7 +24,7 @@ import FuCooperateBody from 'molecules/FuCooperateBody';
 import FuCooperateUserVideo from 'atoms/FuCooperateUserVideo';
 import FuCooperateSideBar from 'molecules/FuCooperateSideBar';
 import _ from 'lodash';
-import { objWebRTC } from '@/types';
+import { objWebRTC, WebRTCAdaptorType } from '@/types';
 import { useSidebarToogle } from '@/componsables';
 
 export default defineComponent({
@@ -38,6 +41,9 @@ export default defineComponent({
     },
     toggleDesktopCapture: {
       type: Function,
+    },
+    webRTCAdaptor: {
+      type: Object as PropType<WebRTCAdaptorType>,
     },
   },
   components: {

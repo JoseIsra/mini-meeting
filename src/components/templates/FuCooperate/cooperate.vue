@@ -1,5 +1,6 @@
 <template>
   <div class="t-cooperate">
+    <button @click="sendMessage('este es un mensaje')">Send</button>
     <fu-cooperate
       :toggleLocalCamera="toggleLocalCamera"
       :toggleLocalMic="toggleLocalMic"
@@ -50,11 +51,10 @@ export default defineComponent({
       (window as ZoidWindow)?.xprops?.playToken ||
       (route.query.playToken as string) ||
       '';
-    const streamId = ref(
+    const streamId =
       (window as ZoidWindow)?.xprops?.streamId ||
-        (route.query.streamId as string) ||
-        ''
-    );
+      (route.query.streamId as string) ||
+      '';
     const playOnly = ref(!!route.query.playOnly || false);
     const isCameraOff = ref(false);
     const webRTCAdaptor = ref<WebRTCAdaptorType>({});
@@ -77,12 +77,10 @@ export default defineComponent({
     const subscriberCode = ref<string | undefined>(
       (route.query.subscriberCode as string) || undefined
     );
-    const streamName = ref<string | undefined>(
+    const streamName =
       (window as ZoidWindow)?.xprops?.streamName ||
-        (route.query.streamName as string) ||
-        undefined
-    );
-
+      (route.query.streamName as string) ||
+      undefined;
     const toggleDesktopCapture = () => {
       console.log(
         perifericsControl.isCameraOn,
@@ -186,7 +184,7 @@ export default defineComponent({
     };
 
     const joinRoom = () => {
-      webRTCAdaptor.value.joinRoom?.(roomId, streamId.value, 'legacy');
+      webRTCAdaptor.value.joinRoom?.(roomId, streamId, 'legacy');
     };
 
     const publish = (
@@ -216,6 +214,16 @@ export default defineComponent({
       webRTCAdaptor.value.play?.(obj.streamId, playToken, roomId);
     };
 
+    const sendMessage = (message: string) => {
+      const notEvent = {
+        streamId,
+        streamName,
+        eventType: 'CHAT_MESSAGE',
+        message,
+      };
+      webRTCAdaptor.value.sendData?.(streamId, JSON.stringify(notEvent));
+    };
+
     const handleNotificationEvent = (obj: objWebRTC) => {
       const notificationEvent = JSON.parse(obj.event.data) as Record<
         string,
@@ -223,7 +231,7 @@ export default defineComponent({
       >;
       if (notificationEvent != null && typeof notificationEvent == 'object') {
         const eventStreamId = notificationEvent.streamId;
-        const eventTyp = notificationEvent.eventType;
+        const eventTyp = notificationEvent.notificationType;
 
         if (eventTyp == 'CAM_TURNED_OFF') {
           console.log('Camera turned off for : ', eventStreamId);
@@ -237,11 +245,12 @@ export default defineComponent({
       }
     };
 
-    const sendNotificationEvent = (eventType: string) => {
+    const sendNotificationEvent = (notificationType: string) => {
       if (isDataChannelOpen.value) {
         var notEvent = {
           streamId: publishStreamId.value,
-          eventType: eventType,
+          notificationType,
+          eventType: 'NOTIFICATION',
         };
 
         webRTCAdaptor.value.sendData?.(
@@ -330,7 +339,7 @@ export default defineComponent({
                 publishToken,
                 subscriberId.value,
                 subscriberCode.value,
-                streamName.value
+                streamName
               );
             }
 
@@ -417,7 +426,28 @@ export default defineComponent({
             console.log('Data Channel closed for stream id', obj);
             isDataChannelOpen.value = false;
           } else if (info == 'data_received') {
-            handleNotificationEvent(obj);
+            console.log(obj);
+            const objParsed = JSON.parse(obj.data) as Record<string, string>;
+            const { eventType } = objParsed;
+
+            if (eventType === 'CHAT_MESSAGE') {
+              const { message } = objParsed;
+              const globalArray = [];
+              const messageObject = {
+                time: new Date(),
+                streamId,
+                streamName,
+                message,
+              };
+              globalArray.push(messageObject);
+              console.log(globalArray);
+
+              console.log(message);
+            } else if (eventType === 'NOTIFICATION') {
+              handleNotificationEvent(obj);
+            }
+
+            //handleNotificationEvent(obj);
           }
         },
         callbackError: function (
@@ -531,6 +561,7 @@ export default defineComponent({
     });
 
     return {
+      sendMessage,
       fuCooperateMountedHandler,
       isLoadingOrError,
       loadingMessage,

@@ -3,6 +3,7 @@ export interface Options {
   iconName: string;
   description: string;
   important: boolean;
+  interaction?: string;
 }
 
 export interface MenuOptions {
@@ -10,6 +11,11 @@ export interface MenuOptions {
   secondSection: Options[];
   thirdSection: Options[];
   fourthSection: Options[];
+}
+
+enum interactionType {
+  LEAVE = 'LEAVE',
+  END = 'END',
 }
 
 export const menuActions = [
@@ -41,7 +47,7 @@ export const menuActions = [
 
 export const menuOptions = {
   firstSection: [
-    {
+    /* {
       id: '1',
       iconName: 'fullscreen',
       description: 'Desplegar a pantalla completa',
@@ -58,18 +64,18 @@ export const menuOptions = {
       iconName: 'info',
       description: 'Detalles de la reunión',
       important: false,
-    },
+    }, */
   ],
   secondSection: [
-    {
+    /* {
       id: '4',
       iconName: 'volume_up',
       description: 'Audio',
       important: false,
-    },
+    }, */
   ],
   thirdSection: [
-    {
+    /* {
       id: '5',
       iconName: 'call_to_action',
       description: 'Vista 1',
@@ -92,20 +98,22 @@ export const menuOptions = {
       iconName: 'call_to_action',
       description: 'Vista 4',
       important: false,
-    },
+    }, */
   ],
   fourthSection: [
-    {
+    /* {
       id: '9',
       iconName: 'call_end',
       description: 'Finalizar reunión',
       important: false,
-    },
+      interaction: interactionType.END,
+    }, */
     {
       id: '10',
       iconName: 'logout',
       description: 'Abandonar la reunión',
       important: true,
+      interaction: interactionType.LEAVE,
     },
   ],
 };

@@ -11,7 +11,7 @@
           option.description
         }}</label>
       </li>
-      <q-separator spaced color="white" />
+      <!-- <q-separator spaced color="white" /> -->
       <li
         class="a-menu__optionList__item"
         v-for="option in options.secondSection"
@@ -22,7 +22,7 @@
           option.description
         }}</label>
       </li>
-      <q-separator spaced color="white" />
+      <!-- <q-separator spaced color="white" /> -->
       <li
         class="a-menu__optionList__item"
         v-for="option in options.thirdSection"
@@ -33,7 +33,7 @@
           option.description
         }}</label>
       </li>
-      <q-separator spaced color="white" />
+      <!-- <q-separator spaced color="white" /> -->
       <li
         v-for="option in options.fourthSection"
         :class="[
@@ -41,6 +41,7 @@
           { '--important': option.important },
         ]"
         :key="option.id"
+        @click="handleOptionSelected(option.interaction)"
       >
         <q-icon :name="option.iconName" size="18px" color="white" />
         <label class="a-menu__optionList__item__description">{{
@@ -54,14 +55,25 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
 import { menuOptions, MenuOptions } from '@/helpers/menuOptions';
+import { ZoidWindow } from '@/types/zoid';
 
 export default defineComponent({
   name: 'FuMenuContentOptions',
   setup() {
     const options = ref<MenuOptions>(menuOptions);
 
+    const handleOptionSelected = (interaction?: string) => {
+      if (interaction === 'LEAVE') {
+        console.log('leave');
+        (window as ZoidWindow).xprops?.handleEndCall?.();
+      } else if (interaction === 'END') {
+        console.log('end');
+      }
+    };
+
     return {
       options,
+      handleOptionSelected,
     };
   },
 });

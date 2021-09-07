@@ -98,12 +98,12 @@ export const iconsOptions = [
     toolTipMessage: 'Acciones',
     ubication: 'actions',
   }, */
-  /* {
+  {
     id: '2',
     onState: 'more_vert',
     offState: 'more_vert',
     active: false,
     toolTipMessage: 'Opciones',
     ubication: 'options',
-  }, */
+  },
 ];

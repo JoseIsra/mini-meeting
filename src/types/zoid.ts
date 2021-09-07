@@ -6,6 +6,7 @@ interface ZoidProps {
   publishToken?: string;
   playToken?: string;
   photoURL?: string;
+  handleEndCall?: () => void;
 }
 
 export interface ZoidWindow extends Window {

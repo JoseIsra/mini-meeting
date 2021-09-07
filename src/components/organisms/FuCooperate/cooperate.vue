@@ -8,10 +8,12 @@
       :toggleLocalMic="toggleLocalMic"
       :toggleDesktopCapture="toggleDesktopCapture"
     />
-    <fu-cooperate-side-bar
-      v-show="isSidebarRender"
-      :webRTCAdaptor="webRTCAdaptor"
-    />
+    <transition name="slide">
+      <fu-cooperate-side-bar
+        v-show="isSidebarRender"
+        :webRTCAdaptor="webRTCAdaptor"
+      />
+    </transition>
     <fu-cooperate-user-video :objStreams="objStreams" />
   </section>
 </template>

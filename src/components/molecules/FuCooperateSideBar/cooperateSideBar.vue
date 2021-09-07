@@ -1,11 +1,9 @@
 <template>
   <section class="m-sideBar">
-    <transition name="slide-chat">
-      <fu-cooperate-chat
-        v-show="functionsOnMenuBar.renderChat"
-        :webRTCAdaptor="webRTCAdaptor"
-      />
-    </transition>
+    <fu-cooperate-chat
+      v-show="functionsOnMenuBar.renderChat"
+      :webRTCAdaptor="webRTCAdaptor"
+    />
     <fu-cooperate-notes
       v-show="functionsOnMenuBar.renderNotes && !functionsOnMenuBar.renderChat"
     />

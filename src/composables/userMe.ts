@@ -1,20 +1,21 @@
 import { reactive } from 'vue';
 
-// interface User {
-//   id: string;
-//   name: string;
-//   avatar: string;
-// }
+interface User {
+  id: string;
+  name: string;
+  avatar: string;
+}
 
-const userState = {
-  id: '1',
-  name: 'Fractal',
-  avatar: 'https://f002.backblazeb2.com/file/FractalUp/Logos/logo_azul.svg',
-};
+const userState = {} as User;
 
-const me = reactive(userState);
-export function useUser() {
+const userMe = reactive(userState);
+export function useUserMe() {
+  const setUserMe = (value: User) => {
+    Object.assign(userState, value);
+  };
+
   return {
-    me,
+    userMe,
+    setUserMe,
   };
 }

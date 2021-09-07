@@ -21,6 +21,7 @@ import { WebRTCAdaptor } from '@/utils/webrtc/webrtc_adaptor';
 import { objWebRTC, WebRTCAdaptorType } from '@/types/index';
 import { usePerifericsControls, useToogleFunctions } from '@/composables';
 import { Message, useHandleMessage } from '@/composables/chat';
+import { useUserMe } from '@/composables/userMe';
 import { ZoidWindow } from '@/types/zoid';
 
 import FuTLoading from 'organisms/FuLoading';
@@ -38,8 +39,30 @@ export default defineComponent({
   setup() {
     const { perifericsControl } = usePerifericsControls();
     const { setUserMessage } = useHandleMessage();
-
+    const { setUserMe } = useUserMe();
     const route = useRoute();
+
+    //Datos del usuario
+    const streamId =
+      (window as ZoidWindow)?.xprops?.streamId ||
+      (route.query.streamId as string) ||
+      '';
+
+    const streamName =
+      (window as ZoidWindow)?.xprops?.streamName ||
+      (route.query.streamName as string);
+
+    const avatar =
+      (window as ZoidWindow)?.xprops?.photoURL ||
+      (route.query.photoURL as string) ||
+      'https://f002.backblazeb2.com/file/FractalUp/Logos/logo_azul.svg';
+
+    setUserMe({
+      id: streamId,
+      name: streamName,
+      avatar,
+    });
+
     const { setHandNotificationInfo, updateHandNotification } =
       useToogleFunctions();
     const roomId =
@@ -56,10 +79,7 @@ export default defineComponent({
       (window as ZoidWindow)?.xprops?.playToken ||
       (route.query.playToken as string) ||
       '';
-    const streamId =
-      (window as ZoidWindow)?.xprops?.streamId ||
-      (route.query.streamId as string) ||
-      '';
+
     /* const playOnly = ref(!!route.query.playOnly || false);
     const isCameraOff = ref(false); */
     const webRTCAdaptor = ref<WebRTCAdaptorType>({});
@@ -80,11 +100,6 @@ export default defineComponent({
     );
     const subscriberCode = ref<string | undefined>(
       (route.query.subscriberCode as string) || undefined
-    );
-    const streamName = ref<string | undefined>(
-      (window as ZoidWindow)?.xprops?.streamName ||
-        (route.query.streamName as string) ||
-        undefined
     );
 
     //TODO: Get the device id in the websocket as it works in player.html
@@ -295,7 +310,7 @@ export default defineComponent({
             roomOfStream.value[obj.streamId] = room;
             console.log(`joined the room: ${room}`);
 
-            /* if (playOnly.value) {              
+            /* if (playOnly.value) {
               isCameraOff.value = true;
             } else {
               } */
@@ -304,7 +319,7 @@ export default defineComponent({
               publishToken,
               subscriberId.value,
               subscriberCode.value,
-              streamName.value
+              streamName
             );
 
             if (obj.streams != null) {

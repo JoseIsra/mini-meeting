@@ -90,20 +90,20 @@ export const iconsFunctions = [
 ];
 
 export const iconsOptions = [
-  {
+  /* {
     id: '1',
     onState: 'add_circle',
     offState: 'add_circle',
     active: false,
     toolTipMessage: 'Acciones',
     ubication: 'actions',
-  },
-  {
+  }, */
+  /* {
     id: '2',
     onState: 'more_vert',
     offState: 'more_vert',
     active: false,
     toolTipMessage: 'Opciones',
     ubication: 'options',
-  },
+  }, */
 ];

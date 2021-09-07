@@ -24,7 +24,7 @@
               <q-img
                 class="m-chat__messagesBox__info__avatar"
                 name="fractalup-logo"
-                src="https://f002.backblazeb2.com/file/FractalUp/Logos/logo_azul.svg"
+                :src="message.avatar"
                 style="width: 30px"
               ></q-img>
               <aside
@@ -90,6 +90,7 @@ import { useRoute } from 'vue-router';
 import { WebRTCAdaptorType } from '@/types';
 import moment from 'moment';
 import { useHandleMessage } from '@/composables/chat';
+import { useUserMe } from '@/composables/userMe';
 import { nanoid } from 'nanoid';
 
 import { ZoidWindow } from '@/types/zoid';
@@ -106,7 +107,8 @@ export default defineComponent({
   setup(props) {
     const route = useRoute();
     let userInput = ref<string>('');
-    let { userMessages, setUserMessage } = useHandleMessage();
+    const { userMessages, setUserMessage } = useHandleMessage();
+    const { userMe } = useUserMe();
     let userName = ref(
       (window as ZoidWindow)?.xprops?.streamId || route.query.streamName
     );
@@ -118,15 +120,12 @@ export default defineComponent({
       }
       const userMessage = {
         id: nanoid(),
-        streamId:
-          (window as ZoidWindow)?.xprops?.streamId ||
-          (route.query.streamId as string),
+        streamId: userMe.id,
         date: moment(new Date()).format('h: mm a'),
-        streamName:
-          (window as ZoidWindow)?.xprops?.streamId ||
-          (route.query.streamName as string),
+        streamName: userMe.name,
         eventType: 'CHAT_MESSAGE',
         message: userInput.value,
+        avatar: userMe.avatar,
       };
       setUserMessage(userMessage);
 

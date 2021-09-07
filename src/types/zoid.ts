@@ -5,6 +5,7 @@ interface ZoidProps {
   isCameraOn?: boolean;
   publishToken?: string;
   playToken?: string;
+  photoURL?: string;
 }
 
 export interface ZoidWindow extends Window {

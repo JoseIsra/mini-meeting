@@ -7,6 +7,7 @@ export interface Message {
   streamName: string;
   eventType: string;
   message: string;
+  avatar: string;
 }
 // const messages = {
 //   message: '',

@@ -7,11 +7,14 @@
         class="a-userVideo__box__avatar"
       >
         <figure class="a-userVideo__box__avatar__imageBox">
-          <img class="a-userVideo__box__avatar__image" :src="me.avatar" />
+          <img
+            class="a-userVideo__box__avatar__imageBox__image"
+            :src="userMe.avatar"
+          />
         </figure>
         <div class="a-userVideo__box__avatar__info">
           <label class="a-userVideo__box__avatar__info__userName">{{
-            me.name
+            userMe.name
           }}</label>
           <q-icon
             :name="perifericsControl.isMicOn ? 'mic' : 'mic_off'"
@@ -49,7 +52,7 @@ import { defineComponent, ref, PropType } from 'vue';
 import { userStreams } from '@/helpers/usersVideo';
 import { objWebRTC } from '@/types';
 import { usePerifericsControls } from '@/composables';
-import { useUser } from '@/composables/userMe';
+import { useUserMe } from '@/composables/userMe';
 
 interface UserStream {
   id: string;
@@ -66,11 +69,11 @@ export default defineComponent({
   setup() {
     const users = ref<UserStream[]>(userStreams);
     let { perifericsControl } = usePerifericsControls();
-    const { me } = useUser();
+    const { userMe } = useUserMe();
     return {
       users,
       perifericsControl,
-      me,
+      userMe,
     };
   },
 });

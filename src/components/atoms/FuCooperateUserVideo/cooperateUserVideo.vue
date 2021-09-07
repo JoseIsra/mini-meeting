@@ -3,7 +3,7 @@
   <section class="a-userVideo">
     <div class="a-userVideo__box">
       <div
-        v-show="perifericsControl.isCameraOn"
+        v-show="!perifericsControl.isVideoActivated"
         class="a-userVideo__box__avatar"
       >
         <figure class="a-userVideo__box__avatar__imageBox">
@@ -22,7 +22,7 @@
         </div>
       </div>
       <video
-        v-show="!perifericsControl.isCameraOn"
+        v-show="perifericsControl.isVideoActivated"
         id="localVideo"
         class="a-userVideo__box__stream"
         autoplay

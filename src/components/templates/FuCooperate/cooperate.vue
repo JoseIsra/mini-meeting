@@ -50,13 +50,12 @@ export default defineComponent({
       (window as ZoidWindow)?.xprops?.playToken ||
       (route.query.playToken as string) ||
       '';
-    const streamId = ref(
+    const streamId =
       (window as ZoidWindow)?.xprops?.streamId ||
-        (route.query.streamId as string) ||
-        ''
-    );
-    const playOnly = ref(!!route.query.playOnly || false);
-    const isCameraOff = ref(false);
+      (route.query.streamId as string) ||
+      '';
+    /* const playOnly = ref(!!route.query.playOnly || false);
+    const isCameraOff = ref(false); */
     const webRTCAdaptor = ref<WebRTCAdaptorType>({});
 
     const roomOfStream = ref<StringIndexedArray<string>>({});
@@ -83,26 +82,56 @@ export default defineComponent({
         undefined
     );
 
+    //TODO: Get the device id in the websocket as it works in player.html
+    let cameraId: string;
+    navigator.mediaDevices
+      .enumerateDevices()
+      .then((devices) => {
+        let filtrado = devices.filter((x) => x.kind === 'videoinput')[0];
+        cameraId = filtrado.deviceId;
+      })
+      .catch((err) => console.log(err));
+
+    //TODO: Get the device id in the websocket as it works in player.html
+
     const toggleDesktopCapture = () => {
       console.log(
         perifericsControl.isCameraOn,
         perifericsControl.isScreenShared
       );
-
-      if (perifericsControl.isCameraOn && perifericsControl.isScreenShared) {
+      if (perifericsControl.isScreenShared) {
+        console.log('DESACTIVAO');
+        webRTCAdaptor.value.resetDesktop?.();
+      }
+      if (perifericsControl.isCameraOn && !perifericsControl.isScreenShared) {
         //si no se comparte, compartir pantalla
-        console.log('solo encendido de pantalla');
         // webRTCAdaptor.value.turnOnLocalCamera?.();
-
-        webRTCAdaptor.value.switchDesktopCapture?.(publishStreamId.value);
+        webRTCAdaptor.value.turnOffLocalCamera?.(streamId);
+        webRTCAdaptor.value.switchDesktopCaptureWithCamera?.(streamId);
+        /* webRTCAdaptor.value.switchDesktopCapture?.(publishStreamId.value); */
       } else if (
         !perifericsControl.isCameraOn &&
+        !perifericsControl.isScreenShared
+      ) {
+        //webRTCAdaptor.value.turnOffLocalCamera?.(streamId);
+        webRTCAdaptor.value.switchDesktopCapture?.(streamId);
+      } else if (
+        perifericsControl.isCameraOn &&
         perifericsControl.isScreenShared
       ) {
-        webRTCAdaptor.value.switchDesktopCaptureWithCamera?.(
-          publishStreamId.value
+        //webRTCAdaptor.value.resetDesktop?.();
+        webRTCAdaptor.value.switchVideoCameraCapture?.(
+          publishStreamId.value,
+          cameraId
         );
       }
+
+      if (!perifericsControl.isCameraOn && perifericsControl.isScreenShared) {
+        webRTCAdaptor.value.turnOffLocalCamera?.(streamId);
+      } else {
+        webRTCAdaptor.value.justTurnOnLocalCamera?.(streamId);
+      }
+
       // if (isSharingDesktop.value) {
       //   if (isCameraOff.value) {
       //     webRTCAdaptor.value.turnOnLocalCamera?.();
@@ -155,12 +184,23 @@ export default defineComponent({
       //   webRTCAdaptor.value.turnOffLocalCamera?.();
       //   sendNotificationEvent('CAM_TURNED_OFF');
       // }
-      if (!perifericsControl.isCameraOn) {
-        webRTCAdaptor.value.turnOnLocalCamera?.();
-        sendNotificationEvent('CAM_TURNED_ON');
+      if (perifericsControl.isCameraOn) {
+        console.log('APAGA CAMARA', perifericsControl.isScreenShared);
+
+        if (perifericsControl.isScreenShared) {
+          webRTCAdaptor.value.switchDesktopCapture?.(publishStreamId.value);
+        } else {
+          webRTCAdaptor.value.turnOffLocalCamera?.(streamId);
+          sendNotificationEvent('CAM_TURNED_OFF');
+        }
       } else {
-        webRTCAdaptor.value.turnOffLocalCamera?.();
-        sendNotificationEvent('CAM_TURNED_OFF');
+        console.log('PRENDE');
+        if (perifericsControl.isScreenShared) {
+          webRTCAdaptor.value.switchDesktopCaptureWithCamera?.(streamId);
+        } else {
+          webRTCAdaptor.value.turnOnLocalCamera?.(streamId);
+        }
+        sendNotificationEvent('CAM_TURNED_ON');
       }
     };
     const toggleLocalMic = () => {
@@ -186,7 +226,7 @@ export default defineComponent({
     };
 
     const joinRoom = () => {
-      webRTCAdaptor.value.joinRoom?.(roomId, streamId.value, 'legacy');
+      webRTCAdaptor.value.joinRoom?.(roomId, streamId, 'legacy');
     };
 
     const publish = (
@@ -300,14 +340,21 @@ export default defineComponent({
         peerconnection_config: pc_config,
         sdp_constraints: sdpConstraints,
         localVideoId: 'localVideo',
-        isPlayMode: playOnly.value,
+        isPlayMode: false,
         debug: true,
+        dataChannelEnabled: true,
+        initCameraState: perifericsControl.isCameraOn,
         callback: (info: string, obj: objWebRTC) => {
           if (info == 'initialized') {
             console.log('initialized');
-            if (playOnly.value) {
+            /* if (playOnly.value) {
               isCameraOff.value = false;
+            } */
+            // load all
+            if (!perifericsControl.isCameraOn) {
+              webRTCAdaptor.value.turnOffLocalCamera?.(streamId);
             }
+            // load all
             joinRoom();
           } else if (info == 'joinedTheRoom') {
             /* var room = obj.ATTR_ROOM_NAME; */
@@ -320,19 +367,17 @@ export default defineComponent({
 
             publishStreamId.value = streamId;
 
-            if (playOnly.value) {
-              //join_publish_button.disabled = true;
-              //stop_publish_button.disabled = false;
+            /* if (playOnly.value) {              
               isCameraOff.value = true;
             } else {
-              publish(
-                streamId,
-                publishToken,
-                subscriberId.value,
-                subscriberCode.value,
-                streamName.value
-              );
-            }
+              } */
+            publish(
+              streamId,
+              publishToken,
+              subscriberId.value,
+              subscriberCode.value,
+              streamName.value
+            );
 
             if (obj.streams != null) {
               obj.streams.forEach(function (item) {
@@ -366,6 +411,11 @@ export default defineComponent({
             console.debug('publish finished');
           } else if (info == 'screen_share_stopped') {
             console.log('screen share stopped');
+            perifericsControl.isScreenShared = false;
+            if (!perifericsControl.isCameraOn) {
+              perifericsControl.isVideoActivated = false;
+              webRTCAdaptor.value.turnOffLocalCamera?.(streamId);
+            }
           } else if (info == 'browser_screen_share_supported') {
             //enable camera and screenshare
 

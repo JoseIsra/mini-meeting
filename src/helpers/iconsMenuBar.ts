@@ -1,3 +1,7 @@
+import { usePerifericsControls } from '@/componsables';
+
+const { perifericsControl } = usePerifericsControls();
+
 enum interactionType {
   CHAT = 'CHAT',
   HANDUP = 'HANDUP',
@@ -13,7 +17,7 @@ export const iconsPeriferics = [
     id: '1',
     onState: 'mic',
     offState: 'mic_off',
-    active: false,
+    active: perifericsControl.isMicOn,
     toolTipMessage: 'Habilitar audio',
     toolTipSecondMessage: 'Deshabilitar audio',
     interaction: interactionType.MIC,
@@ -22,7 +26,7 @@ export const iconsPeriferics = [
     id: '2',
     onState: 'videocam',
     offState: 'videocam_off',
-    active: false,
+    active: perifericsControl.isCameraOn,
     toolTipMessage: 'Habilitar webcam',
     toolTipSecondMessage: 'Deshabilitar webcam',
     interaction: interactionType.WEBCAM,

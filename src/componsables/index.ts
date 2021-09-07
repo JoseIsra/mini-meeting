@@ -1,5 +1,5 @@
 import { ref, reactive } from 'vue';
-import { ZoidWindow } from '@/types/zoid';
+//import { ZoidWindow } from '@/types/zoid';
 
 interface FunctionState {
   renderChat: boolean;
@@ -12,6 +12,7 @@ interface PerifericsState {
   isCameraOn: boolean;
   isScreenShared: boolean;
   cameraDeviceId: string;
+  isVideoActivated: boolean;
 }
 
 const functionState = {
@@ -21,10 +22,11 @@ const functionState = {
 };
 
 const perifericsState = {
-  isMicOn: false,
-  isCameraOn: ((window as ZoidWindow).xprops?.isCameraOn as boolean) || false,
+  isMicOn: true,
+  isCameraOn: false,
   isScreenShared: false,
   cameraDeviceId: '',
+  isVideoActivated: false,
 };
 
 const isSidebarRender = ref<boolean>(false);
@@ -65,12 +67,17 @@ export function usePerifericsControls() {
     perifericsControl.cameraDeviceId = value;
   };
 
+  const setVideoActivatedState = (value: boolean) => {
+    perifericsControl.isVideoActivated = value;
+  };
+
   return {
     perifericsControl,
     setMicState,
     setCameraState,
     setScreenState,
     setCameraDevice,
+    setVideoActivatedState
   };
 }
 

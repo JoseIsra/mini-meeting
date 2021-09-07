@@ -5,22 +5,22 @@
         <q-btn
           flat
           round
-          :class="['a-menuBar__icon', { active: icon.active === false }]"
+          :class="['a-menuBar__icon', { active: icon.active }]"
           v-for="icon in periferics"
           :key="icon.id"
-          :icon="icon.active ? icon.offState : icon.onState"
+          :icon="icon.active ? icon.onState : icon.offState"
           size="0.7rem"
           @click="
             icon.active = !icon.active;
             tooglePeriferic(icon.interaction);
           "
         >
-          <q-tooltip class="bg-grey-10" v-if="icon.active">
+          <q-tooltip class="bg-grey-10" v-if="!icon.active">
             <label class="a-menuBar__icon__tooltip">
               {{ icon.toolTipMessage }}
             </label>
           </q-tooltip>
-          <q-tooltip class="bg-grey-10" v-if="!icon.active">
+          <q-tooltip class="bg-grey-10" v-if="icon.active">
             <label class="a-menuBar__icon__tooltip">
               {{ icon.toolTipSecondMessage }}
             </label>
@@ -28,6 +28,7 @@
         </q-btn>
       </aside>
       <div class="a-menuBar__functions">
+        <!-- TODO: Icon active like camera and mic porque cuando se presiona en dejar de compartir se queda con el círculo -->
         <q-btn
           flat
           round
@@ -155,8 +156,13 @@ export default defineComponent({
     let { functionsOnMenuBar, setShowChat, setShowNotes, setShowUsersList } =
       useToogleFunctions();
     let { isSidebarRender, setSidebarState } = useSidebarToogle();
-    let { perifericsControl, setCameraState, setMicState } =
-      usePerifericsControls();
+    let {
+      perifericsControl,
+      setCameraState,
+      setMicState,
+      setScreenState,
+      setVideoActivatedState,
+    } = usePerifericsControls();
 
     //**********************++FUNCIONES ********************** */
     const toogleChat = () => {
@@ -209,22 +215,33 @@ export default defineComponent({
     };
 
     const toggleCamera = () => {
-      perifericsControl.isCameraOn = !perifericsControl.isCameraOn;
-      setCameraState(perifericsControl.isCameraOn);
+      //perifericsControl.isCameraOn = !perifericsControl.isCameraOn;
       props.toggleLocalCamera?.();
+
+      setCameraState(!perifericsControl.isCameraOn);
+
+      if (!perifericsControl.isScreenShared && !perifericsControl.isCameraOn)
+        setVideoActivatedState(false);
+      if (perifericsControl.isScreenShared || perifericsControl.isCameraOn)
+        setVideoActivatedState(true);
     };
 
     const toggleMIC = () => {
-      perifericsControl.isMicOn = !perifericsControl.isMicOn;
-      setMicState(perifericsControl.isMicOn);
       props.toggleLocalMic?.();
+      //perifericsControl.isMicOn = !perifericsControl.isMicOn;
+      setMicState(!perifericsControl.isMicOn);
     };
 
     const toggleDesktopScreenCapture = () => {
-      // perifericsControl.isScreenShared = !perifericsControl.isScreenShared;
-      // setScreenState(perifericsControl.isScreenShared);
-      // props.toggleDesktopCapture?.();
-      console.log('PROCESO DE PROYECCIÓN DE PANTALLA');
+      props.toggleDesktopCapture?.();
+      //perifericsControl.isScreenShared = !perifericsControl.isScreenShared;
+
+      setScreenState(!perifericsControl.isScreenShared);
+      //console.log('PROCESO DE PROYECCIÓN DE PANTALLA');
+      if (!perifericsControl.isScreenShared && !perifericsControl.isCameraOn)
+        setVideoActivatedState(false);
+      if (perifericsControl.isScreenShared || perifericsControl.isCameraOn)
+        setVideoActivatedState(true);
     };
 
     const handleMenuPosition = (ubication: string) => {

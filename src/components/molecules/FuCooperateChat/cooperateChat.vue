@@ -12,9 +12,9 @@
           class="m-chat__messagesBox__bubble"
           v-for="message in userMessages"
           :key="message.id"
-          :sent="message.streamName == userName"
+          :sent="message.streamId == userMe.id"
           :bg-color="
-            message.streamName == userName ? 'indigo-6' : 'deep-purple-9'
+            message.streamId == userMe.id ? 'indigo-6' : 'deep-purple-9'
           "
           text-color="white"
           :size="bubbleSize(message.message)"
@@ -29,7 +29,7 @@
               ></q-img>
               <aside
                 :class="[
-                  message.streamName === userName
+                  message.streamId === userMe.id
                     ? 'm-chat__messagesBox__info__user'
                     : 'm-chat__messagesBox__info__secondUser',
                 ]"
@@ -54,7 +54,7 @@
         <form
           class="m-chat__formBox__form"
           autocomplete="off"
-          @submit.prevent="sendMessge"
+          @submit.prevent="sendMessage"
         >
           <q-input
             class="m-chat__formBox__form__input"
@@ -151,6 +151,7 @@ export default defineComponent({
       userMessages,
       userName,
       bubbleSize,
+      userMe,
     };
   },
 });

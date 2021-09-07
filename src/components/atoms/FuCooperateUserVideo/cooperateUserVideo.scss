@@ -17,7 +17,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: rgba(0, 0, 0, 0.8);
+    background-color: rgba(0, 0, 0, 0.5);
     box-shadow: 2px 4px 6px rgba(0, 0, 0, 0.2);
     &__avatar {
       width: 100%;
@@ -27,7 +27,12 @@
       align-items: center;
       justify-content: center;
       &__imageBox {
-        width: 50%;
+        //width: 50%;
+
+        margin: 15px 0px;
+        /* border: solid red; */
+        width: 100%;
+        height: 60%;
         &__image {
           width: 100%;
           height: 100%;
@@ -43,7 +48,18 @@
         bottom: 10px;
         &__userName {
           color: #fffffe;
-          font-size: 16px;
+          font-size: 12px;
+
+          cursor: default;
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+          text-align: center;
+          background: #7c6e6e36;
+          padding: 0 5px;
+          border-radius: 4px;
+          width: fit-content;
+          max-width: 70%;
         }
       }
     }

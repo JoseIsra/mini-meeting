@@ -101,7 +101,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, reactive } from 'vue';
+import { defineComponent, ref, reactive, PropType } from 'vue';
+import { useRoute } from 'vue-router';
 import {
   iconsPeriferics,
   iconsFunctions,
@@ -114,6 +115,7 @@ import {
   useSidebarToogle,
   usePerifericsControls,
 } from '@/composables';
+import { WebRTCAdaptorType } from '@/types';
 
 export default defineComponent({
   name: 'FuCooperateMenuBar',
@@ -127,11 +129,15 @@ export default defineComponent({
     toggleDesktopCapture: {
       type: Function,
     },
+    webRTCAdaptor: {
+      type: Object as PropType<WebRTCAdaptorType>,
+    },
   },
   components: {
     FuCooperateMenu,
   },
   setup(props) {
+    const route = useRoute();
     const periferics = ref<Icons[]>(iconsPeriferics);
     const functions = ref<Icons[]>(iconsFunctions);
     const options = ref<Icons[]>(iconsOptions);
@@ -144,6 +150,7 @@ export default defineComponent({
     const objectFunctionalities = reactive<Functionalities>({
       CHAT: () => toogleChat(),
       SHARESCREEN: () => toggleDesktopScreenCapture(),
+      HANDUP: () => toogleHandUp(),
       SHARENOTES: () => toogleShareNotes(),
       USERLIST: () => toggleUsersList(),
     });
@@ -152,8 +159,14 @@ export default defineComponent({
     let renderMenu = ref<boolean>(false);
     let renderFunctionResponsiveMenu = ref<boolean>(false);
     let actionSelectionID = ref<string>('');
-    let { functionsOnMenuBar, setShowChat, setShowNotes, setShowUsersList } =
-      useToogleFunctions();
+    let {
+      functionsOnMenuBar,
+      setShowChat,
+      setShowNotes,
+      setShowUsersList,
+      updateHandNotification,
+      setHandNotificationInfo,
+    } = useToogleFunctions();
     let { isSidebarRender, setSidebarState } = useSidebarToogle();
     let { perifericsControl, setCameraState, setMicState } =
       usePerifericsControls();
@@ -218,6 +231,34 @@ export default defineComponent({
       perifericsControl.isMicOn = !perifericsControl.isMicOn;
       setMicState(perifericsControl.isMicOn);
       props.toggleLocalMic?.();
+    };
+
+    const toogleHandUp = () => {
+      if (functionsOnMenuBar.handNotificationActive) {
+        const downHand = {
+          streamId: route.query.streamId as string,
+          streamName: route.query.streamName as string,
+          eventType: 'NOHAND',
+        };
+        props.webRTCAdaptor?.sendData?.(
+          route.query.streamId as string,
+          JSON.stringify(downHand)
+        );
+        updateHandNotification(false);
+        return;
+      }
+      const riseHand = {
+        streamId: route.query.streamId as string,
+        streamName: route.query.streamName as string,
+        eventType: 'HAND',
+      };
+      updateHandNotification(true);
+
+      props.webRTCAdaptor?.sendData?.(
+        route.query.streamId as string,
+        JSON.stringify(riseHand)
+      );
+      setHandNotificationInfo(riseHand);
     };
 
     const toggleDesktopScreenCapture = () => {

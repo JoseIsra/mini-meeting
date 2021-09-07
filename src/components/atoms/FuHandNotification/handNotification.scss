@@ -1,0 +1,12 @@
+.a-hand {
+  padding: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.2);
+  &__message {
+    font-size: 15px;
+    margin: 0 0.5rem;
+    color: #fffffe;
+  }
+}

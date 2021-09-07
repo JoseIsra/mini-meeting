@@ -19,7 +19,7 @@ import FuCooperate from 'organisms/FuCooperate';
 import { useRoute } from 'vue-router';
 import { WebRTCAdaptor } from '@/utils/webrtc/webrtc_adaptor';
 import { objWebRTC, WebRTCAdaptorType } from '@/types/index';
-import { usePerifericsControls } from '@/composables';
+import { usePerifericsControls, useToogleFunctions } from '@/composables';
 import { Message, useHandleMessage } from '@/composables/chat';
 import { ZoidWindow } from '@/types/zoid';
 // import { useInitWebRTC } from '@/composables/ant-media-server-stuff';
@@ -40,7 +40,8 @@ export default defineComponent({
     let { setUserMessage } = useHandleMessage();
     // let { setWebRTC } = useInitWebRTC();
     const route = useRoute();
-
+    const { setHandNotificationInfo, updateHandNotification } =
+      useToogleFunctions();
     const roomId =
       (window as ZoidWindow)?.xprops?.roomId ||
       (route.query.roomId as string) ||
@@ -426,6 +427,12 @@ export default defineComponent({
               setUserMessage(objParsed);
             } else if (eventType === 'NOTIFICATION') {
               handleNotificationEvent(obj);
+            } else if (eventType === 'HAND') {
+              console.log('parseado', objParsed);
+              updateHandNotification(true);
+              setHandNotificationInfo(objParsed);
+            } else if (eventType == 'NOHAND') {
+              updateHandNotification(false);
             }
           }
         },

@@ -5,6 +5,8 @@ interface FunctionState {
   renderChat: boolean;
   renderNotes: boolean;
   renderUsersList: boolean;
+  handNotificationActive: boolean;
+  handNotificationInfo: HandNotification;
 }
 
 interface PerifericsState {
@@ -14,10 +16,18 @@ interface PerifericsState {
   cameraDeviceId: string;
 }
 
+export interface HandNotification {
+  streamId: string;
+  streamName: string;
+  eventType: string;
+}
+
 const functionState = {
   renderChat: false,
   renderNotes: false,
   renderUsersList: false,
+  handNotificationActive: false,
+  handNotificationInfo: {} as HandNotification,
 };
 
 const perifericsState = {
@@ -41,11 +51,21 @@ export function useToogleFunctions() {
   const setShowUsersList = (value: boolean) => {
     functionsOnMenuBar.renderUsersList = value;
   };
+
+  const updateHandNotification = (value: boolean) => {
+    functionsOnMenuBar.handNotificationActive = value;
+  };
+  const setHandNotificationInfo = (value: HandNotification) => {
+    Object.assign(functionsOnMenuBar.handNotificationInfo, value);
+  };
+
   return {
     functionsOnMenuBar,
     setShowChat,
     setShowNotes,
     setShowUsersList,
+    updateHandNotification,
+    setHandNotificationInfo,
   };
 }
 

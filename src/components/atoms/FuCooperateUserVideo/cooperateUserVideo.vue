@@ -63,9 +63,10 @@ export default defineComponent({
       type: Array as PropType<objWebRTC[]>,
     },
   },
-  setup() {
+  setup(props) {
     const users = ref<UserStream[]>(userStreams);
     let { perifericsControl } = usePerifericsControls();
+    console.log(props.objStreams);
     return {
       users,
       perifericsControl,

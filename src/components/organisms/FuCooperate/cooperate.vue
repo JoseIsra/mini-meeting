@@ -1,7 +1,6 @@
 <template>
   <section class="o-cooperate" @mousemove="toogleMenuBar">
     <fu-cooperate-header />
-    <fu-cooperate-body />
     <fu-cooperate-menu-bar
       v-show="showMenuBar"
       :webRTCAdaptor="webRTCAdaptor"
@@ -30,7 +29,7 @@
 import { defineComponent, ref, PropType, toRefs, onMounted } from 'vue';
 import FuCooperateMenuBar from 'organisms/FuCooperateMenuBar';
 import FuCooperateHeader from 'atoms/FuCooperateHeader';
-import FuCooperateBody from 'molecules/FuCooperateBody';
+// import FuCooperateBody from 'molecules/FuCooperateBody';
 import FuCooperateUserVideo from 'atoms/FuCooperateUserVideo';
 import FuCooperateSideBar from 'molecules/FuCooperateSideBar';
 import FuHandNotification from 'atoms/FuHandNotification';
@@ -60,7 +59,7 @@ export default defineComponent({
   components: {
     FuCooperateMenuBar,
     FuCooperateHeader,
-    FuCooperateBody,
+    // FuCooperateBody,
     FuCooperateSideBar,
     FuCooperateUserVideo,
     FuHandNotification,

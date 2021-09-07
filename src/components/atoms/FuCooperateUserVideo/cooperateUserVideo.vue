@@ -49,7 +49,7 @@
 import { defineComponent, ref, PropType } from 'vue';
 import { userStreams } from '@/helpers/usersVideo';
 import { objWebRTC } from '@/types';
-import { usePerifericsControls } from '@/componsables';
+import { usePerifericsControls } from '@/composables';
 
 interface UserStream {
   id: string;

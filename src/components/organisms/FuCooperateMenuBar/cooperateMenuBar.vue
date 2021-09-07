@@ -114,7 +114,7 @@ import {
   useToogleFunctions,
   useSidebarToogle,
   usePerifericsControls,
-} from '@/componsables';
+} from '@/composables';
 
 export default defineComponent({
   name: 'FuCooperateMenuBar',

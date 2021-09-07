@@ -1,6 +1,9 @@
 <template>
   <section class="m-sideBar">
-    <fu-cooperate-chat v-show="functionsOnMenuBar.renderChat" />
+    <fu-cooperate-chat
+      v-show="functionsOnMenuBar.renderChat"
+      :webRTCAdaptor="webRTCAdaptor"
+    />
     <fu-cooperate-notes
       v-show="functionsOnMenuBar.renderNotes && !functionsOnMenuBar.renderChat"
     />
@@ -15,19 +18,26 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, PropType, toRefs } from 'vue';
 import FuCooperateChat from 'molecules/FuCooperateChat';
 import FuCooperateUsersList from 'molecules/FuCooperateUsersList';
 import FuCooperateNotes from 'molecules/FuCooperateNotes';
-import { useToogleFunctions } from '@/componsables';
+import { useToogleFunctions } from '@/composables';
+import { WebRTCAdaptorType } from '@/types';
 
 export default defineComponent({
   name: 'FuCooperateSideBar',
+  props: {
+    webRTCAdaptor: {
+      type: Object as PropType<WebRTCAdaptorType>,
+    },
+  },
   components: { FuCooperateChat, FuCooperateUsersList, FuCooperateNotes },
-  setup() {
+  setup(props) {
     let { functionsOnMenuBar } = useToogleFunctions();
     return {
       functionsOnMenuBar,
+      ...toRefs(props),
     };
   },
 });

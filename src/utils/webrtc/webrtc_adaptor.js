@@ -6,6 +6,7 @@
 import { PeerStats } from './peer_stats.js';
 import { WebSocketAdaptor } from './websocket_adaptor.js';
 import adapter from 'webrtc-adapter';
+
 class ReceivingMessage {
   constructor(size) {
     this.size = size;
@@ -44,6 +45,14 @@ export class WebRTCAdaptor {
     this.viewerInfo = '';
     this.publishStreamId = null;
     this.blackFrameTimer = null;
+
+    //FractalUp
+    this.isScreenshared = false;
+    this.isScreensharedWithCamera = false;
+    this.screenVideo = null;
+    this.cameraVideo = null;
+    this.totalCanvas = null;
+    this.canvasInterval = null;
 
     /**
      * This is used when only data is brodcasted with the same way video and/or audio.
@@ -144,6 +153,138 @@ export class WebRTCAdaptor {
       this.checkWebSocketConnection();
     }
   }
+
+  changeOnlyCamera(streamId) {
+    // TODO: condicional si es ahroa con camara y pantalla. Asimismo ver como desconectar la camara completamente
+
+    if (this.isScreenshared) {
+      console.log('activa screenshared');
+
+      this.navigatorUserMedia({ video: true, audio: false }, (cameraStream) => {
+        /* this.cameraVideo = null; */
+        this.totalCanvas = document.createElement('canvas');
+        const canvasContext = this.totalCanvas.getContext('2d');
+
+        const onended = () => {
+          console.log('ended');
+        };
+
+        this.cameraVideo = document.createElement('video');
+
+        var canvasStream = this.totalCanvas.captureStream(15);
+        this.cameraVideo.srcObject = cameraStream;
+        this.cameraVideo.play();
+
+        if (this.localStream == null) {
+          this.gotStream(canvasStream);
+        } else {
+          this.updateVideoTrack(
+            canvasStream,
+            streamId,
+            this.mediaConstraints,
+            onended,
+            null
+          );
+        }
+
+        /* if (onEndedCallback != null) {
+             stream.getVideoTracks()[0].onended = function (event) {
+               onEndedCallback(event);
+             };
+           } */
+
+        //this.canvasInterval = 0;
+        clearInterval(this.canvasInterval);
+
+        //update the canvas
+        this.canvasInterval = setInterval(() => {
+          //draw screen to canvas
+          this.totalCanvas.width = this.screenVideo.videoWidth;
+          this.totalCanvas.height = this.screenVideo.videoHeight;
+          canvasContext.drawImage(
+            this.screenVideo,
+            0,
+            0,
+            this.totalCanvas.width,
+            this.totalCanvas.height
+          );
+
+          var cameraWidth =
+            this.screenVideo.videoWidth * (this.camera_percent / 100);
+          var cameraHeight =
+            (this.cameraVideo.videoHeight / this.cameraVideo.videoWidth) *
+            cameraWidth;
+
+          var positionX =
+            this.totalCanvas.width - cameraWidth - this.camera_margin;
+          var positionY;
+
+          if (this.camera_location == 'top') {
+            positionY = this.camera_margin;
+          } else {
+            //if not top, make it bottom
+            //draw camera on right bottom corner
+            positionY =
+              this.totalCanvas.height - cameraHeight - this.camera_margin;
+          }
+          canvasContext.drawImage(
+            this.cameraVideo,
+            positionX,
+            positionY,
+            cameraWidth,
+            cameraHeight
+          );
+        }, 66);
+      });
+    } else if (this.isScreensharedWithCamera) {
+      console.log('activa screenshared con cámara');
+
+      this.totalCanvas = document.createElement('canvas');
+      const canvasContext = this.totalCanvas.getContext('2d');
+
+      var canvasStream = this.totalCanvas.captureStream(15);
+
+      const onended = () => {
+        console.log('ended');
+      };
+
+      if (this.localStream == null) {
+        this.gotStream(canvasStream);
+      } else {
+        this.updateVideoTrack(
+          canvasStream,
+          streamId,
+          this.mediaConstraints,
+          onended,
+          null
+        );
+      }
+
+      /* if (onEndedCallback != null) {
+         stream.getVideoTracks()[0].onended = function (event) {
+           onEndedCallback(event);
+         };
+       } */
+
+      //this.canvasInterval = 0;
+      clearInterval(this.canvasInterval);
+
+      //update the canvas
+      this.canvasInterval = setInterval(() => {
+        //draw screen to canvas
+        this.totalCanvas.width = this.screenVideo.videoWidth;
+        this.totalCanvas.height = this.screenVideo.videoHeight;
+        canvasContext.drawImage(
+          this.screenVideo,
+          0,
+          0,
+          this.totalCanvas.width,
+          this.totalCanvas.height
+        );
+      }, 66);
+    }
+  }
+
   setDesktopwithCameraSource(stream, streamId, audioStream, onEndedCallback) {
     this.desktopStream = stream;
     this.navigatorUserMedia(
@@ -152,21 +293,25 @@ export class WebRTCAdaptor {
         this.smallVideoTrack = cameraStream.getVideoTracks()[0];
 
         //create a canvas element
-        var canvas = document.createElement('canvas');
-        var canvasContext = canvas.getContext('2d');
+        //var canvas = document.createElement("canvas");
+        this.totalCanvas = document.createElement('canvas');
+        const canvasContext = this.totalCanvas.getContext('2d');
 
         //create video element for screen
         //var screenVideo = document.getElementById('sourceVideo');
-        var screenVideo = document.createElement('video');
 
-        screenVideo.srcObject = stream;
-        screenVideo.play();
+        //var screenVideo = document.createElement("video");
+        this.screenVideo = document.createElement('video');
+
+        this.screenVideo.srcObject = stream;
+        this.screenVideo.play();
         //create video element for camera
-        var cameraVideo = document.createElement('video');
+        //var cameraVideo = document.createElement("video");
+        this.cameraVideo = document.createElement('video');
 
-        cameraVideo.srcObject = cameraStream;
-        cameraVideo.play();
-        var canvasStream = canvas.captureStream(15);
+        this.cameraVideo.srcObject = cameraStream;
+        this.cameraVideo.play();
+        var canvasStream = this.totalCanvas.captureStream(15);
 
         if (this.localStream == null) {
           this.gotStream(canvasStream);
@@ -184,26 +329,30 @@ export class WebRTCAdaptor {
             onEndedCallback(event);
           };
         }
-        //TODO: For change where is going to be placed the camera and screen
+
+        this.canvasInterval = 0;
+
         //update the canvas
-        setInterval(() => {
+        this.canvasInterval = setInterval(() => {
           //draw screen to canvas
-          canvas.width = screenVideo.videoWidth;
-          canvas.height = screenVideo.videoHeight;
+          this.totalCanvas.width = this.screenVideo.videoWidth;
+          this.totalCanvas.height = this.screenVideo.videoHeight;
           canvasContext.drawImage(
-            screenVideo,
+            this.screenVideo,
             0,
             0,
-            canvas.width,
-            canvas.height
+            this.totalCanvas.width,
+            this.totalCanvas.height
           );
 
           var cameraWidth =
-            screenVideo.videoWidth * (this.camera_percent / 100);
+            this.screenVideo.videoWidth * (this.camera_percent / 100);
           var cameraHeight =
-            (cameraVideo.videoHeight / cameraVideo.videoWidth) * cameraWidth;
+            (this.cameraVideo.videoHeight / this.cameraVideo.videoWidth) *
+            cameraWidth;
 
-          var positionX = canvas.width - cameraWidth - this.camera_margin;
+          var positionX =
+            this.totalCanvas.width - cameraWidth - this.camera_margin;
           var positionY;
 
           if (this.camera_location == 'top') {
@@ -211,10 +360,11 @@ export class WebRTCAdaptor {
           } else {
             //if not top, make it bottom
             //draw camera on right bottom corner
-            positionY = canvas.height - cameraHeight - this.camera_margin;
+            positionY =
+              this.totalCanvas.height - cameraHeight - this.camera_margin;
           }
           canvasContext.drawImage(
-            cameraVideo,
+            this.cameraVideo,
             positionX,
             positionY,
             cameraWidth,
@@ -274,7 +424,7 @@ export class WebRTCAdaptor {
           //add callback if desktop is sharing
           var onended = (event) => {
             this.callback('screen_share_stopped');
-            this.setVideoCameraSource(streamId, mediaConstraints, null, true);
+            //this.setVideoCameraSource(streamId, mediaConstraints, null, true);
           };
 
           if (this.publishMode == 'screen') {
@@ -380,35 +530,51 @@ export class WebRTCAdaptor {
 
     // Check Media Constraint video value screen or screen + camera
     if (this.publishMode == 'screen+camera' || this.publishMode == 'screen') {
-      navigator.mediaDevices
-        .getDisplayMedia(mediaConstraints)
-        .then((stream) => {
-          resetTrack(stream);
-          this.prepareStreamTracks(
-            mediaConstraints,
-            audioConstraint,
-            stream,
-            streamId
-          );
-        })
-        .catch((error) => {
-          if (error.name === 'NotAllowedError') {
-            console.debug('Permission denied error');
-            this.callbackError('ScreenSharePermissionDenied');
+      if (this.isScreenshared || this.isScreensharedWithCamera) {
+        //this.prepareStreamTracks(mediaConstraints, audioConstraint, stream, streamId);
+        this.changeOnlyCamera(streamId);
+      } else {
+        navigator.mediaDevices
+          .getDisplayMedia(mediaConstraints)
+          .then((stream) => {
+            resetTrack(stream);
+            this.prepareStreamTracks(
+              mediaConstraints,
+              audioConstraint,
+              stream,
+              streamId
+            );
+          })
+          .catch((error) => {
+            console.error(error);
+            if (error.name === 'NotAllowedError') {
+              console.debug('Permission denied error');
+              this.callbackError('ScreenSharePermissionDenied');
 
-            // Redirect Default Stream Camera
-            if (this.localStream == null) {
-              var mediaConstraints = {
-                video: true,
-                audio: true,
-              };
+              // Redirect Default Stream Camera
+              if (this.localStream == null) {
+                var mediaConstraints = {
+                  video: true,
+                  audio: true,
+                };
 
-              this.openStream(mediaConstraints);
-            } else {
-              this.switchVideoCameraCapture(streamId);
+                this.openStream(mediaConstraints);
+              } else {
+                this.switchVideoCameraCapture(streamId);
+              }
             }
-          }
-        });
+          });
+      }
+
+      if (this.publishMode == 'screen+camera') {
+        this.isScreenshared = false;
+        this.isScreensharedWithCamera = true;
+        console.log('screen+camera');
+      } else if (this.publishMode == 'screen') {
+        this.isScreenshared = true;
+        this.isScreensharedWithCamera = false;
+        console.log('screen');
+      }
     }
     // If mediaConstraints only user camera
     else {
@@ -714,14 +880,14 @@ export class WebRTCAdaptor {
   }
 
   /**
-	* Toggle video track on the server side.
-	*
-	* streamId is the id of the stream
-	* trackId is the id of the track. streamId is also one of the trackId of the stream. If you are having just a single track on your 
-	*         stream, you need to give streamId as trackId parameter as well.  
-	* enabled is the enable/disable video track. If it's true, server sends video track. If it's false, server does not send video
-	
-	*/
+   * Toggle video track on the server side.
+   *
+   * streamId is the id of the stream
+   * trackId is the id of the track. streamId is also one of the trackId of the stream. If you are having just a single track on your 
+   *         stream, you need to give streamId as trackId parameter as well.  
+   * enabled is the enable/disable video track. If it's true, server sends video track. If it's false, server does not send video
+   
+   */
   toggleVideo(streamId, trackId, enabled) {
     var jsCmd = {
       command: 'toggleVideo',
@@ -1440,6 +1606,19 @@ export class WebRTCAdaptor {
       this.blackFrameTimer = setInterval(() => {
         this.initializeDummyFrame();
       }, 3000);
+    }
+  }
+
+  resetDesktop() {
+    this.isScreenshared = false;
+    this.isScreensharedWithCamera = false;
+    this.closeStream();
+  }
+
+  justTurnOnLocalCamera(streamId) {
+    if (this.blackFrameTimer != null) {
+      clearInterval(this.blackFrameTimer);
+      this.blackFrameTimer = null;
     }
   }
 

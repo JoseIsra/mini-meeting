@@ -1,3 +1,7 @@
+import { usePerifericsControls } from '@/composables';
+
+const { perifericsControl } = usePerifericsControls();
+
 enum interactionType {
   CHAT = 'CHAT',
   HANDUP = 'HANDUP',
@@ -13,7 +17,7 @@ export const iconsPeriferics = [
     id: '1',
     onState: 'mic',
     offState: 'mic_off',
-    active: false,
+    active: perifericsControl.isMicOn,
     toolTipMessage: 'Habilitar audio',
     toolTipSecondMessage: 'Deshabilitar audio',
     interaction: interactionType.MIC,
@@ -22,7 +26,7 @@ export const iconsPeriferics = [
     id: '2',
     onState: 'videocam',
     offState: 'videocam_off',
-    active: false,
+    active: perifericsControl.isCameraOn,
     toolTipMessage: 'Habilitar webcam',
     toolTipSecondMessage: 'Deshabilitar webcam',
     interaction: interactionType.WEBCAM,
@@ -38,16 +42,16 @@ export const iconsFunctions = [
     toolTipSecondMessage: 'Dejar de compartir pantalla',
     interaction: interactionType.SHARESCREEN,
   },
-  {
-    id: '2',
-    onState: 'pan_tool',
-    offState: 'pan_tool',
-    active: false,
-    toolTipMessage: 'Levantar la mano',
-    toolTipSecondMessage: 'Bajar la mano',
-    interaction: interactionType.HANDUP,
-  },
-  {
+  // {
+  //   id: '2',
+  //   onState: 'pan_tool',
+  //   offState: 'pan_tool',
+  //   active: false,
+  //   toolTipMessage: 'Levantar la mano',
+  //   toolTipSecondMessage: 'Bajar la mano',
+  //   interaction: interactionType.HANDUP,
+  // },
+  /* {
     id: '3',
     onState: 'person',
     offState: 'person',
@@ -55,7 +59,7 @@ export const iconsFunctions = [
     toolTipMessage: 'Alternar lista de usuarios',
     toolTipSecondMessage: 'Alternar lista de usuarios',
     interaction: interactionType.USERLIST,
-  },
+  }, */
   {
     id: '4',
     onState: 'wechat',
@@ -65,7 +69,7 @@ export const iconsFunctions = [
     toolTipSecondMessage: 'Ocultar chat',
     interaction: interactionType.CHAT,
   },
-  {
+  /* {
     id: '5',
     onState: 'description',
     offState: 'description',
@@ -73,8 +77,8 @@ export const iconsFunctions = [
     toolTipMessage: 'Notas compartidas',
     toolTipSecondMessage: 'Notas compartidas',
     interaction: interactionType.SHARENOTES,
-  },
-  {
+  }, */
+  /* {
     id: '6',
     onState: 'signal_cellular_alt',
     offState: 'signal_cellular_alt',
@@ -82,7 +86,7 @@ export const iconsFunctions = [
     toolTipMessage: 'Estado de la conexión',
     toolTipSecondMessage: 'Estado de la conexión',
     interaction: interactionType.CONNECTION,
-  },
+  }, */
 ];
 
 export const iconsOptions = [

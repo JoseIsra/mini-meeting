@@ -46,11 +46,15 @@ export interface WebRTCAdaptorType {
     subscriberId?: string,
     susbscriberCode?: string
   ) => void;
-  turnOffLocalCamera?: () => void;
-  turnOnLocalCamera?: () => void;
+  turnOffLocalCamera?: (streamId: string) => void;
+  justTurnOnLocalCamera?: (streamId: string) => void;
+  turnOnLocalCamera?: (streamId: string) => void;
   sendData?: (publishStreamId: string, notEvent: string) => void;
   switchDesktopCapture?: (publishStreamId: string) => void;
-  switchVideoCameraCapture?: (publishStreamId: string, value: string) => void;
+  switchVideoCameraCapture?: (
+    publishStreamId: string,
+    deviceId: string
+  ) => void;
   switchDesktopCaptureWithCamera?: (publishStreamId: string) => void;
   muteLocalMic?: () => void;
   unmuteLocalMic?: () => void;
@@ -62,6 +66,7 @@ export interface WebRTCAdaptorType {
     mediaConstraints: Record<string, string>,
     onEndedCallback: () => void
   ) => void;
+  resetDesktop?: () => void;
 }
 
 export interface dataType {

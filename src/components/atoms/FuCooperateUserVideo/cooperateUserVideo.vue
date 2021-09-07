@@ -3,26 +3,25 @@
   <section class="a-userVideo">
     <div class="a-userVideo__box">
       <div
-        v-show="perifericsControl.isCameraOn"
+        v-show="!perifericsControl.isVideoActivated"
         class="a-userVideo__box__avatar"
       >
         <figure class="a-userVideo__box__avatar__imageBox">
-          <img
-            class="a-userVideo__box__avatar__image"
-            src="https://f002.backblazeb2.com/file/FractalUp/Logos/logo_azul.svg"
-          />
+          <img class="a-userVideo__box__avatar__image" :src="me.avatar" />
         </figure>
         <div class="a-userVideo__box__avatar__info">
-          <label class="a-userVideo__box__avatar__info__userName">User</label>
+          <label class="a-userVideo__box__avatar__info__userName">{{
+            me.name
+          }}</label>
           <q-icon
-            :name="perifericsControl.isMicOn ? 'mic_off' : 'mic'"
+            :name="perifericsControl.isMicOn ? 'mic' : 'mic_off'"
             size="20px"
             color="white"
           />
         </div>
       </div>
       <video
-        v-show="!perifericsControl.isCameraOn"
+        v-show="perifericsControl.isVideoActivated"
         id="localVideo"
         class="a-userVideo__box__stream"
         autoplay
@@ -50,6 +49,7 @@ import { defineComponent, ref, PropType } from 'vue';
 import { userStreams } from '@/helpers/usersVideo';
 import { objWebRTC } from '@/types';
 import { usePerifericsControls } from '@/composables';
+import { useUser } from '@/composables/userMe';
 
 interface UserStream {
   id: string;
@@ -63,13 +63,14 @@ export default defineComponent({
       type: Array as PropType<objWebRTC[]>,
     },
   },
-  setup(props) {
+  setup() {
     const users = ref<UserStream[]>(userStreams);
     let { perifericsControl } = usePerifericsControls();
-    console.log(props.objStreams);
+    const { me } = useUser();
     return {
       users,
       perifericsControl,
+      me,
     };
   },
 });

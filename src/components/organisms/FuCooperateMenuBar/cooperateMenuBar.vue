@@ -10,9 +10,10 @@
           :key="icon.id"
           :icon="icon.active ? icon.onState : icon.offState"
           size="0.7rem"
+          :disable="icon.id === '2' && perifericsControl.isScreenShared"
           @click="
             icon.active = !icon.active;
-            tooglePeriferic(icon.interaction);
+            tooglePeriferic(icon?.interaction);
           "
         >
           <q-tooltip class="bg-grey-10" v-if="!icon.active">
@@ -37,6 +38,7 @@
           :key="icon.id"
           :icon="icon.onState"
           size="14px"
+          :disabled="icon.id === '1' && perifericsControl.isCameraOn"
           @click="handleFunctionSelected(icon.interaction, icon.id)"
         >
           <q-tooltip class="bg-grey-10" v-if="!icon.active">
@@ -244,18 +246,18 @@ export default defineComponent({
         setVideoActivatedState(true);
     };
 
-    const handleMenuPosition = (ubication: string) => {
+    const handleMenuPosition = (ubication?: string) => {
       isActions.value = ubication === 'actions' ? true : false;
       renderMenu.value = !renderMenu.value;
     };
 
-    const handleFunctionSelected = (interaction: string, ID: string) => {
+    const handleFunctionSelected = (interaction?: string, ID?: string) => {
       if (actionSelectionID.value == ID) {
         actionSelectionID.value = '';
         objectFunctionalities[interaction as keyof Functionalities]?.();
         return;
       }
-      actionSelectionID.value = ID;
+      actionSelectionID.value = ID as string;
       objectFunctionalities[interaction as keyof Functionalities]?.();
     };
 
@@ -265,6 +267,7 @@ export default defineComponent({
 
     return {
       periferics,
+      perifericsControl,
       functions,
       options,
       handleMenuPosition,

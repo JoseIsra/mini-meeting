@@ -15,7 +15,7 @@
         <div class="a-userVideo__box__avatar__info">
           <label class="a-userVideo__box__avatar__info__userName">User</label>
           <q-icon
-            :name="perifericsControl.isMicOn ? 'mic_off' : 'mic'"
+            :name="perifericsControl.isMicOn ? 'mic' : 'mic_off'"
             size="20px"
             color="white"
           />

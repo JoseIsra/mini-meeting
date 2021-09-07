@@ -5,7 +5,7 @@ import * as zoid from 'zoid/dist/zoid.frameworks';
 
 const FractalUpCooperate = zoid.create({
   tag: 'fractalup-cooperate',
-  url: 'https://localhost:8080',
+  url: window.location.href,
 });
 
 export default FractalUpCooperate;

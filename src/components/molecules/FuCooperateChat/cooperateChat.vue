@@ -92,6 +92,8 @@ import moment from 'moment';
 import { useHandleMessage } from '@/composables/chat';
 import { nanoid } from 'nanoid';
 
+import { ZoidWindow } from '@/types/zoid';
+
 // import { useInitWebRTC } from '@/composables/ant-media-server-stuff';
 
 export default defineComponent({
@@ -105,7 +107,9 @@ export default defineComponent({
     const route = useRoute();
     let userInput = ref<string>('');
     let { userMessages, setUserMessage } = useHandleMessage();
-    let userName = ref(route.query.streamName);
+    let userName = ref(
+      (window as ZoidWindow)?.xprops?.streamId || route.query.streamName
+    );
 
     const sendMessage = () => {
       if (!regexp.test(userInput.value)) {
@@ -114,16 +118,21 @@ export default defineComponent({
       }
       const userMessage = {
         id: nanoid(),
-        streamId: route.query.streamId as string,
+        streamId:
+          (window as ZoidWindow)?.xprops?.streamId ||
+          (route.query.streamId as string),
         date: moment(new Date()).format('h: mm a'),
-        streamName: route.query.streamName as string,
+        streamName:
+          (window as ZoidWindow)?.xprops?.streamId ||
+          (route.query.streamName as string),
         eventType: 'CHAT_MESSAGE',
         message: userInput.value,
       };
       setUserMessage(userMessage);
 
       props.webRTCAdaptor?.sendData?.(
-        route.query.streamId as string,
+        (window as ZoidWindow)?.xprops?.streamId ||
+          (route.query.streamId as string),
         JSON.stringify(userMessage)
       );
       userInput.value = '';

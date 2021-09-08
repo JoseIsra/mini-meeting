@@ -1,5 +1,4 @@
 <template>
-  <!-- :class="{ 'a-userVideo__box__avatar': perifericsControl.isCameraOn }" -->
   <section class="a-userVideo">
     <div class="a-userVideo__box">
       <div
@@ -31,6 +30,28 @@
         muted
         playsinline
       ></video>
+      <q-btn
+        flat
+        round
+        :ripple="false"
+        icon="launch"
+        color="white"
+        class="a-userVideo__box__avatar__screenBtn"
+        @click="goFullScreen"
+      >
+        <q-tooltip
+          anchor="top middle"
+          class="bg-grey-10"
+          self="bottom middle"
+          :offset="[10, 10]"
+          transition-show="scale"
+          transition-hide="scale"
+        >
+          <label class="a-userVideo__box__avatar__screenBtn__label"
+            >Pantalla completa</label
+          >
+        </q-tooltip>
+      </q-btn>
     </div>
     <div
       class="a-userVideo__box"
@@ -43,16 +64,39 @@
         playsinline
         :srcObject.prop="object.stream"
       ></video>
+      <q-btn
+        flat
+        round
+        :ripple="false"
+        icon="launch"
+        color="white"
+        class="a-userVideo__box__avatar__screenBtn"
+        @click="goFullScreen()"
+      >
+        <q-tooltip
+          anchor="top middle"
+          class="bg-grey-10"
+          self="bottom middle"
+          :offset="[10, 10]"
+          transition-show="scale"
+          transition-hide="scale"
+        >
+          <label class="a-userVideo__box__avatar__screenBtn__label"
+            >Pantalla completa</label
+          >
+        </q-tooltip>
+      </q-btn>
     </div>
   </section>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, PropType } from 'vue';
+import { defineComponent, ref } from 'vue';
 import { userStreams } from '@/helpers/usersVideo';
-import { objWebRTC } from '@/types';
-import { usePerifericsControls } from '@/composables';
+// import { objWebRTC } from '@/types';
+import { usePerifericsControls, useToogleFunctions } from '@/composables';
 import { useUserMe } from '@/composables/userMe';
+import { useHandleParticipants } from '@/composables/ant-media-server-stuff';
 
 interface UserStream {
   id: string;
@@ -61,19 +105,25 @@ interface UserStream {
 
 export default defineComponent({
   name: 'FuCooperateUserVideo',
-  props: {
-    objStreams: {
-      type: Array as PropType<objWebRTC[]>,
-    },
-  },
   setup() {
     const users = ref<UserStream[]>(userStreams);
     let { perifericsControl } = usePerifericsControls();
+    const { objStreams } = useHandleParticipants();
+    const { isFullScreen, setFullScreen } = useToogleFunctions();
     const { userMe } = useUserMe();
+
+    const goFullScreen = () => {
+      //TODO: PASAR ARGUMENTO DE OBJETO STREAM PARA ESPECIFICAR FULL SCREEN
+      setFullScreen(true);
+    };
+
     return {
       users,
       perifericsControl,
       userMe,
+      goFullScreen,
+      isFullScreen,
+      objStreams,
     };
   },
 });

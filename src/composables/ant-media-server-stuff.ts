@@ -1,15 +1,15 @@
-import { reactive } from 'vue';
-import { WebRTCAdaptorType } from '@/types';
+import { ref } from 'vue';
+import { objWebRTC } from '@/types';
 
-let webRTCInstance = reactive<WebRTCAdaptorType>({});
+const objStreams = ref<objWebRTC[]>([]);
 
-export function useInitWebRTC() {
-  const setWebRTC = (value: WebRTCAdaptorType) => {
+export function useHandleParticipants() {
+  const addParticipants = (value: objWebRTC) => {
     // Object.assign(webRTCInstance, value);
-    webRTCInstance = value;
+    objStreams.value.push(value);
   };
   return {
-    setWebRTC,
-    webRTCInstance,
+    addParticipants,
+    objStreams,
   };
 }

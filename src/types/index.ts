@@ -1,3 +1,5 @@
+import { User } from '@/composables/userMe';
+
 interface SoundGainType {
   gain: {
     value: number;
@@ -14,6 +16,7 @@ export interface objWebRTC {
   stream: MediaStream;
   event: Record<string, string>;
   data: string;
+  user?: User;
 }
 
 export interface Icons {
@@ -29,6 +32,7 @@ export interface Icons {
 export const regexp = /^(?!\s*$).+/;
 
 export interface WebRTCAdaptorType {
+  metodoDePrueba?: () => MediaStream;
   joinRoom?: (roomName: string, streamId: string, mode: string) => void;
   leaveFromRoom?: (roomName: string) => void;
   getRoomInfo?: (roomName: string, publishStreamId: string) => void;

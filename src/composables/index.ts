@@ -6,7 +6,7 @@ interface FunctionState {
   renderNotes: boolean;
   renderUsersList: boolean;
   handNotificationActive: boolean;
-  handNotificationInfo: HandNotification;
+  handNotificationInfo: HandNotification[];
 }
 
 interface PerifericsState {
@@ -18,17 +18,20 @@ interface PerifericsState {
 }
 
 export interface HandNotification {
+  id: string;
   streamId: string;
   streamName: string;
   eventType: string;
 }
+
+// const handNotificationsArray = new Set<HandNotification[]>();
 
 const functionState = {
   renderChat: false,
   renderNotes: false,
   renderUsersList: false,
   handNotificationActive: false,
-  handNotificationInfo: {} as HandNotification,
+  handNotificationInfo: [] as HandNotification[],
 };
 
 const perifericsState = {
@@ -42,7 +45,8 @@ const perifericsState = {
 const isSidebarRender = ref<boolean>(false);
 const functionsOnMenuBar = reactive<FunctionState>(functionState);
 const perifericsControl = reactive<PerifericsState>(perifericsState);
-
+const isFullScreen = ref<boolean>(false);
+// const fullScreenObject = reactive({});
 export function useToogleFunctions() {
   const setShowChat = (value: boolean) => {
     functionsOnMenuBar.renderChat = value;
@@ -57,8 +61,19 @@ export function useToogleFunctions() {
   const updateHandNotification = (value: boolean) => {
     functionsOnMenuBar.handNotificationActive = value;
   };
-  const setHandNotificationInfo = (value: HandNotification) => {
-    Object.assign(functionsOnMenuBar.handNotificationInfo, value);
+  const addHandNotificationInfo = (value: HandNotification) => {
+    functionsOnMenuBar.handNotificationInfo.push(value);
+  };
+
+  const removeHandNotification = (value: string) => {
+    functionsOnMenuBar.handNotificationInfo =
+      functionsOnMenuBar.handNotificationInfo.filter(
+        (notific) => notific.streamId !== value
+      );
+  };
+
+  const setFullScreen = (value: boolean) => {
+    isFullScreen.value = value;
   };
 
   return {
@@ -67,7 +82,10 @@ export function useToogleFunctions() {
     setShowNotes,
     setShowUsersList,
     updateHandNotification,
-    setHandNotificationInfo,
+    addHandNotificationInfo,
+    removeHandNotification,
+    setFullScreen,
+    isFullScreen,
   };
 }
 
@@ -97,7 +115,7 @@ export function usePerifericsControls() {
     setCameraState,
     setScreenState,
     setCameraDevice,
-    setVideoActivatedState
+    setVideoActivatedState,
   };
 }
 

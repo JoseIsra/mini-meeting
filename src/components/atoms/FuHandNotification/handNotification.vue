@@ -1,21 +1,25 @@
 <template>
-  <q-card class="a-hand">
-    <q-icon name="pan_tool" size="20px" color="white" />
-    <label class="a-hand__message"
-      >{{ functionsOnMenuBar.handNotificationInfo.streamName }} levantó la
-      mano</label
+  <section class="a-hand">
+    <div
+      class="a-hand__content"
+      v-for="notification in functionsOnMenuBar.handNotificationInfo"
+      :key="notification.id"
     >
-  </q-card>
+      <fu-notification-info :notification="notification" />
+    </div>
+  </section>
 </template>
-
 <script lang="ts">
 import { defineComponent } from 'vue';
 import { useToogleFunctions } from '@/composables';
+import FuNotificationInfo from 'atoms/FuHandNotificationInfo';
 
 export default defineComponent({
   name: 'FuHandNotification',
+  components: { FuNotificationInfo },
   setup() {
     const { functionsOnMenuBar } = useToogleFunctions();
+
     return {
       functionsOnMenuBar,
     };

@@ -41,12 +41,12 @@
           :disabled="icon.id === '1' && perifericsControl.isCameraOn"
           @click="handleFunctionSelected(icon.interaction, icon.id)"
         >
-          <q-tooltip class="bg-grey-10" v-if="!icon.active">
+          <q-tooltip class="bg-grey-10" v-if="icon.id !== actionSelectionID">
             <label class="a-menuBar__icon__tooltip">
               {{ icon.toolTipMessage }}
             </label>
           </q-tooltip>
-          <q-tooltip class="bg-grey-10" v-if="icon.active">
+          <q-tooltip class="bg-grey-10" v-if="icon.id == actionSelectionID">
             <label class="a-menuBar__icon__tooltip">
               {{ icon.toolTipSecondMessage }}
             </label>
@@ -119,6 +119,8 @@ import {
   usePerifericsControls,
 } from '@/composables';
 import { WebRTCAdaptorType } from '@/types';
+import { useUserMe } from '@/composables/userMe';
+import { nanoid } from 'nanoid';
 
 export default defineComponent({
   name: 'FuCooperateMenuBar',
@@ -167,8 +169,8 @@ export default defineComponent({
       setShowChat,
       setShowNotes,
       setShowUsersList,
-      updateHandNotification,
-      setHandNotificationInfo,
+      addHandNotificationInfo,
+      removeHandNotification,
     } = useToogleFunctions();
     let { isSidebarRender, setSidebarState } = useSidebarToogle();
     let {
@@ -178,7 +180,7 @@ export default defineComponent({
       setScreenState,
       setVideoActivatedState,
     } = usePerifericsControls();
-
+    const { userMe } = useUserMe();
     //**********************++FUNCIONES ********************** */
     const toogleChat = () => {
       if (!isSidebarRender.value) {
@@ -248,31 +250,31 @@ export default defineComponent({
     };
 
     const toogleHandUp = () => {
-      if (functionsOnMenuBar.handNotificationActive) {
-        const downHand = {
-          streamId: route.query.streamId as string,
-          streamName: route.query.streamName as string,
-          eventType: 'NOHAND',
-        };
+      const riseHand = {
+        id: nanoid(),
+        streamId: userMe.id,
+        streamName: userMe.name,
+        eventType: 'HAND',
+      };
+      if (
+        functionsOnMenuBar.handNotificationInfo.some(
+          (notific) => notific.streamId === riseHand.streamId
+        )
+      ) {
+        const downHand = { ...riseHand, eventType: 'NOHAND' };
+
         props.webRTCAdaptor?.sendData?.(
           route.query.streamId as string,
           JSON.stringify(downHand)
         );
-        updateHandNotification(false);
+        removeHandNotification(downHand.streamId);
         return;
       }
-      const riseHand = {
-        streamId: route.query.streamId as string,
-        streamName: route.query.streamName as string,
-        eventType: 'HAND',
-      };
-      updateHandNotification(true);
-
       props.webRTCAdaptor?.sendData?.(
         route.query.streamId as string,
         JSON.stringify(riseHand)
       );
-      setHandNotificationInfo(riseHand);
+      addHandNotificationInfo(riseHand);
     };
 
     const toggleDesktopScreenCapture = () => {

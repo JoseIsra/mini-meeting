@@ -14,14 +14,12 @@
         :webRTCAdaptor="webRTCAdaptor"
       />
     </transition>
-    <fu-cooperate-user-video :objStreams="objStreams" />
-    <q-dialog
-      v-model="functionsOnMenuBar.handNotificationActive"
-      position="right"
-      seamless
-    >
-      <fu-hand-notification />
-    </q-dialog>
+    <fu-cooperate-user-video />
+
+    <fu-hand-notification
+      v-show="functionsOnMenuBar.handNotificationInfo.length > 0"
+    />
+    <fu-full-screen :webRTCAdaptor="webRTCAdaptor" v-if="isFullScreen" />
   </section>
 </template>
 //TODO: OBJETO DE USUARIO GLOBAL
@@ -33,6 +31,7 @@ import FuCooperateHeader from 'atoms/FuCooperateHeader';
 import FuCooperateUserVideo from 'atoms/FuCooperateUserVideo';
 import FuCooperateSideBar from 'molecules/FuCooperateSideBar';
 import FuHandNotification from 'atoms/FuHandNotification';
+import FuFullScreen from 'atoms/FuFullScreen';
 import _ from 'lodash';
 import { objWebRTC, WebRTCAdaptorType } from '@/types';
 import { useSidebarToogle, useToogleFunctions } from '@/composables';
@@ -63,6 +62,7 @@ export default defineComponent({
     FuCooperateSideBar,
     FuCooperateUserVideo,
     FuHandNotification,
+    FuFullScreen,
   },
   setup(props, { emit }) {
     onMounted(() => {
@@ -71,7 +71,7 @@ export default defineComponent({
 
     let showMenuBar = ref<boolean>(false);
     let { isSidebarRender } = useSidebarToogle();
-    const { functionsOnMenuBar } = useToogleFunctions();
+    const { functionsOnMenuBar, isFullScreen } = useToogleFunctions();
     const hideMenuBar = _.debounce(() => {
       showMenuBar.value = false;
     }, 6000);
@@ -89,6 +89,7 @@ export default defineComponent({
       ...toRefs(props),
       isSidebarRender,
       functionsOnMenuBar,
+      isFullScreen,
     };
   },
 });

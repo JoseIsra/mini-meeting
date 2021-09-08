@@ -23,7 +23,7 @@ import { usePerifericsControls, useToogleFunctions } from '@/composables';
 import { Message, useHandleMessage } from '@/composables/chat';
 import { useUserMe } from '@/composables/userMe';
 import { ZoidWindow } from '@/types/zoid';
-
+import { useHandleParticipants } from '@/composables/ant-media-server-stuff';
 import FuTLoading from 'organisms/FuLoading';
 
 interface StringIndexedArray<TValue> {
@@ -39,7 +39,7 @@ export default defineComponent({
   setup() {
     const { perifericsControl } = usePerifericsControls();
     const { setUserMessage } = useHandleMessage();
-    const { setUserMe } = useUserMe();
+    const { userMe, setUserMe } = useUserMe();
     const route = useRoute();
 
     //Datos del usuario
@@ -63,7 +63,7 @@ export default defineComponent({
       avatar,
     });
 
-    const { setHandNotificationInfo, updateHandNotification } =
+    const { addHandNotificationInfo, removeHandNotification } =
       useToogleFunctions();
     const roomId =
       (window as ZoidWindow)?.xprops?.roomId ||
@@ -87,7 +87,8 @@ export default defineComponent({
     const roomOfStream = ref<StringIndexedArray<string>>({});
     const roomTimerId = ref<ReturnType<typeof setInterval> | null>(null);
     const streamsList = ref<string[]>([]);
-    const objStreams = ref<objWebRTC[]>([]);
+    // const objStreams = ref<objWebRTC[]>([]);
+    let { addParticipants, objStreams } = useHandleParticipants();
     const isDataChannelOpen = ref(false);
     const camera = ref(false);
     // const isMicMuted = ref(false);
@@ -341,7 +342,8 @@ export default defineComponent({
               if (isThere) {
                 isThere = obj;
               } else {
-                objStreams.value.push(obj);
+                // objStreams.value.push(obj);
+                addParticipants(obj);
               }
             }
           } else if (info == 'publish_started') {
@@ -421,10 +423,9 @@ export default defineComponent({
               //handleNotificationEvent(obj);
             } else if (eventType === 'HAND') {
               console.log('parseado', objParsed);
-              updateHandNotification(true);
-              setHandNotificationInfo(objParsed);
+              addHandNotificationInfo(objParsed);
             } else if (eventType == 'NOHAND') {
-              updateHandNotification(false);
+              removeHandNotification(objParsed.streamId);
             }
           }
         },

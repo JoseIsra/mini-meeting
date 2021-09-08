@@ -878,7 +878,11 @@ export class WebRTCAdaptor {
     this.checkWebSocketConnection();
     this.getDevices();
   }
-
+  metodoDePrueba() {
+    //TODO: POR REFACTORIZAR
+    console.log('metodo de prueba');
+    return this.localVideo.srcObject;
+  }
   /**
    * Toggle video track on the server side.
    *

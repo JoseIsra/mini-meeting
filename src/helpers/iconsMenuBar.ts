@@ -37,7 +37,7 @@ export const iconsFunctions = [
     id: '1',
     onState: 'monitor',
     offState: 'desktop_access_disabled',
-    active: false,
+    active: perifericsControl.isScreenShared,
     toolTipMessage: 'Compartir pantalla',
     toolTipSecondMessage: 'Dejar de compartir pantalla',
     interaction: interactionType.SHARESCREEN,

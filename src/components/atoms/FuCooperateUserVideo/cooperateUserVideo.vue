@@ -1,6 +1,19 @@
 <template>
   <section class="a-userVideo">
-    <div class="a-userVideo__box">
+    <div
+      class="a-userVideo__box"
+      :style="
+        userMe.id === streamIdPinned
+          ? {
+              position: 'fixed',
+              width: '100vw',
+              height: '100vh',
+              top: 0,
+              'z-index': '-5',
+            }
+          : ''
+      "
+    >
       <div
         v-show="!perifericsControl.isVideoActivated"
         class="a-userVideo__box__avatar"
@@ -34,10 +47,14 @@
         flat
         round
         :ripple="false"
-        icon="launch"
+        :icon="userMe.id === streamIdPinned ? 'fullscreen_exit' : 'launch'"
         color="white"
         class="a-userVideo__box__avatar__screenBtn"
-        @click="goFullScreen"
+        @click="
+          userMe.id === streamIdPinned
+            ? goFullScreen('off')
+            : goFullScreen(userMe.id)
+        "
       >
         <q-tooltip
           anchor="top middle"
@@ -47,9 +64,9 @@
           transition-show="scale"
           transition-hide="scale"
         >
-          <label class="a-userVideo__box__avatar__screenBtn__label"
-            >Pantalla completa</label
-          >
+          <label class="a-userVideo__box__avatar__screenBtn__label">{{
+            userMe.id === streamIdPinned ? 'Minimizar' : 'Pantalla completa'
+          }}</label>
         </q-tooltip>
       </q-btn>
     </div>
@@ -57,6 +74,17 @@
       class="a-userVideo__box"
       v-for="object in objStreams"
       :key="object.streamId"
+      :style="
+        object.streamId === streamIdPinned
+          ? {
+              position: 'fixed',
+              width: '100vw',
+              height: '100vh',
+              top: 0,
+              'z-index': '-5',
+            }
+          : ''
+      "
     >
       <video
         class="a-userVideo__box__stream"
@@ -68,10 +96,16 @@
         flat
         round
         :ripple="false"
-        icon="launch"
+        :icon="
+          object.streamId === streamIdPinned ? 'fullscreen_exit' : 'launch'
+        "
         color="white"
         class="a-userVideo__box__avatar__screenBtn"
-        @click="goFullScreen()"
+        @click="
+          object.streamId === streamIdPinned
+            ? goFullScreen('off')
+            : goFullScreen(object.streamId)
+        "
       >
         <q-tooltip
           anchor="top middle"
@@ -81,9 +115,11 @@
           transition-show="scale"
           transition-hide="scale"
         >
-          <label class="a-userVideo__box__avatar__screenBtn__label"
-            >Pantalla completa</label
-          >
+          <label class="a-userVideo__box__avatar__screenBtn__label">{{
+            object.streamId === streamIdPinned
+              ? 'Minimizar'
+              : 'Pantalla completa'
+          }}</label>
         </q-tooltip>
       </q-btn>
     </div>
@@ -112,9 +148,20 @@ export default defineComponent({
     const { isFullScreen, setFullScreen } = useToogleFunctions();
     const { userMe } = useUserMe();
 
-    const goFullScreen = () => {
+    const streamIdPinned = ref('');
+
+    /* const setUserPinned = (streamId: string) => {
+      userPinned.value = streamId;
+    }; */
+
+    const goFullScreen = (streamId: string) => {
       //TODO: PASAR ARGUMENTO DE OBJETO STREAM PARA ESPECIFICAR FULL SCREEN
-      setFullScreen(true);
+      //setFullScreen(true);
+      console.log(streamId);
+      if (streamId === 'off') streamIdPinned.value = '';
+      else {
+        streamIdPinned.value = streamId;
+      }
     };
 
     return {
@@ -124,6 +171,7 @@ export default defineComponent({
       goFullScreen,
       isFullScreen,
       objStreams,
+      streamIdPinned,
     };
   },
 });

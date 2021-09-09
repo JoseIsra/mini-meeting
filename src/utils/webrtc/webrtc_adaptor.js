@@ -544,6 +544,7 @@ export class WebRTCAdaptor {
               stream,
               streamId
             );
+            this.callback('ScreenShareStarted');
           })
           .catch((error) => {
             console.error(error);
@@ -622,7 +623,6 @@ export class WebRTCAdaptor {
         track.onended = null;
         track.stop();
       });
-     
     }
 
     if (this.videoTrack !== null) {

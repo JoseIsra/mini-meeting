@@ -1,11 +1,18 @@
 <template>
   <div
-    class="fullscreen bg-blue text-white text-center q-pa-md flex flex-center"
+    class="fullscreen text-white text-center q-pa-md flex flex-center"
+    :style="{ background: '#36393f' }"
   >
     <div>
-      <div style="font-size: 10vw">Loading...</div>
+      <figure>
+        <img
+          :style="{ width: '40vw', 'max-width': '300px', 'min-width': '200px' }"
+          src="https://encrypted.fractalup.com/file/MainPublic/fractalup_assets/logo/logo_cooperate.svg"
+          alt="logo-fractalup"
+        />
+      </figure>
 
-      <div class="text-h2" style="opacity: 0.4">
+      <div :style="{ 'font-size': '2vw', opacity: '0.3' }">
         {{ loadingMessage }}
       </div>
     </div>
@@ -20,7 +27,7 @@ export default defineComponent({
   props: {
     loadingMessage: {
       type: String,
-      default: 'Loading',
+      default: '',
     },
   },
   setup(props) {

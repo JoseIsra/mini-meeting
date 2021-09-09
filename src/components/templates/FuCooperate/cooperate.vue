@@ -21,7 +21,7 @@ import { WebRTCAdaptor } from '@/utils/webrtc/webrtc_adaptor';
 import { objWebRTC, WebRTCAdaptorType } from '@/types/index';
 import { usePerifericsControls, useToogleFunctions } from '@/composables';
 import { Message, useHandleMessage } from '@/composables/chat';
-import { useUserMe } from '@/composables/userMe';
+import { User, useUserMe } from '@/composables/userMe';
 import { ZoidWindow } from '@/types/zoid';
 import { useHandleParticipants } from '@/composables/ant-media-server-stuff';
 import FuTLoading from 'organisms/FuLoading';
@@ -37,7 +37,8 @@ export default defineComponent({
     FuTLoading,
   },
   setup() {
-    const { perifericsControl } = usePerifericsControls();
+    const { perifericsControl, setScreenState, setVideoActivatedState } =
+      usePerifericsControls();
     const { setUserMessage } = useHandleMessage();
     const { userMe, setUserMe } = useUserMe();
     const route = useRoute();
@@ -90,7 +91,7 @@ export default defineComponent({
     // const objStreams = ref<objWebRTC[]>([]);
     let { addParticipants, objStreams } = useHandleParticipants();
     const isDataChannelOpen = ref(false);
-    const camera = ref(false);
+
     // const isMicMuted = ref(false);
     const isMuteMicButtonDisabled = ref(false);
     const isUnmuteMicButtonDisabled = ref(true);
@@ -123,25 +124,32 @@ export default defineComponent({
       if (perifericsControl.isScreenShared) {
         console.log('DESACTIVAO');
         webRTCAdaptor.value.resetDesktop?.();
+        console.log('6');
       }
       if (perifericsControl.isCameraOn && !perifericsControl.isScreenShared) {
         webRTCAdaptor.value.turnOffLocalCamera?.(streamId);
         webRTCAdaptor.value.switchDesktopCaptureWithCamera?.(streamId);
+        console.log('5');
       } else if (
         !perifericsControl.isCameraOn &&
         !perifericsControl.isScreenShared
       ) {
         webRTCAdaptor.value.switchDesktopCapture?.(streamId);
+        setVideoActivatedState(true);
+        console.log('4');
       } else if (
         perifericsControl.isCameraOn &&
         perifericsControl.isScreenShared
       ) {
         webRTCAdaptor.value.switchVideoCameraCapture?.(streamId, cameraId);
+        console.log('3');
       }
 
       if (!perifericsControl.isCameraOn && perifericsControl.isScreenShared) {
         webRTCAdaptor.value.turnOffLocalCamera?.(streamId);
+        console.log('2');
       } else {
+        console.log('1');
         webRTCAdaptor.value.justTurnOnLocalCamera?.(streamId);
       }
     };
@@ -240,6 +248,8 @@ export default defineComponent({
         );
       }
     };
+
+    const test = ref<Message[]>([]);
 
     const changeVolume = () => {
       webRTCAdaptor.value.currentVolume = currentVolume.value;
@@ -343,6 +353,7 @@ export default defineComponent({
                 isThere = obj;
               } else {
                 // objStreams.value.push(obj);
+                console.log(obj, ' Se añade nuevo usuario 🇧🇹🇧🇹🇧🇹');
                 addParticipants(obj);
               }
             }
@@ -356,11 +367,14 @@ export default defineComponent({
             console.debug('publish finished');
           } else if (info == 'screen_share_stopped') {
             console.log('screen share stopped');
-            perifericsControl.isScreenShared = false;
+            setScreenState(false);
             if (!perifericsControl.isCameraOn) {
               perifericsControl.isVideoActivated = false;
               webRTCAdaptor.value.turnOffLocalCamera?.(streamId);
             }
+            webRTCAdaptor.value.resetDesktop?.();
+          } else if (info == 'ScreenShareStarted') {
+            setVideoActivatedState(true);
           } else if (info == 'browser_screen_share_supported') {
             //enable camera and screenshare
 
@@ -372,6 +386,7 @@ export default defineComponent({
               clearInterval(roomTimerId.value);
             }
 
+            //TODO: este es el error por el que sale streamid que ya se está escuchando
             if (streamsList.value != null) {
               /* this.streamsList.forEach(function (item) {
               removeRemoteVideo(item);
@@ -406,7 +421,26 @@ export default defineComponent({
             //Lastly updates the current streamlist with the fetched one.
             streamsList.value = obj.streams;
           } else if (info == 'data_channel_opened') {
-            console.log('Data Channel open for stream id', obj);
+            console.log('Data Channel open for stream id 🃏🃏🃏', obj);
+
+            //Mandar data del usuario _ Para quien manda
+            try {
+              if (JSON.stringify(obj) !== userMe.id) {
+                console.log(obj);
+
+                setTimeout(() => {
+                  webRTCAdaptor.value.sendData?.(
+                    JSON.stringify(obj),
+                    JSON.stringify({ eventType: 'USER_INFO_REQUEST' })
+                  );
+                }, 2000);
+              }
+            } catch (e) {
+              console.log(e);
+            }
+
+            //Mandar data del usuario
+
             isLoadingOrError.value = false;
             isDataChannelOpen.value = true;
           } else if (info == 'data_channel_closed') {
@@ -424,8 +458,24 @@ export default defineComponent({
             } else if (eventType === 'HAND') {
               console.log('parseado', objParsed);
               addHandNotificationInfo(objParsed);
-            } else if (eventType == 'NOHAND') {
+            } else if (eventType === 'NOHAND') {
               removeHandNotification(objParsed.streamId);
+            } else if (eventType === 'USER_INFO_REQUEST') {
+              try {
+                webRTCAdaptor.value.sendData?.(
+                  userMe.id,
+                  JSON.stringify({ eventType: 'USER_INFO', ...userMe })
+                );
+              } catch (e) {
+                console.log(e);
+              }
+
+              //console.log(objParsed, 'Recibe info del usuario 🇧🇼🇧🇼🇧🇼🇧🇼');
+              //console.log(obj);
+              //test.value.push(obj);
+            } else if (eventType === 'USER_INFO') {
+              test.value.push(objParsed);
+              console.log(test, '🇧🇼🇧🇼🇧🇼🇧🇼');
             }
           }
         },
@@ -468,8 +518,6 @@ export default defineComponent({
             error.indexOf('PermissionDeniedError') != -1
           ) {
             errorMessage = 'You are not allowed to access camera and mic.';
-
-            camera.value = false;
           } else if (error.indexOf('TypeError') != -1) {
             errorMessage = 'Video/Audio is required.';
           } else if (error.indexOf('UnsecureContext') != -1) {
@@ -485,8 +533,12 @@ export default defineComponent({
               'There was a error during data channel communication';
           } else if (error.indexOf('ScreenSharePermissionDenied') != -1) {
             errorMessage = 'You are not allowed to access screen share';
+            console.log('hola diosito soy yo de nuevo 🥲');
             //screen_share_checkbox.checked = false;
-            camera.value = true;
+            setScreenState(false);
+            setVideoActivatedState(false);
+            webRTCAdaptor.value.turnOffLocalCamera?.(streamId);
+            webRTCAdaptor.value.resetDesktop?.();
           }
           console.log(errorMessage);
           //alert(errorMessage);
@@ -494,7 +546,7 @@ export default defineComponent({
       }) as WebRTCAdaptorType;
     };
 
-    const loadingMessage = ref('Loading');
+    const loadingMessage = ref('');
     const isLoadingOrError = ref(true);
     const existRoom = ref(false);
 
@@ -526,6 +578,8 @@ export default defineComponent({
           }
         })
         .catch((error) => console.log(error));
+    } else {
+      loadingMessage.value = 'Please, provide a room id';
     }
 
     //TODO: Dont dissapear loading until the host accept the user. Needed to implement logic for that (dont publish neither play streams)

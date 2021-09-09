@@ -37,7 +37,7 @@
         icon="launch"
         color="white"
         class="a-userVideo__box__avatar__screenBtn"
-        @click="goFullScreen"
+        @click="goFullScreen('nada')"
       >
         <q-tooltip
           anchor="top middle"
@@ -71,7 +71,7 @@
         icon="launch"
         color="white"
         class="a-userVideo__box__avatar__screenBtn"
-        @click="goFullScreen()"
+        @click="goFullScreen(object)"
       >
         <q-tooltip
           anchor="top middle"
@@ -112,9 +112,14 @@ export default defineComponent({
     const { isFullScreen, setFullScreen } = useToogleFunctions();
     const { userMe } = useUserMe();
 
-    const goFullScreen = () => {
+    const goFullScreen = (arg?: unknown) => {
       //TODO: PASAR ARGUMENTO DE OBJETO STREAM PARA ESPECIFICAR FULL SCREEN
-      setFullScreen(true);
+      // setFullScreen(true);
+      if (arg == 'nada') {
+        console.log('nada');
+      } else {
+        console.log(arg);
+      }
     };
 
     return {

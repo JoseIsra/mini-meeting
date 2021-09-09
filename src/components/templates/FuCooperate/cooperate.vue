@@ -348,6 +348,7 @@ export default defineComponent({
             }
           } else if (info == 'publish_started') {
             //stream is being published
+            console.log('INICIO DE PUBBLISH 😁', obj, streamName);
             console.debug(
               'publish started to room: ' + roomOfStream.value[obj.streamId]
             );

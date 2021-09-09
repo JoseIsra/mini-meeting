@@ -615,6 +615,27 @@ export class WebRTCAdaptor {
     }
   }
 
+  /*  */
+  closeStreamScreenshare() {
+    if (this.localStream) {
+      this.localStream.getVideoTracks().forEach(function (track) {
+        track.onended = null;
+        track.stop();
+      });
+     
+    }
+
+    if (this.videoTrack !== null) {
+      this.videoTrack.stop();
+    }
+
+    if (this.smallVideoTrack !== null) {
+      this.smallVideoTrack.stop();
+    }
+  }
+
+  /*  */
+
   /**
    * Closes stream, if you want to stop peer connection, call stop(streamId)
    */
@@ -1616,7 +1637,7 @@ export class WebRTCAdaptor {
   resetDesktop() {
     this.isScreenshared = false;
     this.isScreensharedWithCamera = false;
-    this.closeStream();
+    this.closeStreamScreenshare();
   }
 
   justTurnOnLocalCamera(streamId) {

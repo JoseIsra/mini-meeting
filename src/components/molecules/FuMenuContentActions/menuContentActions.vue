@@ -21,13 +21,9 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, VueElement } from 'vue';
+import { defineComponent, ref } from 'vue';
 import { menuActions, Options } from '@/helpers/menuOptions';
 import FuRetransmissionContent from 'molecules/FuRetransmissionContent';
-
-interface FuCooperateModal extends VueElement {
-  openModal: () => void;
-}
 
 export default defineComponent({
   name: 'FuMenuContentActions',
@@ -36,14 +32,10 @@ export default defineComponent({
   },
   setup() {
     const actions = ref<Options[]>(menuActions);
-    // const modalState = ref(false);
     const filterContent = ref('');
-    // const modal = ref<FuCooperateModal>();
     let modal = ref(false);
     const openModal = (interaction: string) => {
-      // modal.value?.openModal();
       modal.value = true;
-      console.log(modal.value);
       filterContent.value = interaction;
     };
 
@@ -51,7 +43,6 @@ export default defineComponent({
       modal,
       actions,
       filterContent,
-      // modalState,
       openModal,
     };
   },

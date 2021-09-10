@@ -34,12 +34,23 @@
           flat
           round
           v-for="icon in functions"
-          :class="['a-menuBar__icon', { active: icon.id == actionSelectionID }]"
+          :class="[
+            'a-menuBar__icon',
+            {
+              active:
+                icon.id !== '1'
+                  ? icon.active
+                  : perifericsControl.isScreenShared,
+            },
+          ]"
           :key="icon.id"
           :icon="icon.onState"
           size="14px"
           :disabled="icon.id === '1' && perifericsControl.isCameraOn"
-          @click="handleFunctionSelected(icon.interaction, icon.id)"
+          @click="
+            icon.active = !icon.active;
+            handleFunctionSelected(icon.interaction, icon.id);
+          "
         >
           <q-tooltip class="bg-grey-10" v-if="icon.id !== actionSelectionID">
             <label class="a-menuBar__icon__tooltip">
@@ -283,10 +294,8 @@ export default defineComponent({
 
       setScreenState(!perifericsControl.isScreenShared);
       //console.log('PROCESO DE PROYECCIÓN DE PANTALLA');
-      if (!perifericsControl.isScreenShared && !perifericsControl.isCameraOn)
-        setVideoActivatedState(false);
-      if (perifericsControl.isScreenShared || perifericsControl.isCameraOn)
-        setVideoActivatedState(true);
+      if (!perifericsControl.isCameraOn) setVideoActivatedState(false);
+      if (perifericsControl.isCameraOn) setVideoActivatedState(true);
     };
 
     const handleMenuPosition = (ubication?: string) => {
@@ -295,11 +304,6 @@ export default defineComponent({
     };
 
     const handleFunctionSelected = (interaction?: string, ID?: string) => {
-      if (actionSelectionID.value == ID) {
-        actionSelectionID.value = '';
-        objectFunctionalities[interaction as keyof Functionalities]?.();
-        return;
-      }
       actionSelectionID.value = ID as string;
       objectFunctionalities[interaction as keyof Functionalities]?.();
     };

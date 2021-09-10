@@ -1,0 +1,21 @@
+.m-transmission {
+  width: 600px;
+  height: 350px;
+  background-color: #202125;
+  max-width: 800px;
+  &__header {
+    background-color: #212121;
+  }
+  &__input {
+    color: #fffffe;
+  }
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: 35px;
+    justify-content: center;
+    &__btn {
+      padding: 12px;
+    }
+  }
+}

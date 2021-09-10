@@ -1,67 +1,44 @@
 <template>
-  <div>
-    <q-dialog v-model="layout">
-      <q-layout
-        view="Lhh lpR fff"
-        container
-        class="bg-white fit"
-        :style="{ 'max-height': '330px' }"
+  <q-card class="m-transmission">
+    <q-card-section tag="header" class="m-transmission__header">
+      <!-- <q-btn flat @click="drawerR = !drawerR" round dense icon="menu" /> -->
+      <label class="m-transmission__header__text"
+        >Retransmitir en Redes sociales</label
       >
-        <q-header class="bg-primary">
-          <q-toolbar>
-            <!-- <q-btn flat @click="drawerR = !drawerR" round dense icon="menu" /> -->
-            <q-toolbar-title>Retransmitir en Redes Sociales</q-toolbar-title>
-            <q-btn flat v-close-popup round dense icon="close" />
-          </q-toolbar>
-        </q-header>
-
-        <q-drawer
-          bordered
-          v-model="drawerR"
-          :width="200"
-          :breakpoint="300"
-          class="bg-grey-3 q-pa-sm"
-        >
-          <div v-for="n in 50" :key="n">Drawer {{ n }} / 50</div>
-        </q-drawer>
-
-        <q-page-container>
-          <q-page
-            :style="{
-              padding: '20px',
-              display: 'flex',
-              'flex-direction': 'column',
-              gap: '35px',
-              'justify-content': 'center',
-            }"
-          >
-            <q-input
-              filled
-              v-model="endpoint"
-              label="Endpoint (rtmps://live-api-s.facebook.com:443/rtmp)"
-            />
-            <q-input
-              filled
-              v-model="key"
-              label="Key (FB-12341432344535255-3234-323)"
-            />
-            <q-btn
-              v-show="!isStreaming"
-              color="primary"
-              label="Transmitir"
-              @click="handleStartTransmission"
-            />
-            <q-btn
-              v-show="isStreaming"
-              color="negative"
-              label="Detener transmisión"
-              @click="handleEndTransmission"
-            />
-          </q-page>
-        </q-page-container>
-      </q-layout>
-    </q-dialog>
-  </div>
+      <q-btn flat v-close-popup round dense icon="close" color="white" />
+    </q-card-section>
+    <q-card-section> </q-card-section>
+    <q-card-section class="m-transmission__body">
+      <q-input
+        outlined
+        color="grey-4"
+        label-color="grey-1"
+        :input-style="{ color: '#fffffe' }"
+        v-model="endpoint"
+        label="Endpoint (rtmps://live-api-s.facebook.com:443/rtmp)"
+      />
+      <q-input
+        outlined
+        color="grey-4"
+        label-color="grey-1"
+        :input-style="{ color: '#fffffe' }"
+        v-model="key"
+        label="Key (FB-12341432344535255-3234-323)"
+      />
+      <q-btn
+        push
+        class="m-transmission__body__btn"
+        :ripple="false"
+        :color="!isStreaming ? 'primary' : 'negative'"
+        :label="!isStreaming ? 'Transmitir' : 'Detener transmisión'"
+        v-on="
+          !isStreaming
+            ? { click: handleStartTransmission }
+            : { click: handleEndTransmission }
+        "
+      />
+    </q-card-section>
+  </q-card>
 </template>
 
 <script lang="ts">
@@ -80,11 +57,11 @@ interface StringIndexedArray<TValue> {
 }
 
 export default defineComponent({
-  name: 'FuOModal',
+  name: 'FuRetransmissionContent',
   setup() {
     const { userMe } = useUserMe();
     const moreContent = ref(true);
-    const layout = ref(false);
+    // const layout = ref(false);
     const webRTCAdaptorMerged = ref<WebRTCAdaptorType>({});
 
     const endpoint = ref('');
@@ -92,9 +69,9 @@ export default defineComponent({
 
     const isStreaming = ref(false);
 
-    const openModal = () => {
-      layout.value = true;
-    };
+    // const openModal = () => {
+    //   layout.value = true;
+    // };
     /*  */
     /*  */
     const merger = new StreamMerger(320, 240, true, '4:3');
@@ -462,8 +439,8 @@ export default defineComponent({
       handleEndTransmission,
       endpoint,
       key,
-      openModal,
-      layout,
+      // openModal,
+      // layout,
       moreContent,
       contentSize: computed(() => (moreContent.value ? 150 : 5)),
       drawer: ref(false),
@@ -476,6 +453,6 @@ export default defineComponent({
 });
 </script>
 
-<style lang="sass">
-@import 'modal'
+<style lang="scss" scoped>
+@import './retransmissionContent.scss';
 </style>

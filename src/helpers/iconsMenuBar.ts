@@ -90,14 +90,14 @@ export const iconsFunctions = [
 ];
 
 export const iconsOptions = [
-  /* {
+  {
     id: '1',
-    onState: 'add_circle',
-    offState: 'add_circle',
+    onState: 'fas fa-cog',
+    offState: 'fas fa-cog',
     active: false,
     toolTipMessage: 'Acciones',
     ubication: 'actions',
-  }, */
+  },
   {
     id: '2',
     onState: 'more_vert',

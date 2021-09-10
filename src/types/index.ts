@@ -71,6 +71,7 @@ export interface WebRTCAdaptorType {
     onEndedCallback: () => void
   ) => void;
   resetDesktop?: () => void;
+  gotStream?: (stream: MediaStream) => void;
 }
 
 export interface dataType {

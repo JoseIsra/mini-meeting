@@ -424,20 +424,16 @@ export default defineComponent({
             console.log('Data Channel open for stream id 🃏🃏🃏', obj);
 
             //Mandar data del usuario _ Para quien manda
-            try {
-              if (JSON.stringify(obj) !== userMe.id) {
-                console.log(obj);
+            /* if (JSON.stringify(obj) !== userMe.id) {
+              console.log(obj);
 
-                setTimeout(() => {
-                  webRTCAdaptor.value.sendData?.(
-                    JSON.stringify(obj),
-                    JSON.stringify({ eventType: 'USER_INFO_REQUEST' })
-                  );
-                }, 2000);
-              }
-            } catch (e) {
-              console.log(e);
-            }
+              webRTCAdaptor.value.sendData?.(
+                userMe.id,
+                JSON.stringify({
+                  eventType: 'USER_INFO_REQUEST',
+                })
+              );
+            } */
 
             //Mandar data del usuario
 
@@ -447,7 +443,7 @@ export default defineComponent({
             console.log('Data Channel closed for stream id', obj);
             isDataChannelOpen.value = false;
           } else if (info == 'data_received') {
-            console.log(obj);
+            //console.log(obj);
             const objParsed = JSON.parse(obj.data) as Message;
             const { eventType } = objParsed;
             if (eventType === 'CHAT_MESSAGE') {
@@ -461,21 +457,29 @@ export default defineComponent({
             } else if (eventType === 'NOHAND') {
               removeHandNotification(objParsed.streamId);
             } else if (eventType === 'USER_INFO_REQUEST') {
-              try {
+              /* console.log(eventType, objParsed, userMe.id);
+              webRTCAdaptor.value.sendData?.(
+                userMe.id,
+                JSON.stringify({ eventType: 'USER_INFO', ...userMe })
+              ); */
+              /*  */
+              /*  */
+              /*  */
+              /* try {
                 webRTCAdaptor.value.sendData?.(
                   userMe.id,
                   JSON.stringify({ eventType: 'USER_INFO', ...userMe })
                 );
               } catch (e) {
                 console.log(e);
-              }
-
+              } */
               //console.log(objParsed, 'Recibe info del usuario 🇧🇼🇧🇼🇧🇼🇧🇼');
               //console.log(obj);
               //test.value.push(obj);
             } else if (eventType === 'USER_INFO') {
-              test.value.push(objParsed);
-              console.log(test, '🇧🇼🇧🇼🇧🇼🇧🇼');
+              console.log(eventType, objParsed);
+              /* test.value.push(objParsed);
+              console.log(test, '🇧🇼🇧🇼🇧🇼🇧🇼'); */
             }
           }
         },

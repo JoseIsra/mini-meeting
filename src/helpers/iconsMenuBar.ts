@@ -51,15 +51,15 @@ export const iconsFunctions = [
     toolTipSecondMessage: 'Bajar la mano',
     interaction: interactionType.HANDUP,
   },
-  // {
-  //   id: '3',
-  //   onState: 'person',
-  //   offState: 'person',
-  //   active: false,
-  //   toolTipMessage: 'Alternar lista de usuarios',
-  //   toolTipSecondMessage: 'Alternar lista de usuarios',
-  //   interaction: interactionType.USERLIST,
-  // },
+  {
+    id: '3',
+    onState: 'person',
+    offState: 'person',
+    active: false,
+    toolTipMessage: 'Alternar lista de usuarios',
+    toolTipSecondMessage: 'Alternar lista de usuarios',
+    interaction: interactionType.USERLIST,
+  },
   {
     id: '4',
     onState: 'far fa-comments',
@@ -69,16 +69,16 @@ export const iconsFunctions = [
     toolTipSecondMessage: 'Ocultar chat',
     interaction: interactionType.CHAT,
   },
-  // {
-  //   id: '5',
-  //   onState: 'description',
-  //   offState: 'description',
-  //   active: false,
-  //   toolTipMessage: 'Notas compartidas',
-  //   toolTipSecondMessage: 'Notas compartidas',
-  //   interaction: interactionType.SHARENOTES,
-  // },
-  /* {
+  {
+    id: '5',
+    onState: 'description',
+    offState: 'description',
+    active: false,
+    toolTipMessage: 'Notas compartidas',
+    toolTipSecondMessage: 'Notas compartidas',
+    interaction: interactionType.SHARENOTES,
+  },
+  {
     id: '6',
     onState: 'signal_cellular_alt',
     offState: 'signal_cellular_alt',
@@ -86,18 +86,18 @@ export const iconsFunctions = [
     toolTipMessage: 'Estado de la conexión',
     toolTipSecondMessage: 'Estado de la conexión',
     interaction: interactionType.CONNECTION,
-  }, */
+  },
 ];
 
 export const iconsOptions = [
-  /* {
+  {
     id: '1',
-    onState: 'add_circle',
-    offState: 'add_circle',
+    onState: 'fas fa-cog',
+    offState: 'fas fa-cog',
     active: false,
     toolTipMessage: 'Acciones',
     ubication: 'actions',
-  }, */
+  },
   {
     id: '2',
     onState: 'more_vert',

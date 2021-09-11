@@ -16,10 +16,11 @@ export interface MenuOptions {
 enum interactionType {
   LEAVE = 'LEAVE',
   END = 'END',
+  RETRANSMISSION = 'RETRANSMISSION',
 }
 
 export const menuActions = [
-  {
+  /* {
     id: '1',
     iconName: 'format_list_bulleted',
     description: 'Iniciar una encuesta',
@@ -42,6 +43,13 @@ export const menuActions = [
     iconName: 'person',
     description: 'Seleccionar usuario aleatoriamente',
     important: false,
+  }, */
+  {
+    id: '5',
+    iconName: 'fas fa-satellite-dish',
+    description: 'Retransmitir en redes sociales',
+    important: false,
+    interaction: interactionType.RETRANSMISSION,
   },
 ];
 

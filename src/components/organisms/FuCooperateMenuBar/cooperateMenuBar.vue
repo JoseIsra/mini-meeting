@@ -39,7 +39,7 @@
             {
               active:
                 icon.id !== '1'
-                  ? icon.active
+                  ? icon.id == actionSelectionID
                   : perifericsControl.isScreenShared,
             },
           ]"
@@ -104,6 +104,7 @@
           :renderFunctions="false"
         />
       </aside>
+      <fu-cooperate-network-info v-show="openNetworkConfig" />
     </section>
     <fu-cooperate-menu
       class="a-menuBar__responsiveOptions"
@@ -132,6 +133,7 @@ import {
 import { WebRTCAdaptorType } from '@/types';
 import { useUserMe } from '@/composables/userMe';
 import { nanoid } from 'nanoid';
+import FuCooperateNetworkInfo from 'molecules/FuCooperateNetworkInfo';
 
 export default defineComponent({
   name: 'FuCooperateMenuBar',
@@ -151,13 +153,14 @@ export default defineComponent({
   },
   components: {
     FuCooperateMenu,
+    FuCooperateNetworkInfo,
   },
   setup(props) {
     const route = useRoute();
     const periferics = ref<Icons[]>(iconsPeriferics);
     const functions = ref<Icons[]>(iconsFunctions);
     const options = ref<Icons[]>(iconsOptions);
-
+    let openNetworkConfig = ref(false);
     const objectPeriferics = reactive<Periferics>({
       WEBCAM: () => toggleCamera(),
       MIC: () => toggleMIC(),
@@ -169,6 +172,7 @@ export default defineComponent({
       HANDUP: () => toogleHandUp(),
       SHARENOTES: () => toogleShareNotes(),
       USERLIST: () => toggleUsersList(),
+      CONNECTION: () => toggleConnectionModal(),
     });
 
     let isActions = ref<boolean>(false);
@@ -199,6 +203,7 @@ export default defineComponent({
         setSidebarState(true);
         setShowChat(true);
         setShowNotes(false);
+        setShowUsersList(false);
         return;
       } else if (isSidebarRender.value && functionsOnMenuBar.renderChat) {
         setSidebarState(false);
@@ -215,6 +220,7 @@ export default defineComponent({
         setSidebarState(true);
         setShowNotes(true);
         setShowChat(false);
+        setShowUsersList(false);
         return;
       } else if (isSidebarRender.value && functionsOnMenuBar.renderNotes) {
         setSidebarState(false);
@@ -298,12 +304,22 @@ export default defineComponent({
       if (perifericsControl.isCameraOn) setVideoActivatedState(true);
     };
 
+    const toggleConnectionModal = () => {
+      openNetworkConfig.value = !openNetworkConfig.value;
+    };
+
     const handleMenuPosition = (ubication?: string) => {
       isActions.value = ubication === 'actions' ? true : false;
       renderMenu.value = !renderMenu.value;
     };
 
     const handleFunctionSelected = (interaction?: string, ID?: string) => {
+      if (actionSelectionID.value == ID) {
+        //si se hace toggle a un ícon ya seleccionado
+        actionSelectionID.value = '';
+        objectFunctionalities[interaction as keyof Functionalities]?.();
+        return;
+      }
       actionSelectionID.value = ID as string;
       objectFunctionalities[interaction as keyof Functionalities]?.();
     };
@@ -324,6 +340,7 @@ export default defineComponent({
       actionSelectionID,
       tooglePeriferic,
       renderFunctionResponsiveMenu,
+      openNetworkConfig,
     };
   },
 });

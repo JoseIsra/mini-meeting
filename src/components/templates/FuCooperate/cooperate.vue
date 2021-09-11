@@ -21,7 +21,7 @@ import { WebRTCAdaptor } from '@/utils/webrtc/webrtc_adaptor';
 import { objWebRTC, WebRTCAdaptorType } from '@/types/index';
 import { usePerifericsControls, useToogleFunctions } from '@/composables';
 import { Message, useHandleMessage } from '@/composables/chat';
-import { User, useUserMe } from '@/composables/userMe';
+import { useUserMe } from '@/composables/userMe';
 import { ZoidWindow } from '@/types/zoid';
 import { useHandleParticipants } from '@/composables/ant-media-server-stuff';
 import FuTLoading from 'organisms/FuLoading';
@@ -40,7 +40,7 @@ export default defineComponent({
     const { perifericsControl, setScreenState, setVideoActivatedState } =
       usePerifericsControls();
     const { setUserMessage } = useHandleMessage();
-    const { userMe, setUserMe } = useUserMe();
+    const { setUserMe } = useUserMe();
     const route = useRoute();
 
     //Datos del usuario
@@ -212,26 +212,26 @@ export default defineComponent({
       webRTCAdaptor.value.play?.(obj.streamId, playToken, roomId);
     };
 
-    const handleNotificationEvent = (obj: objWebRTC) => {
-      const notificationEvent = JSON.parse(obj.event.data) as Record<
-        string,
-        string
-      >;
-      if (notificationEvent != null && typeof notificationEvent == 'object') {
-        const eventStreamId = notificationEvent.streamId;
-        const eventTyp = notificationEvent.eventType;
+    // const handleNotificationEvent = (obj: objWebRTC) => {
+    //   const notificationEvent = JSON.parse(obj.event.data) as Record<
+    //     string,
+    //     string
+    //   >;
+    //   if (notificationEvent != null && typeof notificationEvent == 'object') {
+    //     const eventStreamId = notificationEvent.streamId;
+    //     const eventTyp = notificationEvent.eventType;
 
-        if (eventTyp == 'CAM_TURNED_OFF') {
-          console.log('Camera turned off for : ', eventStreamId);
-        } else if (eventTyp == 'CAM_TURNED_ON') {
-          console.log('Camera turned on for : ', eventStreamId);
-        } else if (eventTyp == 'MIC_MUTED') {
-          console.log('Microphone muted for : ', eventStreamId);
-        } else if (eventTyp == 'MIC_UNMUTED') {
-          console.log('Microphone unmuted for : ', eventStreamId);
-        }
-      }
-    };
+    //     if (eventTyp == 'CAM_TURNED_OFF') {
+    //       console.log('Camera turned off for : ', eventStreamId);
+    //     } else if (eventTyp == 'CAM_TURNED_ON') {
+    //       console.log('Camera turned on for : ', eventStreamId);
+    //     } else if (eventTyp == 'MIC_MUTED') {
+    //       console.log('Microphone muted for : ', eventStreamId);
+    //     } else if (eventTyp == 'MIC_UNMUTED') {
+    //       console.log('Microphone unmuted for : ', eventStreamId);
+    //     }
+    //   }
+    // };
 
     const sendNotificationEvent = (notificationType: string) => {
       if (isDataChannelOpen.value) {
@@ -248,8 +248,6 @@ export default defineComponent({
         );
       }
     };
-
-    const test = ref<Message[]>([]);
 
     const changeVolume = () => {
       webRTCAdaptor.value.currentVolume = currentVolume.value;
@@ -449,7 +447,7 @@ export default defineComponent({
             console.log('Data Channel closed for stream id', obj);
             isDataChannelOpen.value = false;
           } else if (info == 'data_received') {
-            console.log(obj);
+            //console.log(obj);
             const objParsed = JSON.parse(obj.data) as Message;
             const { eventType } = objParsed;
             if (eventType === 'CHAT_MESSAGE') {

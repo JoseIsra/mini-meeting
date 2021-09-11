@@ -4,24 +4,26 @@
   width: 280px;
   bottom: 120%;
   border-radius: 6px;
+  /* cursor: pointer; */
   &__tail {
     position: absolute;
     //bottom: -10%;
     bottom: -28px;
     left: -12px;
+
     //
     color: #202125;
   }
 
-  .--specialcase {
+  /* .--specialcase {
     bottom: -25%;
-  }
+  } */
 }
 .--actions {
-  left: 0;
+  left: 12%;
 }
 .--options {
-  left: 50%;
+  left: 62%;
 }
 .--functions {
   border-radius: 10px;
@@ -31,6 +33,8 @@
 @media only screen and (min-width: 300px) and (max-width: 578px) {
   .a-cooperateMenu {
     &__tail {
+      bottom: -30px;
+      left: -3px;
       display: none;
     }
   }

@@ -6,6 +6,13 @@ interface SoundGainType {
   };
 }
 
+export interface Participant {
+  id: string;
+  name?: string;
+  avatar?: string;
+  stream: MediaStream;
+}
+
 export interface objWebRTC {
   ATTR_ROOM_NAME: string;
   command: string;

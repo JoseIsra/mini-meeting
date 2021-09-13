@@ -72,10 +72,10 @@
     </div>
     <div
       class="a-userVideo__box"
-      v-for="object in objStreams"
-      :key="object.streamId"
+      v-for="participant in participants"
+      :key="participant.id"
       :style="
-        object.streamId === streamIdPinned
+        participant.id === streamIdPinned
           ? {
               position: 'fixed',
               width: '100vw',
@@ -90,21 +90,19 @@
         class="a-userVideo__box__stream"
         autoplay
         playsinline
-        :srcObject.prop="object.stream"
+        :srcObject.prop="participant.stream"
       ></video>
       <q-btn
         flat
         round
         :ripple="false"
-        :icon="
-          object.streamId === streamIdPinned ? 'fullscreen_exit' : 'launch'
-        "
+        :icon="participant.id === streamIdPinned ? 'fullscreen_exit' : 'launch'"
         color="white"
         class="a-userVideo__box__avatar__screenBtn"
         @click="
-          object.streamId === streamIdPinned
+          participant.id === streamIdPinned
             ? goFullScreen('off')
-            : goFullScreen(object.streamId)
+            : goFullScreen(participant.id)
         "
       >
         <q-tooltip
@@ -116,7 +114,7 @@
           transition-hide="scale"
         >
           <label class="a-userVideo__box__avatar__screenBtn__label">{{
-            object.streamId === streamIdPinned
+            participant.id === streamIdPinned
               ? 'Minimizar'
               : 'Pantalla completa'
           }}</label>
@@ -144,7 +142,7 @@ export default defineComponent({
   setup() {
     const users = ref<UserStream[]>(userStreams);
     let { perifericsControl } = usePerifericsControls();
-    const { objStreams } = useHandleParticipants();
+    const { participants } = useHandleParticipants();
     const { isFullScreen, setFullScreen } = useToogleFunctions();
     const { userMe } = useUserMe();
 
@@ -170,7 +168,7 @@ export default defineComponent({
       userMe,
       goFullScreen,
       isFullScreen,
-      objStreams,
+      participants,
       streamIdPinned,
     };
   },

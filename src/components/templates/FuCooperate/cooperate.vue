@@ -3,7 +3,6 @@
     <fu-cooperate
       :toggleLocalCamera="toggleLocalCamera"
       :toggleLocalMic="toggleLocalMic"
-      :objStreams="objStreams"
       :webRTCAdaptor="webRTCAdaptor"
       :toggleDesktopCapture="toggleDesktopCapture"
       v-if="existRoom"
@@ -28,6 +27,16 @@ import FuTLoading from 'organisms/FuLoading';
 
 interface StringIndexedArray<TValue> {
   [id: string]: TValue;
+}
+
+interface ObjInfoRequested {
+  to: string;
+  from: string;
+}
+
+interface ObjRemoteUserInfo extends ObjInfoRequested {
+  eventType: string;
+  userInfo: User;
 }
 
 export default defineComponent({
@@ -66,6 +75,7 @@ export default defineComponent({
 
     const { addHandNotificationInfo, removeHandNotification } =
       useToogleFunctions();
+
     const roomId =
       (window as ZoidWindow)?.xprops?.roomId ||
       (route.query.roomId as string) ||
@@ -89,7 +99,7 @@ export default defineComponent({
     const roomTimerId = ref<ReturnType<typeof setInterval> | null>(null);
     const streamsList = ref<string[]>([]);
     // const objStreams = ref<objWebRTC[]>([]);
-    let { addParticipants, objStreams } = useHandleParticipants();
+    let { addParticipants, participants } = useHandleParticipants();
     const isDataChannelOpen = ref(false);
 
     // const isMicMuted = ref(false);
@@ -203,8 +213,8 @@ export default defineComponent({
     };
 
     const removeRemoteVideo = (streamId: string) => {
-      objStreams.value = objStreams.value.filter(
-        (stream) => stream.streamId !== streamId
+      participants.value = participants.value.filter(
+        (participant) => participant.id !== streamId
       );
     };
 
@@ -249,8 +259,6 @@ export default defineComponent({
       }
     };
 
-    const test = ref<Message[]>([]);
-
     const changeVolume = () => {
       webRTCAdaptor.value.currentVolume = currentVolume.value;
       if (webRTCAdaptor.value.soundOriginGainNode != null) {
@@ -266,7 +274,7 @@ export default defineComponent({
     const leaveRoom = () => {
       webRTCAdaptor.value.leaveFromRoom?.(roomId);
 
-      objStreams.value = [];
+      participants.value = [];
     };
 
     const createConnection = () => {
@@ -315,6 +323,7 @@ export default defineComponent({
           } else if (info == 'joinedTheRoom') {
             /* var room = obj.ATTR_ROOM_NAME; */
             console.log('joined', obj);
+
             const room = obj.ATTR_ROOM_NAME;
             const streamId = obj.streamId;
             /* this.roomOfStream[obj.streamId] = room; */
@@ -334,33 +343,38 @@ export default defineComponent({
             );
 
             if (obj.streams != null) {
+              //Por si hay salas a la hora de unirse aquí se añaden al array de participantes
               obj.streams.forEach(function (item) {
-                console.log('Stream joined with ID: ' + item);
+                console.log('🥲 Stream joined with ID: ' + item);
                 webRTCAdaptor.value.play?.(item, playToken, roomId);
               });
               streamsList.value = obj.streams;
+              console.log(streamsList.value, 'streamslisttttttt');
             }
             roomTimerId.value = setInterval(() => {
+              //Para obtener info de las salas cada cierto tiempo
               webRTCAdaptor.value.getRoomInfo?.(roomId, streamId);
             }, 2000);
           } else if (info == 'newStreamAvailable') {
-            let isThere = objStreams.value.find(
-              (x) => x.streamId === obj.streamId
-            );
+            let isThere = participants.value.find((x) => x.id === obj.streamId);
 
             if (obj.streamId !== streamId) {
               if (isThere) {
-                isThere = obj;
+                //isThere = obj;
+                isThere = {
+                  id: obj.streamId,
+                  stream: obj.stream,
+                };
               } else {
                 // objStreams.value.push(obj);
-                console.log(obj, ' Se añade nuevo usuario 🇧🇹🇧🇹🇧🇹');
-                addParticipants(obj);
+                //console.log(obj, ' Se añade nuevo usuario 🇧🇹🇧🇹🇧🇹');
+                addParticipants({ id: obj.streamId, stream: obj.stream });
               }
             }
           } else if (info == 'publish_started') {
             //stream is being published
             console.debug(
-              'publish started to room: ' + roomOfStream.value[obj.streamId]
+              'publish started to room: #️⃣' + roomOfStream.value[obj.streamId]
             );
           } else if (info == 'publish_finished') {
             //stream is being finished
@@ -392,8 +406,13 @@ export default defineComponent({
               removeRemoteVideo(item);
             }); */
             }
+            /* if (participants.value != null) {
+              participants.forEach(function (participant) {
+              removeRemoteVideo(partic);
+            });
+            } */
             // we need to reset streams list
-            objStreams.value = [];
+            participants.value = [];
             streamsList.value = [];
           } else if (info == 'closed') {
             //console.log("Connection closed");
@@ -421,21 +440,30 @@ export default defineComponent({
             //Lastly updates the current streamlist with the fetched one.
             streamsList.value = obj.streams;
           } else if (info == 'data_channel_opened') {
-            console.log('Data Channel open for stream id 🃏🃏🃏', obj);
+            console.info('Data Channel open for stream id 🃏🃏🃏', obj);
 
-            //Mandar data del usuario _ Para quien manda
-            /* if (JSON.stringify(obj) !== userMe.id) {
-              console.log(obj);
+            //Mandar petición de data de usuario a todos los usuarios con el que se abre un canal de comunicación
+
+            const user = obj as unknown as string;
+            console.log(user === userMe.id);
+
+            if (user !== userMe.id) {
+              console.info(
+                '⭐ i am sending a petition requesting data to user',
+                obj,
+                'from:',
+                userMe.id
+              );
 
               webRTCAdaptor.value.sendData?.(
                 userMe.id,
                 JSON.stringify({
                   eventType: 'USER_INFO_REQUEST',
+                  from: userMe.id,
+                  to: obj,
                 })
               );
-            } */
-
-            //Mandar data del usuario
+            }
 
             isLoadingOrError.value = false;
             isDataChannelOpen.value = true;
@@ -447,7 +475,7 @@ export default defineComponent({
             const objParsed = JSON.parse(obj.data) as Message;
             const { eventType } = objParsed;
             if (eventType === 'CHAT_MESSAGE') {
-              console.log(objParsed);
+              //console.log(objParsed);
               setUserMessage(objParsed);
             } else if (eventType === 'NOTIFICATION') {
               //handleNotificationEvent(obj);
@@ -457,6 +485,33 @@ export default defineComponent({
             } else if (eventType === 'NOHAND') {
               removeHandNotification(objParsed.streamId);
             } else if (eventType === 'USER_INFO_REQUEST') {
+              const infoRequestParsed = JSON.parse(
+                obj.data
+              ) as ObjInfoRequested;
+              console.log(
+                '⭐ my info',
+                infoRequestParsed.to,
+                'is requested from:',
+                infoRequestParsed.from
+              );
+              if (infoRequestParsed.to === userMe.id) {
+                try {
+                  webRTCAdaptor.value.sendData?.(
+                    userMe.id,
+                    JSON.stringify({
+                      eventType: 'USER_INFO',
+                      from: infoRequestParsed.to,
+                      to: infoRequestParsed.from,
+                      userInfo: userMe,
+                    })
+                  );
+                } catch {
+                  console.info(
+                    'The connection is not established yet for sending a petition for INFO_REQUEST'
+                  );
+                }
+              }
+              console.log('my info have been sent');
               /* console.log(eventType, objParsed, userMe.id);
               webRTCAdaptor.value.sendData?.(
                 userMe.id,
@@ -477,9 +532,57 @@ export default defineComponent({
               //console.log(obj);
               //test.value.push(obj);
             } else if (eventType === 'USER_INFO') {
-              console.log(eventType, objParsed);
-              /* test.value.push(objParsed);
-              console.log(test, '🇧🇼🇧🇼🇧🇼🇧🇼'); */
+              //console.log(eventType, objParsed);
+              const remoteUserInfoParsed = JSON.parse(
+                obj.data
+              ) as ObjRemoteUserInfo;
+              //Recieving info from another user if is for me
+              if (remoteUserInfoParsed.to === userMe.id) {
+                console.log('I am receiving info from another user', objParsed);
+
+                webRTCAdaptor.value.sendData?.(
+                  userMe.id,
+                  JSON.stringify({
+                    eventType: 'USER_INFO_FINISH',
+                    from: remoteUserInfoParsed.to,
+                    to: remoteUserInfoParsed.from,
+                    userInfo: userMe,
+                  })
+                );
+
+                console.log(participants.value);
+
+                const user = participants.value.find(
+                  (participant) =>
+                    participant.id === remoteUserInfoParsed.userInfo.id
+                );
+                //user = { avatar : remoteUserInfoParsed.userInfo.avatar ,...user}
+                if (user) {
+                  user.avatar = remoteUserInfoParsed.userInfo.avatar;
+                  user.name = remoteUserInfoParsed.userInfo.name;
+                }
+              }
+            } else if (eventType === 'USER_INFO_FINISH') {
+              //console.log(eventType, objParsed);
+              const remoteUserInfoParsed = JSON.parse(
+                obj.data
+              ) as ObjRemoteUserInfo;
+              //Recieving info from another user if is for me
+              if (remoteUserInfoParsed.to === userMe.id) {
+                console.log('I am receiving info from another user', objParsed);
+
+                const user = participants.value.find(
+                  (participant) =>
+                    participant.id === remoteUserInfoParsed.userInfo.id
+                );
+                //user = { avatar : remoteUserInfoParsed.userInfo.avatar ,...user}
+                if (user) {
+                  user.avatar = remoteUserInfoParsed.userInfo.avatar;
+                  user.name = remoteUserInfoParsed.userInfo.name;
+                }
+              }
+
+              console.log(participants.value);
             }
           }
         },
@@ -566,18 +669,22 @@ export default defineComponent({
       );
       const res = await fetch(request);
 
-      return res.status;
+      return {
+        status: res.status,
+        body: (await res.json()) as Record<string, string>,
+      };
     };
 
     /* conditionals */
     if (roomId) {
       checkRoom(roomId)
-        .then((status) => {
-          if (status === 200) {
+        .then((res) => {
+          if (res.status === 200) {
             existRoom.value = true;
-          } else if (status === 404) {
+            console.log(res.body, '🅱️🅱️🅱️🅱️');
+          } else if (res.status === 404) {
             loadingMessage.value = 'Meeting not found';
-          } else if (status === 403) {
+          } else if (res.status === 403) {
             loadingMessage.value = 'Not allowed';
           }
         })
@@ -603,7 +710,6 @@ export default defineComponent({
       loadingMessage,
       existRoom,
       currentVolume,
-      objStreams,
       roomId,
       joinRoom,
       isMuteMicButtonDisabled,

@@ -89,8 +89,14 @@
       >
         <figure class="a-userVideo__box__avatar__imageBox">
           <img
+            v-if="participant.avatar"
             class="a-userVideo__box__avatar__imageBox__image"
             :src="participant.avatar"
+          />
+          <q-spinner-oval
+            v-if="!participant.avatar"
+            color="primary"
+            size="2em"
           />
         </figure>
         <div class="a-userVideo__box__avatar__info">

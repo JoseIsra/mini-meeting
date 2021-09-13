@@ -7,6 +7,7 @@ interface FunctionState {
   renderUsersList: boolean;
   handNotificationActive: boolean;
   handNotificationInfo: HandNotification[];
+  selectedButtonID: string;
 }
 
 interface PerifericsState {
@@ -32,6 +33,7 @@ const functionState = {
   renderUsersList: false,
   handNotificationActive: false,
   handNotificationInfo: [] as HandNotification[],
+  selectedButtonID: '',
 };
 
 const perifericsState = {
@@ -76,6 +78,10 @@ export function useToogleFunctions() {
     isFullScreen.value = value;
   };
 
+  const setIDButtonSelected = (value: string) => {
+    functionsOnMenuBar.selectedButtonID = value;
+  };
+
   return {
     functionsOnMenuBar,
     setShowChat,
@@ -86,6 +92,7 @@ export function useToogleFunctions() {
     removeHandNotification,
     setFullScreen,
     isFullScreen,
+    setIDButtonSelected,
   };
 }
 

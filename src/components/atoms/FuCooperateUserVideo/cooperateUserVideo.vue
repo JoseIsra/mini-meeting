@@ -2,32 +2,31 @@
   <section class="a-userVideo">
     <div
       class="a-userVideo__box"
-      :style="
-        userMe.id === streamIdPinned
-          ? {
-              position: 'fixed',
-              width: '100vw',
-              height: '100vh',
-              top: 0,
-              'z-index': '-5',
-            }
-          : ''
-      "
+      :class="{ full: userMe.id === streamIdPinned }"
     >
-      <div v-show="!userMe.isVideoActivated" class="a-userVideo__box__avatar">
-        <figure class="a-userVideo__box__avatar__imageBox">
+      <div
+        v-show="!userMe.isVideoActivated"
+        class="a-userVideo__box__avatar"
+        :class="{ full__content: userMe.id === streamIdPinned }"
+      >
+        <figure
+          class="a-userVideo__box__avatar__imageBox"
+          :class="{ full__content__avatar: userMe.id === streamIdPinned }"
+        >
           <img
             class="a-userVideo__box__avatar__imageBox__image"
             :src="userMe.avatar"
           />
         </figure>
         <div class="a-userVideo__box__avatar__info">
-          <label class="a-userVideo__box__avatar__info__userName">{{
-            userMe.name
-          }}</label>
+          <label
+            class="a-userVideo__box__avatar__info__userName"
+            :class="{ full__content__name: userMe.id === streamIdPinned }"
+            >{{ userMe.name }}</label
+          >
           <q-icon
             :name="userMe.isMicOn ? 'mic' : 'mic_off'"
-            size="20px"
+            :size="userMe.id === streamIdPinned ? '40px' : '20px'"
             color="white"
           />
         </div>
@@ -152,10 +151,9 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
 import { userStreams } from '@/helpers/usersVideo';
-// import { objWebRTC } from '@/types';
 import { useToogleFunctions } from '@/composables';
 import { useUserMe } from '@/composables/userMe';
-import { useHandleParticipants } from '@/composables/ant-media-server-stuff';
+import { useHandleParticipants } from '@/composables/participants';
 
 interface UserStream {
   id: string;
@@ -171,10 +169,6 @@ export default defineComponent({
     const { userMe } = useUserMe();
 
     const streamIdPinned = ref('');
-
-    /* const setUserPinned = (streamId: string) => {
-      userPinned.value = streamId;
-    }; */
 
     const goFullScreen = (streamId: string) => {
       //TODO: PASAR ARGUMENTO DE OBJETO STREAM PARA ESPECIFICAR FULL SCREEN

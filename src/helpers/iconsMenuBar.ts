@@ -57,7 +57,7 @@ export const iconsFunctions = [
     offState: 'person',
     active: false,
     toolTipMessage: 'Lista de usuarios',
-    toolTipSecondMessage: 'Lista de usuarios',
+    toolTipSecondMessage: 'Ocultar lista de usuarios',
     interaction: interactionType.USERLIST,
   },
   {

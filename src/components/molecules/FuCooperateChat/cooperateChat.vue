@@ -101,7 +101,7 @@ import moment from 'moment';
 import { useHandleMessage } from '@/composables/chat';
 import { useUserMe } from '@/composables/userMe';
 import { nanoid } from 'nanoid';
-import { useSidebarToogle } from '@/composables';
+import { useSidebarToogle, useToogleFunctions } from '@/composables';
 import { ZoidWindow } from '@/types/zoid';
 
 // import { useInitWebRTC } from '@/composables/ant-media-server-stuff';
@@ -118,7 +118,7 @@ export default defineComponent({
     let userInput = ref<string>('');
     const { userMessages, setUserMessage } = useHandleMessage();
     let { setSidebarState } = useSidebarToogle();
-
+    const { setIDButtonSelected } = useToogleFunctions();
     const { userMe } = useUserMe();
     let userName = ref(
       (window as ZoidWindow)?.xprops?.streamId || route.query.streamName
@@ -157,6 +157,7 @@ export default defineComponent({
     };
     const closeChat = () => {
       setSidebarState(false);
+      setIDButtonSelected('');
     };
 
     return {

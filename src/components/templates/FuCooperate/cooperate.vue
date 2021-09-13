@@ -22,7 +22,7 @@ import { useToogleFunctions } from '@/composables';
 import { Message, useHandleMessage } from '@/composables/chat';
 import { User, useUserMe } from '@/composables/userMe';
 import { ZoidWindow } from '@/types/zoid';
-import { useHandleParticipants } from '@/composables/ant-media-server-stuff';
+import { useHandleParticipants } from '@/composables/participants';
 import FuTLoading from 'organisms/FuLoading';
 
 interface StringIndexedArray<TValue> {
@@ -37,11 +37,6 @@ interface Data {
   streamId: string;
   notificationType: string;
   eventType: string;
-}
-
-interface ObjParsedNotification {
-  streamId: string;
-  data: Data;
 }
 
 interface ObjRemoteUserInfo extends ObjInfoRequested {

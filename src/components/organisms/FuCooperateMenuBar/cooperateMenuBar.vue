@@ -39,7 +39,7 @@
             {
               active:
                 icon.id !== '1'
-                  ? icon.id == actionSelectionID
+                  ? icon.id == functionsOnMenuBar.selectedButtonID
                   : userMe.isScreenSharing,
             },
           ]"
@@ -52,12 +52,18 @@
             handleFunctionSelected(icon.interaction, icon.id);
           "
         >
-          <q-tooltip class="bg-grey-10" v-if="icon.id !== actionSelectionID">
+          <q-tooltip
+            class="bg-grey-10"
+            v-if="icon.id !== functionsOnMenuBar.selectedButtonID"
+          >
             <label class="a-menuBar__icon__tooltip">
               {{ icon.toolTipMessage }}
             </label>
           </q-tooltip>
-          <q-tooltip class="bg-grey-10" v-if="icon.id == actionSelectionID">
+          <q-tooltip
+            class="bg-grey-10"
+            v-if="icon.id == functionsOnMenuBar.selectedButtonID"
+          >
             <label class="a-menuBar__icon__tooltip">
               {{ icon.toolTipSecondMessage }}
             </label>
@@ -182,6 +188,7 @@ export default defineComponent({
       setShowUsersList,
       addHandNotificationInfo,
       removeHandNotification,
+      setIDButtonSelected,
     } = useToogleFunctions();
     let { isSidebarRender, setSidebarState } = useSidebarToogle();
     const {
@@ -194,7 +201,6 @@ export default defineComponent({
     //**********************++FUNCIONES ********************** */
     const toogleChat = () => {
       if (!isSidebarRender.value) {
-        console.log('chat??');
         setSidebarState(true);
         setShowChat(true);
         setShowNotes(false);
@@ -309,13 +315,15 @@ export default defineComponent({
     };
 
     const handleFunctionSelected = (interaction?: string, ID?: string) => {
-      if (actionSelectionID.value == ID) {
+      if (functionsOnMenuBar.selectedButtonID == ID) {
         //si se hace toggle a un ícon ya seleccionado
-        actionSelectionID.value = '';
+        // actionSelectionID.value = '';
+        setIDButtonSelected('');
         objectFunctionalities[interaction as keyof Functionalities]?.();
         return;
       }
-      actionSelectionID.value = ID as string;
+      setIDButtonSelected(ID as string);
+      // actionSelectionID.value = ID as string;
       objectFunctionalities[interaction as keyof Functionalities]?.();
     };
 
@@ -336,6 +344,7 @@ export default defineComponent({
       tooglePeriferic,
       renderFunctionResponsiveMenu,
       openNetworkConfig,
+      functionsOnMenuBar,
     };
   },
 });

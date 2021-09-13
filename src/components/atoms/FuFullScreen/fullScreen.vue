@@ -1,20 +1,20 @@
 <template>
   <section class="a-full">
-    <div v-show="!perifericsControl.isVideoActivated" class="a-full__avatar">
+    <div v-show="!userMe.isVideoActivated" class="a-full__avatar">
       <figure class="a-full__avatar__imageBox">
         <img class="a-full__avatar__imageBox__image" :src="userMe.avatar" />
       </figure>
       <div class="a-full__avatar__info">
         <label class="a-full__avatar__info__userName">{{ userMe.name }}</label>
         <q-icon
-          :name="perifericsControl.isMicOn ? 'mic' : 'mic_off'"
+          :name="userMe.isMicOn ? 'mic' : 'mic_off'"
           size="20px"
           color="white"
         />
       </div>
     </div>
     <video
-      v-show="perifericsControl.isVideoActivated && isFullScreen && test"
+      v-show="userMe.isVideoActivated && isFullScreen && test"
       class="a-full__stream"
       autoplay
       muted
@@ -36,7 +36,7 @@
 
 <script lang="ts">
 import { defineComponent, onMounted, PropType, ref } from 'vue';
-import { usePerifericsControls, useToogleFunctions } from '@/composables';
+import { useToogleFunctions } from '@/composables';
 import { useUserMe } from '@/composables/userMe';
 import { WebRTCAdaptorType } from '@/types';
 
@@ -48,7 +48,6 @@ export default defineComponent({
     },
   },
   setup(props) {
-    let { perifericsControl } = usePerifericsControls();
     const { userMe, pinnedUserStream } = useUserMe();
     const { isFullScreen, setFullScreen } = useToogleFunctions();
     const test = ref({} as MediaStream);
@@ -64,7 +63,6 @@ export default defineComponent({
       // }, 2000);
     });
     return {
-      perifericsControl,
       userMe,
       exitFullScreen,
       isFullScreen,

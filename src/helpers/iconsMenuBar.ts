@@ -1,6 +1,6 @@
-import { usePerifericsControls } from '@/composables';
+import { useUserMe } from '@/composables/userMe';
 
-const { perifericsControl } = usePerifericsControls();
+const { userMe } = useUserMe();
 
 enum interactionType {
   CHAT = 'CHAT',
@@ -17,7 +17,7 @@ export const iconsPeriferics = [
     id: '1',
     onState: 'mic',
     offState: 'mic_off',
-    active: perifericsControl.isMicOn,
+    active: true,
     toolTipMessage: 'Habilitar audio',
     toolTipSecondMessage: 'Deshabilitar audio',
     interaction: interactionType.MIC,
@@ -26,7 +26,7 @@ export const iconsPeriferics = [
     id: '2',
     onState: 'videocam',
     offState: 'videocam_off',
-    active: perifericsControl.isCameraOn,
+    active: userMe.isCameraOn,
     toolTipMessage: 'Habilitar webcam',
     toolTipSecondMessage: 'Deshabilitar webcam',
     interaction: interactionType.WEBCAM,
@@ -37,7 +37,7 @@ export const iconsFunctions = [
     id: '1',
     onState: 'monitor',
     offState: 'desktop_access_disabled',
-    active: perifericsControl.isScreenShared,
+    active: userMe.isScreenSharing,
     toolTipMessage: 'Compartir pantalla',
     toolTipSecondMessage: 'Dejar de compartir pantalla',
     interaction: interactionType.SHARESCREEN,
@@ -56,8 +56,8 @@ export const iconsFunctions = [
     onState: 'person',
     offState: 'person',
     active: false,
-    toolTipMessage: 'Alternar lista de usuarios',
-    toolTipSecondMessage: 'Alternar lista de usuarios',
+    toolTipMessage: 'Lista de usuarios',
+    toolTipSecondMessage: 'Lista de usuarios',
     interaction: interactionType.USERLIST,
   },
   {

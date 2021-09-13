@@ -3,7 +3,6 @@
     <fu-cooperate
       :toggleLocalCamera="toggleLocalCamera"
       :toggleLocalMic="toggleLocalMic"
-      :objStreams="objStreams"
       :webRTCAdaptor="webRTCAdaptor"
       :toggleDesktopCapture="toggleDesktopCapture"
       v-if="existRoom"
@@ -19,15 +18,35 @@ import FuCooperate from 'organisms/FuCooperate';
 import { useRoute } from 'vue-router';
 import { WebRTCAdaptor } from '@/utils/webrtc/webrtc_adaptor';
 import { objWebRTC, WebRTCAdaptorType } from '@/types/index';
-import { usePerifericsControls, useToogleFunctions } from '@/composables';
+import { useToogleFunctions } from '@/composables';
 import { Message, useHandleMessage } from '@/composables/chat';
-import { useUserMe } from '@/composables/userMe';
+import { User, useUserMe } from '@/composables/userMe';
 import { ZoidWindow } from '@/types/zoid';
 import { useHandleParticipants } from '@/composables/ant-media-server-stuff';
 import FuTLoading from 'organisms/FuLoading';
 
 interface StringIndexedArray<TValue> {
   [id: string]: TValue;
+}
+
+interface ObjInfoRequested {
+  to: string;
+  from: string;
+}
+interface Data {
+  streamId: string;
+  notificationType: string;
+  eventType: string;
+}
+
+interface ObjParsedNotification {
+  streamId: string;
+  data: Data;
+}
+
+interface ObjRemoteUserInfo extends ObjInfoRequested {
+  eventType: string;
+  userInfo: User;
 }
 
 export default defineComponent({
@@ -37,10 +56,9 @@ export default defineComponent({
     FuTLoading,
   },
   setup() {
-    const { perifericsControl, setScreenState, setVideoActivatedState } =
-      usePerifericsControls();
     const { setUserMessage } = useHandleMessage();
-    const { setUserMe } = useUserMe();
+    const { userMe, setUserMe, setScreenState, setVideoActivatedState } =
+      useUserMe();
     const route = useRoute();
 
     //Datos del usuario
@@ -62,10 +80,15 @@ export default defineComponent({
       id: streamId,
       name: streamName,
       avatar,
+      isCameraOn: false,
+      isMicOn: true,
+      isScreenSharing: false,
+      isVideoActivated: false,
     });
 
     const { addHandNotificationInfo, removeHandNotification } =
       useToogleFunctions();
+
     const roomId =
       (window as ZoidWindow)?.xprops?.roomId ||
       (route.query.roomId as string) ||
@@ -89,7 +112,7 @@ export default defineComponent({
     const roomTimerId = ref<ReturnType<typeof setInterval> | null>(null);
     const streamsList = ref<string[]>([]);
     // const objStreams = ref<objWebRTC[]>([]);
-    let { addParticipants, objStreams } = useHandleParticipants();
+    let { addParticipants, participants } = useHandleParticipants();
     const isDataChannelOpen = ref(false);
 
     // const isMicMuted = ref(false);
@@ -117,35 +140,27 @@ export default defineComponent({
     //TODO: Get the device id in the websocket as it works in player.html
 
     const toggleDesktopCapture = () => {
-      console.log(
-        perifericsControl.isCameraOn,
-        perifericsControl.isScreenShared
-      );
-      if (perifericsControl.isScreenShared) {
+      if (userMe.isScreenSharing) {
         console.log('DESACTIVAO');
         webRTCAdaptor.value.resetDesktop?.();
+        sendNotificationEvent('SCREEN_SHARING_OFF');
         console.log('6');
       }
-      if (perifericsControl.isCameraOn && !perifericsControl.isScreenShared) {
+      if (userMe.isCameraOn && !userMe.isScreenSharing) {
         webRTCAdaptor.value.turnOffLocalCamera?.(streamId);
         webRTCAdaptor.value.switchDesktopCaptureWithCamera?.(streamId);
         console.log('5');
-      } else if (
-        !perifericsControl.isCameraOn &&
-        !perifericsControl.isScreenShared
-      ) {
+      } else if (!userMe.isCameraOn && !userMe.isScreenSharing) {
         webRTCAdaptor.value.switchDesktopCapture?.(streamId);
         setVideoActivatedState(true);
+        sendNotificationEvent('SCREEN_SHARING_ON');
         console.log('4');
-      } else if (
-        perifericsControl.isCameraOn &&
-        perifericsControl.isScreenShared
-      ) {
+      } else if (userMe.isCameraOn && userMe.isScreenSharing) {
         webRTCAdaptor.value.switchVideoCameraCapture?.(streamId, cameraId);
         console.log('3');
       }
 
-      if (!perifericsControl.isCameraOn && perifericsControl.isScreenShared) {
+      if (!userMe.isCameraOn && userMe.isScreenSharing) {
         webRTCAdaptor.value.turnOffLocalCamera?.(streamId);
         console.log('2');
       } else {
@@ -155,15 +170,15 @@ export default defineComponent({
     };
 
     const toggleLocalCamera = () => {
-      if (perifericsControl.isCameraOn) {
-        if (perifericsControl.isScreenShared) {
+      if (userMe.isCameraOn) {
+        if (userMe.isScreenSharing) {
           webRTCAdaptor.value.switchDesktopCapture?.(streamId);
         } else {
           webRTCAdaptor.value.turnOffLocalCamera?.(streamId);
           sendNotificationEvent('CAM_TURNED_OFF');
         }
       } else {
-        if (perifericsControl.isScreenShared) {
+        if (userMe.isScreenSharing) {
           webRTCAdaptor.value.switchDesktopCaptureWithCamera?.(streamId);
         } else {
           webRTCAdaptor.value.turnOnLocalCamera?.(streamId);
@@ -172,7 +187,7 @@ export default defineComponent({
       }
     };
     const toggleLocalMic = () => {
-      if (!perifericsControl.isMicOn) {
+      if (!userMe.isMicOn) {
         webRTCAdaptor.value.unmuteLocalMic?.();
         sendNotificationEvent('MIC_UNMUTED');
       } else {
@@ -203,8 +218,8 @@ export default defineComponent({
     };
 
     const removeRemoteVideo = (streamId: string) => {
-      objStreams.value = objStreams.value.filter(
-        (stream) => stream.streamId !== streamId
+      participants.value = participants.value.filter(
+        (participant) => participant.id !== streamId
       );
     };
 
@@ -212,26 +227,24 @@ export default defineComponent({
       webRTCAdaptor.value.play?.(obj.streamId, playToken, roomId);
     };
 
-    // const handleNotificationEvent = (obj: objWebRTC) => {
-    //   const notificationEvent = JSON.parse(obj.event.data) as Record<
-    //     string,
-    //     string
-    //   >;
-    //   if (notificationEvent != null && typeof notificationEvent == 'object') {
-    //     const eventStreamId = notificationEvent.streamId;
-    //     const eventTyp = notificationEvent.eventType;
+    const handleNotificationEvent = (obj: objWebRTC) => {
+      console.log(obj);
+      const notificationEvent = JSON.parse(obj.data) as Record<string, string>;
+      if (notificationEvent != null && typeof notificationEvent == 'object') {
+        const eventStreamId = notificationEvent.streamId;
+        const eventTyp = notificationEvent.eventType;
 
-    //     if (eventTyp == 'CAM_TURNED_OFF') {
-    //       console.log('Camera turned off for : ', eventStreamId);
-    //     } else if (eventTyp == 'CAM_TURNED_ON') {
-    //       console.log('Camera turned on for : ', eventStreamId);
-    //     } else if (eventTyp == 'MIC_MUTED') {
-    //       console.log('Microphone muted for : ', eventStreamId);
-    //     } else if (eventTyp == 'MIC_UNMUTED') {
-    //       console.log('Microphone unmuted for : ', eventStreamId);
-    //     }
-    //   }
-    // };
+        if (eventTyp == 'CAM_TURNED_OFF') {
+          console.log('Camera turned off for : ', eventStreamId);
+        } else if (eventTyp == 'CAM_TURNED_ON') {
+          console.log('Camera turned on for : ', eventStreamId);
+        } else if (eventTyp == 'MIC_MUTED') {
+          console.log('Microphone muted for : ', eventStreamId);
+        } else if (eventTyp == 'MIC_UNMUTED') {
+          console.log('Microphone unmuted for : ', eventStreamId);
+        }
+      }
+    };
 
     const sendNotificationEvent = (notificationType: string) => {
       if (isDataChannelOpen.value) {
@@ -264,7 +277,7 @@ export default defineComponent({
     const leaveRoom = () => {
       webRTCAdaptor.value.leaveFromRoom?.(roomId);
 
-      objStreams.value = [];
+      participants.value = [];
     };
 
     const createConnection = () => {
@@ -297,7 +310,7 @@ export default defineComponent({
         isPlayMode: false,
         debug: true,
         dataChannelEnabled: true,
-        initCameraState: perifericsControl.isCameraOn,
+        initCameraState: userMe.isCameraOn,
         callback: (info: string, obj: objWebRTC) => {
           if (info == 'initialized') {
             console.log('initialized');
@@ -305,7 +318,7 @@ export default defineComponent({
               isCameraOff.value = false;
             } */
             // load all
-            if (!perifericsControl.isCameraOn) {
+            if (!userMe.isCameraOn) {
               webRTCAdaptor.value.turnOffLocalCamera?.(streamId);
             }
             // load all
@@ -313,6 +326,7 @@ export default defineComponent({
           } else if (info == 'joinedTheRoom') {
             /* var room = obj.ATTR_ROOM_NAME; */
             console.log('joined', obj);
+
             const room = obj.ATTR_ROOM_NAME;
             const streamId = obj.streamId;
             /* this.roomOfStream[obj.streamId] = room; */
@@ -332,34 +346,39 @@ export default defineComponent({
             );
 
             if (obj.streams != null) {
+              //Por si hay salas a la hora de unirse aquí se añaden al array de participantes
               obj.streams.forEach(function (item) {
-                console.log('Stream joined with ID: ' + item);
+                console.log('🥲 Stream joined with ID: ' + item);
                 webRTCAdaptor.value.play?.(item, playToken, roomId);
               });
               streamsList.value = obj.streams;
+              console.log(streamsList.value, 'streamslisttttttt');
             }
             roomTimerId.value = setInterval(() => {
+              //Para obtener info de las salas cada cierto tiempo
               webRTCAdaptor.value.getRoomInfo?.(roomId, streamId);
             }, 2000);
           } else if (info == 'newStreamAvailable') {
-            let isThere = objStreams.value.find(
-              (x) => x.streamId === obj.streamId
-            );
+            let isThere = participants.value.find((x) => x.id === obj.streamId);
 
             if (obj.streamId !== streamId) {
               if (isThere) {
-                isThere = obj;
+                //isThere = obj;
+                isThere = {
+                  id: obj.streamId,
+                  stream: obj.stream,
+                };
               } else {
                 // objStreams.value.push(obj);
-                console.log(obj, ' Se añade nuevo usuario 🇧🇹🇧🇹🇧🇹');
-                addParticipants(obj);
+                //console.log(obj, ' Se añade nuevo usuario 🇧🇹🇧🇹🇧🇹');
+                addParticipants({ id: obj.streamId, stream: obj.stream });
               }
             }
           } else if (info == 'publish_started') {
             //stream is being published
             console.log('INICIO DE PUBBLISH 😁', obj, streamName);
             console.debug(
-              'publish started to room: ' + roomOfStream.value[obj.streamId]
+              'publish started to room: #️⃣' + roomOfStream.value[obj.streamId]
             );
           } else if (info == 'publish_finished') {
             //stream is being finished
@@ -367,8 +386,8 @@ export default defineComponent({
           } else if (info == 'screen_share_stopped') {
             console.log('screen share stopped');
             setScreenState(false);
-            if (!perifericsControl.isCameraOn) {
-              perifericsControl.isVideoActivated = false;
+            if (!userMe.isCameraOn) {
+              userMe.isVideoActivated = false;
               webRTCAdaptor.value.turnOffLocalCamera?.(streamId);
             }
             webRTCAdaptor.value.resetDesktop?.();
@@ -391,8 +410,13 @@ export default defineComponent({
               removeRemoteVideo(item);
             }); */
             }
+            /* if (participants.value != null) {
+              participants.forEach(function (participant) {
+              removeRemoteVideo(partic);
+            });
+            } */
             // we need to reset streams list
-            objStreams.value = [];
+            participants.value = [];
             streamsList.value = [];
           } else if (info == 'closed') {
             //console.log("Connection closed");
@@ -420,26 +444,30 @@ export default defineComponent({
             //Lastly updates the current streamlist with the fetched one.
             streamsList.value = obj.streams;
           } else if (info == 'data_channel_opened') {
-            console.log('Data Channel open for stream id 🃏🃏🃏', obj);
+            console.info('Data Channel open for stream id 🃏🃏🃏', obj);
 
-            //Mandar data del usuario _ Para quien manda
-            console.log(obj);
-            // try {
-            //   if (JSON.stringify(obj) !== userMe.id) {
-            //     console.log(obj);
+            //Mandar petición de data de usuario a todos los usuarios con el que se abre un canal de comunicación
 
-            //     setTimeout(() => {
-            //       webRTCAdaptor.value.sendData?.(
-            //         JSON.stringify(obj),
-            //         JSON.stringify({ eventType: 'USER_INFO_REQUEST' })
-            //       );
-            //     }, 2000);
-            //   }
-            // } catch (e) {
-            //   console.log(e);
-            // }
+            const user = obj as unknown as string;
+            console.log(user === userMe.id);
 
-            //Mandar data del usuario
+            if (user !== userMe.id) {
+              console.info(
+                '⭐ i am sending a petition requesting data to user',
+                obj,
+                'from:',
+                userMe.id
+              );
+
+              webRTCAdaptor.value.sendData?.(
+                userMe.id,
+                JSON.stringify({
+                  eventType: 'USER_INFO_REQUEST',
+                  from: userMe.id,
+                  to: obj,
+                })
+              );
+            }
 
             isLoadingOrError.value = false;
             isDataChannelOpen.value = true;
@@ -451,33 +479,182 @@ export default defineComponent({
             const objParsed = JSON.parse(obj.data) as Message;
             const { eventType } = objParsed;
             if (eventType === 'CHAT_MESSAGE') {
-              console.log(objParsed);
+              //console.log(objParsed);
               setUserMessage(objParsed);
             } else if (eventType === 'NOTIFICATION') {
-              //handleNotificationEvent(obj);
+              handleNotificationEvent(obj);
+              const { notificationType } = JSON.parse(obj.data) as Data;
+              console.log(notificationType);
+              if (notificationType == 'CAM_TURNED_ON') {
+                const streamID = obj.streamId;
+                console.log(streamID);
+                const user = participants.value.find(
+                  (participant) => participant.id === streamID
+                );
+                if (user) {
+                  console.log(user);
+                  user.isCameraOn = true;
+                  user.isVideoActivated = true;
+                }
+              } else if (notificationType == 'CAM_TURNED_OFF') {
+                const streamID = obj.streamId;
+                const user = participants.value.find(
+                  (participant) => participant.id === streamID
+                );
+                if (user) {
+                  user.isCameraOn = false;
+                  user.isVideoActivated = false;
+                }
+              } else if (notificationType == 'SCREEN_SHARING_ON') {
+                const streamID = obj.streamId;
+                console.log(streamID);
+                const user = participants.value.find(
+                  (participant) => participant.id === streamID
+                );
+                if (user) {
+                  console.log(user);
+                  user.isScreenSharing = true;
+                  user.isVideoActivated = true;
+                }
+              } else if (notificationType == 'SCREEN_SHARING_OFF') {
+                const streamID = obj.streamId;
+                const user = participants.value.find(
+                  (participant) => participant.id === streamID
+                );
+                if (user) {
+                  user.isScreenSharing = false;
+                  user.isVideoActivated = false;
+                }
+              } else if (notificationType == 'MIC_UNMUTED') {
+                const streamID = obj.streamId;
+                const user = participants.value.find(
+                  (participant) => participant.id === streamID
+                );
+                if (user) {
+                  user.isMicOn = true;
+                }
+              } else if (notificationType == 'MIC_MUTED') {
+                const streamID = obj.streamId;
+                const user = participants.value.find(
+                  (participant) => participant.id === streamID
+                );
+                if (user) {
+                  user.isMicOn = false;
+                }
+              }
             } else if (eventType === 'HAND') {
               console.log('parseado', objParsed);
               addHandNotificationInfo(objParsed);
             } else if (eventType === 'NOHAND') {
               removeHandNotification(objParsed.streamId);
-            }
-            //else if (eventType === 'USER_INFO_REQUEST') {
-            //   try {
-            //     webRTCAdaptor.value.sendData?.(
-            //       userMe.id,
-            //       JSON.stringify({ eventType: 'USER_INFO', ...userMe })
-            //     );
-            //   } catch (e) {
-            //     console.log(e);
-            //   }
+            } else if (eventType === 'USER_INFO_REQUEST') {
+              const infoRequestParsed = JSON.parse(
+                obj.data
+              ) as ObjInfoRequested;
+              console.log(
+                '⭐ my info',
+                infoRequestParsed.to,
+                'is requested from:',
+                infoRequestParsed.from
+              );
+              if (infoRequestParsed.to === userMe.id) {
+                try {
+                  webRTCAdaptor.value.sendData?.(
+                    userMe.id,
+                    JSON.stringify({
+                      eventType: 'USER_INFO',
+                      from: infoRequestParsed.to,
+                      to: infoRequestParsed.from,
+                      userInfo: userMe,
+                    })
+                  );
+                } catch {
+                  console.info(
+                    'The connection is not established yet for sending a petition for INFO_REQUEST'
+                  );
+                }
+              }
+              console.log('my info have been sent');
+              /* console.log(eventType, objParsed, userMe.id);
+              webRTCAdaptor.value.sendData?.(
+                userMe.id,
+                JSON.stringify({ eventType: 'USER_INFO', ...userMe })
+              ); */
+              /*  */
+              /*  */
+              /*  */
+              /* try {
+                webRTCAdaptor.value.sendData?.(
+                  userMe.id,
+                  JSON.stringify({ eventType: 'USER_INFO', ...userMe })
+                );
+              } catch (e) {
+                console.log(e);
+              } */
+              //console.log(objParsed, 'Recibe info del usuario 🇧🇼🇧🇼🇧🇼🇧🇼');
+              //console.log(obj);
+              //test.value.push(obj);
+            } else if (eventType === 'USER_INFO') {
+              //console.log(eventType, objParsed);
+              const remoteUserInfoParsed = JSON.parse(
+                obj.data
+              ) as ObjRemoteUserInfo;
+              //Recieving info from another user if is for me
+              if (remoteUserInfoParsed.to === userMe.id) {
+                console.log('I am receiving info from another user', objParsed);
 
-            //   //console.log(objParsed, 'Recibe info del usuario 🇧🇼🇧🇼🇧🇼🇧🇼');
-            //   //console.log(obj);
-            //   //test.value.push(obj);
-            // } else if (eventType === 'USER_INFO') {
-            //   test.value.push(objParsed);
-            //   console.log(test, '🇧🇼🇧🇼🇧🇼🇧🇼');
-            // }
+                webRTCAdaptor.value.sendData?.(
+                  userMe.id,
+                  JSON.stringify({
+                    eventType: 'USER_INFO_FINISH',
+                    from: remoteUserInfoParsed.to,
+                    to: remoteUserInfoParsed.from,
+                    userInfo: userMe,
+                  })
+                );
+
+                console.log(participants.value);
+
+                const user = participants.value.find(
+                  (participant) =>
+                    participant.id === remoteUserInfoParsed.userInfo.id
+                );
+                //user = { avatar : remoteUserInfoParsed.userInfo.avatar ,...user}
+                if (user) {
+                  user.avatar = remoteUserInfoParsed.userInfo.avatar;
+                  user.name = remoteUserInfoParsed.userInfo.name;
+                  user.isCameraOn = remoteUserInfoParsed.userInfo.isCameraOn;
+                  user.isMicOn = remoteUserInfoParsed.userInfo.isMicOn;
+                  user.isScreenSharing =
+                    remoteUserInfoParsed.userInfo.isScreenSharing;
+                }
+              }
+            } else if (eventType === 'USER_INFO_FINISH') {
+              //console.log(eventType, objParsed);
+              const remoteUserInfoParsed = JSON.parse(
+                obj.data
+              ) as ObjRemoteUserInfo;
+              //Recieving info from another user if is for me
+              if (remoteUserInfoParsed.to === userMe.id) {
+                console.log('I am receiving info from another user', objParsed);
+
+                const user = participants.value.find(
+                  (participant) =>
+                    participant.id === remoteUserInfoParsed.userInfo.id
+                );
+                //user = { avatar : remoteUserInfoParsed.userInfo.avatar ,...user}
+                if (user) {
+                  user.avatar = remoteUserInfoParsed.userInfo.avatar;
+                  user.name = remoteUserInfoParsed.userInfo.name;
+                  user.isCameraOn = remoteUserInfoParsed.userInfo.isCameraOn;
+                  user.isMicOn = remoteUserInfoParsed.userInfo.isMicOn;
+                  user.isScreenSharing =
+                    remoteUserInfoParsed.userInfo.isScreenSharing;
+                }
+              }
+
+              console.log(participants.value);
+            }
           }
         },
         callbackError: function (
@@ -563,18 +740,22 @@ export default defineComponent({
       );
       const res = await fetch(request);
 
-      return res.status;
+      return {
+        status: res.status,
+        body: (await res.json()) as Record<string, string>,
+      };
     };
 
     /* conditionals */
     if (roomId) {
       checkRoom(roomId)
-        .then((status) => {
-          if (status === 200) {
+        .then((res) => {
+          if (res.status === 200) {
             existRoom.value = true;
-          } else if (status === 404) {
+            console.log(res.body, '🅱️🅱️🅱️🅱️');
+          } else if (res.status === 404) {
             loadingMessage.value = 'Meeting not found';
-          } else if (status === 403) {
+          } else if (res.status === 403) {
             loadingMessage.value = 'Not allowed';
           }
         })
@@ -600,7 +781,6 @@ export default defineComponent({
       loadingMessage,
       existRoom,
       currentVolume,
-      objStreams,
       roomId,
       joinRoom,
       isMuteMicButtonDisabled,

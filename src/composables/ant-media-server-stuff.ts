@@ -1,15 +1,15 @@
 import { ref } from 'vue';
-import { objWebRTC } from '@/types';
+import { Participant } from '@/types';
 
-const objStreams = ref<objWebRTC[]>([]);
+const participants = ref<Participant[]>([]);
 
 export function useHandleParticipants() {
-  const addParticipants = (value: objWebRTC) => {
+  const addParticipants = (value: Participant) => {
     // Object.assign(webRTCInstance, value);
-    objStreams.value.push(value);
+    participants.value.push(value);
   };
   return {
     addParticipants,
-    objStreams,
+    participants,
   };
 }

@@ -14,10 +14,7 @@
           : ''
       "
     >
-      <div
-        v-show="!perifericsControl.isVideoActivated"
-        class="a-userVideo__box__avatar"
-      >
+      <div v-show="!userMe.isVideoActivated" class="a-userVideo__box__avatar">
         <figure class="a-userVideo__box__avatar__imageBox">
           <img
             class="a-userVideo__box__avatar__imageBox__image"
@@ -29,14 +26,14 @@
             userMe.name
           }}</label>
           <q-icon
-            :name="perifericsControl.isMicOn ? 'mic' : 'mic_off'"
+            :name="userMe.isMicOn ? 'mic' : 'mic_off'"
             size="20px"
             color="white"
           />
         </div>
       </div>
       <video
-        v-show="perifericsControl.isVideoActivated"
+        v-show="userMe.isVideoActivated"
         id="localVideo"
         class="a-userVideo__box__stream"
         autoplay
@@ -72,10 +69,10 @@
     </div>
     <div
       class="a-userVideo__box"
-      v-for="object in objStreams"
-      :key="object.streamId"
+      v-for="participant in participants"
+      :key="participant.id"
       :style="
-        object.streamId === streamIdPinned
+        participant.id === streamIdPinned
           ? {
               position: 'fixed',
               width: '100vw',
@@ -86,25 +83,45 @@
           : ''
       "
     >
+      <div
+        v-show="!participant.isVideoActivated"
+        class="a-userVideo__box__avatar"
+      >
+        <figure class="a-userVideo__box__avatar__imageBox">
+          <img
+            class="a-userVideo__box__avatar__imageBox__image"
+            :src="participant.avatar"
+          />
+        </figure>
+        <div class="a-userVideo__box__avatar__info">
+          <label class="a-userVideo__box__avatar__info__userName">{{
+            participant.name
+          }}</label>
+          <q-icon
+            :name="participant.isMicOn ? 'mic' : 'mic_off'"
+            size="20px"
+            color="white"
+          />
+        </div>
+      </div>
       <video
+        v-show="participant.isVideoActivated"
         class="a-userVideo__box__stream"
         autoplay
         playsinline
-        :srcObject.prop="object.stream"
+        :srcObject.prop="participant.stream"
       ></video>
       <q-btn
         flat
         round
         :ripple="false"
-        :icon="
-          object.streamId === streamIdPinned ? 'fullscreen_exit' : 'launch'
-        "
+        :icon="participant.id === streamIdPinned ? 'fullscreen_exit' : 'launch'"
         color="white"
         class="a-userVideo__box__avatar__screenBtn"
         @click="
-          object.streamId === streamIdPinned
+          participant.id === streamIdPinned
             ? goFullScreen('off')
-            : goFullScreen(object.streamId)
+            : goFullScreen(participant.id)
         "
       >
         <q-tooltip
@@ -116,7 +133,7 @@
           transition-hide="scale"
         >
           <label class="a-userVideo__box__avatar__screenBtn__label">{{
-            object.streamId === streamIdPinned
+            participant.id === streamIdPinned
               ? 'Minimizar'
               : 'Pantalla completa'
           }}</label>
@@ -130,7 +147,7 @@
 import { defineComponent, ref } from 'vue';
 import { userStreams } from '@/helpers/usersVideo';
 // import { objWebRTC } from '@/types';
-import { usePerifericsControls, useToogleFunctions } from '@/composables';
+import { useToogleFunctions } from '@/composables';
 import { useUserMe } from '@/composables/userMe';
 import { useHandleParticipants } from '@/composables/ant-media-server-stuff';
 
@@ -143,9 +160,8 @@ export default defineComponent({
   name: 'FuCooperateUserVideo',
   setup() {
     const users = ref<UserStream[]>(userStreams);
-    let { perifericsControl } = usePerifericsControls();
-    const { objStreams } = useHandleParticipants();
-    const { isFullScreen, setFullScreen } = useToogleFunctions();
+    const { participants } = useHandleParticipants();
+    const { isFullScreen } = useToogleFunctions();
     const { userMe } = useUserMe();
 
     const streamIdPinned = ref('');
@@ -166,11 +182,10 @@ export default defineComponent({
 
     return {
       users,
-      perifericsControl,
       userMe,
       goFullScreen,
       isFullScreen,
-      objStreams,
+      participants,
       streamIdPinned,
     };
   },

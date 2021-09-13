@@ -33,15 +33,12 @@ import FuCooperateSideBar from 'molecules/FuCooperateSideBar';
 import FuHandNotification from 'atoms/FuHandNotification';
 import FuFullScreen from 'atoms/FuFullScreen';
 import _ from 'lodash';
-import { objWebRTC, WebRTCAdaptorType } from '@/types';
+import { WebRTCAdaptorType } from '@/types';
 import { useSidebarToogle, useToogleFunctions } from '@/composables';
 
 export default defineComponent({
   name: 'FuCooperate',
   props: {
-    objStreams: {
-      type: Array as PropType<objWebRTC[]>,
-    },
     toggleLocalCamera: {
       type: Function,
     },

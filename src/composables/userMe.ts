@@ -4,6 +4,10 @@ export interface User {
   id: string;
   name: string;
   avatar: string;
+  isCameraOn: boolean;
+  isMicOn: boolean;
+  isScreenSharing: boolean;
+  isVideoActivated: boolean;
 }
 
 const userState = {} as User;
@@ -17,6 +21,25 @@ export function useUserMe() {
     Object.assign(userState, value);
   };
 
+  const setMicState = (value: boolean) => {
+    userMe.isMicOn = value;
+  };
+  const setCameraState = (value: boolean) => {
+    userMe.isCameraOn = value;
+  };
+
+  const setScreenState = (value: boolean) => {
+    userMe.isScreenSharing = value;
+  };
+
+  // const setCameraDevice = (value: string) => {
+  //   userMe.cameraDeviceId = value;
+  // };
+
+  const setVideoActivatedState = (value: boolean) => {
+    userMe.isVideoActivated = value;
+  };
+
   const setPinnedUser = (value: MediaStream) => {
     Object.assign(pinnedUserStream, value);
   };
@@ -26,5 +49,9 @@ export function useUserMe() {
     setUserMe,
     setPinnedUser,
     pinnedUserStream,
+    setMicState,
+    setCameraState,
+    setScreenState,
+    setVideoActivatedState,
   };
 }

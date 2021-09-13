@@ -10,7 +10,7 @@
           :key="icon.id"
           :icon="icon.active ? icon.onState : icon.offState"
           size="0.7rem"
-          :disable="icon.id === '2' && perifericsControl.isScreenShared"
+          :disable="icon.id === '2' && userMe.isScreenSharing"
           @click="
             icon.active = !icon.active;
             tooglePeriferic(icon?.interaction);
@@ -40,13 +40,13 @@
               active:
                 icon.id !== '1'
                   ? icon.id == actionSelectionID
-                  : perifericsControl.isScreenShared,
+                  : userMe.isScreenSharing,
             },
           ]"
           :key="icon.id"
           :icon="icon.onState"
           size="14px"
-          :disabled="icon.id === '1' && perifericsControl.isCameraOn"
+          :disabled="icon.id === '1' && userMe.isCameraOn"
           @click="
             icon.active = !icon.active;
             handleFunctionSelected(icon.interaction, icon.id);
@@ -125,11 +125,7 @@ import {
 } from '@/helpers/iconsMenuBar';
 import FuCooperateMenu from 'molecules/FuCooperateMenu';
 import { Icons, Periferics, Functionalities } from '@/types';
-import {
-  useToogleFunctions,
-  useSidebarToogle,
-  usePerifericsControls,
-} from '@/composables';
+import { useToogleFunctions, useSidebarToogle } from '@/composables';
 import { WebRTCAdaptorType } from '@/types';
 import { useUserMe } from '@/composables/userMe';
 import { nanoid } from 'nanoid';
@@ -188,14 +184,13 @@ export default defineComponent({
       removeHandNotification,
     } = useToogleFunctions();
     let { isSidebarRender, setSidebarState } = useSidebarToogle();
-    let {
-      perifericsControl,
+    const {
+      userMe,
       setCameraState,
       setMicState,
       setScreenState,
       setVideoActivatedState,
-    } = usePerifericsControls();
-    const { userMe } = useUserMe();
+    } = useUserMe();
     //**********************++FUNCIONES ********************** */
     const toogleChat = () => {
       if (!isSidebarRender.value) {
@@ -249,21 +244,21 @@ export default defineComponent({
     };
 
     const toggleCamera = () => {
-      //perifericsControl.isCameraOn = !perifericsControl.isCameraOn;
+      //userMe.isCameraOn = !userMe.isCameraOn;
       props.toggleLocalCamera?.();
 
-      setCameraState(!perifericsControl.isCameraOn);
+      setCameraState(!userMe.isCameraOn);
 
-      if (!perifericsControl.isScreenShared && !perifericsControl.isCameraOn)
+      if (!userMe.isScreenSharing && !userMe.isCameraOn)
         setVideoActivatedState(false);
-      if (perifericsControl.isScreenShared || perifericsControl.isCameraOn)
+      if (userMe.isScreenSharing || userMe.isCameraOn)
         setVideoActivatedState(true);
     };
 
     const toggleMIC = () => {
       props.toggleLocalMic?.();
-      //perifericsControl.isMicOn = !perifericsControl.isMicOn;
-      setMicState(!perifericsControl.isMicOn);
+      //userMe.isMicOn = !userMe.isMicOn;
+      setMicState(!userMe.isMicOn);
     };
 
     const toogleHandUp = () => {
@@ -296,12 +291,12 @@ export default defineComponent({
 
     const toggleDesktopScreenCapture = () => {
       props.toggleDesktopCapture?.();
-      //perifericsControl.isScreenShared = !perifericsControl.isScreenShared;
+      //userMe.isScreenShared = !userMe.isScreenShared;
 
-      setScreenState(!perifericsControl.isScreenShared);
+      setScreenState(!userMe.isScreenSharing);
       //console.log('PROCESO DE PROYECCIÓN DE PANTALLA');
-      if (!perifericsControl.isCameraOn) setVideoActivatedState(false);
-      if (perifericsControl.isCameraOn) setVideoActivatedState(true);
+      if (!userMe.isCameraOn) setVideoActivatedState(false);
+      if (userMe.isCameraOn) setVideoActivatedState(true);
     };
 
     const toggleConnectionModal = () => {
@@ -330,7 +325,7 @@ export default defineComponent({
 
     return {
       periferics,
-      perifericsControl,
+      userMe,
       functions,
       options,
       handleMenuPosition,

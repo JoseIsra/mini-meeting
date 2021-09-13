@@ -6,6 +6,15 @@
         Chat público
       </label>
     </header>
+    <q-btn
+      flat
+      round
+      icon="close"
+      color="white"
+      dense
+      class="m-chat__leaveChat"
+      @click="closeChat"
+    />
     <section class="m-chat__body">
       <main class="m-chat__messagesBox" ref="messageContainer">
         <q-chat-message
@@ -92,7 +101,7 @@ import moment from 'moment';
 import { useHandleMessage } from '@/composables/chat';
 import { useUserMe } from '@/composables/userMe';
 import { nanoid } from 'nanoid';
-
+import { useSidebarToogle } from '@/composables';
 import { ZoidWindow } from '@/types/zoid';
 
 // import { useInitWebRTC } from '@/composables/ant-media-server-stuff';
@@ -108,6 +117,8 @@ export default defineComponent({
     const route = useRoute();
     let userInput = ref<string>('');
     const { userMessages, setUserMessage } = useHandleMessage();
+    let { setSidebarState } = useSidebarToogle();
+
     const { userMe } = useUserMe();
     let userName = ref(
       (window as ZoidWindow)?.xprops?.streamId || route.query.streamName
@@ -144,6 +155,9 @@ export default defineComponent({
       }
       return '';
     };
+    const closeChat = () => {
+      setSidebarState(false);
+    };
 
     return {
       userInput,
@@ -152,6 +166,7 @@ export default defineComponent({
       userName,
       bubbleSize,
       userMe,
+      closeChat,
     };
   },
 });

@@ -1,6 +1,20 @@
 .m-transmission {
-  width: 600px;
-  height: 350px;
+  &::-webkit-scrollbar {
+    width: 6px; /* width of the entire scrollbar */
+  }
+  &::-webkit-scrollbar-track {
+    background: rgba(
+      $color: #777171,
+      $alpha: 0.9
+    ); /* color of the tracking area */
+  }
+  &::-webkit-scrollbar-thumb {
+    border-radius: 20px; /* roundness of the scroll thumb */
+    border: 3px solid #312e2e; /* creates padding around scroll thumb */
+  }
+
+  width: 630px;
+  height: auto;
   background-color: #202125;
   max-width: 800px;
   &__header {
@@ -9,9 +23,12 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+
     &__text {
       color: #fffffe;
       font-size: clamp(0.8rem, 2.5vw, 1rem);
+      font-weight: bolder;
+      font-size: 1.3rem;
     }
   }
   &__body {

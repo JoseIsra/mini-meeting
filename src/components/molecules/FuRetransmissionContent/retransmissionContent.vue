@@ -7,7 +7,6 @@
       >
       <q-btn flat v-close-popup round dense icon="close" color="white" />
     </q-card-section>
-    <q-card-section> </q-card-section>
     <q-card-section class="m-transmission__body">
       <q-input
         outlined
@@ -37,6 +36,8 @@
             : { click: handleEndTransmission }
         "
       />
+
+      <fu-hidden-text />
     </q-card-section>
   </q-card>
 </template>
@@ -51,6 +52,7 @@ import { objWebRTC, WebRTCAdaptorType } from '@/types/index';
 import '@/composables/';
 import { ZoidWindow } from '@/types/zoid';
 import { useUserMe } from '@/composables/userMe';
+import FuHiddenText from '@/components/atoms/FuHiddenText';
 
 interface StringIndexedArray<TValue> {
   [id: string]: TValue;
@@ -58,6 +60,9 @@ interface StringIndexedArray<TValue> {
 
 export default defineComponent({
   name: 'FuRetransmissionContent',
+  components: {
+    FuHiddenText,
+  },
   setup() {
     const { userMe } = useUserMe();
     const moreContent = ref(true);

@@ -39,11 +39,6 @@ interface Data {
   eventType: string;
 }
 
-interface ObjParsedNotification {
-  streamId: string;
-  data: Data;
-}
-
 interface ObjRemoteUserInfo extends ObjInfoRequested {
   eventType: string;
   userInfo: User;

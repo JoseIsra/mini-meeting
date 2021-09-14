@@ -7,10 +7,10 @@ interface SoundGainType {
 }
 
 export interface Participant {
-  id: string;
+  id?: string;
   name?: string;
   avatar?: string;
-  stream: MediaStream;
+  stream?: MediaStream;
   isCameraOn?: boolean;
   isMicOn?: boolean;
   isScreenSharing?: boolean;
@@ -61,6 +61,7 @@ export interface WebRTCAdaptorType {
     subscriberId?: string,
     susbscriberCode?: string
   ) => void;
+  stop?: (streamId: string) => void;
   turnOffLocalCamera?: (streamId: string) => void;
   justTurnOnLocalCamera?: (streamId: string) => void;
   turnOnLocalCamera?: (streamId: string) => void;

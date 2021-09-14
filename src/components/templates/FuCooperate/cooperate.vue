@@ -22,7 +22,7 @@ import { useToogleFunctions } from '@/composables';
 import { Message, useHandleMessage } from '@/composables/chat';
 import { User, useUserMe } from '@/composables/userMe';
 import { ZoidWindow } from '@/types/zoid';
-import { useHandleParticipants } from '@/composables/ant-media-server-stuff';
+import { useHandleParticipants } from '@/composables/participants';
 import FuTLoading from 'organisms/FuLoading';
 
 interface StringIndexedArray<TValue> {
@@ -60,6 +60,14 @@ export default defineComponent({
     const { userMe, setUserMe, setScreenState, setVideoActivatedState } =
       useUserMe();
     const route = useRoute();
+    const { addHandNotificationInfo, removeHandNotification } =
+      useToogleFunctions();
+    const {
+      addParticipant,
+      participants,
+      setParticipants,
+      deleteParticipantById,
+    } = useHandleParticipants();
 
     //Datos del usuario
     const streamId =
@@ -86,9 +94,6 @@ export default defineComponent({
       isVideoActivated: false,
     });
 
-    const { addHandNotificationInfo, removeHandNotification } =
-      useToogleFunctions();
-
     const roomId =
       (window as ZoidWindow)?.xprops?.roomId ||
       (route.query.roomId as string) ||
@@ -112,7 +117,6 @@ export default defineComponent({
     const roomTimerId = ref<ReturnType<typeof setInterval> | null>(null);
     const streamsList = ref<string[]>([]);
     // const objStreams = ref<objWebRTC[]>([]);
-    let { addParticipants, participants } = useHandleParticipants();
     const isDataChannelOpen = ref(false);
 
     // const isMicMuted = ref(false);
@@ -218,9 +222,14 @@ export default defineComponent({
     };
 
     const removeRemoteVideo = (streamId: string) => {
-      participants.value = participants.value.filter(
+      const newListOfParticipants = participants.filter(
         (participant) => participant.id !== streamId
       );
+      console.log(newListOfParticipants, '*️⃣*️⃣*️⃣');
+      deleteParticipantById(streamId);
+      webRTCAdaptor.value.stop?.(streamId);
+
+      console.log(participants, '*️⃣*️⃣');
     };
 
     const streamInformation = (obj: objWebRTC) => {
@@ -277,7 +286,7 @@ export default defineComponent({
     const leaveRoom = () => {
       webRTCAdaptor.value.leaveFromRoom?.(roomId);
 
-      participants.value = [];
+      setParticipants([]);
     };
 
     const createConnection = () => {
@@ -351,15 +360,16 @@ export default defineComponent({
                 console.log('🥲 Stream joined with ID: ' + item);
                 webRTCAdaptor.value.play?.(item, playToken, roomId);
               });
-              streamsList.value = obj.streams;
-              console.log(streamsList.value, 'streamslisttttttt');
+
+              //streamsList.value = obj.streams;
+              //participants = obj.streams;
             }
             roomTimerId.value = setInterval(() => {
               //Para obtener info de las salas cada cierto tiempo
               webRTCAdaptor.value.getRoomInfo?.(roomId, streamId);
             }, 2000);
           } else if (info == 'newStreamAvailable') {
-            let isThere = participants.value.find((x) => x.id === obj.streamId);
+            let isThere = participants.find((x) => x.id === obj.streamId);
 
             if (obj.streamId !== streamId) {
               if (isThere) {
@@ -369,9 +379,7 @@ export default defineComponent({
                   stream: obj.stream,
                 };
               } else {
-                // objStreams.value.push(obj);
-                //console.log(obj, ' Se añade nuevo usuario 🇧🇹🇧🇹🇧🇹');
-                addParticipants({ id: obj.streamId, stream: obj.stream });
+                addParticipant({ id: obj.streamId, stream: obj.stream });
               }
             }
           } else if (info == 'publish_started') {
@@ -398,6 +406,7 @@ export default defineComponent({
 
             console.log('browser screen share supported');
           } else if (info == 'leavedFromRoom') {
+            console.log('ALGUIEN SALIOOOOOOOO');
             var room = obj.ATTR_ROOM_NAME;
             console.debug('leaved from the room:' + room);
             if (roomTimerId.value != null) {
@@ -406,17 +415,17 @@ export default defineComponent({
 
             //TODO: este es el error por el que sale streamid que ya se está escuchando
             if (streamsList.value != null) {
-              /* this.streamsList.forEach(function (item) {
-              removeRemoteVideo(item);
-            }); */
+              streamsList.value.forEach(function (item) {
+                removeRemoteVideo(item);
+              });
             }
-            /* if (participants.value != null) {
+            if (participants != null) {
               participants.forEach(function (participant) {
-              removeRemoteVideo(partic);
-            });
-            } */
+                removeRemoteVideo(participant.id as string);
+              });
+            }
             // we need to reset streams list
-            participants.value = [];
+            setParticipants([]);
             streamsList.value = [];
           } else if (info == 'closed') {
             //console.log("Connection closed");
@@ -431,6 +440,7 @@ export default defineComponent({
             streamInformation(obj);
           } else if (info == 'roomInformation') {
             //Checks if any new stream has added, if yes, plays.
+            console.log(obj.streams);
             for (let str of obj.streams) {
               if (!streamsList.value.includes(str)) {
                 webRTCAdaptor.value.play?.(str, playToken, roomId);
@@ -441,6 +451,7 @@ export default defineComponent({
                 removeRemoteVideo(str);
               }
             }
+
             //Lastly updates the current streamlist with the fetched one.
             streamsList.value = obj.streams;
           } else if (info == 'data_channel_opened') {
@@ -473,6 +484,7 @@ export default defineComponent({
             isDataChannelOpen.value = true;
           } else if (info == 'data_channel_closed') {
             console.log('Data Channel closed for stream id', obj);
+
             isDataChannelOpen.value = false;
           } else if (info == 'data_received') {
             //console.log(obj);
@@ -488,7 +500,7 @@ export default defineComponent({
               if (notificationType == 'CAM_TURNED_ON') {
                 const streamID = obj.streamId;
                 console.log(streamID);
-                const user = participants.value.find(
+                const user = participants.find(
                   (participant) => participant.id === streamID
                 );
                 if (user) {
@@ -498,7 +510,7 @@ export default defineComponent({
                 }
               } else if (notificationType == 'CAM_TURNED_OFF') {
                 const streamID = obj.streamId;
-                const user = participants.value.find(
+                const user = participants.find(
                   (participant) => participant.id === streamID
                 );
                 if (user) {
@@ -508,7 +520,7 @@ export default defineComponent({
               } else if (notificationType == 'SCREEN_SHARING_ON') {
                 const streamID = obj.streamId;
                 console.log(streamID);
-                const user = participants.value.find(
+                const user = participants.find(
                   (participant) => participant.id === streamID
                 );
                 if (user) {
@@ -518,7 +530,7 @@ export default defineComponent({
                 }
               } else if (notificationType == 'SCREEN_SHARING_OFF') {
                 const streamID = obj.streamId;
-                const user = participants.value.find(
+                const user = participants.find(
                   (participant) => participant.id === streamID
                 );
                 if (user) {
@@ -527,7 +539,7 @@ export default defineComponent({
                 }
               } else if (notificationType == 'MIC_UNMUTED') {
                 const streamID = obj.streamId;
-                const user = participants.value.find(
+                const user = participants.find(
                   (participant) => participant.id === streamID
                 );
                 if (user) {
@@ -535,7 +547,7 @@ export default defineComponent({
                 }
               } else if (notificationType == 'MIC_MUTED') {
                 const streamID = obj.streamId;
-                const user = participants.value.find(
+                const user = participants.find(
                   (participant) => participant.id === streamID
                 );
                 if (user) {
@@ -613,9 +625,9 @@ export default defineComponent({
                   })
                 );
 
-                console.log(participants.value);
+                console.log(participants);
 
-                const user = participants.value.find(
+                const user = participants.find(
                   (participant) =>
                     participant.id === remoteUserInfoParsed.userInfo.id
                 );
@@ -638,7 +650,7 @@ export default defineComponent({
               if (remoteUserInfoParsed.to === userMe.id) {
                 console.log('I am receiving info from another user', objParsed);
 
-                const user = participants.value.find(
+                const user = participants.find(
                   (participant) =>
                     participant.id === remoteUserInfoParsed.userInfo.id
                 );
@@ -653,7 +665,7 @@ export default defineComponent({
                 }
               }
 
-              console.log(participants.value);
+              console.log(participants);
             }
           }
         },
@@ -771,6 +783,10 @@ export default defineComponent({
     };
 
     onUnmounted(() => {
+      leaveRoom();
+    });
+
+    window.addEventListener('unload', () => {
       leaveRoom();
     });
 

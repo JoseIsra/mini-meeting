@@ -15,7 +15,7 @@
       </p>
       <div class="m-network__content__options">
         <aside class="m-network__content__options__option">
-          <lable>Cámara Web</lable>
+          <label>Cámara Web</label>
           <q-toggle
             color="blue"
             :label="cameraModel"
@@ -25,7 +25,7 @@
           />
         </aside>
         <aside class="m-network__content__options__option">
-          <lable>Pantalla compartida</lable>
+          <label>Pantalla compartida</label>
           <q-toggle
             color="blue"
             :label="screenModel"

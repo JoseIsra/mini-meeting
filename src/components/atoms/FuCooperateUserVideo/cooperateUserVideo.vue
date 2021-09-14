@@ -155,7 +155,7 @@ import { userStreams } from '@/helpers/usersVideo';
 // import { objWebRTC } from '@/types';
 import { useToogleFunctions } from '@/composables';
 import { useUserMe } from '@/composables/userMe';
-import { useHandleParticipants } from '@/composables/ant-media-server-stuff';
+import { useHandleParticipants } from '@/composables/participants';
 
 interface UserStream {
   id: string;

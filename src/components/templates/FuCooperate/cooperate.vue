@@ -769,6 +769,10 @@ export default defineComponent({
       leaveRoom();
     });
 
+    window.addEventListener('unload', () => {
+      leaveRoom();
+    });
+
     return {
       webRTCAdaptor,
       fuCooperateMountedHandler,

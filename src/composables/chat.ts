@@ -8,6 +8,7 @@ export interface Message {
   eventType: string;
   message: string;
   avatar: string;
+  typeMessage: string;
 }
 // const messages = {
 //   message: '',

@@ -26,7 +26,6 @@
             message.streamId == userMe.id ? 'indigo-6' : 'deep-purple-9'
           "
           text-color="white"
-          :size="bubbleSize(message.message)"
         >
           <template #avatar>
             <div class="m-chat__messagesBox__info">
@@ -53,9 +52,23 @@
             </div>
           </template>
           <div class="m-chat__messagesBox__message">
-            <span class="m-chat__messagesBox__message__text">{{
-              message.message
-            }}</span>
+            <span
+              class="m-chat__messagesBox__message__text"
+              v-if="message.typeMessage == 'plainText'"
+              >{{ message.message }}</span
+            >
+            <span v-if="message.typeMessage == 'image'">
+              <q-img
+                spinner-color="white"
+                :src="message.message"
+                alt="image-message"
+              />
+            </span>
+            <span
+              v-if="message.typeMessage == 'file'"
+              :style="{ backgroundImage: url(`'${message.message}'`) }"
+            >
+            </span>
           </div>
         </q-chat-message>
       </main>
@@ -76,6 +89,7 @@
             rounded
             placeholder="Nuevo mensaje..."
           />
+          <input type="file" @change="fileSelected" />
           <q-btn
             class="m-chat__formBox__form__saveBtn"
             icon="send"
@@ -90,7 +104,7 @@
     </section>
   </section>
 </template>
-
+//:size="bubbleSize(message.message)"
 <script lang="ts">
 import { defineComponent, ref, PropType } from 'vue';
 import { regexp } from '@/types';
@@ -104,7 +118,9 @@ import { nanoid } from 'nanoid';
 import { useSidebarToogle, useToogleFunctions } from '@/composables';
 import { ZoidWindow } from '@/types/zoid';
 
-// import { useInitWebRTC } from '@/composables/ant-media-server-stuff';
+interface HTMLInputEvent extends Event {
+  target: HTMLInputElement & EventTarget;
+}
 
 export default defineComponent({
   name: 'FuCooperateChat',
@@ -129,14 +145,23 @@ export default defineComponent({
         warningMessage('Complete los campos');
         return;
       }
-      const userMessage = {
+      addMessage(userInput.value, new Date(), 'plainText');
+    };
+
+    const addMessage = (
+      message: string,
+      thedate: Date,
+      typeMessage: string
+    ) => {
+      let userMessage = {
         id: nanoid(),
         streamId: userMe.id,
-        date: moment(new Date()).format('h: mm a'),
+        date: moment(thedate).format('h: mm a'),
         streamName: userMe.name,
         eventType: 'CHAT_MESSAGE',
-        message: userInput.value,
+        message,
         avatar: userMe.avatar,
+        typeMessage,
       };
       setUserMessage(userMessage);
 
@@ -148,13 +173,36 @@ export default defineComponent({
       userInput.value = '';
     };
 
-    const bubbleSize = (message: string) => {
-      let numOfWords = message.split(' ').length;
-      if (numOfWords <= 1) {
-        return '3';
-      }
-      return '';
+    const fileSelected = (e: HTMLInputEvent) => {
+      console.log(e);
+      let imageURL = e?.target?.files?.[0] as File;
+      const reader = new FileReader();
+      const [leftType, rightType] = imageURL.type.split('/');
+      console.log(leftType, rightType);
+      reader.onload = function (e: ProgressEvent<FileReader>) {
+        const arrayBuffer = e?.target?.result;
+        const bytes = new Uint8Array(arrayBuffer as ArrayBuffer);
+        const blob = new Blob([bytes.buffer]);
+        const urlCreator = window.URL || window.webkitURL;
+        const imageBlobUrl = urlCreator.createObjectURL(blob);
+        //cargar imagen supongo aquí
+        //enviar la info
+        console.log(imageBlobUrl);
+        addMessage(
+          e?.target?.result as string,
+          new Date(),
+          leftType == 'image' ? 'image' : 'file'
+        );
+      };
+      reader.readAsDataURL(imageURL);
     };
+    // const bubbleSize = (message: string) => {
+    //   let numOfWords = message.split(' ').length;
+    //   if (numOfWords <= 1) {
+    //     return '3';
+    //   }
+    //   return '';
+    // };
     const closeChat = () => {
       setSidebarState(false);
       setIDButtonSelected('');
@@ -165,9 +213,10 @@ export default defineComponent({
       sendMessage,
       userMessages,
       userName,
-      bubbleSize,
+      // bubbleSize,
       userMe,
       closeChat,
+      fileSelected,
     };
   },
 });

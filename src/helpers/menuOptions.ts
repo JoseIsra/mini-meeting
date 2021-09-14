@@ -109,13 +109,13 @@ export const menuOptions = {
     }, */
   ],
   fourthSection: [
-    /* {
+    {
       id: '9',
       iconName: 'call_end',
       description: 'Finalizar reunión',
       important: false,
       interaction: interactionType.END,
-    }, */
+    },
     {
       id: '10',
       iconName: 'logout',

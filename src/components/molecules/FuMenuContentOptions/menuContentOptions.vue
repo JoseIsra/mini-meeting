@@ -53,21 +53,32 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
+import { defineComponent, ref, PropType } from 'vue';
 import { menuOptions, MenuOptions } from '@/helpers/menuOptions';
 import { ZoidWindow } from '@/types/zoid';
+import { WebRTCAdaptorType } from '@/types';
+import { useUserMe } from '@/composables/userMe';
 
 export default defineComponent({
   name: 'FuMenuContentOptions',
-  setup() {
+  props: {
+    webRTCAdaptor: {
+      type: Object as PropType<WebRTCAdaptorType>,
+    },
+  },
+  setup(props) {
+    const { userMe } = useUserMe();
+
     const options = ref<MenuOptions>(menuOptions);
 
     const handleOptionSelected = (interaction?: string) => {
       if (interaction === 'LEAVE') {
         console.log('leave');
-        (window as ZoidWindow).xprops?.handleEndCall?.();
+        (window as ZoidWindow).xprops?.handleLeaveCall?.();
       } else if (interaction === 'END') {
         console.log('end');
+        (window as ZoidWindow).xprops?.handleEndCall?.();
+        props.webRTCAdaptor?.sendData?.(userMe.id, 'KICKED');
       }
     };
 

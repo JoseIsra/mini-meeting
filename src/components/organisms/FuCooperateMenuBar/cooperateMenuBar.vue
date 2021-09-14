@@ -83,6 +83,7 @@
           class="a-menuBar__functions__responsive__menu"
           :isActions="false"
           :renderFunctions="true"
+          :webRTCAdaptor="webRTCAdaptor"
         />
       </div>
       <aside class="a-menuBar__options">

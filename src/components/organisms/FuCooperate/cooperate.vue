@@ -3,28 +3,24 @@
     <fu-cooperate-header />
     <fu-cooperate-menu-bar
       v-show="showMenuBar"
-      :webRTCAdaptor="webRTCAdaptor"
       :toggleLocalCamera="toggleLocalCamera"
       :toggleLocalMic="toggleLocalMic"
       :toggleDesktopCapture="toggleDesktopCapture"
     />
     <transition name="slide">
-      <fu-cooperate-side-bar
-        v-show="isSidebarRender"
-        :webRTCAdaptor="webRTCAdaptor"
-      />
+      <fu-cooperate-side-bar v-show="isSidebarRender" />
     </transition>
     <fu-cooperate-user-video />
 
     <fu-hand-notification
       v-show="functionsOnMenuBar.handNotificationInfo.length > 0"
     />
-    <fu-full-screen :webRTCAdaptor="webRTCAdaptor" v-if="isFullScreen" />
+    <fu-full-screen v-if="isFullScreen" />
   </section>
 </template>
 //TODO: OBJETO DE USUARIO GLOBAL
 <script lang="ts">
-import { defineComponent, ref, PropType, toRefs, onMounted } from 'vue';
+import { defineComponent, ref, toRefs, onMounted } from 'vue';
 import FuCooperateMenuBar from 'organisms/FuCooperateMenuBar';
 import FuCooperateHeader from 'atoms/FuCooperateHeader';
 // import FuCooperateBody from 'molecules/FuCooperateBody';
@@ -33,7 +29,6 @@ import FuCooperateSideBar from 'molecules/FuCooperateSideBar';
 import FuHandNotification from 'atoms/FuHandNotification';
 import FuFullScreen from 'atoms/FuFullScreen';
 import _ from 'lodash';
-import { WebRTCAdaptorType } from '@/types';
 import { useSidebarToogle, useToogleFunctions } from '@/composables';
 
 export default defineComponent({
@@ -47,9 +42,6 @@ export default defineComponent({
     },
     toggleDesktopCapture: {
       type: Function,
-    },
-    webRTCAdaptor: {
-      type: Object as PropType<WebRTCAdaptorType>,
     },
   },
   components: {

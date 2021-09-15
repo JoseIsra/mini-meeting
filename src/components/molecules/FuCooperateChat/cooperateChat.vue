@@ -2,19 +2,29 @@
   <section class="m-chat">
     <header class="m-chat__title">
       <label class="m-chat__title__text">
-        <q-icon name="wechat" color="white" size="30px" />
+        <q-icon name="wechat" color="white" size="20px" />
         Chat público
       </label>
+      <q-btn
+        flat
+        round
+        size="12px"
+        icon="more_vert"
+        color="white"
+        dense
+        class="m-chat__leaveChat"
+        @click="showChatMenu = !showChatMenu"
+      />
+      <fu-cooperate-menu
+        v-show="showChatMenu"
+        :isActions="false"
+        :isOptions="false"
+        :renderFunctions="false"
+        :chatOptions="true"
+        width="180px"
+        bottom="-50px"
+      />
     </header>
-    <q-btn
-      flat
-      round
-      icon="close"
-      color="white"
-      dense
-      class="m-chat__leaveChat"
-      @click="closeChat"
-    />
     <section class="m-chat__body">
       <main class="m-chat__messagesBox" ref="messageContainer">
         <q-chat-message
@@ -70,6 +80,33 @@
                 alt="file-logo"
               />
             </span>
+            <span
+              v-if="message.typeMessage == 'file'"
+              class="m-chat__messagesBox__message__file"
+            >
+              <p class="m-chat__messagesBox__message__file__name">
+                {{ message.fileName }}
+              </p>
+              <p class="m-chat__messagesBox__message__file__extension">
+                <strong>{{ message.fileExtension }}</strong>
+              </p>
+              <q-btn
+                class="m-chat__messagesBox__message__file__btn"
+                flat
+                round
+                @click="$refs.thelink.click()"
+                icon="file_download"
+                color="blue"
+                dense
+              />
+              <a
+                :href="message.content"
+                ref="thelink"
+                target="_blank"
+                :style="{ display: 'none' }"
+                >Descargar</a
+              >
+            </span>
           </div>
         </q-chat-message>
       </main>
@@ -119,24 +156,19 @@
 </template>
 
 <script lang="ts">
-import {
-  defineComponent,
-  ref,
-  PropType,
-  VueElement,
-  nextTick,
-  onUpdated,
-} from 'vue';
+import { defineComponent, ref, VueElement, nextTick, onUpdated } from 'vue';
 import { regexp } from '@/types';
 import { warningMessage } from '@/utils/notify';
 import { useRoute } from 'vue-router';
-import { WebRTCAdaptorType } from '@/types';
 import moment from 'moment';
 import { useHandleMessage } from '@/composables/chat';
 import { useUserMe } from '@/composables/userMe';
 import { nanoid } from 'nanoid';
 import { useSidebarToogle, useToogleFunctions } from '@/composables';
 import { ZoidWindow } from '@/types/zoid';
+import { useInitWebRTC } from '@/composables/antMedia';
+import { simplifyExtension } from '@/helpers/mapFIleExtensions';
+import FuCooperateMenu from 'molecules/FuCooperateMenu';
 
 interface HTMLInputEvent extends Event {
   target: HTMLInputElement & EventTarget;
@@ -148,19 +180,16 @@ type MessageContainer = VueElement & {
 
 export default defineComponent({
   name: 'FuCooperateChat',
-  props: {
-    webRTCAdaptor: {
-      type: Object as PropType<WebRTCAdaptorType>,
-    },
-  },
-  setup(props) {
+  components: { FuCooperateMenu },
+  setup() {
     const route = useRoute();
-    let filePicked = ref<Blob[]>([]);
+    let showChatMenu = ref<boolean>(false);
     const messageContainer = ref<MessageContainer>({} as MessageContainer);
     let userInput = ref<string>('');
     const { userMessages, setUserMessage } = useHandleMessage();
     let { setSidebarState } = useSidebarToogle();
     const { setIDButtonSelected } = useToogleFunctions();
+    const { sendData } = useInitWebRTC();
     const { userMe } = useUserMe();
     let userName = ref(
       (window as ZoidWindow)?.xprops?.streamId || route.query.streamName
@@ -205,18 +234,16 @@ export default defineComponent({
         typeMessage,
       };
       setUserMessage(userLocalMessage);
-      props.webRTCAdaptor?.sendData?.(
-        (window as ZoidWindow)?.xprops?.streamId ||
-          (route.query.streamId as string),
-        JSON.stringify(userLocalMessage)
-      );
+      sendData(userMe.id, userLocalMessage);
       userInput.value = '';
     };
 
     const addFileMessage = async (
-      blobMessage: string | Blob,
+      blobMessage: Blob,
       thedate: Date,
-      typeMessage: string
+      typeMessage: string,
+      fileExtension?: string,
+      fileName?: string
     ) => {
       const urlCreator = window.URL || window.webkitURL;
       const content = urlCreator.createObjectURL(blobMessage);
@@ -230,36 +257,42 @@ export default defineComponent({
         content,
         avatar: userMe.avatar,
         typeMessage,
+        fileExtension,
+        fileName,
       };
       setUserMessage(userLocalMessage);
 
       let userMessage = {
         ...userLocalMessage,
-        content: await some(blobMessage as Blob),
+        content: await some(blobMessage),
       };
-      props.webRTCAdaptor?.sendData?.(
-        (window as ZoidWindow)?.xprops?.streamId ||
-          (route.query.streamId as string),
-        JSON.stringify(userMessage)
-      );
+      sendData(userMe.id, userMessage);
     };
 
     const fileSelected = (e: HTMLInputEvent) => {
-      let imageURL = e?.target?.files?.[0] as File;
+      let fileInformation = e?.target?.files?.[0] as File;
       const reader = new FileReader();
-      const [leftType, rightType] = imageURL.type.split('/');
-      console.log(leftType, rightType);
+      const [leftType] = fileInformation.type.split('/');
+      const fileExtension = simplifyExtension(fileInformation.type);
+      const fileName = fileInformation.name;
+      console.log(leftType, fileInformation);
       reader.onload = async function (e: ProgressEvent<FileReader>) {
         const arrayBuffer = e?.target?.result;
         const bytes = new Uint8Array(arrayBuffer as ArrayBuffer);
-        const blob = new Blob([bytes.buffer], { type: imageURL.type });
+        const blob = new Blob([bytes.buffer], { type: fileInformation.type });
         if (leftType === 'image') {
           await addFileMessage(blob, new Date(), 'image');
         } else {
-          await addFileMessage(blob, new Date(), 'file');
+          await addFileMessage(
+            blob,
+            new Date(),
+            'file',
+            fileExtension,
+            fileName
+          );
         }
       };
-      reader.readAsArrayBuffer(imageURL);
+      reader.readAsArrayBuffer(fileInformation);
       e.target.value = '';
     };
     const bubbleSize = (message: string) => {
@@ -298,7 +331,7 @@ export default defineComponent({
       closeChat,
       fileSelected,
       messageContainer,
-      filePicked,
+      showChatMenu,
     };
   },
 });

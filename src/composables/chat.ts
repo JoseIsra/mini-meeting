@@ -9,6 +9,8 @@ export interface Message {
   content: string | Blob;
   avatar: string;
   typeMessage: string;
+  fileType?: string;
+  fileName?: string;
 }
 
 const userMessages = ref<Message[]>([]);
@@ -18,8 +20,12 @@ export function useHandleMessage() {
     userMessages.value.push(value);
   };
 
+  const deleteMessages = () => {
+    userMessages.value = [];
+  };
   return {
     setUserMessage,
     userMessages,
+    deleteMessages,
   };
 }

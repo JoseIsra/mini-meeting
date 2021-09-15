@@ -107,7 +107,10 @@
           v-show="renderMenu"
           class="a-menuBar__options__menu"
           :isActions="isActions"
+          :isOptions="isOptions"
           :renderFunctions="false"
+          width="280px"
+          bottom="120%"
         />
       </aside>
       <fu-cooperate-network-info v-show="openNetworkConfig" />
@@ -122,8 +125,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, reactive, PropType } from 'vue';
-import { useRoute } from 'vue-router';
+import { defineComponent, ref, reactive } from 'vue';
 import {
   iconsPeriferics,
   iconsFunctions,
@@ -132,10 +134,10 @@ import {
 import FuCooperateMenu from 'molecules/FuCooperateMenu';
 import { Icons, Periferics, Functionalities } from '@/types';
 import { useToogleFunctions, useSidebarToogle } from '@/composables';
-import { WebRTCAdaptorType } from '@/types';
 import { useUserMe } from '@/composables/userMe';
 import { nanoid } from 'nanoid';
 import FuCooperateNetworkInfo from 'molecules/FuCooperateNetworkInfo';
+import { useInitWebRTC } from '@/composables/antMedia';
 
 export default defineComponent({
   name: 'FuCooperateMenuBar',
@@ -149,16 +151,13 @@ export default defineComponent({
     toggleDesktopCapture: {
       type: Function,
     },
-    webRTCAdaptor: {
-      type: Object as PropType<WebRTCAdaptorType>,
-    },
   },
   components: {
     FuCooperateMenu,
     FuCooperateNetworkInfo,
   },
   setup(props) {
-    const route = useRoute();
+    const { sendData } = useInitWebRTC();
     const periferics = ref<Icons[]>(iconsPeriferics);
     const functions = ref<Icons[]>(iconsFunctions);
     const options = ref<Icons[]>(iconsOptions);
@@ -178,6 +177,7 @@ export default defineComponent({
     });
 
     let isActions = ref<boolean>(false);
+    let isOptions = ref<boolean>(false);
     let renderMenu = ref<boolean>(false);
     let renderFunctionResponsiveMenu = ref<boolean>(false);
     let actionSelectionID = ref<string>('');
@@ -281,17 +281,11 @@ export default defineComponent({
       ) {
         const downHand = { ...riseHand, eventType: 'NOHAND' };
 
-        props.webRTCAdaptor?.sendData?.(
-          route.query.streamId as string,
-          JSON.stringify(downHand)
-        );
+        sendData(userMe.id, downHand);
         removeHandNotification(downHand.streamId);
         return;
       }
-      props.webRTCAdaptor?.sendData?.(
-        route.query.streamId as string,
-        JSON.stringify(riseHand)
-      );
+      sendData(userMe.id, riseHand);
       addHandNotificationInfo(riseHand);
     };
 
@@ -310,20 +304,24 @@ export default defineComponent({
     };
 
     const handleMenuPosition = (ubication?: string) => {
-      isActions.value = ubication === 'actions' ? true : false;
+      // isActions.value = ubication === 'actions' ? true : false;
+      if (ubication == 'actions') {
+        isActions.value = true;
+        isOptions.value = false;
+      } else {
+        isActions.value = false;
+        isOptions.value = true;
+      }
       renderMenu.value = !renderMenu.value;
     };
 
     const handleFunctionSelected = (interaction?: string, ID?: string) => {
       if (functionsOnMenuBar.selectedButtonID == ID) {
-        //si se hace toggle a un ícon ya seleccionado
-        // actionSelectionID.value = '';
         setIDButtonSelected('');
         objectFunctionalities[interaction as keyof Functionalities]?.();
         return;
       }
       setIDButtonSelected(ID as string);
-      // actionSelectionID.value = ID as string;
       objectFunctionalities[interaction as keyof Functionalities]?.();
     };
 
@@ -345,6 +343,7 @@ export default defineComponent({
       renderFunctionResponsiveMenu,
       openNetworkConfig,
       functionsOnMenuBar,
+      isOptions,
     };
   },
 });

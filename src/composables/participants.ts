@@ -1,29 +1,28 @@
-import { reactive } from 'vue';
+import { ref } from 'vue';
 import { Participant } from '@/types';
 
-const participants = reactive<Participant[]>([]);
+const participants = ref<Participant[]>([]);
 
 export function useHandleParticipants() {
-  const addParticipant = (value: Participant) => {
-    participants.push(value);
-  };
-  const setParticipants = (value: Participant[]) => {
-    Object.assign({}, participants, value);
+  const addParticipants = (value: Participant) => {
+    participants.value.push(value);
   };
   const deleteParticipantById = (id: string) => {
-    //participants.filter(participant => participant.id === id);
-    /* _.remove(participants, (participant) => {
-      participant.id === id;
-    }); */
-    participants.splice(participants.indexOf({ id }));
-
-    console.log(participants, '⭐⭐');
+    const participantToDelete = participants.value.filter(
+      (participant) => participant.id === id
+    );
+    participants.value.splice(
+      participants.value.indexOf(participantToDelete[0]),
+      1
+    );
   };
-
+  const deleteAllParticipants = () => {
+    participants.value.splice(0, 1);
+  };
   return {
-    participants,
-    addParticipant,
-    setParticipants,
+    deleteAllParticipants,
+    addParticipants,
     deleteParticipantById,
+    participants,
   };
 }

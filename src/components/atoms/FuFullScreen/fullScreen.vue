@@ -35,21 +35,17 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, PropType, ref } from 'vue';
+import { defineComponent, onMounted, ref } from 'vue';
 import { useToogleFunctions } from '@/composables';
 import { useUserMe } from '@/composables/userMe';
-import { WebRTCAdaptorType } from '@/types';
+import { useInitWebRTC } from '@/composables/antMedia';
 
 export default defineComponent({
   name: 'FuFullScreen',
-  props: {
-    webRTCAdaptor: {
-      type: Object as PropType<WebRTCAdaptorType>,
-    },
-  },
-  setup(props) {
+  setup() {
     const { userMe, pinnedUserStream } = useUserMe();
     const { isFullScreen, setFullScreen } = useToogleFunctions();
+    const { metodoDePrueba } = useInitWebRTC();
     const test = ref({} as MediaStream);
 
     const exitFullScreen = () => {
@@ -57,7 +53,8 @@ export default defineComponent({
       setFullScreen(false);
     };
     onMounted(() => {
-      test.value = props.webRTCAdaptor?.metodoDePrueba?.() as MediaStream;
+      //test.value = props.webRTCAdaptor?.metodoDePrueba?.() as MediaStream;
+      test.value = metodoDePrueba();
       // setPinnedUser(test.value);
       // setTimeout(() => {
       // }, 2000);

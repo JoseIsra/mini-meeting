@@ -64,11 +64,11 @@
             >
             <span v-if="message.typeMessage == 'file'">
               {{ blobToUrl(message.message) }}
-              <q-img
+              <!-- <q-img
                 spinner-color="white"
                 :src="blobToUrl(message.message)"
                 alt="file-logo"
-              />
+              /> -->
             </span>
           </div>
         </q-chat-message>
@@ -180,7 +180,7 @@ export default defineComponent({
       return new Promise((resolve) => {
         const reader = new FileReader();
         reader.readAsDataURL(blob);
-        reader.onloadend = function () {
+        reader.onload = function () {
           resolve(reader.result);
         };
       });
@@ -232,6 +232,7 @@ export default defineComponent({
         const imageBlobUrl = urlCreator.createObjectURL(blob);
         //cargar imagen supongo aquí
         //enviar la info
+
         console.log(imageBlobUrl);
         await addMessage(blob, new Date(), 'file');
         // if (leftType == 'image') {
@@ -261,7 +262,10 @@ export default defineComponent({
       const bloby = await fetch(parsed.blob).then((res) => res.blob());
       const urlCreator = window.URL || window.webkitURL;
       console.log('RUTA', urlCreator.createObjectURL(bloby));
-      return urlCreator.createObjectURL(bloby);
+      return new Promise((resolve) => {
+        resolve(urlCreator.createObjectURL(bloby));
+      });
+      // return urlCreator.createObjectURL(bloby);
     };
 
     const scrollToEnd = () => {

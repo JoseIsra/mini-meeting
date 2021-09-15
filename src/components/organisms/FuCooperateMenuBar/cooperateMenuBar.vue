@@ -109,6 +109,7 @@
           class="a-menuBar__options__menu"
           :isActions="isActions"
           :renderFunctions="false"
+          :webRTCAdaptor="webRTCAdaptor"
         />
       </aside>
       <fu-cooperate-network-info v-show="openNetworkConfig" />
@@ -118,6 +119,7 @@
       v-show="renderMenu"
       :isActions="isActions"
       :renderFunctions="false"
+      :webRTCAdaptor="webRTCAdaptor"
     />
   </div>
 </template>

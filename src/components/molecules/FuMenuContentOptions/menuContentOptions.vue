@@ -58,6 +58,7 @@ import { menuOptions, MenuOptions } from '@/helpers/menuOptions';
 import { ZoidWindow } from '@/types/zoid';
 import { WebRTCAdaptorType } from '@/types';
 import { useUserMe } from '@/composables/userMe';
+import { useRoom } from '@/composables/room';
 
 export default defineComponent({
   name: 'FuMenuContentOptions',
@@ -68,8 +69,28 @@ export default defineComponent({
   },
   setup(props) {
     const { userMe } = useUserMe();
+    const { roomState } = useRoom();
 
     const options = ref<MenuOptions>(menuOptions);
+
+    const deleteRoom = async (roomId: string) => {
+      const request = new Request(
+        `https://dialguiba.tech/WebRTCAppEE/rest/v2/broadcasts/conference-rooms/${roomId}`,
+        {
+          headers: {
+            Authorization:
+              'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiaWF0IjoxNTE2MjM5MDIyfQ.dnwd9sjQmEAyWWpbaGWA9R6pW4Qxu5eYES9Xrpl5UsY',
+          },
+          method: 'DELETE',
+        }
+      );
+      const res = await fetch(request);
+
+      return {
+        status: res.status,
+        body: (await res.json()) as Record<string, string>,
+      };
+    };
 
     const handleOptionSelected = (interaction?: string) => {
       if (interaction === 'LEAVE') {
@@ -77,8 +98,16 @@ export default defineComponent({
         (window as ZoidWindow).xprops?.handleLeaveCall?.();
       } else if (interaction === 'END') {
         console.log('end');
-        (window as ZoidWindow).xprops?.handleEndCall?.();
-        props.webRTCAdaptor?.sendData?.(userMe.id, 'KICKED');
+        deleteRoom(roomState.id)
+          .then(() => {
+            (window as ZoidWindow).xprops?.handleEndCall?.();
+            props.webRTCAdaptor?.sendData?.(
+              userMe.id,
+              JSON.stringify({ eventType: 'KICK', to: 'all' })
+            );
+            (window as ZoidWindow).xprops?.handleLeaveCall?.();
+          })
+          .catch((e) => console.log(e));
       }
     };
 

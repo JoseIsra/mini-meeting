@@ -25,6 +25,8 @@ import { ZoidWindow } from '@/types/zoid';
 import { useHandleParticipants } from '@/composables/participants';
 import FuTLoading from 'organisms/FuLoading';
 
+import { useRoom } from '@/composables/room';
+
 interface StringIndexedArray<TValue> {
   [id: string]: TValue;
 }
@@ -44,6 +46,11 @@ interface ObjRemoteUserInfo extends ObjInfoRequested {
   userInfo: User;
 }
 
+interface ObjKickedEvent {
+  eventType: string;
+  to: string;
+}
+
 export default defineComponent({
   name: 'FuTCooperate',
   components: {
@@ -54,6 +61,7 @@ export default defineComponent({
     const { setUserMessage } = useHandleMessage();
     const { userMe, setUserMe, setScreenState, setVideoActivatedState } =
       useUserMe();
+    const { setRoom } = useRoom();
     const route = useRoute();
 
     //Datos del usuario
@@ -71,6 +79,11 @@ export default defineComponent({
       (route.query.photoURL as string) ||
       'https://f002.backblazeb2.com/file/FractalUp/Logos/logo_azul.svg';
 
+    const roomId =
+      (window as ZoidWindow)?.xprops?.roomId ||
+      (route.query.roomId as string) ||
+      '';
+
     setUserMe({
       id: streamId,
       name: streamName,
@@ -81,13 +94,12 @@ export default defineComponent({
       isVideoActivated: false,
     });
 
+    setRoom({
+      id: roomId,
+    });
+
     const { addHandNotificationInfo, removeHandNotification } =
       useToogleFunctions();
-
-    const roomId =
-      (window as ZoidWindow)?.xprops?.roomId ||
-      (route.query.roomId as string) ||
-      '';
 
     console.log(roomId, '#️⃣#️⃣');
     const publishToken =
@@ -473,6 +485,7 @@ export default defineComponent({
             //console.log(obj);
             const objParsed = JSON.parse(obj.data) as Message;
             const { eventType } = objParsed;
+            //console.log(objParsed);
             if (eventType === 'CHAT_MESSAGE') {
               //console.log(objParsed);
               setUserMessage(objParsed);
@@ -482,7 +495,6 @@ export default defineComponent({
               console.log(notificationType);
               if (notificationType == 'CAM_TURNED_ON') {
                 const streamID = obj.streamId;
-                console.log(streamID);
                 const user = participants.value.find(
                   (participant) => participant.id === streamID
                 );
@@ -502,12 +514,10 @@ export default defineComponent({
                 }
               } else if (notificationType == 'SCREEN_SHARING_ON') {
                 const streamID = obj.streamId;
-                console.log(streamID);
                 const user = participants.value.find(
                   (participant) => participant.id === streamID
                 );
                 if (user) {
-                  console.log(user);
                   user.isScreenSharing = true;
                   user.isVideoActivated = true;
                 }
@@ -538,7 +548,6 @@ export default defineComponent({
                 }
               }
             } else if (eventType === 'HAND') {
-              console.log('parseado', objParsed);
               addHandNotificationInfo(objParsed);
             } else if (eventType === 'NOHAND') {
               removeHandNotification(objParsed.streamId);
@@ -608,8 +617,6 @@ export default defineComponent({
                   })
                 );
 
-                console.log(participants.value);
-
                 const user = participants.value.find(
                   (participant) =>
                     participant.id === remoteUserInfoParsed.userInfo.id
@@ -647,8 +654,11 @@ export default defineComponent({
                     remoteUserInfoParsed.userInfo.isScreenSharing;
                 }
               }
-
-              console.log(participants.value);
+            } else if (eventType === 'KICK') {
+              const kickedEvent = JSON.parse(obj.data) as ObjKickedEvent;
+              if (kickedEvent.to === 'all') {
+                (window as ZoidWindow).xprops?.handleLeaveCall?.();
+              }
             }
           }
         },

@@ -47,6 +47,7 @@
       margin: 1rem 0;
       &:hover .m-chat__messagesBox__info__name {
         display: block;
+        transition: all 1s ease;
       }
     }
 
@@ -59,13 +60,14 @@
       }
       &__stamp {
         font-size: 11px;
+        position: relative;
+        top: 5px;
       }
       &__name {
         position: relative;
         top: 5px;
         font-size: 12px;
         display: none;
-        transition: all 0.3s ease;
       }
       &__user {
         position: absolute;
@@ -93,11 +95,15 @@
       display: flex;
       flex-direction: column;
       justify-content: center;
+      padding-bottom: 10px;
       &__text {
         width: fit-content;
         word-wrap: break-word;
         font-size: 0.7rem;
         padding-bottom: 12px;
+      }
+      &__image {
+        border-radius: 8px;
       }
     }
   }

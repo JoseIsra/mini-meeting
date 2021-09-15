@@ -25,6 +25,11 @@
           :bg-color="
             message.streamId == userMe.id ? 'indigo-6' : 'deep-purple-9'
           "
+          :size="
+            message.typeMessage == 'plainText'
+              ? bubbleSize(message.message)
+              : '9'
+          "
           text-color="white"
         >
           <template #avatar>
@@ -57,17 +62,13 @@
               v-if="message.typeMessage == 'plainText'"
               >{{ message.message }}</span
             >
-            <span v-if="message.typeMessage == 'image'">
+            <span v-if="message.typeMessage == 'file'">
+              {{ blobToUrl(message.message) }}
               <q-img
                 spinner-color="white"
-                :src="message.message"
-                alt="image-message"
+                :src="blobToUrl(message.message)"
+                alt="file-logo"
               />
-            </span>
-            <span
-              v-if="message.typeMessage == 'file'"
-              :style="{ backgroundImage: url(`'${message.message}'`) }"
-            >
             </span>
           </div>
         </q-chat-message>
@@ -89,7 +90,19 @@
             rounded
             placeholder="Nuevo mensaje..."
           />
-          <input type="file" @change="fileSelected" />
+          <input
+            type="file"
+            :style="{ display: 'none' }"
+            @change="fileSelected"
+            ref="fileInput"
+          />
+          <q-btn
+            flat
+            round
+            icon="attach_file"
+            dense
+            @click="$refs.fileInput.click()"
+          />
           <q-btn
             class="m-chat__formBox__form__saveBtn"
             icon="send"
@@ -104,9 +117,16 @@
     </section>
   </section>
 </template>
-//:size="bubbleSize(message.message)"
+
 <script lang="ts">
-import { defineComponent, ref, PropType } from 'vue';
+import {
+  defineComponent,
+  ref,
+  PropType,
+  VueElement,
+  nextTick,
+  onUpdated,
+} from 'vue';
 import { regexp } from '@/types';
 import { warningMessage } from '@/utils/notify';
 import { useRoute } from 'vue-router';
@@ -121,6 +141,13 @@ import { ZoidWindow } from '@/types/zoid';
 interface HTMLInputEvent extends Event {
   target: HTMLInputElement & EventTarget;
 }
+type MessageContainer = VueElement & {
+  scrollTop: number;
+  scrollHeight: number;
+};
+interface ObjectBlob {
+  blob: string;
+}
 
 export default defineComponent({
   name: 'FuCooperateChat',
@@ -131,6 +158,7 @@ export default defineComponent({
   },
   setup(props) {
     const route = useRoute();
+    const messageContainer = ref<MessageContainer>({} as MessageContainer);
     let userInput = ref<string>('');
     const { userMessages, setUserMessage } = useHandleMessage();
     let { setSidebarState } = useSidebarToogle();
@@ -140,16 +168,31 @@ export default defineComponent({
       (window as ZoidWindow)?.xprops?.streamId || route.query.streamName
     );
 
-    const sendMessage = () => {
+    const sendMessage = async () => {
       if (!regexp.test(userInput.value)) {
         warningMessage('Complete los campos');
         return;
       }
-      addMessage(userInput.value, new Date(), 'plainText');
+      await addMessage(userInput.value, new Date(), 'plainText');
     };
 
-    const addMessage = (
-      message: string,
+    const blobToBase64 = (blob: Blob) => {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(blob);
+        reader.onloadend = function () {
+          resolve(reader.result);
+        };
+      });
+    };
+
+    const some = async (blob: Blob): Promise<string> => {
+      const bse64 = await blobToBase64(blob);
+      return JSON.stringify({ blob: bse64 });
+    };
+
+    const addMessage = async (
+      themessage: string | Blob,
       thedate: Date,
       typeMessage: string
     ) => {
@@ -159,12 +202,15 @@ export default defineComponent({
         date: moment(thedate).format('h: mm a'),
         streamName: userMe.name,
         eventType: 'CHAT_MESSAGE',
-        message,
+        message:
+          typeMessage == 'plainText'
+            ? themessage
+            : await some(themessage as Blob),
         avatar: userMe.avatar,
         typeMessage,
       };
       setUserMessage(userMessage);
-
+      console.log('user', JSON.stringify(userMessage));
       props.webRTCAdaptor?.sendData?.(
         (window as ZoidWindow)?.xprops?.streamId ||
           (route.query.streamId as string),
@@ -174,49 +220,72 @@ export default defineComponent({
     };
 
     const fileSelected = (e: HTMLInputEvent) => {
-      console.log(e);
       let imageURL = e?.target?.files?.[0] as File;
       const reader = new FileReader();
       const [leftType, rightType] = imageURL.type.split('/');
       console.log(leftType, rightType);
-      reader.onload = function (e: ProgressEvent<FileReader>) {
+      reader.onload = async function (e: ProgressEvent<FileReader>) {
         const arrayBuffer = e?.target?.result;
         const bytes = new Uint8Array(arrayBuffer as ArrayBuffer);
-        const blob = new Blob([bytes.buffer]);
+        const blob = new Blob([bytes.buffer], { type: imageURL.type });
         const urlCreator = window.URL || window.webkitURL;
         const imageBlobUrl = urlCreator.createObjectURL(blob);
         //cargar imagen supongo aquí
         //enviar la info
         console.log(imageBlobUrl);
-        addMessage(
-          e?.target?.result as string,
-          new Date(),
-          leftType == 'image' ? 'image' : 'file'
-        );
+        await addMessage(blob, new Date(), 'file');
+        // if (leftType == 'image') {
+        // } else {
+        //   addMessage(imageBlobUrl, new Date(), 'file');
+        // }
       };
-      reader.readAsDataURL(imageURL);
+      reader.readAsArrayBuffer(imageURL);
     };
-    // const bubbleSize = (message: string) => {
-    //   let numOfWords = message.split(' ').length;
-    //   if (numOfWords <= 1) {
-    //     return '3';
-    //   }
-    //   return '';
-    // };
+    const bubbleSize = (message: string) => {
+      let numOfWords = message.split(' ').length;
+      if (message.startsWith('https')) {
+        return '9';
+      }
+      if (numOfWords <= 1) {
+        return '3';
+      }
+      return '';
+    };
     const closeChat = () => {
       setSidebarState(false);
       setIDButtonSelected('');
     };
+
+    const blobToUrl = async (message: string) => {
+      const parsed = JSON.parse(message) as ObjectBlob;
+      const bloby = await fetch(parsed.blob).then((res) => res.blob());
+      const urlCreator = window.URL || window.webkitURL;
+      console.log('RUTA', urlCreator.createObjectURL(bloby));
+      return urlCreator.createObjectURL(bloby);
+    };
+
+    const scrollToEnd = () => {
+      messageContainer.value.scrollTop = messageContainer.value.scrollHeight;
+    };
+    onUpdated(async () => {
+      try {
+        await nextTick(() => scrollToEnd());
+      } catch (error) {
+        console.error(error);
+      }
+    });
 
     return {
       userInput,
       sendMessage,
       userMessages,
       userName,
-      // bubbleSize,
+      bubbleSize,
       userMe,
       closeChat,
       fileSelected,
+      messageContainer,
+      blobToUrl,
     };
   },
 });

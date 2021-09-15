@@ -1,3 +1,5 @@
+//@ts-ignore
+//@ts-nocheck
 /**
  *
  * @returns
@@ -6,6 +8,21 @@
 import { PeerStats } from './peer_stats.js';
 import { WebSocketAdaptor } from './websocket_adaptor.js';
 import adapter from 'webrtc-adapter';
+import { WebRTCAdaptorType } from '@/types/index';
+
+interface WebRTCInitialValues {
+  websocket_url?: string;
+  mediaConstraints?: Record<string, boolean>;
+  peerconnection_config?: Record<string, Record<string, string>[]>;
+  sdp_constraints?: Record<string, boolean>;
+  localVideoId?: string;
+  isPlayMode?: boolean;
+  debug?: boolean;
+  dataChannelEnabled?: boolean;
+  callback?: unknown;
+  callbackError?: unknown;
+  initCameraState?: boolean;
+}
 
 class ReceivingMessage {
   constructor(size) {
@@ -15,8 +32,8 @@ class ReceivingMessage {
   }
 }
 
-export class WebRTCAdaptor {
-  constructor(initialValues) {
+export class WebRTCAdaptor implements WebRTCAdaptorType {
+  constructor(initialValues: WebRTCInitialValues) {
     this.peerconnection_config = null;
     this.sdp_constraints = null;
     this.remotePeerConnection = new Array();

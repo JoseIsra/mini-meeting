@@ -53,23 +53,19 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, PropType } from 'vue';
+import { defineComponent, ref } from 'vue';
 import { menuOptions, MenuOptions } from '@/helpers/menuOptions';
 import { ZoidWindow } from '@/types/zoid';
-import { WebRTCAdaptorType } from '@/types';
 import { useUserMe } from '@/composables/userMe';
 import { useRoom } from '@/composables/room';
+import { useInitWebRTC } from '@/composables/antMedia';
 
 export default defineComponent({
   name: 'FuMenuContentOptions',
-  props: {
-    webRTCAdaptor: {
-      type: Object as PropType<WebRTCAdaptorType>,
-    },
-  },
   setup(props) {
     const { userMe } = useUserMe();
     const { roomState } = useRoom();
+    const { sendData } = useInitWebRTC();
 
     const options = ref<MenuOptions>(menuOptions);
 
@@ -101,10 +97,7 @@ export default defineComponent({
         deleteRoom(roomState.id)
           .then(() => {
             (window as ZoidWindow).xprops?.handleEndCall?.();
-            props.webRTCAdaptor?.sendData?.(
-              userMe.id,
-              JSON.stringify({ eventType: 'KICK', to: 'all' })
-            );
+            sendData(userMe.id, { eventType: 'KICK', to: 'all' });
             (window as ZoidWindow).xprops?.handleLeaveCall?.();
           })
           .catch((e) => console.log(e));

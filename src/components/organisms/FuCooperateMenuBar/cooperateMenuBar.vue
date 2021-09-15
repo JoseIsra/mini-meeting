@@ -83,7 +83,6 @@
           class="a-menuBar__functions__responsive__menu"
           :isActions="false"
           :renderFunctions="true"
-          :webRTCAdaptor="webRTCAdaptor"
         />
       </div>
       <aside class="a-menuBar__options">
@@ -109,7 +108,6 @@
           class="a-menuBar__options__menu"
           :isActions="isActions"
           :renderFunctions="false"
-          :webRTCAdaptor="webRTCAdaptor"
         />
       </aside>
       <fu-cooperate-network-info v-show="openNetworkConfig" />
@@ -119,14 +117,12 @@
       v-show="renderMenu"
       :isActions="isActions"
       :renderFunctions="false"
-      :webRTCAdaptor="webRTCAdaptor"
     />
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, reactive, PropType } from 'vue';
-import { useRoute } from 'vue-router';
+import { defineComponent, ref, reactive } from 'vue';
 import {
   iconsPeriferics,
   iconsFunctions,
@@ -135,10 +131,10 @@ import {
 import FuCooperateMenu from 'molecules/FuCooperateMenu';
 import { Icons, Periferics, Functionalities } from '@/types';
 import { useToogleFunctions, useSidebarToogle } from '@/composables';
-import { WebRTCAdaptorType } from '@/types';
 import { useUserMe } from '@/composables/userMe';
 import { nanoid } from 'nanoid';
 import FuCooperateNetworkInfo from 'molecules/FuCooperateNetworkInfo';
+import { useInitWebRTC } from '@/composables/antMedia';
 
 export default defineComponent({
   name: 'FuCooperateMenuBar',
@@ -152,16 +148,13 @@ export default defineComponent({
     toggleDesktopCapture: {
       type: Function,
     },
-    webRTCAdaptor: {
-      type: Object as PropType<WebRTCAdaptorType>,
-    },
   },
   components: {
     FuCooperateMenu,
     FuCooperateNetworkInfo,
   },
   setup(props) {
-    const route = useRoute();
+    const { sendData } = useInitWebRTC();
     const periferics = ref<Icons[]>(iconsPeriferics);
     const functions = ref<Icons[]>(iconsFunctions);
     const options = ref<Icons[]>(iconsOptions);
@@ -284,17 +277,11 @@ export default defineComponent({
       ) {
         const downHand = { ...riseHand, eventType: 'NOHAND' };
 
-        props.webRTCAdaptor?.sendData?.(
-          route.query.streamId as string,
-          JSON.stringify(downHand)
-        );
+        sendData(userMe.id, downHand);
         removeHandNotification(downHand.streamId);
         return;
       }
-      props.webRTCAdaptor?.sendData?.(
-        route.query.streamId as string,
-        JSON.stringify(riseHand)
-      );
+      sendData(userMe.id, riseHand);
       addHandNotificationInfo(riseHand);
     };
 

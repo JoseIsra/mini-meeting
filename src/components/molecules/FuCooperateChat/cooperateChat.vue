@@ -92,33 +92,29 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, PropType } from 'vue';
+import { defineComponent, ref } from 'vue';
 import { regexp } from '@/types';
 import { warningMessage } from '@/utils/notify';
 import { useRoute } from 'vue-router';
-import { WebRTCAdaptorType } from '@/types';
 import moment from 'moment';
 import { useHandleMessage } from '@/composables/chat';
 import { useUserMe } from '@/composables/userMe';
 import { nanoid } from 'nanoid';
 import { useSidebarToogle, useToogleFunctions } from '@/composables';
 import { ZoidWindow } from '@/types/zoid';
+import { useInitWebRTC } from '@/composables/antMedia';
 
 // import { useInitWebRTC } from '@/composables/ant-media-server-stuff';
 
 export default defineComponent({
   name: 'FuCooperateChat',
-  props: {
-    webRTCAdaptor: {
-      type: Object as PropType<WebRTCAdaptorType>,
-    },
-  },
-  setup(props) {
+  setup() {
     const route = useRoute();
     let userInput = ref<string>('');
     const { userMessages, setUserMessage } = useHandleMessage();
     let { setSidebarState } = useSidebarToogle();
     const { setIDButtonSelected } = useToogleFunctions();
+    const { sendData } = useInitWebRTC();
     const { userMe } = useUserMe();
     let userName = ref(
       (window as ZoidWindow)?.xprops?.streamId || route.query.streamName
@@ -139,12 +135,7 @@ export default defineComponent({
         avatar: userMe.avatar,
       };
       setUserMessage(userMessage);
-
-      props.webRTCAdaptor?.sendData?.(
-        (window as ZoidWindow)?.xprops?.streamId ||
-          (route.query.streamId as string),
-        JSON.stringify(userMessage)
-      );
+      sendData(userMe.id, userMessage);
       userInput.value = '';
     };
 

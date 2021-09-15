@@ -8,10 +8,7 @@
     ]"
   >
     <fu-menu-content-actions v-if="isActions" />
-    <fu-menu-content-options
-      v-if="!isActions && !renderFunctions"
-      :webRTCAdaptor="webRTCAdaptor"
-    />
+    <fu-menu-content-options v-if="!isActions && !renderFunctions" />
     <fu-menu-content-functions v-if="renderFunctions && !isActions" />
     <q-icon
       :class="['a-cooperateMenu__tail', { '--specialcase': isActions }]"
@@ -26,7 +23,6 @@ import { defineComponent, toRefs, PropType } from 'vue';
 import FuMenuContentOptions from 'molecules/FuMenuContentOptions';
 import FuMenuContentActions from 'molecules/FuMenuContentActions';
 import FuMenuContentFunctions from 'molecules/FuMenuContentFunctions';
-import { WebRTCAdaptorType } from '@/types';
 
 export default defineComponent({
   name: 'FuCooperateMenu',
@@ -41,9 +37,6 @@ export default defineComponent({
     },
     renderFunctions: {
       type: Boolean,
-    },
-    webRTCAdaptor: {
-      type: Object as PropType<WebRTCAdaptorType>,
     },
   },
   setup(props) {

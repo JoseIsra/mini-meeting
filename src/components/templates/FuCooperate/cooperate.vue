@@ -117,9 +117,14 @@ export default defineComponent({
 
     const roomOfStream = ref<StringIndexedArray<string>>({});
     const roomTimerId = ref<ReturnType<typeof setInterval> | null>(null);
-    const streamsList = ref<string[]>([]);
+    /* const streamsList = ref<string[]>([]); */
     // const objStreams = ref<objWebRTC[]>([]);
-    let { addParticipants, participants } = useHandleParticipants();
+    let {
+      addParticipants,
+      participants,
+      deleteParticipantById,
+      deleteAllParticipants,
+    } = useHandleParticipants();
     const isDataChannelOpen = ref(false);
 
     // const isMicMuted = ref(false);
@@ -175,7 +180,6 @@ export default defineComponent({
         webRTCAdaptor.value.justTurnOnLocalCamera?.(streamId);
       }
     };
-
     const toggleLocalCamera = () => {
       if (userMe.isCameraOn) {
         if (userMe.isScreenSharing) {
@@ -203,7 +207,7 @@ export default defineComponent({
       }
     };
 
-    const joinRoom = () => {
+    const joinRoom = (roomId: string, streamId: string) => {
       webRTCAdaptor.value.joinRoom?.(roomId, streamId, 'legacy');
     };
 
@@ -225,9 +229,11 @@ export default defineComponent({
     };
 
     const removeRemoteVideo = (streamId: string) => {
-      participants.value = participants.value.filter(
+      //webRTCAdaptor.value.stop?.(streamId);
+      deleteParticipantById(streamId);
+      /* participants.value = participants.value.filter(
         (participant) => participant.id !== streamId
-      );
+      ); */
     };
 
     const streamInformation = (obj: objWebRTC) => {
@@ -287,7 +293,11 @@ export default defineComponent({
       participants.value = [];
     };
 
-    const createConnection = () => {
+    const createConnection = (
+      roomId: string,
+      streamId: string,
+      streamName: string
+    ) => {
       const websocketURL = 'wss://dialguiba.tech/WebRTCAppEE/websocket';
 
       const mediaConstraints = {
@@ -324,21 +334,19 @@ export default defineComponent({
             /* if (playOnly.value) {
               isCameraOff.value = false;
             } */
-            // load all
             if (!userMe.isCameraOn) {
               webRTCAdaptor.value.turnOffLocalCamera?.(streamId);
             }
-            // load all
-            joinRoom();
+            joinRoom(roomId, streamId);
           } else if (info == 'joinedTheRoom') {
             /* var room = obj.ATTR_ROOM_NAME; */
             console.log('joined', obj);
 
-            const room = obj.ATTR_ROOM_NAME;
+            //const room = obj.ATTR_ROOM_NAME;
             const streamId = obj.streamId;
             /* this.roomOfStream[obj.streamId] = room; */
-            roomOfStream.value[obj.streamId] = room;
-            console.log(`joined the room: ${room}`);
+            //roomOfStream.value[obj.streamId] = room;
+            /* console.log(`joined the room: ${room}`); */
 
             /* if (playOnly.value) {
               isCameraOff.value = true;
@@ -352,17 +360,17 @@ export default defineComponent({
               streamName
             );
 
-            if (obj.streams != null) {
-              //Por si hay salas a la hora de unirse aquí se añaden al array de participantes
+            /* if (obj.streams != null) {
+              
               obj.streams.forEach(function (item) {
                 console.log('🥲 Stream joined with ID: ' + item);
                 webRTCAdaptor.value.play?.(item, playToken, roomId);
               });
-              streamsList.value = obj.streams;
+              streamsList.value = obj.streams;              
+
               console.log(streamsList.value, 'streamslisttttttt');
-            }
+            } */
             roomTimerId.value = setInterval(() => {
-              //Para obtener info de las salas cada cierto tiempo
               webRTCAdaptor.value.getRoomInfo?.(roomId, streamId);
             }, 2000);
           } else if (info == 'newStreamAvailable') {
@@ -377,18 +385,14 @@ export default defineComponent({
                 };
               } else {
                 // objStreams.value.push(obj);
-                //console.log(obj, ' Se añade nuevo usuario 🇧🇹🇧🇹🇧🇹');
                 addParticipants({ id: obj.streamId, stream: obj.stream });
               }
             }
           } else if (info == 'publish_started') {
-            //stream is being published
-            console.log('INICIO DE PUBBLISH 😁', obj, streamName);
             console.debug(
               'publish started to room: #️⃣' + roomOfStream.value[obj.streamId]
             );
           } else if (info == 'publish_finished') {
-            //stream is being finished
             console.debug('publish finished');
           } else if (info == 'screen_share_stopped') {
             console.log('screen share stopped');
@@ -401,8 +405,6 @@ export default defineComponent({
           } else if (info == 'ScreenShareStarted') {
             setVideoActivatedState(true);
           } else if (info == 'browser_screen_share_supported') {
-            //enable camera and screenshare
-
             console.log('browser screen share supported');
           } else if (info == 'leavedFromRoom') {
             var room = obj.ATTR_ROOM_NAME;
@@ -412,21 +414,25 @@ export default defineComponent({
             }
 
             //TODO: este es el error por el que sale streamid que ya se está escuchando
-            if (streamsList.value != null) {
-              /* this.streamsList.forEach(function (item) {
+            if (participants.value.length !== 0) {
+              deleteAllParticipants();
+            }
+            /* if (streamsList.value != null) { */
+            /* this.streamsList.forEach(function (item) {
               removeRemoteVideo(item);
             }); */
-            }
+            /* } */
             /* if (participants.value != null) {
               participants.forEach(function (participant) {
               removeRemoteVideo(partic);
             });
             } */
             // we need to reset streams list
-            participants.value = [];
-            streamsList.value = [];
+            //participants.value = [];
+            //streamsList.value = [];
           } else if (info == 'closed') {
             //console.log("Connection closed");
+
             if (typeof obj != 'undefined') {
               console.log('Connecton closed: ' + JSON.stringify(obj));
             }
@@ -437,19 +443,46 @@ export default defineComponent({
           } else if (info == 'streamInformation') {
             streamInformation(obj);
           } else if (info == 'roomInformation') {
+            /* participants.value.forEach((previousParticipant) => {
+              obj.streams.forEach((actualParticipant) => {
+                if (previousParticipant.id !== actualParticipant) {
+                  removeRemoteVideo(previousParticipant.id);
+                }
+              });
+            }); */
+
             //Checks if any new stream has added, if yes, plays.
-            for (let str of obj.streams) {
+            /* for (let str of obj.streams) {
               if (!streamsList.value.includes(str)) {
                 webRTCAdaptor.value.play?.(str, playToken, roomId);
               }
+            } */
+
+            for (let str of obj.streams) {
+              const participant = participants.value.filter(
+                (participant) => participant.id === str
+              )[0];
+              //Si el participante es nuevo - play
+              if (!participant) {
+                webRTCAdaptor.value.play?.(str, playToken, roomId);
+              }
+              /* if (!participants.value.includes(str)) {
+                webRTCAdaptor.value.play?.(str, playToken, roomId);
+              } */
             }
-            for (let str of streamsList.value) {
+            /* for (let str of streamsList.value) {
               if (!obj.streams.includes(str)) {
                 removeRemoteVideo(str);
+              }              
+            } */
+            participants.value.forEach((participant) => {
+              if (!obj.streams.includes(participant.id)) {
+                removeRemoteVideo(participant.id);
               }
-            }
+            });
+
             //Lastly updates the current streamlist with the fetched one.
-            streamsList.value = obj.streams;
+            /* streamsList.value = obj.streams; */
           } else if (info == 'data_channel_opened') {
             console.info('Data Channel open for stream id 🃏🃏🃏', obj);
 
@@ -757,7 +790,6 @@ export default defineComponent({
         .then((res) => {
           if (res.status === 200) {
             existRoom.value = true;
-            console.log(res.body, '🅱️🅱️🅱️🅱️');
           } else if (res.status === 404) {
             loadingMessage.value = 'Meeting not found';
           } else if (res.status === 403) {
@@ -772,7 +804,7 @@ export default defineComponent({
     //TODO: Dont dissapear loading until the host accept the user. Needed to implement logic for that (dont publish neither play streams)
 
     const fuCooperateMountedHandler = () => {
-      createConnection();
+      createConnection(roomId, streamId, streamName);
     };
 
     onUnmounted(() => {

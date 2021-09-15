@@ -62,11 +62,11 @@
               v-if="message.typeMessage == 'plainText'"
               >{{ message.message }}</span
             >
-            <span v-if="message.typeMessage == 'file'">
-              {{ blobToUrl(message.message) }}
+            <span v-if="message.typeMessage == 'image'">
+              <!-- {{ blobToUrl(message.message) }} -->
               <q-img
                 spinner-color="white"
-                :src="blobToUrl(message.message)"
+                :src="message.message"
                 alt="file-logo"
               />
             </span>
@@ -192,25 +192,38 @@ export default defineComponent({
     };
 
     const addMessage = async (
-      themessage: string | Blob,
+      blobMessage: string | Blob,
       thedate: Date,
       typeMessage: string
     ) => {
+      const urlCreator = window.URL || window.webkitURL;
+      const content = urlCreator.createObjectURL(blobMessage);
+
+      let userLocalMessage = {
+        id: nanoid(),
+        streamId: userMe.id,
+        date: moment(thedate).format('h: mm a'),
+        streamName: userMe.name,
+        eventType: 'CHAT_MESSAGE',
+        message: content,
+        avatar: userMe.avatar,
+        typeMessage,
+      };
+
+      setUserMessage(userLocalMessage);
+
       let userMessage = {
         id: nanoid(),
         streamId: userMe.id,
         date: moment(thedate).format('h: mm a'),
         streamName: userMe.name,
         eventType: 'CHAT_MESSAGE',
-        message:
-          typeMessage == 'plainText'
-            ? themessage
-            : await some(themessage as Blob),
+        message: await some(blobMessage as Blob),
         avatar: userMe.avatar,
         typeMessage,
       };
-      setUserMessage(userMessage);
-      console.log('user', JSON.stringify(userMessage));
+
+      //console.log('user', JSON.stringify(userMessage));
       props.webRTCAdaptor?.sendData?.(
         (window as ZoidWindow)?.xprops?.streamId ||
           (route.query.streamId as string),
@@ -228,12 +241,16 @@ export default defineComponent({
         const arrayBuffer = e?.target?.result;
         const bytes = new Uint8Array(arrayBuffer as ArrayBuffer);
         const blob = new Blob([bytes.buffer], { type: imageURL.type });
-        const urlCreator = window.URL || window.webkitURL;
-        const imageBlobUrl = urlCreator.createObjectURL(blob);
+
         //cargar imagen supongo aquí
         //enviar la info
-        console.log(imageBlobUrl);
-        await addMessage(blob, new Date(), 'file');
+        //console.log(imageBlobUrl);
+
+        if (leftType === 'image') {
+          await addMessage(blob, new Date(), 'image');
+        } else {
+          await addMessage(blob, new Date(), 'file');
+        }
         // if (leftType == 'image') {
         // } else {
         //   addMessage(imageBlobUrl, new Date(), 'file');

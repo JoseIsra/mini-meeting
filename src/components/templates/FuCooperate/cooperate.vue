@@ -38,6 +38,9 @@ interface Data {
   notificationType: string;
   eventType: string;
 }
+interface ObjectBlob {
+  blob: string;
+}
 
 interface ObjRemoteUserInfo extends ObjInfoRequested {
   eventType: string;
@@ -487,7 +490,28 @@ export default defineComponent({
             const { eventType } = objParsed;
             if (eventType === 'CHAT_MESSAGE') {
               //console.log(objParsed);
-              setUserMessage(objParsed);
+              const messageParsed = JSON.parse(obj.data) as Message;
+              const { typeMessage } = messageParsed;
+              if (typeMessage === 'plainText') {
+                setUserMessage(messageParsed);
+              } else if (typeMessage === 'image') {
+                //const { message } = messageParsed;
+                // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+                const message = messageParsed.message as string;
+                const blobString = (JSON.parse(message) as ObjectBlob).blob;
+                //console.log(blobString);
+                //const blob = b64toBlob(blobString);
+                fetch(blobString)
+                  .then(async (res) => {
+                    const blob = await res.blob();
+                    const blobUrl = URL.createObjectURL(blob);
+                    messageParsed.message = blobUrl;
+                    setUserMessage(messageParsed);
+                  })
+                  .catch((error) => {
+                    console.log(error);
+                  });
+              }
             } else if (eventType === 'NOTIFICATION') {
               handleNotificationEvent(obj);
               const { notificationType } = JSON.parse(obj.data) as Data;

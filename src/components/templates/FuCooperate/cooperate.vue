@@ -11,6 +11,15 @@
       v-if="isLoadingOrError"
       :loadingMessage="loadingOrErrorMessage"
     />
+    <!-- TODO: Move This (Prev of recording) -->
+    <video
+      v-show="false"
+      id="localVideo2"
+      class="a-userVideo__box__stream"
+      autoplay
+      muted
+      playsinline
+    ></video>
   </div>
 </template>
 
@@ -215,7 +224,6 @@ export default defineComponent({
         subscriberId,
         subscriberCode
       );
-      //createConnection(roomId, streamId, streamName);
     };
 
     /* onUnmounted(() => {

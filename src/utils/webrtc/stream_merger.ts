@@ -2,9 +2,8 @@
 //@ts-nocheck
 
 interface StreamMergerType {
-  start?: () => void;
-  getResult?: () => MediaStream;
-  gotStream?: () => unknown;
+  start: () => void;
+  getResult: () => MediaStream;
 }
 
 export class StreamMerger implements StreamMergerType {

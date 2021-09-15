@@ -1,7 +1,4 @@
 import { ref } from 'vue';
-type Shit = {
-  message: () => Promise<string>;
-};
 
 export interface Message {
   id: string;
@@ -9,13 +6,10 @@ export interface Message {
   date: string;
   streamName: string;
   eventType: string;
-  message: string | Blob;
+  content: string | Blob;
   avatar: string;
   typeMessage: string;
 }
-// const messages = {
-//   message: '',
-// };
 
 const userMessages = ref<Message[]>([]);
 

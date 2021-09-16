@@ -25,7 +25,7 @@
         bottom="-50px"
       />
     </header>
-    <section class="m-chat__body">
+    <section class="m-chat__body" @click="hideMenu">
       <main class="m-chat__messagesBox" ref="messageContainer">
         <q-chat-message
           class="m-chat__messagesBox__bubble"
@@ -203,7 +203,6 @@ export default defineComponent({
     let userName = ref(
       (window as ZoidWindow)?.xprops?.streamId || route.query.streamName
     );
-
     const sendMessage = () => {
       if (!regexp.test(userInput.value)) {
         warningMessage('Complete los campos');
@@ -305,6 +304,10 @@ export default defineComponent({
       }
     });
 
+    const hideMenu = () => {
+      showChatMenu.value = false;
+    };
+
     return {
       userInput,
       sendMessage,
@@ -316,6 +319,7 @@ export default defineComponent({
       fileSelected,
       messageContainer,
       showChatMenu,
+      hideMenu,
     };
   },
 });

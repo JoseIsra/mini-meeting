@@ -304,7 +304,6 @@ export default defineComponent({
     };
 
     const handleMenuPosition = (ubication?: string) => {
-      // isActions.value = ubication === 'actions' ? true : false;
       if (ubication == 'actions') {
         isActions.value = true;
         isOptions.value = false;

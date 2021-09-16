@@ -1,5 +1,5 @@
 <template>
-  <section class="o-cooperate" @mousemove="toogleMenuBar">
+  <section class="o-cooperate" @mousemove="toogleMenuBar" @click.self="test">
     <fu-cooperate-header />
     <fu-cooperate-menu-bar
       v-show="showMenuBar"
@@ -23,7 +23,6 @@
 import { defineComponent, ref, toRefs, onMounted } from 'vue';
 import FuCooperateMenuBar from 'organisms/FuCooperateMenuBar';
 import FuCooperateHeader from 'atoms/FuCooperateHeader';
-// import FuCooperateBody from 'molecules/FuCooperateBody';
 import FuCooperateUserVideo from 'atoms/FuCooperateUserVideo';
 import FuCooperateSideBar from 'molecules/FuCooperateSideBar';
 import FuHandNotification from 'atoms/FuHandNotification';
@@ -47,7 +46,6 @@ export default defineComponent({
   components: {
     FuCooperateMenuBar,
     FuCooperateHeader,
-    // FuCooperateBody,
     FuCooperateSideBar,
     FuCooperateUserVideo,
     FuHandNotification,
@@ -59,8 +57,9 @@ export default defineComponent({
     });
 
     let showMenuBar = ref<boolean>(false);
-    let { isSidebarRender } = useSidebarToogle();
-    const { functionsOnMenuBar, isFullScreen } = useToogleFunctions();
+    let { isSidebarRender, setSidebarState } = useSidebarToogle();
+    const { functionsOnMenuBar, isFullScreen, setIDButtonSelected } =
+      useToogleFunctions();
     const hideMenuBar = _.debounce(() => {
       showMenuBar.value = false;
     }, 6000);
@@ -72,6 +71,10 @@ export default defineComponent({
         hideMenuBar();
       }
     };
+    const test = () => {
+      setSidebarState(false);
+      setIDButtonSelected('');
+    };
     return {
       toogleMenuBar,
       showMenuBar,
@@ -79,6 +82,7 @@ export default defineComponent({
       isSidebarRender,
       functionsOnMenuBar,
       isFullScreen,
+      test,
     };
   },
 });

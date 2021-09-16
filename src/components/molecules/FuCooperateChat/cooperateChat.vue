@@ -107,6 +107,9 @@
                 >Descargar</a
               >
             </span>
+            <span v-if="message.typeMessage === 'empty'">
+              <q-spinner-dots size="20px" />
+            </span>
           </div>
         </q-chat-message>
       </main>
@@ -167,8 +170,11 @@ import { nanoid } from 'nanoid';
 import { useSidebarToogle, useToogleFunctions } from '@/composables';
 import { ZoidWindow } from '@/types/zoid';
 import { useInitWebRTC } from '@/composables/antMedia';
-import { simplifyExtension } from '@/helpers/mapFIleExtensions';
+import { simplifyExtension } from '@/utils/file';
 import FuCooperateMenu from 'molecules/FuCooperateMenu';
+import { renameFile } from '@/utils/file';
+import backblazeService from '@/services/backblaze';
+const { uploadFileToBackblaze } = backblazeService;
 
 interface HTMLInputEvent extends Event {
   target: HTMLInputElement & EventTarget;
@@ -184,9 +190,12 @@ export default defineComponent({
   setup() {
     const route = useRoute();
     let showChatMenu = ref<boolean>(false);
+    const backBlazePathFile =
+      'https://f002.backblazeb2.com/file/cooperate/classroom/1/cooperate/chat';
     const messageContainer = ref<MessageContainer>({} as MessageContainer);
     let userInput = ref<string>('');
-    const { userMessages, setUserMessage } = useHandleMessage();
+    const { userMessages, setUserMessage, deleteLoadingMessage } =
+      useHandleMessage();
     let { setSidebarState } = useSidebarToogle();
     const { setIDButtonSelected } = useToogleFunctions();
     const { sendData } = useInitWebRTC();
@@ -203,51 +212,13 @@ export default defineComponent({
       addTextMessage(userInput.value, new Date(), 'plainText');
     };
 
-    const blobToBase64 = (blob: Blob) => {
-      return new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(blob);
-        reader.onload = function () {
-          resolve(reader.result);
-        };
-      });
-    };
-
-    const some = async (blob: Blob): Promise<string> => {
-      const bse64 = await blobToBase64(blob);
-      return JSON.stringify({ blob: bse64 });
-    };
-
     const addTextMessage = (
       content: string,
-      thedate: Date,
-      typeMessage: string
-    ) => {
-      let userLocalMessage = {
-        id: nanoid(),
-        streamId: userMe.id,
-        date: moment(thedate).format('h: mm a'),
-        streamName: userMe.name,
-        eventType: 'CHAT_MESSAGE',
-        content,
-        avatar: userMe.avatar,
-        typeMessage,
-      };
-      setUserMessage(userLocalMessage);
-      sendData(userMe.id, userLocalMessage);
-      userInput.value = '';
-    };
-
-    const addFileMessage = async (
-      blobMessage: Blob,
       thedate: Date,
       typeMessage: string,
       fileExtension?: string,
       fileName?: string
     ) => {
-      const urlCreator = window.URL || window.webkitURL;
-      const content = urlCreator.createObjectURL(blobMessage);
-
       let userLocalMessage = {
         id: nanoid(),
         streamId: userMe.id,
@@ -261,12 +232,8 @@ export default defineComponent({
         fileName,
       };
       setUserMessage(userLocalMessage);
-
-      let userMessage = {
-        ...userLocalMessage,
-        content: await some(blobMessage),
-      };
-      sendData(userMe.id, userMessage);
+      sendData(userMe.id, userLocalMessage);
+      userInput.value = '';
     };
 
     const fileSelected = (e: HTMLInputEvent) => {
@@ -275,22 +242,39 @@ export default defineComponent({
       const [leftType] = fileInformation.type.split('/');
       const fileExtension = simplifyExtension(fileInformation.type);
       const fileName = fileInformation.name;
-      console.log(leftType, fileInformation);
-      reader.onload = async function (e: ProgressEvent<FileReader>) {
-        const arrayBuffer = e?.target?.result;
-        const bytes = new Uint8Array(arrayBuffer as ArrayBuffer);
-        const blob = new Blob([bytes.buffer], { type: fileInformation.type });
-        if (leftType === 'image') {
-          await addFileMessage(blob, new Date(), 'image');
-        } else {
-          await addFileMessage(
-            blob,
-            new Date(),
-            'file',
-            fileExtension,
-            fileName
-          );
-        }
+      const fileNameToBackblaze = `${new Date().getTime()}.${fileExtension}`;
+      fileInformation = renameFile(fileInformation, fileNameToBackblaze);
+      reader.onload = function () {
+        console.log(fileInformation);
+        const b2Info = {
+          uploadUrl:
+            'https://pod-000-1162-00.backblaze.com/b2api/v2/b2_upload_file/668ef779b80de9b374bb0f1f/c002_v0001162_t0042',
+          authorizationToken:
+            '4_0026e798d934bff0000000001_019f036b_a56c37_upld_LTVLgRyeS39JRb41-HfbaV6jado=',
+        };
+        addTextMessage('empty', new Date(), 'empty'); // activa loader message
+        uploadFileToBackblaze({
+          file: new File([fileInformation], encodeURIComponent(fileName)),
+          path: 'classroom/1/cooperate/chat',
+          b2Info,
+          retries: 10,
+        })
+          .then(() => {
+            deleteLoadingMessage(userMe.id);
+            const fileRoute = `${backBlazePathFile}/${fileName}`;
+            if (leftType === 'image') {
+              addTextMessage(fileRoute, new Date(), 'image');
+            } else {
+              addTextMessage(
+                fileRoute,
+                new Date(),
+                'file',
+                fileExtension,
+                fileName
+              );
+            }
+          })
+          .catch((err) => console.error(err));
       };
       reader.readAsArrayBuffer(fileInformation);
       e.target.value = '';

@@ -17,7 +17,7 @@ const {
   addParticipants,
   deleteAllParticipants,
 } = useHandleParticipants();
-const { setUserMessage, deleteMessages } = useHandleMessage();
+const { setUserMessage, deleteLoadingMessage } = useHandleMessage();
 const { addHandNotificationInfo, removeHandNotification } =
   useToogleFunctions();
 
@@ -42,10 +42,6 @@ interface ObjRemoteUserInfo extends ObjInfoRequested {
 interface ObjKickedEvent {
   eventType: string;
   to: string;
-}
-
-interface ObjectBlob {
-  blob: string;
 }
 
 export function useInitWebRTC() {
@@ -359,24 +355,12 @@ export function useInitWebRTC() {
             //console.log(objParsed);
             const messageParsed = JSON.parse(obj.data) as Message;
             const { typeMessage } = messageParsed;
-            if (typeMessage == 'plainText') {
+            if (typeMessage == 'image' || typeMessage == 'file') {
+              deleteLoadingMessage(objParsed.streamId);
               setUserMessage(objParsed);
-            } else if (typeMessage == 'image' || typeMessage == 'file') {
-              const message = messageParsed.content as string;
-              const blobString = (JSON.parse(message) as ObjectBlob).blob;
-              fetch(blobString)
-                .then(async (res) => {
-                  const blob = await res.blob();
-                  const blobUrl = URL.createObjectURL(blob);
-                  messageParsed.content = blobUrl;
-                  setUserMessage(messageParsed);
-                })
-                .catch((error) => {
-                  console.log(error);
-                });
+            } else {
+              setUserMessage(objParsed);
             }
-          } else if (eventType == 'DELETE_CHAT') {
-            deleteMessages();
           } else if (eventType === 'NOTIFICATION') {
             handleNotificationEvent(obj);
             const { notificationType } = JSON.parse(obj.data) as Data;

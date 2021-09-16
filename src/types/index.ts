@@ -16,6 +16,25 @@ export interface Participant {
   isScreenSharing?: boolean;
   isVideoActivated?: boolean;
 }
+export type Scalars = {
+  ID: string;
+  String: string;
+  Boolean: boolean;
+  Int: number;
+  Float: number;
+  /**
+   * The `Date` scalar type represents a date. The Date appears in a JSON
+   * response as an ISO8601 formatted string, without a time component.
+   */
+  Date: Date;
+};
+
+export type Maybe<T> = T | null;
+export type B2 = {
+  __typename?: 'B2';
+  authorizationToken?: Maybe<Scalars['String']>;
+  uploadUrl?: Maybe<Scalars['String']>;
+};
 
 export interface objWebRTC {
   ATTR_ROOM_NAME: string;

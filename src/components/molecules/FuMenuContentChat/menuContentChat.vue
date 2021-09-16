@@ -20,8 +20,6 @@
 import { defineComponent, ref, reactive } from 'vue';
 import { chatMenuIcon, Options } from '@/helpers/menuOptions';
 import { useHandleMessage } from '@/composables/chat';
-import { useInitWebRTC } from '@/composables/antMedia';
-import { useUserMe } from '@/composables/userMe';
 
 interface ChatMenu {
   CLEARCHAT(): () => void;
@@ -31,14 +29,11 @@ export default defineComponent({
   setup() {
     const chatOptions = ref<Options[]>(chatMenuIcon);
     const { deleteMessages } = useHandleMessage();
-    const { sendData } = useInitWebRTC();
-    const { userMe } = useUserMe();
     const chatMenuObject = reactive({
       CLEARCHAT: () => deleteConversation(),
     });
     const deleteConversation = () => {
       deleteMessages();
-      sendData(userMe.id, { eventType: 'DELETE_CHAT' });
     };
     const executeChatMenuOption = (interaction: string) => {
       chatMenuObject[interaction as keyof ChatMenu]();

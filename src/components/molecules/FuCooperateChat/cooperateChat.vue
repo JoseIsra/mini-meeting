@@ -247,9 +247,9 @@ export default defineComponent({
         console.log(fileInformation);
         const b2Info = {
           uploadUrl:
-            'https://pod-000-1162-00.backblaze.com/b2api/v2/b2_upload_file/668ef779b80de9b374bb0f1f/c002_v0001162_t0042',
+            'https://pod-000-1164-03.backblaze.com/b2api/v2/b2_upload_file/668ef779b80de9b374bb0f1f/c002_v0001164_t0056',
           authorizationToken:
-            '4_0026e798d934bff0000000001_019f036b_a56c37_upld_LTVLgRyeS39JRb41-HfbaV6jado=',
+            '4_0026e798d934bff0000000001_019f09f0_4afa0a_upld__UN0CUQ6V8hEiA4TALUzS2YhiOI=',
         };
         addTextMessage('empty', new Date(), 'empty'); // activa loader message
         uploadFileToBackblaze({

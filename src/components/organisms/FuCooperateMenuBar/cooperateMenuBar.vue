@@ -80,6 +80,7 @@
         />
         <fu-cooperate-menu
           v-show="renderFunctionResponsiveMenu"
+          :objectFunctionalities="objectFunctionalities"
           class="a-menuBar__functions__responsive__menu"
           :isActions="false"
           :renderFunctions="true"
@@ -335,6 +336,7 @@ export default defineComponent({
       renderFunctionResponsiveMenu,
       openNetworkConfig,
       functionsOnMenuBar,
+      objectFunctionalities,
     };
   },
 });

@@ -5,7 +5,6 @@ const participants = ref<Participant[]>([]);
 
 export function useHandleParticipants() {
   const addParticipants = (value: Participant) => {
-    // Object.assign(webRTCInstance, value);
     participants.value.push(value);
   };
   const deleteParticipantById = (id: string) => {

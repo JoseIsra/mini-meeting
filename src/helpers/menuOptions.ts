@@ -17,6 +17,9 @@ enum interactionType {
   LEAVE = 'LEAVE',
   END = 'END',
   RETRANSMISSION = 'RETRANSMISSION',
+  SAVECHAT = 'SAVECHAT',
+  CLEARCHAT = 'CLEARCHAT',
+  COPYCHAT = 'COPYCHAT',
 }
 
 export const menuActions = [
@@ -125,3 +128,27 @@ export const menuOptions = {
     },
   ],
 };
+
+export const chatMenuIcon = [
+  // {
+  //   id: '1',
+  //   iconName: 'save',
+  //   description: 'Guardar chat',
+  //   important: false,
+  //   interaction: interactionType.SAVECHAT,
+  // },
+  // {
+  //   id: '2',
+  //   iconName: 'content_copy',
+  //   description: 'Copiar chat',
+  //   important: false,
+  //   interaction: interactionType.COPYCHAT,
+  // },
+  {
+    id: '3',
+    iconName: 'delete',
+    description: 'Vaciar chat',
+    important: false,
+    interaction: interactionType.CLEARCHAT,
+  },
+];

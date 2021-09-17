@@ -1,23 +1,16 @@
 .a-cooperateMenu {
   position: absolute;
   background-color: #202125;
-  width: 280px;
-  bottom: 120%;
+  width: var(--width);
+  bottom: var(--bottom);
   border-radius: 6px;
-  /* cursor: pointer; */
+  z-index: 9999;
   &__tail {
     position: absolute;
-    //bottom: -10%;
     bottom: -28px;
     left: -12px;
-
-    //
     color: #202125;
   }
-
-  /* .--specialcase {
-    bottom: -25%;
-  } */
 }
 .--actions {
   left: 12%;
@@ -28,6 +21,14 @@
 .--functions {
   border-radius: 10px;
   left: 2%;
+}
+.--chatmenu {
+  right: 0;
+}
+.--chatcase {
+  top: -29px;
+  left: 78%;
+  transform: rotateZ(180deg);
 }
 
 @media only screen and (min-width: 300px) and (max-width: 578px) {

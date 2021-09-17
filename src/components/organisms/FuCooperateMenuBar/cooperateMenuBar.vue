@@ -117,13 +117,16 @@
         />
       </aside>
       <fu-cooperate-network-info v-show="openNetworkConfig" />
+      <fu-cooperate-menu
+        class="a-menuBar__responsiveOptions"
+        v-show="renderMenu"
+        :isActions="isActions"
+        :isOptions="isOptions"
+        :renderFunctions="false"
+        width="100%"
+        bottom="120%"
+      />
     </section>
-    <fu-cooperate-menu
-      class="a-menuBar__responsiveOptions"
-      v-show="renderMenu"
-      :isActions="isActions"
-      :renderFunctions="false"
-    />
   </div>
 </template>
 

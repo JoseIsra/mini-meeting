@@ -20,7 +20,6 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
 import { useInitMerge } from '@/composables/antMediaMerge';
-import { useUserMe } from '@/composables/userMe';
 import { useRoom } from '@/composables/room';
 import { ZoidWindow } from '@/types/zoid';
 
@@ -33,7 +32,6 @@ export default defineComponent({
     const isRecording = ref<boolean>(false);
     const { createMergeInstance, stopMerge } = useInitMerge();
     const { roomState } = useRoom();
-    const { userMe } = useUserMe();
     const isLoading = ref(false);
 
     const mergedName = ref('');

@@ -10,8 +10,11 @@
     ]"
   >
     <fu-menu-content-actions v-if="isActions" />
+    <fu-menu-content-functions
+      v-if="renderFunctions && !isActions"
+      :objectFunctionalities="objectFunctionalities"
+    />
     <fu-menu-content-options v-if="isOptions" />
-    <fu-menu-content-functions v-if="renderFunctions && !isActions" />
     <fu-menu-content-chat v-if="chatOptions" />
     <q-icon
       :class="[
@@ -26,12 +29,12 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, toRefs, computed } from 'vue';
+import { defineComponent, toRefs, computed, PropType } from 'vue';
 import FuMenuContentOptions from 'molecules/FuMenuContentOptions';
 import FuMenuContentActions from 'molecules/FuMenuContentActions';
 import FuMenuContentFunctions from 'molecules/FuMenuContentFunctions';
 import FuMenuContentChat from 'molecules/FuMenuContentChat';
-
+import { Functionalities } from '@/types';
 export default defineComponent({
   name: 'FuCooperateMenu',
   components: {
@@ -46,6 +49,9 @@ export default defineComponent({
     },
     renderFunctions: {
       type: Boolean,
+    },
+    objectFunctionalities: {
+      type: Object as PropType<Functionalities>,
     },
     isOptions: {
       type: Boolean,

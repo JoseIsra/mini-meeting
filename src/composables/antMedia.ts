@@ -207,8 +207,11 @@ export function useInitWebRTC() {
                 stream: obj.stream,
               };
             } else {
+              const isMerge = obj.streamId.split('-')[0] === 'm';
+
               // objStreams.value.push(obj);
-              addParticipants({ id: obj.streamId, stream: obj.stream });
+              if (!isMerge)
+                addParticipants({ id: obj.streamId, stream: obj.stream });
             }
           }
         } else if (info == 'publish_started') {

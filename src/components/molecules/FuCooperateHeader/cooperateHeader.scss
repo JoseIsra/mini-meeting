@@ -1,0 +1,36 @@
+.m-header {
+  width: 100%;
+  display: flex;
+  //align-items: center;
+  justify-content: space-between;
+  //border: solid;
+
+  &__logo {
+    //width: 190px;
+    width: 33.3%;
+    /* height: 100%; */
+
+    &__image {
+      padding: 20px;
+      width: 245px;
+      height: 100%;
+      object-fit: contain;
+    }
+  }
+  &__recordingContainer {
+    z-index: 1;
+    width: 33.3%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    &__button {
+    }
+  }
+  &__minimizeContainer {
+    width: 33.3%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0 15px 0 0;
+  }
+}

@@ -903,7 +903,7 @@ export class WebRTCAdaptor implements WebRTCAdaptorType {
     this.webSocketAdaptor.send(JSON.stringify(jsCmd));
   }
 
-  gotStream(stream) {
+  gotStream(stream: MediaStream) {
     stream = this.setGainNodeStream(stream);
 
     this.localStream = stream;

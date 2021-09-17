@@ -22,7 +22,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, toRefs, PropType } from 'vue';
+import { defineComponent, toRefs } from 'vue';
 import FuMenuContentOptions from 'molecules/FuMenuContentOptions';
 import FuMenuContentActions from 'molecules/FuMenuContentActions';
 import FuMenuContentFunctions from 'molecules/FuMenuContentFunctions';

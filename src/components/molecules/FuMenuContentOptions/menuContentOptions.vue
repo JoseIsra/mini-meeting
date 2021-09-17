@@ -62,7 +62,7 @@ import { useInitWebRTC } from '@/composables/antMedia';
 
 export default defineComponent({
   name: 'FuMenuContentOptions',
-  setup(props) {
+  setup() {
     const { userMe } = useUserMe();
     const { roomState } = useRoom();
     const { sendData } = useInitWebRTC();

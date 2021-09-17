@@ -8,6 +8,7 @@ interface ZoidProps {
   photoURL?: string;
   handleLeaveCall?: () => void;
   handleEndCall?: () => void;
+  handleStopRecording?: (urlOfRecording: string) => void;
 }
 
 export interface ZoidWindow extends Window {

@@ -20,9 +20,9 @@
 </template>
 //TODO: OBJETO DE USUARIO GLOBAL
 <script lang="ts">
-import { defineComponent, ref, PropType, toRefs, onMounted } from 'vue';
+import { defineComponent, ref, toRefs, onMounted } from 'vue';
 import FuCooperateMenuBar from 'organisms/FuCooperateMenuBar';
-import FuCooperateHeader from 'atoms/FuCooperateHeader';
+import FuCooperateHeader from 'molecules/FuCooperateHeader';
 // import FuCooperateBody from 'molecules/FuCooperateBody';
 import FuCooperateUserVideo from 'atoms/FuCooperateUserVideo';
 import FuCooperateSideBar from 'molecules/FuCooperateSideBar';

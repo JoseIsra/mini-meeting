@@ -49,64 +49,46 @@
         }}</label>
       </li>
     </ul>
+    <q-dialog v-model="openModal">
+      <fu-delete-room-modal />
+    </q-dialog>
   </section>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
+import { defineComponent, ref, reactive } from 'vue';
 import { menuOptions, MenuOptions } from '@/helpers/menuOptions';
 import { ZoidWindow } from '@/types/zoid';
-import { useUserMe } from '@/composables/userMe';
-import { useRoom } from '@/composables/room';
-import { useInitWebRTC } from '@/composables/antMedia';
+import FuDeleteRoomModal from 'molecules/FuDeleteRoomModal';
 
+interface OptionsClickMethods {
+  LEAVE: () => void;
+  END: () => void;
+}
 export default defineComponent({
   name: 'FuMenuContentOptions',
+  components: { FuDeleteRoomModal },
   setup() {
-    const { userMe } = useUserMe();
-    const { roomState } = useRoom();
-    const { sendData } = useInitWebRTC();
-
     const options = ref<MenuOptions>(menuOptions);
+    let openModal = ref(false);
 
-    const deleteRoom = async (roomId: string) => {
-      const request = new Request(
-        `https://dialguiba.tech/WebRTCAppEE/rest/v2/broadcasts/conference-rooms/${roomId}`,
-        {
-          headers: {
-            Authorization:
-              'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiaWF0IjoxNTE2MjM5MDIyfQ.dnwd9sjQmEAyWWpbaGWA9R6pW4Qxu5eYES9Xrpl5UsY',
-          },
-          method: 'DELETE',
-        }
-      );
-      const res = await fetch(request);
+    const optionsMethodsObject = reactive<OptionsClickMethods>({
+      LEAVE: () => (window as ZoidWindow).xprops?.handleLeaveCall?.(),
+      END: () => openDeleteRoomModal(),
+    });
 
-      return {
-        status: res.status,
-        body: (await res.json()) as Record<string, string>,
-      };
+    const openDeleteRoomModal = () => {
+      openModal.value = true;
     };
 
     const handleOptionSelected = (interaction?: string) => {
-      if (interaction === 'LEAVE') {
-        console.log('leave');
-        (window as ZoidWindow).xprops?.handleLeaveCall?.();
-      } else if (interaction === 'END') {
-        console.log('end');
-        deleteRoom(roomState.id)
-          .then(() => {
-            (window as ZoidWindow).xprops?.handleEndCall?.();
-            sendData(userMe.id, { eventType: 'KICK', to: 'all' });
-            (window as ZoidWindow).xprops?.handleLeaveCall?.();
-          })
-          .catch((e) => console.log(e));
-      }
+      optionsMethodsObject[interaction as keyof OptionsClickMethods]();
     };
 
     return {
       options,
       handleOptionSelected,
+      openModal,
     };
   },
 });

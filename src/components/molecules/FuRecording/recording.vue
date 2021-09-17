@@ -51,7 +51,7 @@ export default defineComponent({
 
       isLoading.value = true;
 
-      mergedName.value = `m-r-${userMe.id}-${roomState.id}-${timestamp}`;
+      mergedName.value = `m-r-${roomState.id}-${timestamp}`;
 
       createMergeInstance(roomState.id, mergedName.value, mergedName.value)
         .then(() => {
@@ -68,8 +68,8 @@ export default defineComponent({
       clearInterval(interval.value);
       stopMerge();
       secondsElapsed.value = 0;
-      (window as ZoidWindow).xprops?.handleEndRecording?.(
-        `https://f002.backblazeb2.com/file/antmedia/m-r-${mergedName.value}`
+      (window as ZoidWindow).xprops?.handleStopRecording?.(
+        `https://f002.backblazeb2.com/file/antmedia/${mergedName.value}.m3u8`
       );
     };
 

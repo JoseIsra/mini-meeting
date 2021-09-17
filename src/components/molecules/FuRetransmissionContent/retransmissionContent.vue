@@ -46,17 +46,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 
 import { defineComponent, ref, computed, onMounted } from 'vue';
-import { StreamMerger } from '@/utils/webrtc/stream_merger';
-import { WebRTCAdaptor } from '@/utils/webrtc/webrtc_adaptor';
-import { objWebRTC, WebRTCAdaptorType } from '@/types/index';
-import '@/composables/';
-import { ZoidWindow } from '@/types/zoid';
 import { useUserMe } from '@/composables/userMe';
 import FuHiddenText from '@/components/atoms/FuHiddenText';
-
-interface StringIndexedArray<TValue> {
-  [id: string]: TValue;
-}
 
 export default defineComponent({
   name: 'FuRetransmissionContent',
@@ -67,123 +58,11 @@ export default defineComponent({
     const { userMe } = useUserMe();
     const moreContent = ref(true);
     // const layout = ref(false);
-    const webRTCAdaptorMerged = ref<WebRTCAdaptorType>({});
 
     const endpoint = ref('');
     const key = ref('');
 
     const isStreaming = ref(false);
-
-    // const openModal = () => {
-    //   layout.value = true;
-    // };
-    /*  */
-    /*  */
-    const merger = new StreamMerger(320, 240, true, '4:3');
-    const roomTimerId = ref<ReturnType<typeof setInterval> | null>(null);
-    //TODO: Cambiar por el estado de sala global
-    const roomNameBox = (window as ZoidWindow).xprops?.roomId as string;
-    const token = '';
-    const streamNameBox = 'testMerge';
-
-    const roomOfStream = ref<StringIndexedArray<string>>({});
-    let noStream = false;
-    let streamsList = ref<string[]>([]);
-
-    /* function toggleResolution(event) {
-		merger.changeStreamSize(sb.value);
-	} */
-    /* function toggleRatio() {
-		if (narrow.checked == true) {
-			merger.changeAspectRatio("4:3");
-		}
-		else {
-			merger.changeAspectRatio("16:9");
-		}
-
-	} */
-
-    function mergeStreams() {
-      let delayInMilliseconds = 1500;
-
-      setTimeout(function () {
-        merger.start();
-        let result = merger.getResult() as MediaStream;
-        webRTCAdaptorMerged.value.gotStream?.(result);
-        //console.log('streamslist = ' + streamsList.value);
-        if (streamsList.value.length > 0) {
-          publish(streamNameBox, '');
-          noStream = false;
-        } else {
-          alert('There is no stream available in the room');
-          noStream = true;
-        }
-      }, delayInMilliseconds);
-    }
-
-    function joinRoom() {
-      webRTCAdaptorMerged.value.joinRoom?.(
-        roomNameBox,
-        streamNameBox,
-        'legacy'
-      );
-    }
-
-    /* function leaveRoom() {
-		webRTCAdaptorMerged.value.leaveFromRoom?.(roomNameBox.value);
-		merger.stop();
-	} */
-
-    function publish(streamName: string, token: string) {
-      //streamName = streamNameBox.value;
-      //publishStreamId = streamName;
-      webRTCAdaptorMerged.value.publish?.(streamName, token);
-    }
-
-    function streamInformation(obj: objWebRTC) {
-      webRTCAdaptorMerged.value.play?.(obj.streamId, token, roomNameBox);
-    }
-
-    const handleMerge = () => {
-      //const roomId = 'room5';
-
-      const merger = new StreamMerger(320, 240, true, '4:3');
-      merger.start();
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      //const result = merger.getResult();
-
-      const pc_config = {
-        iceServers: [
-          {
-            urls: 'stun:stun1.l.google.com:19302',
-          },
-        ],
-      };
-
-      const sdpConstraints = {
-        OfferToReceiveAudio: false,
-        OfferToReceiveVideo: false,
-      };
-
-      const mediaConstraints = {
-        video: false,
-        audio: false,
-      };
-      let oldId: unknown = null;
-      /* let appName = location.pathname.substring(0, location.pathname
-		.lastIndexOf("/") + 1); */
-      //var path = location.hostname + ":" + location.port + appName + "websocket";
-      let websocketURL = 'wss://dialguiba.tech/WebRTCAppEE/websocket';
-      /* let websocketURL = "ws://" + path; */
-
-      /* if (location.protocol.startsWith("https")) {
-		websocketURL = "wss://" + path;
-	} */
-      var xindex = 0;
-      var yindex = 0;
-
-      /* joinRoom(); */
-    };
 
     onMounted(() => {
       /* handleMerge(); */

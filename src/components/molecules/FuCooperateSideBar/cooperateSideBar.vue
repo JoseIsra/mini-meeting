@@ -15,7 +15,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, toRefs } from 'vue';
+import { defineComponent, toRefs } from 'vue';
 import FuCooperateChat from 'molecules/FuCooperateChat';
 import FuCooperateUsersList from 'molecules/FuCooperateUsersList';
 import FuCooperateNotes from 'molecules/FuCooperateNotes';

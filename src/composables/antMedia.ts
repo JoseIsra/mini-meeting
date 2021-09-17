@@ -17,7 +17,7 @@ const {
   addParticipants,
   deleteAllParticipants,
 } = useHandleParticipants();
-const { setUserMessage } = useHandleMessage();
+const { setUserMessage, deleteLoadingMessage } = useHandleMessage();
 const { addHandNotificationInfo, removeHandNotification } =
   useToogleFunctions();
 
@@ -310,8 +310,8 @@ export function useInitWebRTC() {
             }              
           } */
           participants.value.forEach((participant) => {
-            if (!obj.streams.includes(participant.id)) {
-              removeRemoteVideo(participant.id);
+            if (!obj.streams.includes(participant.id as string)) {
+              removeRemoteVideo(participant.id as string);
             }
           });
 
@@ -356,7 +356,14 @@ export function useInitWebRTC() {
           //console.log(objParsed);
           if (eventType === 'CHAT_MESSAGE') {
             //console.log(objParsed);
-            setUserMessage(objParsed);
+            const messageParsed = JSON.parse(obj.data) as Message;
+            const { typeMessage } = messageParsed;
+            if (typeMessage == 'image' || typeMessage == 'file') {
+              deleteLoadingMessage(objParsed.streamId);
+              setUserMessage(objParsed);
+            } else {
+              setUserMessage(objParsed);
+            }
           } else if (eventType === 'NOTIFICATION') {
             handleNotificationEvent(obj);
             const { notificationType } = JSON.parse(obj.data) as Data;

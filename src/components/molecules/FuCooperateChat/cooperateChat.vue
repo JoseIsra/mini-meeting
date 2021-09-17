@@ -2,20 +2,30 @@
   <section class="m-chat">
     <header class="m-chat__title">
       <label class="m-chat__title__text">
-        <q-icon name="wechat" color="white" size="30px" />
+        <q-icon name="wechat" color="white" size="20px" />
         Chat público
       </label>
+      <q-btn
+        flat
+        round
+        size="12px"
+        icon="more_vert"
+        color="white"
+        dense
+        class="m-chat__leaveChat"
+        @click="showChatMenu = !showChatMenu"
+      />
+      <fu-cooperate-menu
+        v-show="showChatMenu"
+        :isActions="false"
+        :isOptions="false"
+        :renderFunctions="false"
+        :chatOptions="true"
+        width="180px"
+        bottom="-50px"
+      />
     </header>
-    <q-btn
-      flat
-      round
-      icon="close"
-      color="white"
-      dense
-      class="m-chat__leaveChat"
-      @click="closeChat"
-    />
-    <section class="m-chat__body">
+    <section class="m-chat__body" @click="hideMenu">
       <main class="m-chat__messagesBox" ref="messageContainer">
         <q-chat-message
           class="m-chat__messagesBox__bubble"
@@ -25,8 +35,12 @@
           :bg-color="
             message.streamId == userMe.id ? 'indigo-6' : 'deep-purple-9'
           "
+          :size="
+            message.typeMessage == 'plainText'
+              ? bubbleSize(message.content)
+              : '9'
+          "
           text-color="white"
-          :size="bubbleSize(message.message)"
         >
           <template #avatar>
             <div class="m-chat__messagesBox__info">
@@ -53,9 +67,49 @@
             </div>
           </template>
           <div class="m-chat__messagesBox__message">
-            <span class="m-chat__messagesBox__message__text">{{
-              message.message
-            }}</span>
+            <span
+              class="m-chat__messagesBox__message__text"
+              v-if="message.typeMessage == 'plainText'"
+              >{{ message.content }}</span
+            >
+            <span v-if="message.typeMessage == 'image'">
+              <q-img
+                class="m-chat__messagesBox__message__image"
+                spinner-color="white"
+                :src="message.content"
+                alt="file-logo"
+              />
+            </span>
+            <span
+              v-if="message.typeMessage == 'file'"
+              class="m-chat__messagesBox__message__file"
+            >
+              <p class="m-chat__messagesBox__message__file__name">
+                {{ message.fileName }}
+              </p>
+              <p class="m-chat__messagesBox__message__file__extension">
+                <strong>{{ message.fileExtension }}</strong>
+              </p>
+              <q-btn
+                class="m-chat__messagesBox__message__file__btn"
+                flat
+                round
+                @click="$refs.thelink.click()"
+                icon="file_download"
+                color="blue"
+                dense
+              />
+              <a
+                :href="message.content"
+                ref="thelink"
+                target="_blank"
+                :style="{ display: 'none' }"
+                >Descargar</a
+              >
+            </span>
+            <span v-if="message.typeMessage === 'empty'">
+              <q-spinner-dots size="20px" />
+            </span>
           </div>
         </q-chat-message>
       </main>
@@ -76,6 +130,19 @@
             rounded
             placeholder="Nuevo mensaje..."
           />
+          <input
+            type="file"
+            :style="{ display: 'none' }"
+            @change="fileSelected"
+            ref="fileInput"
+          />
+          <q-btn
+            flat
+            round
+            icon="attach_file"
+            dense
+            @click="$refs.fileInput.click()"
+          />
           <q-btn
             class="m-chat__formBox__form__saveBtn"
             icon="send"
@@ -92,7 +159,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
+import { defineComponent, ref, VueElement, nextTick, onUpdated } from 'vue';
 import { regexp } from '@/types';
 import { warningMessage } from '@/utils/notify';
 import { useRoute } from 'vue-router';
@@ -103,15 +170,32 @@ import { nanoid } from 'nanoid';
 import { useSidebarToogle, useToogleFunctions } from '@/composables';
 import { ZoidWindow } from '@/types/zoid';
 import { useInitWebRTC } from '@/composables/antMedia';
+import { simplifyExtension } from '@/utils/file';
+import FuCooperateMenu from 'molecules/FuCooperateMenu';
+import { renameFile } from '@/utils/file';
+import backblazeService from '@/services/backblaze';
+const { uploadFileToBackblaze } = backblazeService;
 
-// import { useInitWebRTC } from '@/composables/ant-media-server-stuff';
+interface HTMLInputEvent extends Event {
+  target: HTMLInputElement & EventTarget;
+}
+type MessageContainer = VueElement & {
+  scrollTop: number;
+  scrollHeight: number;
+};
 
 export default defineComponent({
   name: 'FuCooperateChat',
+  components: { FuCooperateMenu },
   setup() {
     const route = useRoute();
+    let showChatMenu = ref<boolean>(false);
+    const backBlazePathFile =
+      'https://f002.backblazeb2.com/file/cooperate/classroom/1/cooperate/chat';
+    const messageContainer = ref<MessageContainer>({} as MessageContainer);
     let userInput = ref<string>('');
-    const { userMessages, setUserMessage } = useHandleMessage();
+    const { userMessages, setUserMessage, deleteLoadingMessage } =
+      useHandleMessage();
     let { setSidebarState } = useSidebarToogle();
     const { setIDButtonSelected } = useToogleFunctions();
     const { sendData } = useInitWebRTC();
@@ -119,28 +203,86 @@ export default defineComponent({
     let userName = ref(
       (window as ZoidWindow)?.xprops?.streamId || route.query.streamName
     );
-
     const sendMessage = () => {
       if (!regexp.test(userInput.value)) {
         warningMessage('Complete los campos');
         return;
       }
-      const userMessage = {
+      addTextMessage(userInput.value, new Date(), 'plainText');
+    };
+
+    const addTextMessage = (
+      content: string,
+      thedate: Date,
+      typeMessage: string,
+      fileExtension?: string,
+      fileName?: string
+    ) => {
+      let userLocalMessage = {
         id: nanoid(),
         streamId: userMe.id,
-        date: moment(new Date()).format('h: mm a'),
+        date: moment(thedate).format('h: mm a'),
         streamName: userMe.name,
         eventType: 'CHAT_MESSAGE',
-        message: userInput.value,
+        content,
         avatar: userMe.avatar,
+        typeMessage,
+        fileExtension,
+        fileName,
       };
-      setUserMessage(userMessage);
-      sendData(userMe.id, userMessage);
+      setUserMessage(userLocalMessage);
+      sendData(userMe.id, userLocalMessage);
       userInput.value = '';
     };
 
+    const fileSelected = (e: HTMLInputEvent) => {
+      let fileInformation = e?.target?.files?.[0] as File;
+      const reader = new FileReader();
+      const [leftType] = fileInformation.type.split('/');
+      const fileExtension = simplifyExtension(fileInformation.type);
+      const fileName = fileInformation.name;
+      const fileNameToBackblaze = `${new Date().getTime()}.${fileExtension}`;
+      fileInformation = renameFile(fileInformation, fileNameToBackblaze);
+      reader.onload = function () {
+        console.log(fileInformation);
+        const b2Info = {
+          uploadUrl:
+            'https://pod-000-1162-00.backblaze.com/b2api/v2/b2_upload_file/668ef779b80de9b374bb0f1f/c002_v0001162_t0042',
+          authorizationToken:
+            '4_0026e798d934bff0000000001_019f036b_a56c37_upld_LTVLgRyeS39JRb41-HfbaV6jado=',
+        };
+        addTextMessage('empty', new Date(), 'empty'); // activa loader message
+        uploadFileToBackblaze({
+          file: new File([fileInformation], encodeURIComponent(fileName)),
+          path: 'classroom/1/cooperate/chat',
+          b2Info,
+          retries: 10,
+        })
+          .then(() => {
+            deleteLoadingMessage(userMe.id);
+            const fileRoute = `${backBlazePathFile}/${fileName}`;
+            if (leftType === 'image') {
+              addTextMessage(fileRoute, new Date(), 'image');
+            } else {
+              addTextMessage(
+                fileRoute,
+                new Date(),
+                'file',
+                fileExtension,
+                fileName
+              );
+            }
+          })
+          .catch((err) => console.error(err));
+      };
+      reader.readAsArrayBuffer(fileInformation);
+      e.target.value = '';
+    };
     const bubbleSize = (message: string) => {
       let numOfWords = message.split(' ').length;
+      if (message.startsWith('https')) {
+        return '9';
+      }
       if (numOfWords <= 1) {
         return '3';
       }
@@ -151,6 +293,21 @@ export default defineComponent({
       setIDButtonSelected('');
     };
 
+    const scrollToEnd = () => {
+      messageContainer.value.scrollTop = messageContainer.value.scrollHeight;
+    };
+    onUpdated(async () => {
+      try {
+        await nextTick(() => scrollToEnd());
+      } catch (error) {
+        console.error(error);
+      }
+    });
+
+    const hideMenu = () => {
+      showChatMenu.value = false;
+    };
+
     return {
       userInput,
       sendMessage,
@@ -159,6 +316,10 @@ export default defineComponent({
       bubbleSize,
       userMe,
       closeChat,
+      fileSelected,
+      messageContainer,
+      showChatMenu,
+      hideMenu,
     };
   },
 });

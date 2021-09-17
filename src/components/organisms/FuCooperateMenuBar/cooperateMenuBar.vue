@@ -107,7 +107,10 @@
           v-show="renderMenu"
           class="a-menuBar__options__menu"
           :isActions="isActions"
+          :isOptions="isOptions"
           :renderFunctions="false"
+          width="280px"
+          bottom="120%"
         />
       </aside>
       <fu-cooperate-network-info v-show="openNetworkConfig" />
@@ -174,6 +177,7 @@ export default defineComponent({
     });
 
     let isActions = ref<boolean>(false);
+    let isOptions = ref<boolean>(false);
     let renderMenu = ref<boolean>(false);
     let renderFunctionResponsiveMenu = ref<boolean>(false);
     let actionSelectionID = ref<string>('');
@@ -300,20 +304,23 @@ export default defineComponent({
     };
 
     const handleMenuPosition = (ubication?: string) => {
-      isActions.value = ubication === 'actions' ? true : false;
+      if (ubication == 'actions') {
+        isActions.value = true;
+        isOptions.value = false;
+      } else {
+        isActions.value = false;
+        isOptions.value = true;
+      }
       renderMenu.value = !renderMenu.value;
     };
 
     const handleFunctionSelected = (interaction?: string, ID?: string) => {
       if (functionsOnMenuBar.selectedButtonID == ID) {
-        //si se hace toggle a un ícon ya seleccionado
-        // actionSelectionID.value = '';
         setIDButtonSelected('');
         objectFunctionalities[interaction as keyof Functionalities]?.();
         return;
       }
       setIDButtonSelected(ID as string);
-      // actionSelectionID.value = ID as string;
       objectFunctionalities[interaction as keyof Functionalities]?.();
     };
 
@@ -335,6 +342,7 @@ export default defineComponent({
       renderFunctionResponsiveMenu,
       openNetworkConfig,
       functionsOnMenuBar,
+      isOptions,
     };
   },
 });

@@ -6,12 +6,12 @@ export interface Message {
   date: string;
   streamName: string;
   eventType: string;
-  message: string;
+  content: string | Blob;
   avatar: string;
+  typeMessage: string;
+  fileType?: string;
+  fileName?: string;
 }
-// const messages = {
-//   message: '',
-// };
 
 const userMessages = ref<Message[]>([]);
 
@@ -20,8 +20,20 @@ export function useHandleMessage() {
     userMessages.value.push(value);
   };
 
+  const deleteMessages = () => {
+    userMessages.value = [];
+  };
+
+  const deleteLoadingMessage = (owner: string) => {
+    const respectiveMessage = userMessages.value.findIndex(
+      (message) => message.typeMessage == 'empty' && message.streamId == owner
+    );
+    userMessages.value.splice(respectiveMessage, 1);
+  };
   return {
     setUserMessage,
     userMessages,
+    deleteMessages,
+    deleteLoadingMessage,
   };
 }

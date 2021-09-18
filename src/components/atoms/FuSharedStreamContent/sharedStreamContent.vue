@@ -23,6 +23,7 @@
           push
           text-color="blue"
           :ripple="false"
+          class="m-shared__body__copyBtn"
           @click="copySharedLink"
         >
           <q-tooltip
@@ -30,7 +31,7 @@
             transition-show="rotate"
             transition-hide="rotate"
           >
-            <label class="m-shared__body__copyBtn">
+            <label class="m-shared__body__copyBtn__label">
               {{ toolTipMessage }}
             </label>
           </q-tooltip>

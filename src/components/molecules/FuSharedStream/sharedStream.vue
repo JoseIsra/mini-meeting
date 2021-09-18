@@ -4,6 +4,7 @@
       :sharedLink="sharedLink"
       :unCopyText="unCopyText"
       @copy-shared-link="copySharedLink"
+      @close-room-info-card="closeRoomInfoCard"
     />
   </section>
 </template>
@@ -11,6 +12,7 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
 import FuSharedStreamContent from 'atoms/FuSharedStreamContent';
+import { useToogleFunctions } from '@/composables';
 
 export default defineComponent({
   name: 'FuMRecording',
@@ -22,7 +24,7 @@ export default defineComponent({
   },
   setup() {
     let unCopyText = ref(false);
-
+    const { watchInfoRoomCard } = useToogleFunctions();
     const copySharedLink = (sharedLinkCopied: string) => {
       navigator.clipboard
         .writeText(sharedLinkCopied)
@@ -35,9 +37,15 @@ export default defineComponent({
         })
         .catch((err) => console.log(err));
     };
+
+    const closeRoomInfoCard = () => {
+      watchInfoRoomCard(false);
+    };
+
     return {
       copySharedLink,
       unCopyText,
+      closeRoomInfoCard,
     };
   },
 });

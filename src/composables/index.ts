@@ -8,6 +8,8 @@ interface FunctionState {
   handNotificationActive: boolean;
   handNotificationInfo: HandNotification[];
   selectedButtonID: string;
+  renderPopupMenu: boolean;
+  renderInfoRoomCard: boolean;
 }
 
 interface PerifericsState {
@@ -34,6 +36,8 @@ const functionState = {
   handNotificationActive: false,
   handNotificationInfo: [] as HandNotification[],
   selectedButtonID: '',
+  renderPopupMenu: false,
+  renderInfoRoomCard: false,
 };
 
 const perifericsState = {
@@ -82,6 +86,14 @@ export function useToogleFunctions() {
     functionsOnMenuBar.selectedButtonID = value;
   };
 
+  const openOptionsMenu = (value: boolean) => {
+    functionsOnMenuBar.renderPopupMenu = value;
+  };
+
+  const watchInfoRoomCard = (value: boolean) => {
+    functionsOnMenuBar.renderInfoRoomCard = value;
+  };
+
   return {
     functionsOnMenuBar,
     setShowChat,
@@ -93,6 +105,8 @@ export function useToogleFunctions() {
     setFullScreen,
     isFullScreen,
     setIDButtonSelected,
+    openOptionsMenu,
+    watchInfoRoomCard,
   };
 }
 

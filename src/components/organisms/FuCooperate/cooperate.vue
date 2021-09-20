@@ -1,6 +1,11 @@
 <template>
   <section class="o-cooperate" @mousemove="toogleMenuBar" @click.self="test">
     <fu-cooperate-header />
+    <fu-shared-stream
+      sharedLink="sharedLink"
+      v-show="functionsOnMenuBar.renderInfoRoomCard"
+    />
+    <fu-cooperate-user-video />
     <fu-cooperate-menu-bar
       v-show="showMenuBar"
       :toggleLocalCamera="toggleLocalCamera"
@@ -23,13 +28,13 @@
 import { defineComponent, ref, toRefs, onMounted } from 'vue';
 import FuCooperateMenuBar from 'organisms/FuCooperateMenuBar';
 import FuCooperateHeader from 'molecules/FuCooperateHeader';
-// import FuCooperateBody from 'molecules/FuCooperateBody';
 import FuCooperateUserVideo from 'atoms/FuCooperateUserVideo';
 import FuCooperateSideBar from 'molecules/FuCooperateSideBar';
 import FuHandNotification from 'atoms/FuHandNotification';
 import FuFullScreen from 'atoms/FuFullScreen';
 import _ from 'lodash';
 import { useSidebarToogle, useToogleFunctions } from '@/composables';
+import FuSharedStream from 'molecules/FuSharedStream';
 
 export default defineComponent({
   name: 'FuCooperate',
@@ -51,6 +56,7 @@ export default defineComponent({
     FuCooperateUserVideo,
     FuHandNotification,
     FuFullScreen,
+    FuSharedStream,
   },
   setup(props, { emit }) {
     onMounted(() => {

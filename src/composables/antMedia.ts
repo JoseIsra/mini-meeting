@@ -232,6 +232,7 @@ export function useInitWebRTC() {
             webRTCInstance.value.turnOffLocalCamera?.(streamId);
           }
           webRTCInstance.value.resetDesktop?.();
+          sendNotificationEvent('SCREEN_SHARING_OFF', streamId);
         } else if (info == 'ScreenShareStarted') {
           setVideoActivatedState(true);
         } else if (info == 'browser_screen_share_supported') {

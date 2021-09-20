@@ -10,6 +10,7 @@
     <fu-t-loading
       v-if="isLoadingOrError"
       :loadingMessage="loadingOrErrorMessage"
+      @handleLeaveCall="handleZoidLeaveCall"
     />
     <!-- TODO: Move This (Prev of recording) -->
     <video
@@ -24,7 +25,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, toRefs } from 'vue';
+import { defineComponent, toRefs, onMounted } from 'vue';
 import FuCooperate from 'organisms/FuCooperate';
 import { useRoute } from 'vue-router';
 import { useUserMe } from '@/composables/userMe';
@@ -188,29 +189,33 @@ export default defineComponent({
           },
         }
       );
+
       const res = await fetch(request);
 
       return {
         status: res.status,
-        body: (await res.json()) as Record<string, string>,
+        message: res.statusText,
+        body:
+          res.status === 200
+            ? ((await res.json()) as Record<string, string>)
+            : '',
       };
     };
 
-    if (roomId) {
-      checkRoom(roomId)
-        .then((res) => {
-          if (res.status === 200) {
-            setExistRoom(true);
-          } else if (res.status === 404) {
-            setLoadingOrErrorMessage('Meeting not found');
-          } else if (res.status === 403) {
-            setLoadingOrErrorMessage('Not allowed');
-          }
-        })
-        .catch((error) => console.log(error));
-    } else {
-      setLoadingOrErrorMessage('Please, provide a room id');
-    }
+    onMounted(async () => {
+      if (roomId) {        
+        const { status } = await checkRoom(roomId);
+        if (status === 200) {
+          setExistRoom(true);
+        } else if (status === 404) {
+          setLoadingOrErrorMessage('Cooperate not found');
+        } else {
+          setLoadingOrErrorMessage('Not Allowed');
+        }
+      } else {
+        setLoadingOrErrorMessage('Please, provide a room id');
+      }
+    });
 
     //TODO: Dont dissapear loading until the host accept the user. Needed to implement logic for that (dont publish neither play streams)
 
@@ -234,12 +239,18 @@ export default defineComponent({
       leaveRoom();
     }); */
 
+    const handleZoidLeaveCall = () => {
+      console.log('Leave call');
+      (window as ZoidWindow).xprops?.handleLeaveCall?.();
+    };
+
     return {
       fuCooperateMountedHandler,
       roomId,
       toggleLocalCamera,
       toggleLocalMic,
       toggleDesktopCapture,
+      handleZoidLeaveCall,
       ...toRefs(authState),
     };
   },

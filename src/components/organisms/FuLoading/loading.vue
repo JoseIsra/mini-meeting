@@ -12,15 +12,17 @@
         />
       </figure>
 
-      <div :style="{ 'font-size': '2vw', opacity: '0.3' }">
+      <div :style="{ 'font-size': '2vw', opacity: '0.3', margin: '12px 0' }">
         {{ loadingMessage }}
       </div>
+
+      <q-btn label="Regresar" @click="leaveCall" />
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, toRefs } from 'vue';
+import { defineComponent, toRefs } from 'vue';
 
 export default defineComponent({
   name: 'FuTLoading',
@@ -30,9 +32,12 @@ export default defineComponent({
       default: '',
     },
   },
-  setup(props) {
-    let message = ref('hello world');
-    return { ...toRefs(props), message };
+  setup(props, { emit }) {
+    const leaveCall = () => {
+      emit('handleLeaveCall');
+    };
+
+    return { ...toRefs(props), leaveCall };
   },
 });
 </script>

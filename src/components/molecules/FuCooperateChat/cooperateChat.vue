@@ -2,7 +2,7 @@
   <section class="m-chat">
     <header class="m-chat__title">
       <label class="m-chat__title__text">
-        <q-icon name="wechat" color="white" size="20px" />
+        <q-icon name="wechat" color="white" size="25px" />
         Chat público
       </label>
       <q-btn
@@ -175,6 +175,7 @@ import FuCooperateMenu from 'molecules/FuCooperateMenu';
 import { renameFile } from '@/utils/file';
 import backblazeService from '@/services/backblaze';
 const { uploadFileToBackblaze } = backblazeService;
+import { fetchApi } from '@/utils/api';
 
 interface HTMLInputEvent extends Event {
   target: HTMLInputElement & EventTarget;
@@ -191,7 +192,7 @@ export default defineComponent({
     const route = useRoute();
     let showChatMenu = ref<boolean>(false);
     const backBlazePathFile =
-      'https://f002.backblazeb2.com/file/cooperate/classroom/1/cooperate/chat';
+      'https://encrypted.fractalup.com/file/MainPublic/classroom/1/cooperate/chat';
     const messageContainer = ref<MessageContainer>({} as MessageContainer);
     let userInput = ref<string>('');
     const { userMessages, setUserMessage, deleteLoadingMessage } =
@@ -208,6 +209,7 @@ export default defineComponent({
         warningMessage('Complete los campos');
         return;
       }
+
       addTextMessage(userInput.value, new Date(), 'plainText');
     };
 
@@ -243,13 +245,21 @@ export default defineComponent({
       const fileName = fileInformation.name;
       const fileNameToBackblaze = `${new Date().getTime()}.${fileExtension}`;
       fileInformation = renameFile(fileInformation, fileNameToBackblaze);
-      reader.onload = function () {
-        console.log(fileInformation);
+      reader.onload = async function () {
+        const myQuery = `
+          query ChapterUpload {
+            chapterUpload(classroomId:1) {
+              authorizationToken
+              uploadUrl
+            }
+          }
+        `;
+        const apiObject = JSON.stringify({ query: myQuery });
+        const apiResponse = await fetchApi(apiObject);
+
         const b2Info = {
-          uploadUrl:
-            'https://pod-000-1162-00.backblaze.com/b2api/v2/b2_upload_file/668ef779b80de9b374bb0f1f/c002_v0001162_t0042',
-          authorizationToken:
-            '4_0026e798d934bff0000000001_019f036b_a56c37_upld_LTVLgRyeS39JRb41-HfbaV6jado=',
+          uploadUrl: apiResponse?.chapterUpload.uploadUrl,
+          authorizationToken: apiResponse?.chapterUpload.authorizationToken,
         };
         addTextMessage('empty', new Date(), 'empty'); // activa loader message
         uploadFileToBackblaze({

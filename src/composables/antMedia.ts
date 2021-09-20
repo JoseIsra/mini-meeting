@@ -7,11 +7,13 @@ import { useHandleParticipants } from '@/composables/participants';
 import { Message, useHandleMessage } from '@/composables/chat';
 import { useToogleFunctions } from '@/composables';
 import { ZoidWindow } from '@/types/zoid';
+import { useRoom } from '@/composables/room';
 const webRTCInstance = ref<WebRTCAdaptor>({} as WebRTCAdaptor);
 
 const { userMe, setScreenState, setVideoActivatedState } = useUserMe();
 const { setIsLoadingOrError, setLoadingOrErrorMessage, setExistRoom } =
   useAuthState();
+const { setRecorded } = useRoom();
 const {
   deleteParticipantById,
   participants,
@@ -422,6 +424,10 @@ export function useInitWebRTC() {
               if (user) {
                 user.isMicOn = false;
               }
+            } else if (notificationType == 'RECORDING_STARTED') {
+              setRecorded(true);
+            } else if (notificationType == 'RECORDING_STOPPED') {
+              setRecorded(false);
             }
           } else if (eventType === 'HAND') {
             addHandNotificationInfo(objParsed);

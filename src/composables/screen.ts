@@ -6,10 +6,7 @@ const screenMinimized = ref<boolean>(false);
 
 export const useScreen = () => {
   const updateScreenState = () => {
-    screenMinimized.value = !screenMinimized.value;
-    
-    console.log(screenMinimized.value);
-    
+    screenMinimized.value = !screenMinimized.value;    
     (window as ZoidWindow).xprops?.handleMinimize?.(screenMinimized.value);
   };
   return {

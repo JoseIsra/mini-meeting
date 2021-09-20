@@ -75,8 +75,8 @@ export const iconsFunctions = [
   },
   {
     id: '5',
-    onState: 'fas fa-compress-alt',
-    offState: 'fas fa-compress-alt',
+    onState: 'branding_watermark',
+    offState: 'branding_watermark',
     active: screenMinimized.value,
     toolTipMessage: 'Minimize',
     toolTipSecondMessage: 'Minimizar ventana',

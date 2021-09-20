@@ -12,16 +12,12 @@
   background-repeat: no-repeat;
 
   &__expand {
-    // border: 1px solid blue;
-
+    color: white;
+    cursor: pointer;
+    left: 10px;
+    opacity: 0.2;
     position: absolute;
     top: 10px;
-    left: 10px;
-
-    color: white;
-
-    opacity: 0.2;
-
     transition: 0.3s;
 
     &:hover {

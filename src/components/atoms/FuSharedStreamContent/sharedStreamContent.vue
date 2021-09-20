@@ -2,7 +2,14 @@
   <section class="m-shared">
     <header class="m-shared__head">
       <h4 class="m-shared__head__message">Sala creada</h4>
-      <q-btn icon="close" round flat dense @click="closeInfoRoomCard" />
+      <q-btn
+        icon="close"
+        color="white"
+        round
+        flat
+        dense
+        @click="closeInfoRoomCard"
+      />
     </header>
     <main class="m-shared__body">
       <p class="m-shared__body__message">
@@ -13,14 +20,14 @@
         <input
           ref="inputtarget"
           readonly
-          v-model="sharedLinkOnInput"
+          :value="sharedLinkOnInput"
           class="m-shared__body__input"
-          :class="{ copied: unCopyText }"
         />
         <q-btn
           icon="content_copy"
           round
           push
+          color="white"
           text-color="blue"
           :ripple="false"
           class="m-shared__body__copyBtn"
@@ -62,7 +69,7 @@ export default defineComponent({
     });
 
     const copySharedLink = () => {
-      emit('copy-shared-link', sharedLinkOnInput);
+      emit('copy-shared-link', sharedLinkOnInput.value);
     };
     const closeInfoRoomCard = () => {
       emit('close-room-info-card');

@@ -139,11 +139,14 @@ import {
 } from '@/helpers/iconsMenuBar';
 import FuCooperateMenu from 'molecules/FuCooperateMenu';
 import { Icons, Periferics, Functionalities } from '@/types';
+
 import { useToogleFunctions, useSidebarToogle } from '@/composables';
 import { useUserMe } from '@/composables/userMe';
 import { nanoid } from 'nanoid';
 import FuCooperateNetworkInfo from 'molecules/FuCooperateNetworkInfo';
+
 import { useInitWebRTC } from '@/composables/antMedia';
+import { useScreen } from '@/composables/screen';
 
 export default defineComponent({
   name: 'FuCooperateMenuBar',
@@ -180,6 +183,7 @@ export default defineComponent({
       SHARENOTES: () => toogleShareNotes(),
       USERLIST: () => toggleUsersList(),
       CONNECTION: () => toggleConnectionModal(),
+      MINIMIZE: () => minimizeScreen(),
     });
 
     let isActions = ref<boolean>(false);
@@ -308,6 +312,10 @@ export default defineComponent({
     const toggleConnectionModal = () => {
       openNetworkConfig.value = !openNetworkConfig.value;
     };
+
+    const { updateScreenState } = useScreen();
+
+    const minimizeScreen = () => updateScreenState();
 
     const handleMenuPosition = (ubication?: string) => {
       if (ubication == 'actions') {

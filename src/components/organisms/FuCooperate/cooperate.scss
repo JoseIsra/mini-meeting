@@ -10,6 +10,24 @@
   background-size: 70vw;
   background-position: 62% center;
   background-repeat: no-repeat;
+
+  &__expand {
+    // border: 1px solid blue;
+
+    position: absolute;
+    top: 10px;
+    left: 10px;
+
+    color: white;
+
+    opacity: 0.2;
+
+    transition: 0.3s;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
 }
 
 .slide-enter-from {

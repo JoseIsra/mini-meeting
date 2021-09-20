@@ -2,7 +2,7 @@
   <section class="m-chat">
     <header class="m-chat__title">
       <label class="m-chat__title__text">
-        <q-icon name="wechat" color="white" size="20px" />
+        <q-icon name="wechat" color="white" size="25px" />
         Chat público
       </label>
       <q-btn

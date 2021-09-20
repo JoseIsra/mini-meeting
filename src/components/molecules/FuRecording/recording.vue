@@ -2,9 +2,16 @@
   <div>
     <q-btn
       v-if="!isRecording"
+      :disable="roomState.isBeingRecorded"
       color="primary"
       icon="fas fa-record-vinyl"
-      :label="isLoading ? 'Cargando...' : 'Iniciar Grabación'"
+      :label="
+        roomState.isBeingRecorded
+          ? 'La reunión está siendo grabada'
+          : isLoading
+          ? 'Cargando...'
+          : 'Iniciar Grabación'
+      "
       @click="startRecording"
     />
     <q-btn
@@ -20,6 +27,8 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
 import { useInitMerge } from '@/composables/antMediaMerge';
+import { useInitWebRTC } from '@/composables/antMedia';
+import { useUserMe } from '@/composables/userMe';
 import { useRoom } from '@/composables/room';
 import { ZoidWindow } from '@/types/zoid';
 
@@ -31,6 +40,8 @@ export default defineComponent({
     const secondsElapsed = ref(0);
     const isRecording = ref<boolean>(false);
     const { createMergeInstance, stopMerge } = useInitMerge();
+    const { sendNotificationEvent } = useInitWebRTC();
+    const { userMe } = useUserMe();
     const { roomState } = useRoom();
     const isLoading = ref(false);
 
@@ -51,6 +62,7 @@ export default defineComponent({
 
       mergedName.value = `m-r-${roomState.id}-${timestamp}`;
 
+      sendNotificationEvent('RECORDING_STARTED', userMe.id);
       createMergeInstance(roomState.id, mergedName.value, mergedName.value)
         .then(() => {
           isLoading.value = false;
@@ -69,6 +81,7 @@ export default defineComponent({
       (window as ZoidWindow).xprops?.handleStopRecording?.(
         `https://f002.backblazeb2.com/file/antmedia/${mergedName.value}.m3u8`
       );
+      sendNotificationEvent('RECORDING_STOPPED', userMe.id);
     };
 
     return {
@@ -77,6 +90,7 @@ export default defineComponent({
       stopRecording,
       recordTime,
       isLoading,
+      roomState,
     };
   },
 });

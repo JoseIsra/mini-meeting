@@ -7,11 +7,13 @@ import { useHandleParticipants } from '@/composables/participants';
 import { Message, useHandleMessage } from '@/composables/chat';
 import { useToogleFunctions } from '@/composables';
 import { ZoidWindow } from '@/types/zoid';
+import { useRoom } from '@/composables/room';
 const webRTCInstance = ref<WebRTCAdaptor>({} as WebRTCAdaptor);
 
 const { userMe, setScreenState, setVideoActivatedState } = useUserMe();
 const { setIsLoadingOrError, setLoadingOrErrorMessage, setExistRoom } =
   useAuthState();
+const { setRecorded } = useRoom();
 const {
   deleteParticipantById,
   participants,
@@ -422,6 +424,10 @@ export function useInitWebRTC() {
               if (user) {
                 user.isMicOn = false;
               }
+            } else if (notificationType == 'RECORDING_STARTED') {
+              setRecorded(true);
+            } else if (notificationType == 'RECORDING_STOPPED') {
+              setRecorded(false);
             }
           } else if (eventType === 'HAND') {
             addHandNotificationInfo(objParsed);
@@ -584,10 +590,16 @@ export function useInitWebRTC() {
         } else if (error.indexOf('UnsecureContext') != -1) {
           errorMessage =
             'Fatal Error: Browser cannot access camera and mic because of unsecure context. Please install SSL and access via https';
+          setExistRoom(false);
+          setLoadingOrErrorMessage(errorMessage);
         } else if (error.indexOf('WebSocketNotSupported') != -1) {
           errorMessage = 'Fatal Error: WebSocket not supported in this browser';
+          setExistRoom(false);
+          setLoadingOrErrorMessage(errorMessage);
         } else if (error.indexOf('no_stream_exist') != -1) {
           //TODO: removeRemoteVideo(error.streamId);
+          setExistRoom(false);
+          setLoadingOrErrorMessage(errorMessage);
         } else if (error.indexOf('data_channel_error') != -1) {
           errorMessage = 'There was a error during data channel communication';
         } else if (error.indexOf('ScreenSharePermissionDenied') != -1) {
@@ -600,11 +612,7 @@ export function useInitWebRTC() {
           webRTCInstance.value.resetDesktop?.();
         }
 
-        setExistRoom(false);
-
-        setLoadingOrErrorMessage(errorMessage);
-
-        console.log(errorMessage);
+        console.log(errorMessage, '#️⃣');
         //alert(errorMessage);
       },
     });

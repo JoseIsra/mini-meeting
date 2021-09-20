@@ -11,7 +11,7 @@ const { userMe, setScreenState, setVideoActivatedState } = useUserMe();
 
 const roomIdState = ref<string>('');
 
-const roomTimerId = ref<ReturnType<typeof setInterval> | null>(null);
+const roomTimerId = ref<NodeJS.Timeout | null>(null);
 
 const streamsList = ref([] as string[]);
 
@@ -205,7 +205,7 @@ export function useInitMerge() {
             const room = obj.ATTR_ROOM_NAME;
             console.debug('leaved from the room:' + room);
             if (roomTimerId.value != null) {
-              clearInterval(roomTimerId.value);
+              clearInterval(roomTimerId.value as NodeJS.Timeout);
             }
           } else if (info == 'closed') {
             if (typeof obj != 'undefined') {
@@ -273,7 +273,7 @@ export function useInitMerge() {
             error.indexOf('publishTimeoutError') != -1 &&
             roomTimerId.value != null
           ) {
-            clearInterval(roomTimerId.value);
+            clearInterval(roomTimerId.value as NodeJS.Timeout);
           }
 
           console.log('error callback: ' + JSON.stringify(error));

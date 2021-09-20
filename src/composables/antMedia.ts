@@ -237,7 +237,7 @@ export function useInitWebRTC() {
           const room = obj.ATTR_ROOM_NAME;
           console.debug('leaved from the room:' + room);
           if (roomTimerId.value != null) {
-            clearInterval(roomTimerId.value);
+            clearInterval(roomTimerId.value as NodeJS.Timeout);
           }
 
           //TODO: este es el error por el que sale streamid que ya se está escuchando
@@ -545,7 +545,7 @@ export function useInitWebRTC() {
           error.indexOf('publishTimeoutError') != -1 &&
           roomTimerId.value != null
         ) {
-          clearInterval(roomTimerId.value);
+          clearInterval(roomTimerId.value as NodeJS.Timeout);
         }
 
         console.log('error callback: ' + JSON.stringify(error));

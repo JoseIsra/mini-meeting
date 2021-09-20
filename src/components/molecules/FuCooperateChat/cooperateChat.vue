@@ -175,6 +175,7 @@ import FuCooperateMenu from 'molecules/FuCooperateMenu';
 import { renameFile } from '@/utils/file';
 import backblazeService from '@/services/backblaze';
 const { uploadFileToBackblaze } = backblazeService;
+import { fetchApi } from '@/utils/api';
 
 interface HTMLInputEvent extends Event {
   target: HTMLInputElement & EventTarget;
@@ -191,7 +192,7 @@ export default defineComponent({
     const route = useRoute();
     let showChatMenu = ref<boolean>(false);
     const backBlazePathFile =
-      'https://f002.backblazeb2.com/file/cooperate/classroom/1/cooperate/chat';
+      'https://encrypted.fractalup.com/file/MainPublic/classroom/1/cooperate/chat';
     const messageContainer = ref<MessageContainer>({} as MessageContainer);
     let userInput = ref<string>('');
     const { userMessages, setUserMessage, deleteLoadingMessage } =
@@ -208,6 +209,7 @@ export default defineComponent({
         warningMessage('Complete los campos');
         return;
       }
+
       addTextMessage(userInput.value, new Date(), 'plainText');
     };
 
@@ -243,13 +245,21 @@ export default defineComponent({
       const fileName = fileInformation.name;
       const fileNameToBackblaze = `${new Date().getTime()}.${fileExtension}`;
       fileInformation = renameFile(fileInformation, fileNameToBackblaze);
-      reader.onload = function () {
-        console.log(fileInformation);
+      reader.onload = async function () {
+        const myQuery = `
+          query ChapterUpload {
+            chapterUpload(classroomId:1) {
+              authorizationToken
+              uploadUrl
+            }
+          }
+        `;
+        const apiObject = JSON.stringify({ query: myQuery });
+        const apiResponse = await fetchApi(apiObject);
+
         const b2Info = {
-          uploadUrl:
-            'https://pod-000-1164-03.backblaze.com/b2api/v2/b2_upload_file/668ef779b80de9b374bb0f1f/c002_v0001164_t0056',
-          authorizationToken:
-            '4_0026e798d934bff0000000001_019f09f0_4afa0a_upld__UN0CUQ6V8hEiA4TALUzS2YhiOI=',
+          uploadUrl: apiResponse?.chapterUpload.uploadUrl,
+          authorizationToken: apiResponse?.chapterUpload.authorizationToken,
         };
         addTextMessage('empty', new Date(), 'empty'); // activa loader message
         uploadFileToBackblaze({

@@ -1,13 +1,20 @@
 <template>
   <section class="o-cooperate" @mousemove="toogleMenuBar" @click.self="test">
-    <fu-cooperate-header />
+    <q-icon
+      name="fas fa-expand-alt"
+      size="24px"
+      class="o-cooperate__expand"
+      @click="updateScreenState"
+      v-show="screenMinimized"
+    />
+    <fu-cooperate-header v-show="!screenMinimized" />
     <fu-shared-stream
       sharedLink="sharedLink"
       v-show="functionsOnMenuBar.renderInfoRoomCard"
     />
     <fu-cooperate-user-video />
     <fu-cooperate-menu-bar
-      v-show="showMenuBar"
+      v-show="showMenuBar && !screenMinimized"
       :toggleLocalCamera="toggleLocalCamera"
       :toggleLocalMic="toggleLocalMic"
       :toggleDesktopCapture="toggleDesktopCapture"
@@ -34,6 +41,7 @@ import FuHandNotification from 'atoms/FuHandNotification';
 import FuFullScreen from 'atoms/FuFullScreen';
 import _ from 'lodash';
 import { useSidebarToogle, useToogleFunctions } from '@/composables';
+import { useScreen } from '@/composables/screen';
 import FuSharedStream from 'molecules/FuSharedStream';
 
 export default defineComponent({
@@ -67,6 +75,9 @@ export default defineComponent({
     let { isSidebarRender, setSidebarState } = useSidebarToogle();
     const { functionsOnMenuBar, isFullScreen, setIDButtonSelected } =
       useToogleFunctions();
+
+    const { screenMinimized, updateScreenState } = useScreen();
+
     const hideMenuBar = _.debounce(() => {
       showMenuBar.value = false;
     }, 6000);
@@ -90,6 +101,8 @@ export default defineComponent({
       functionsOnMenuBar,
       isFullScreen,
       test,
+      screenMinimized,
+      updateScreenState,
     };
   },
 });

@@ -1,6 +1,9 @@
+import { useScreen } from '@/composables/screen';
 import { useUserMe } from '@/composables/userMe';
 
 const { userMe } = useUserMe();
+
+const { screenMinimized } = useScreen();
 
 enum interactionType {
   CHAT = 'CHAT',
@@ -11,6 +14,7 @@ enum interactionType {
   CONNECTION = 'CONNECTION',
   WEBCAM = 'WEBCAM',
   MIC = 'MIC',
+  MINIMIZE= 'MINIMIZE'
 }
 export const iconsPeriferics = [
   {
@@ -68,6 +72,15 @@ export const iconsFunctions = [
     toolTipMessage: 'Chat',
     toolTipSecondMessage: 'Ocultar chat',
     interaction: interactionType.CHAT,
+  },
+  {
+    id: '5',
+    onState: 'branding_watermark',
+    offState: 'branding_watermark',
+    active: screenMinimized.value,
+    toolTipMessage: 'Minimize',
+    toolTipSecondMessage: 'Minimizar ventana',
+    interaction: interactionType.MINIMIZE,
   },
   /* {
     id: '5',

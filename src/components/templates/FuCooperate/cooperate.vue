@@ -181,7 +181,7 @@ export default defineComponent({
 
     const checkRoom = async (roomId: string) => {
       const request = new Request(
-        `https://dialguiba.tech/WebRTCAppEE/rest/v2/broadcasts/conference-rooms/${roomId}`,
+        `https://${process.env.ANTMEDIA_SERVER}/${process.env.ANTMEDIA_APP}/rest/v2/broadcasts/conference-rooms/${roomId}`,
         {
           headers: {
             Authorization:

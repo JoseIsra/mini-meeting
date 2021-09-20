@@ -97,7 +97,7 @@ export function useInitMerge() {
     new Promise((resolve, reject) => {
       roomIdState.value = roomId;
 
-      const websocketURL = 'wss://dialguiba.tech/WebRTCAppEE/websocket';
+      const websocketURL = `wss://${process.env.ANTMEDIA_SERVER}/${process.env.ANTMEDIA_APP}/websocket`;
 
       console.log(publishToken, subscriberId, subscriberCode);
 

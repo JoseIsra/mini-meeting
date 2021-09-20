@@ -10,7 +10,8 @@ import { ZoidWindow } from '@/types/zoid';
 const webRTCInstance = ref<WebRTCAdaptor>({} as WebRTCAdaptor);
 
 const { userMe, setScreenState, setVideoActivatedState } = useUserMe();
-const { setIsLoadingOrError, setLoadingOrErrorMessage, setExistRoom } = useAuthState();
+const { setIsLoadingOrError, setLoadingOrErrorMessage, setExistRoom } =
+  useAuthState();
 const {
   deleteParticipantById,
   participants,
@@ -118,7 +119,7 @@ export function useInitWebRTC() {
     subscriberId?: string,
     subscriberCode?: string
   ) => {
-    const websocketURL = 'wss://dialguiba.tech/WebRTCAppEE/websocket';
+    const websocketURL = `wss://${process.env.ANTMEDIA_SERVER}/${process.env.ANTMEDIA_APP}/websocket`;
 
     const mediaConstraints = {
       video: true,

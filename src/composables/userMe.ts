@@ -8,6 +8,7 @@ export interface User {
   isMicOn: boolean;
   isScreenSharing: boolean;
   isVideoActivated: boolean;
+  roleId: number;
 }
 
 const userState = {} as User;

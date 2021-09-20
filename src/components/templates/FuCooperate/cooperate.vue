@@ -84,6 +84,8 @@ export default defineComponent({
       (route.query.roomId as string) ||
       '';
 
+    const roleId = (window as ZoidWindow)?.xprops?.roleId || 0;
+
     setUserMe({
       id: streamId,
       name: streamName,
@@ -92,6 +94,7 @@ export default defineComponent({
       isMicOn: true,
       isScreenSharing: false,
       isVideoActivated: false,
+      roleId: roleId,
     });
 
     setRoom({

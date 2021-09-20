@@ -107,7 +107,7 @@
           </q-tooltip>
         </q-btn>
         <fu-cooperate-menu
-          v-show="renderMenu"
+          v-show="functionsOnMenuBar.renderPopupMenu"
           class="a-menuBar__options__menu"
           :isActions="isActions"
           :isOptions="isOptions"
@@ -119,7 +119,7 @@
       <fu-cooperate-network-info v-show="openNetworkConfig" />
       <fu-cooperate-menu
         class="a-menuBar__responsiveOptions"
-        v-show="renderMenu"
+        v-show="functionsOnMenuBar.renderPopupMenu"
         :isActions="isActions"
         :isOptions="isOptions"
         :renderFunctions="false"
@@ -188,7 +188,6 @@ export default defineComponent({
 
     let isActions = ref<boolean>(false);
     let isOptions = ref<boolean>(false);
-    let renderMenu = ref<boolean>(false);
     let renderFunctionResponsiveMenu = ref<boolean>(false);
     let actionSelectionID = ref<string>('');
     let {
@@ -199,6 +198,7 @@ export default defineComponent({
       addHandNotificationInfo,
       removeHandNotification,
       setIDButtonSelected,
+      openOptionsMenu,
     } = useToogleFunctions();
     let { isSidebarRender, setSidebarState } = useSidebarToogle();
     const {
@@ -325,7 +325,7 @@ export default defineComponent({
         isActions.value = false;
         isOptions.value = true;
       }
-      renderMenu.value = !renderMenu.value;
+      openOptionsMenu(!functionsOnMenuBar.renderPopupMenu);
     };
 
     const handleFunctionSelected = (interaction?: string, ID?: string) => {
@@ -349,7 +349,6 @@ export default defineComponent({
       options,
       handleMenuPosition,
       isActions,
-      renderMenu,
       handleFunctionSelected,
       actionSelectionID,
       tooglePeriferic,

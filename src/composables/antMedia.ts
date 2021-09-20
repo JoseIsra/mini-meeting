@@ -10,7 +10,7 @@ import { ZoidWindow } from '@/types/zoid';
 const webRTCInstance = ref<WebRTCAdaptor>({} as WebRTCAdaptor);
 
 const { userMe, setScreenState, setVideoActivatedState } = useUserMe();
-const { setIsLoadingOrError } = useAuthState();
+const { setIsLoadingOrError, setLoadingOrErrorMessage, setExistRoom } = useAuthState();
 const {
   deleteParticipantById,
   participants,
@@ -549,11 +549,15 @@ export function useInitWebRTC() {
         }
 
         console.log('error callback: ' + JSON.stringify(error));
+
         let errorMessage = JSON.stringify(error);
+
         if (typeof message != 'undefined') {
           errorMessage = message;
         }
+
         errorMessage = JSON.stringify(error);
+
         if (error.indexOf('NotFoundError') != -1) {
           errorMessage =
             'Camera or Mic are not found or not allowed in your device.';
@@ -594,6 +598,11 @@ export function useInitWebRTC() {
           webRTCInstance.value.turnOffLocalCamera?.(streamId);
           webRTCInstance.value.resetDesktop?.();
         }
+
+        setExistRoom(false);
+
+        setLoadingOrErrorMessage(errorMessage);
+
         console.log(errorMessage);
         //alert(errorMessage);
       },

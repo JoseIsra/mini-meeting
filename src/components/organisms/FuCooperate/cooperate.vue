@@ -2,7 +2,7 @@
   <section class="o-cooperate" @mousemove="toogleMenuBar" @click.self="test">
     <q-icon
       name="fas fa-expand-alt"
-      size="36px"
+      size="24px"
       class="o-cooperate__expand"
       @click="updateScreenState"
       v-show="screenMinimized"

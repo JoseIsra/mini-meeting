@@ -9,8 +9,7 @@ interface ZoidProps {
   handleLeaveCall?: () => void;
   handleEndCall?: () => void;
   handleStopRecording?: (urlOfRecording: string) => void;
-  handleMinimize?: (isMinimize: boolean) => void;
-
+  toggleMinimize?: (isMinimize: boolean) => void;
 }
 
 export interface ZoidWindow extends Window {

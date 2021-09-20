@@ -332,7 +332,7 @@ export function useInitMerge() {
     });
 
   const stopMerge = () => {
-    webRTCInstaceForMerge.value.leaveFromRoom(roomIdState.value);
+    //webRTCInstaceForMerge.value.leaveFromRoom(roomIdState.value);
     merger.stop();
   };
 

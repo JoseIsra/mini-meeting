@@ -203,7 +203,7 @@ export default defineComponent({
     };
 
     onMounted(async () => {
-      if (roomId) {        
+      if (roomId) {
         const { status } = await checkRoom(roomId);
         if (status === 200) {
           setExistRoom(true);
@@ -239,10 +239,8 @@ export default defineComponent({
       leaveRoom();
     }); */
 
-    const handleZoidLeaveCall = () => {
-      console.log('Leave call');
+    const handleZoidLeaveCall = () =>
       (window as ZoidWindow).xprops?.handleLeaveCall?.();
-    };
 
     return {
       fuCooperateMountedHandler,

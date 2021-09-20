@@ -33,9 +33,7 @@ export default defineComponent({
     },
   },
   setup(props, { emit }) {
-    const leaveCall = () => {
-      emit('handleLeaveCall');
-    };
+    const leaveCall = () => emit('handleLeaveCall');
 
     return { ...toRefs(props), leaveCall };
   },

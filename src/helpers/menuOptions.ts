@@ -20,6 +20,7 @@ enum interactionType {
   SAVECHAT = 'SAVECHAT',
   CLEARCHAT = 'CLEARCHAT',
   COPYCHAT = 'COPYCHAT',
+  ROOMDETAILS = 'ROOMDETAILS',
 }
 
 export const menuActions = [
@@ -70,12 +71,14 @@ export const menuOptions = {
       description: 'Abrir configuración',
       important: false,
     },
+   */
     {
       id: '3',
       iconName: 'info',
       description: 'Detalles de la reunión',
       important: false,
-    }, */
+      interaction: interactionType.ROOMDETAILS,
+    },
   ],
   secondSection: [
     /* {

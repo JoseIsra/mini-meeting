@@ -265,7 +265,6 @@ export default defineComponent({
 
     const toogleShareNotes = () => {
       if (!isSidebarRender.value) {
-        console.log('notes');
         setSidebarState(true);
         setShowNotes(true);
         setShowChat(false);
@@ -282,7 +281,6 @@ export default defineComponent({
 
     const toggleUsersList = () => {
       if (!isSidebarRender.value) {
-        console.log('userslitst');
         setSidebarState(true);
         setShowUsersList(true);
         setShowNotes(false);

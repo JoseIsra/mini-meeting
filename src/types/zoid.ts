@@ -7,6 +7,7 @@ interface ZoidProps {
   playToken?: string;
   photoURL?: string;
   handleLeaveCall?: (arg: number) => void;
+  sharedLink?: string;
   handleEndCall?: () => void;
   handleStopRecording?: (urlOfRecording: string) => void;
   toggleMinimize?: (isMinimize: boolean) => void;

@@ -17,7 +17,7 @@
         {{ loadingMessage }}
       </div>
 
-      <q-btn label="Regresar" @click="leaveCall" />
+      <q-btn v-if="loadingMessage !== ''" label="Regresar" @click="leaveCall" />
     </div>
   </div>
 </template>

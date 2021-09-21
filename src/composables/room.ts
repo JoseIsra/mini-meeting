@@ -3,6 +3,7 @@ import { reactive } from 'vue';
 export interface Room {
   id: string;
   isBeingRecorded?: boolean;
+  sharingLink?: string;
 }
 
 const roomState = reactive<Room>({} as Room);

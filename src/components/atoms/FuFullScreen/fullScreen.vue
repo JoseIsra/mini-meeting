@@ -38,7 +38,7 @@
 import { defineComponent, onMounted, ref } from 'vue';
 import { useToogleFunctions } from '@/composables';
 import { useUserMe } from '@/composables/userMe';
-import { useInitWebRTC } from '@/composables/antMedia';
+/* import { useInitWebRTC } from '@/composables/antMedia'; */
 
 export default defineComponent({
   name: 'FuFullScreen',

@@ -84,9 +84,7 @@ export default defineComponent({
       openOptionsMenu,
       openFunctionResponsiveMenu,
     } = useToogleFunctions();
-
     const { roomState } = useRoom();
-
     const { screenMinimized, updateScreenState } = useScreen();
 
     const hideMenuBar = _.debounce(() => {

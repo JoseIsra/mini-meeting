@@ -103,6 +103,7 @@ export interface WebRTCAdaptorType {
   ) => void;
   resetDesktop?: () => void;
   gotStream?: (stream: MediaStream) => void;
+  getLocalStream?: () => MediaStream;
 }
 
 export interface dataType {

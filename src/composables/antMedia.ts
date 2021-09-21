@@ -10,7 +10,8 @@ import { ZoidWindow } from '@/types/zoid';
 import { useRoom } from '@/composables/room';
 const webRTCInstance = ref<WebRTCAdaptor>({} as WebRTCAdaptor);
 
-const { userMe, setScreenState, setVideoActivatedState } = useUserMe();
+const { userMe, setScreenState, setVideoActivatedState, updateUserMe } =
+  useUserMe();
 const { setIsLoadingOrError, setLoadingOrErrorMessage, setExistRoom } =
   useAuthState();
 const { setRecorded } = useRoom();
@@ -146,7 +147,6 @@ export function useInitWebRTC() {
       mediaConstraints: mediaConstraints,
       peerconnection_config: pc_config,
       sdp_constraints: sdpConstraints,
-      localVideoId: 'localVideo',
       isPlayMode: false,
       debug: true,
       dataChannelEnabled: true,
@@ -160,6 +160,11 @@ export function useInitWebRTC() {
           if (!userMe.isCameraOn) {
             webRTCInstance.value.turnOffLocalCamera?.(streamId);
           }
+
+          const localStream = webRTCInstance.value.getLocalStream?.();
+
+          updateUserMe({ stream: localStream });
+
           joinRoom(roomId, streamId);
         } else if (info == 'joinedTheRoom') {
           window.addEventListener('unload', () => {
@@ -690,10 +695,6 @@ export function useInitWebRTC() {
     webRTCInstance.value.justTurnOnLocalCamera?.(streamId);
   };
 
-  const metodoDePrueba = (): MediaStream => {
-    return webRTCInstance.value.metodoDePrueba?.() as MediaStream;
-  };
-
   return {
     createInstance,
     sendData,
@@ -707,6 +708,5 @@ export function useInitWebRTC() {
     muteLocalMic,
     sendNotificationEvent,
     justTurnOnLocalCamera,
-    metodoDePrueba,
   };
 }

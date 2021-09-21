@@ -32,7 +32,7 @@ class ReceivingMessage {
   }
 }
 
-export class WebRTCAdaptor implements WebRTCAdaptorType {
+export class WebRTCAdaptor {
   constructor(initialValues: WebRTCInitialValues) {
     this.peerconnection_config = null;
     this.sdp_constraints = null;
@@ -119,7 +119,7 @@ export class WebRTCAdaptor implements WebRTCAdaptorType {
       }
     }
 
-    this.localVideo = document.getElementById(this.localVideoId);
+    //this.localVideo = document.getElementById(this.localVideoId);
     this.remoteVideo = document.getElementById(this.remoteVideoId);
 
     //A dummy stream created to replace the tracks when camera is turned off.
@@ -910,7 +910,7 @@ export class WebRTCAdaptor implements WebRTCAdaptorType {
 
     /** If you want to stream without override your stream */
     if (this.localVideo) {
-      this.localVideo.srcObject = stream;
+      this.localVideo = stream;
     }
 
     this.checkWebSocketConnection();
@@ -919,7 +919,11 @@ export class WebRTCAdaptor implements WebRTCAdaptorType {
   metodoDePrueba() {
     //TODO: POR REFACTORIZAR
     console.log('metodo de prueba');
-    return this.localVideo.srcObject;
+    return this.localVideo;
+  }
+  getLocalStream(): MediaStream {
+    //TODO: POR REFACTORIZAR
+    return this.localStream as MediaStream;
   }
   /**
    * Toggle video track on the server side.
@@ -1166,7 +1170,7 @@ export class WebRTCAdaptor implements WebRTCAdaptorType {
 
     if (this.localVideo != null) {
       //it can be null
-      this.localVideo.srcObject = this.localStream;
+      this.localVideo = this.localStream;
     }
 
     if (onEndedCallback != null) {
@@ -1202,7 +1206,7 @@ export class WebRTCAdaptor implements WebRTCAdaptorType {
     }
 
     if (this.localVideo) {
-      this.localVideo.srcObject = this.localStream;
+      this.localVideo = this.localStream;
     }
 
     if (onEndedCallback != null) {

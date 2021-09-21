@@ -69,7 +69,11 @@
           v-show="isAdmininistrator"
         >
           <q-btn
-            icon="fas fa-microphone-alt-slash"
+            :icon="
+              hasActionsBlocked(participant)
+                ? 'fas fa-microphone'
+                : 'fas fa-microphone-slash'
+            "
             @click="handlePartipantActions(participant)"
           />
           <!-- <q-btn
@@ -115,8 +119,6 @@ export default defineComponent({
           participant?.isScreenShareBlocked === false
       )
     );
-
-    console.log(isEveryoneBlocked);
 
     const hasActionsBlocked = (participant: Participant) => {
       const participantActions = participants.value.find(

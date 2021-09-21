@@ -106,7 +106,7 @@ export default defineComponent({
         rtmpUrl.slice(0, -1);
       }
       const rtmpRequest = new Request(
-        `https://dialguiba.tech/WebRTCAppEE/rest/v2/broadcasts/${userMe.id}/rtmp-endpoint`,
+        `https://${process.env.ANTMEDIA_SERVER}/${process.env.ANTMEDIA_APP}/rest/v2/broadcasts/${userMe.id}/rtmp-endpoint`,
         {
           method: 'POST',
           headers: {
@@ -135,7 +135,7 @@ export default defineComponent({
         rtmpUrl.slice(0, -1);
       }
       const rtmpRequest = new Request(
-        `https://dialguiba.tech/WebRTCAppEE/rest/v2/broadcasts/${userMe.id}/rtmp-endpoint`,
+        `https://${process.env.ANTMEDIA_SERVER}/${process.env.ANTMEDIA_APP}/rest/v2/broadcasts/${userMe.id}/rtmp-endpoint`,
         {
           method: 'DELETE',
           headers: {

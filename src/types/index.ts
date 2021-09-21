@@ -124,4 +124,5 @@ export interface Functionalities {
   SHARENOTES?: () => void;
   USERLIST?: () => void;
   CONNECTION?: () => void;
+  MINIMIZE?: () => void;
 }

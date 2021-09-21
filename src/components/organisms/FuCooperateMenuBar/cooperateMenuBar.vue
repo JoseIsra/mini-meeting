@@ -42,30 +42,47 @@
                   ? icon.id == functionsOnMenuBar.selectedButtonID
                   : userMe.isScreenSharing,
             },
+            {
+              activeHand:
+                handNotificationActive && icon.interaction == 'HANDUP',
+            },
           ]"
           :key="icon.id"
           :icon="icon.onState"
           size="14px"
           :disabled="icon.id === '1' && userMe.isCameraOn"
-          @click="
-            icon.active = !icon.active;
-            handleFunctionSelected(icon.interaction, icon.id);
+          v-on="
+            icon.behaviour == 'ESPECIAL'
+              ? { click: () => handleEspecialBehaviour(icon.interaction) }
+              : {
+                  click: () =>
+                    handleFunctionSelected(icon.interaction, icon.id),
+                }
           "
         >
-          <q-tooltip
-            class="bg-grey-10"
-            v-if="icon.id !== functionsOnMenuBar.selectedButtonID"
-          >
-            <label class="a-menuBar__icon__tooltip">
+          <q-tooltip class="bg-grey-10" v-if="icon.behaviour == 'NORMAL'">
+            <label
+              class="a-menuBar__icon__tooltip"
+              v-if="icon.id !== functionsOnMenuBar.selectedButtonID"
+            >
               {{ icon.toolTipMessage }}
             </label>
-          </q-tooltip>
-          <q-tooltip
-            class="bg-grey-10"
-            v-if="icon.id == functionsOnMenuBar.selectedButtonID"
-          >
-            <label class="a-menuBar__icon__tooltip">
+            <label v-else class="a-menuBar__icon__tooltip">
               {{ icon.toolTipSecondMessage }}
+            </label>
+          </q-tooltip>
+          <q-tooltip class="bg-grey-10" v-if="icon.behaviour == 'ESPECIAL'">
+            <label
+              class="a-menuBar__icon__tooltip"
+              v-if="functionsOnMenuBar.handNotificationInfo.length > 0"
+            >
+              {{ icon.toolTipSecondMessage }}
+            </label>
+            <label
+              class="a-menuBar__icon__tooltip"
+              v-if="functionsOnMenuBar.handNotificationInfo.length == 0"
+            >
+              {{ icon.toolTipMessage }}
             </label>
           </q-tooltip>
         </q-btn>
@@ -204,6 +221,8 @@ export default defineComponent({
       setScreenState,
       setVideoActivatedState,
     } = useUserMe();
+    let handNotificationActive = ref(false);
+
     //**********************++FUNCIONES ********************** */
     const toogleChat = () => {
       if (!isSidebarRender.value) {
@@ -286,11 +305,12 @@ export default defineComponent({
         )
       ) {
         const downHand = { ...riseHand, eventType: 'NOHAND' };
-
         sendData(userMe.id, downHand);
+        handNotificationActive.value = false;
         removeHandNotification(downHand.streamId);
         return;
       }
+      handNotificationActive.value = true;
       sendData(userMe.id, riseHand);
       addHandNotificationInfo(riseHand);
     };
@@ -330,6 +350,10 @@ export default defineComponent({
       objectFunctionalities[interaction as keyof Functionalities]?.();
     };
 
+    const handleEspecialBehaviour = (interaction: string) => {
+      objectFunctionalities[interaction as keyof Functionalities]?.();
+    };
+
     const tooglePeriferic = (interaction: string) => {
       objectPeriferics[interaction as keyof Periferics]();
     };
@@ -349,6 +373,8 @@ export default defineComponent({
       functionsOnMenuBar,
       objectFunctionalities,
       isOptions,
+      handleEspecialBehaviour,
+      handNotificationActive,
     };
   },
 });

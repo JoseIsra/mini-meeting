@@ -58,6 +58,7 @@ export interface Icons {
   toolTipSecondMessage?: string;
   ubication?: string;
   interaction?: string;
+  behaviour?: string;
 }
 export const regexp = /^(?!\s*$).+/;
 

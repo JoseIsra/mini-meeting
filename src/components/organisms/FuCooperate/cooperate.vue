@@ -1,5 +1,9 @@
 <template>
-  <section class="o-cooperate" @mousemove="toogleMenuBar" @click.self="test">
+  <section
+    class="o-cooperate"
+    @mousemove="toogleMenuBar"
+    @click.self="closePanels"
+  >
     <fu-cooperate-header />
     <fu-shared-stream
       sharedLink="sharedLink"
@@ -65,8 +69,12 @@ export default defineComponent({
 
     let showMenuBar = ref<boolean>(false);
     let { isSidebarRender, setSidebarState } = useSidebarToogle();
-    const { functionsOnMenuBar, isFullScreen, setIDButtonSelected } =
-      useToogleFunctions();
+    const {
+      functionsOnMenuBar,
+      isFullScreen,
+      setIDButtonSelected,
+      openOptionsMenu,
+    } = useToogleFunctions();
     const hideMenuBar = _.debounce(() => {
       showMenuBar.value = false;
     }, 6000);
@@ -78,8 +86,9 @@ export default defineComponent({
         hideMenuBar();
       }
     };
-    const test = () => {
+    const closePanels = () => {
       setSidebarState(false);
+      openOptionsMenu(false);
       setIDButtonSelected('');
     };
     return {
@@ -89,7 +98,7 @@ export default defineComponent({
       isSidebarRender,
       functionsOnMenuBar,
       isFullScreen,
-      test,
+      closePanels,
     };
   },
 });

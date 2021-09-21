@@ -15,7 +15,11 @@ export interface Participant {
   isMicOn?: boolean;
   isScreenSharing?: boolean;
   isVideoActivated?: boolean;
+  isMicBlocked?: boolean;
+  isVideoBlocked? : boolean;
+  isScreenShareBlocked? : boolean;
 }
+
 export type Scalars = {
   ID: string;
   String: string;
@@ -30,6 +34,7 @@ export type Scalars = {
 };
 
 export type Maybe<T> = T | null;
+
 export type B2 = {
   __typename?: 'B2';
   authorizationToken?: Maybe<Scalars['String']>;
@@ -59,6 +64,7 @@ export interface Icons {
   ubication?: string;
   interaction?: string;
 }
+
 export const regexp = /^(?!\s*$).+/;
 
 export interface WebRTCAdaptorType {

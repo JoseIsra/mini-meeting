@@ -76,7 +76,7 @@
           flat
           round
           color="white"
-          @click="renderFunctionResponsiveMenu = !renderFunctionResponsiveMenu"
+          @click="renderFunctionResponsiveMenu = !renderFunctionResponsiveMenu"          
         />
         <fu-cooperate-menu
           v-show="renderFunctionResponsiveMenu"
@@ -99,6 +99,7 @@
           class="a-menuBar__icon"
           @click="handleMenuPosition(icon.ubication)"
           size="14px"
+          
         >
           <q-tooltip class="bg-grey-10">
             <label class="a-menuBar__icon__tooltip">

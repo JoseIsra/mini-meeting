@@ -78,7 +78,7 @@ export const iconsFunctions = [
     onState: 'branding_watermark',
     offState: 'branding_watermark',
     active: screenMinimized.value,
-    toolTipMessage: 'Minimize',
+    toolTipMessage: 'Minimizar ventana',
     toolTipSecondMessage: 'Minimizar ventana',
     interaction: interactionType.MINIMIZE,
   },

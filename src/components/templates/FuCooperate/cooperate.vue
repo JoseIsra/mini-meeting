@@ -84,6 +84,9 @@ export default defineComponent({
       (route.query.roomId as string) ||
       '';
 
+    // Estado inicial, cooperate actions blocked by default or allowed (?)
+    const blockActions = false;
+
     const roleId = (window as ZoidWindow)?.xprops?.roleId || 0;
 
     setUserMe({
@@ -95,6 +98,9 @@ export default defineComponent({
       isScreenSharing: false,
       isVideoActivated: false,
       roleId: roleId,
+      isMicBlocked: blockActions,
+      isVideoBlocked: blockActions,
+      isScreenShareBlocked: blockActions
     });
 
     setRoom({

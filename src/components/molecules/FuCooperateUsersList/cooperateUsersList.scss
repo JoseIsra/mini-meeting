@@ -35,6 +35,7 @@
     &__userBox {
       display: flex;
       cursor: pointer;
+      justify-content: space-between;
       align-items: center;
       width: 100%;
       padding: 12px;
@@ -42,11 +43,17 @@
       &:hover {
         background-color: rgba(79, 84, 92, 0.16);
       }
+
+      &__user {
+        display: flex;
+        align-items: center;
+      }
+
       &__avatar {
         position: relative;
         width: 40px;
         height: 40px;
-        margin: 0 0.5rem;
+        margin: 0 0.8rem 0 0.5rem;
         &__mic {
           position: absolute;
           left: 80%;
@@ -56,6 +63,14 @@
           position: absolute;
           right: 100%;
           top: 0;
+        }
+      }
+
+      &__actions {
+        button {
+          padding: 0.5rem;
+          margin-left: 0.25rem;
+          font-size: 8px;
         }
       }
     }

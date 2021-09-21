@@ -9,7 +9,13 @@ export interface User {
   isScreenSharing: boolean;
   isVideoActivated: boolean;
   roleId: number;
+  isMicBlocked: boolean;
+  isVideoBlocked: boolean;
+  isScreenShareBlocked: boolean;
 }
+
+// blocked: some functionalities blocked (mic, screen, camera)
+// Role id: 'Admin|0' ; 'participant|1';
 
 const userState = {} as User;
 const pinnedStream = {} as MediaStream;
@@ -22,9 +28,12 @@ export function useUserMe() {
     Object.assign(userState, value);
   };
 
+  const isAdmininistrator = () => userMe.roleId === 0;
+
   const setMicState = (value: boolean) => {
     userMe.isMicOn = value;
   };
+
   const setCameraState = (value: boolean) => {
     userMe.isCameraOn = value;
   };
@@ -54,5 +63,6 @@ export function useUserMe() {
     setCameraState,
     setScreenState,
     setVideoActivatedState,
+    isAdmininistrator
   };
 }

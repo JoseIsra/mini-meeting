@@ -25,7 +25,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, toRefs, onMounted } from 'vue';
+import { defineComponent, ref, toRefs, onMounted } from 'vue';
 import FuCooperate from 'organisms/FuCooperate';
 import { useRoute } from 'vue-router';
 import { useUserMe } from '@/composables/userMe';
@@ -85,7 +85,7 @@ export default defineComponent({
       '';
 
     // Estado inicial, cooperate actions blocked by default or allowed (?)
-    const blockActions = false;
+    const blockActions = ref(false);
 
     const roleId = (window as ZoidWindow)?.xprops?.roleId || 0;
 
@@ -96,11 +96,11 @@ export default defineComponent({
       isCameraOn: false,
       isMicOn: true,
       isScreenSharing: false,
-      isVideoActivated: false,
+      isVideoActivated: false,  
       roleId: roleId,
-      isMicBlocked: blockActions,
-      isVideoBlocked: blockActions,
-      isScreenShareBlocked: blockActions
+      isMicBlocked: blockActions.value,
+      isVideoBlocked: blockActions.value,
+      isScreenShareBlocked: blockActions.value
     });
 
     setRoom({
@@ -115,6 +115,7 @@ export default defineComponent({
       (window as ZoidWindow)?.xprops?.playToken ||
       (route.query.playToken as string) ||
       '';
+
     const subscriberId = (route.query.subscriberId as string) || undefined;
     const subscriberCode = (route.query.subscriberCode as string) || undefined;
 
@@ -160,6 +161,7 @@ export default defineComponent({
         sendNotificationEvent('CAM_TURNED_ON', streamId);
       }
     };
+
     const toggleLocalMic = () => {
       if (!userMe.isMicOn) {
         unmuteLocalMic();

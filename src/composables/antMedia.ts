@@ -10,7 +10,13 @@ import { ZoidWindow } from '@/types/zoid';
 import { useRoom } from '@/composables/room';
 const webRTCInstance = ref<WebRTCAdaptor>({} as WebRTCAdaptor);
 
-const { userMe, setScreenState, setVideoActivatedState } = useUserMe();
+const {
+  userMe,
+  setScreenState,
+  setVideoActivatedState,
+  blockUserActions,
+  unBlockUserActions,
+} = useUserMe();
 const { setIsLoadingOrError, setLoadingOrErrorMessage, setExistRoom } =
   useAuthState();
 const { setRecorded } = useRoom();
@@ -31,6 +37,7 @@ interface ObjInfoRequested {
   to: string;
   from: string;
 }
+
 interface Data {
   streamId: string;
   notificationType: string;
@@ -45,6 +52,13 @@ interface ObjRemoteUserInfo extends ObjInfoRequested {
 interface ObjKickedEvent {
   eventType: string;
   to: string;
+}
+
+interface ObjBlockParticipantAction {
+  id: string;
+  streamId: string;
+  participantId: string;
+  eventType: string;
 }
 
 export function useInitWebRTC() {
@@ -540,6 +554,30 @@ export function useInitWebRTC() {
             if (kickedEvent.to === 'all') {
               (window as ZoidWindow).xprops?.handleLeaveCall?.();
             }
+          } else if (eventType === 'UNBLOCK_PARTICIPANT_ACTION') {
+            const blockData = JSON.parse(obj.data) as ObjBlockParticipantAction;
+            console.log(blockData.participantId);
+            console.log(userMe.id);
+
+            if (blockData.participantId !== userMe.id) {
+              return;
+            }
+
+            unBlockUserActions();
+          } else if (eventType === 'BLOCK_PARTICIPANT_ACTION') {
+            const blockData = JSON.parse(obj.data) as ObjBlockParticipantAction;
+            console.log(blockData.participantId);
+            console.log(userMe.id);
+
+            if (blockData.participantId !== userMe.id) {
+              return;
+            }
+
+            blockUserActions();
+          } else if (eventType === 'UNBLOCK_EVERYONE_ACTION') {
+            unBlockUserActions();
+          } else if (eventType === 'BLOCK_EVERYONE_ACTION') {
+            blockUserActions();
           }
         }
       },

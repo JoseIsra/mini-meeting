@@ -7,6 +7,7 @@ export function useHandleParticipants() {
   const addParticipants = (value: Participant) => {
     participants.value.push(value);
   };
+
   const deleteParticipantById = (id: string) => {
     const participantToDelete = participants.value.filter(
       (participant) => participant.id === id
@@ -16,13 +17,71 @@ export function useHandleParticipants() {
       1
     );
   };
+
   const deleteAllParticipants = () => {
     participants.value.splice(0, 1);
   };
+
+  const lockParticipantActions = (value: Participant) => {
+    participants.value = participants.value.map((participant) => {
+      if (participant.id === value.id) {
+        return {
+          ...participant,
+          isMicBlocked: true,
+          isVideoBlocked: true,
+          isScreenShareBlocked: true,
+        };
+      }
+
+      return participant;
+    });
+  };
+
+  const unlockParticipantActions = (value: Participant) => {
+    participants.value = participants.value.map((participant) => {
+      if (participant.id === value.id) {
+        return {
+          ...participant,
+          isMicBlocked: true,
+          isVideoBlocked: true,
+          isScreenShareBlocked: true,
+        };
+      }
+
+      return participant;
+    });
+  };
+
+  const lockEveryParticipantActions = () => {
+    participants.value = participants.value.map((participant) => {
+      return {
+        ...participant,
+        isMicBlocked: true,
+        isVideoBlocked: true,
+        isScreenShareBlocked: true,
+      };
+    });
+  };
+
+  const unlockEveryParticipantActions = () => {
+    participants.value = participants.value.map((participant) => {
+      return {
+        ...participant,
+        isMicBlocked: true,
+        isVideoBlocked: true,
+        isScreenShareBlocked: true,
+      };
+    });
+  };
+
   return {
     deleteAllParticipants,
     addParticipants,
     deleteParticipantById,
     participants,
+    lockParticipantActions,
+    unlockParticipantActions,
+    lockEveryParticipantActions,
+    unlockEveryParticipantActions
   };
 }

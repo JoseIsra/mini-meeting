@@ -27,8 +27,14 @@
           </aside>
           <label>{{ userMe.name }}</label>
         </div>
-        <div class="m-list__content__userBox__actions" v-show="isAdmininistrator">
-          <q-btn icon="fas fa-ban" @click="handleBlockAll"/>
+        <div
+          class="m-list__content__userBox__actions"
+          v-show="isAdmininistrator && participants.length > 0"
+        >
+          <q-btn
+            :icon="isEveryoneBlocked ? 'fas fa-lock' : 'fas fa-lock-open'"
+            @click="handleEveryoneActions"
+          />
         </div>
       </div>
       <div
@@ -58,8 +64,14 @@
           <label>{{ participant.name }}</label>
         </div>
 
-         <div class="m-list__content__userBox__actions" v-show="isAdmininistrator">
-          <q-btn icon="fas fa-microphone-alt-slash" @click="handlePartipantActions(participant)"/>
+        <div
+          class="m-list__content__userBox__actions"
+          v-show="isAdmininistrator"
+        >
+          <q-btn
+            icon="fas fa-microphone-alt-slash"
+            @click="handlePartipantActions(participant)"
+          />
           <!-- <q-btn
             icon="fas fa-video-slash"
           />
@@ -73,34 +85,106 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, computed } from 'vue';
 import { useHandleParticipants } from '@/composables/participants';
 import { useUserMe } from '@/composables/userMe';
+import { useInitWebRTC } from '@/composables/antMedia';
 import { Participant } from '@/types';
+import { nanoid } from 'nanoid';
+
 export default defineComponent({
   name: 'FuCooperateUsersList',
   setup() {
-    const { participants } = useHandleParticipants();
+    const {
+      participants,
+      unlockParticipantActions,
+      lockParticipantActions,
+      unlockEveryParticipantActions,
+      lockEveryParticipantActions,
+    } = useHandleParticipants();
+
     const { userMe, isAdmininistrator } = useUserMe();
 
-    const handlePartipantActions = (participant: Participant) => {
-      // Emit evento para actualizar un member/user y bloquear acciones
-      console.log(participant);      
-    }
+    const { sendData } = useInitWebRTC();
 
-    const handleBlockAll = () => {
-      // Emit evento para bloquear funcionalidades a todos los usuarios
-      console.log('Bloquear (mic/camera/screen) todos los usuarios');      
-    }
+    const isEveryoneBlocked = computed(() =>
+      participants.value.some(
+        (participant) =>
+          participant?.isMicBlocked === false ||
+          participant?.isVideoBlocked === false ||
+          participant?.isScreenShareBlocked === false
+      )
+    );
+
+    console.log(isEveryoneBlocked);
+
+    const hasActionsBlocked = (participant: Participant) => {
+      const participantActions = participants.value.find(
+        (part) => part.id === participant.id
+      );
+      return (
+        participantActions?.isMicBlocked === true &&
+        participantActions?.isVideoBlocked === true &&
+        participantActions?.isScreenShareBlocked === true
+      );
+    };
+
+    const handlePartipantActions = (participant: Participant) => {
+      const blockActions = {
+        id: nanoid(),
+        streamId: userMe.id,
+        participantId: participant.id,
+      };
+
+      if (hasActionsBlocked(participant)) {
+        unlockParticipantActions(participant);
+        sendData(userMe.id, {
+          ...blockActions,
+          eventType: 'UNBLOCK_PARTICIPANT_ACTION',
+        });
+        // desbloquear
+      } else {
+        lockParticipantActions(participant);
+        sendData(userMe.id, {
+          ...blockActions,
+          eventType: 'BLOCK_PARTICIPANT_ACTION',
+        });
+      }
+    };
+
+    const handleEveryoneActions = () => {
+      const blockActions = {
+        id: nanoid(),
+        streamId: userMe.id,
+      };
+
+      console.log(blockActions);
+
+      if (isEveryoneBlocked.value) {
+        unlockEveryParticipantActions();
+        sendData(userMe.id, {
+          ...blockActions,
+          eventType: 'UNBLOCK_EVERYONE_ACTION',
+        });
+      } else {
+        lockEveryParticipantActions();
+        sendData(userMe.id, {
+          ...blockActions,
+          eventType: 'BLOCK_EVERYONE_ACTION',
+        });
+      }
+    };
 
     // const areAllBlocked = () => participants.value.some(participant => participant.isBlock === false)
 
     return {
       participants,
+      hasActionsBlocked,
       handlePartipantActions,
-      handleBlockAll,
+      handleEveryoneActions,
       userMe,
-      isAdmininistrator
+      isAdmininistrator,
+      isEveryoneBlocked,
     };
   },
 });

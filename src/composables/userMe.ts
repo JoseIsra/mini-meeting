@@ -42,6 +42,19 @@ export function useUserMe() {
     userMe.isScreenSharing = value;
   };
 
+  const blockUserActions = () => {
+    // mic/video/screen-share
+    userMe.isMicBlocked = true;
+    userMe.isVideoBlocked = true;
+    userMe.isScreenShareBlocked = true;
+  };
+
+  const unBlockUserActions = () => {
+    userMe.isMicBlocked = false;
+    userMe.isVideoBlocked = false;
+    userMe.isScreenShareBlocked = false;
+  }
+
   // const setCameraDevice = (value: string) => {
   //   userMe.cameraDeviceId = value;
   // };
@@ -63,6 +76,8 @@ export function useUserMe() {
     setCameraState,
     setScreenState,
     setVideoActivatedState,
-    isAdmininistrator
+    isAdmininistrator,
+    blockUserActions,
+    unBlockUserActions
   };
 }

@@ -14,8 +14,8 @@ const {
   userMe,
   setScreenState,
   setVideoActivatedState,
-  blockUserActions,
-  unBlockUserActions,
+  lockUserActions,
+  unlockUserActions,
 } = useUserMe();
 const { setIsLoadingOrError, setLoadingOrErrorMessage, setExistRoom } =
   useAuthState();
@@ -368,7 +368,7 @@ export function useInitWebRTC() {
           console.log('Data Channel closed for stream id', obj);
           isDataChannelOpen.value = false;
         } else if (info == 'data_received') {
-          //console.log(obj);
+          // console.log(obj);
           const objParsed = JSON.parse(obj.data) as Message;
           const { eventType } = objParsed;
           //console.log(objParsed);
@@ -554,7 +554,7 @@ export function useInitWebRTC() {
             if (kickedEvent.to === 'all') {
               (window as ZoidWindow).xprops?.handleLeaveCall?.();
             }
-          } else if (eventType === 'UNBLOCK_PARTICIPANT_ACTION') {
+          } else if (eventType === 'UNLOCK_PARTICIPANT_ACTION') {
             const blockData = JSON.parse(obj.data) as ObjBlockParticipantAction;
             console.log(blockData.participantId);
             console.log(userMe.id);
@@ -563,8 +563,8 @@ export function useInitWebRTC() {
               return;
             }
 
-            unBlockUserActions();
-          } else if (eventType === 'BLOCK_PARTICIPANT_ACTION') {
+            unlockUserActions();
+          } else if (eventType === 'LOCK_PARTICIPANT_ACTION') {
             const blockData = JSON.parse(obj.data) as ObjBlockParticipantAction;
             console.log(blockData.participantId);
             console.log(userMe.id);
@@ -573,11 +573,11 @@ export function useInitWebRTC() {
               return;
             }
 
-            blockUserActions();
-          } else if (eventType === 'UNBLOCK_EVERYONE_ACTION') {
-            unBlockUserActions();
-          } else if (eventType === 'BLOCK_EVERYONE_ACTION') {
-            blockUserActions();
+            lockUserActions();
+          } else if (eventType === 'UNLOCK_EVERYONE_ACTION') {
+            unlockUserActions();
+          } else if (eventType === 'LOCK_EVERYONE_ACTION') {
+            lockUserActions();
           }
         }
       },

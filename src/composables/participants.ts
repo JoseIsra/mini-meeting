@@ -32,7 +32,6 @@ export function useHandleParticipants() {
           isScreenShareBlocked: true,
         };
       }
-
       return participant;
     });
   };
@@ -42,12 +41,11 @@ export function useHandleParticipants() {
       if (participant.id === value.id) {
         return {
           ...participant,
-          isMicBlocked: true,
-          isVideoBlocked: true,
-          isScreenShareBlocked: true,
+          isMicBlocked: false,
+          isVideoBlocked: false,
+          isScreenShareBlocked: false,
         };
       }
-
       return participant;
     });
   };
@@ -67,9 +65,9 @@ export function useHandleParticipants() {
     participants.value = participants.value.map((participant) => {
       return {
         ...participant,
-        isMicBlocked: true,
-        isVideoBlocked: true,
-        isScreenShareBlocked: true,
+        isMicBlocked: false,
+        isVideoBlocked: false,
+        isScreenShareBlocked: false,
       };
     });
   };
@@ -82,6 +80,6 @@ export function useHandleParticipants() {
     lockParticipantActions,
     unlockParticipantActions,
     lockEveryParticipantActions,
-    unlockEveryParticipantActions
+    unlockEveryParticipantActions,
   };
 }

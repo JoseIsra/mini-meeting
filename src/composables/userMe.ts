@@ -28,7 +28,7 @@ export function useUserMe() {
     Object.assign(userState, value);
   };
 
-  const isAdmininistrator = () => userMe.roleId === 0;
+  const isAdmin = () => userMe.roleId === 0;
 
   const setMicState = (value: boolean) => {
     userMe.isMicOn = value;
@@ -42,14 +42,14 @@ export function useUserMe() {
     userMe.isScreenSharing = value;
   };
 
-  const blockUserActions = () => {
+  const lockUserActions = () => {
     // mic/video/screen-share
     userMe.isMicBlocked = true;
     userMe.isVideoBlocked = true;
     userMe.isScreenShareBlocked = true;
   };
 
-  const unBlockUserActions = () => {
+  const unlockUserActions = () => {
     userMe.isMicBlocked = false;
     userMe.isVideoBlocked = false;
     userMe.isScreenShareBlocked = false;
@@ -76,8 +76,8 @@ export function useUserMe() {
     setCameraState,
     setScreenState,
     setVideoActivatedState,
-    isAdmininistrator,
-    blockUserActions,
-    unBlockUserActions
+    isAdmin,
+    lockUserActions,
+    unlockUserActions
   };
 }

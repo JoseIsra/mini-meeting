@@ -5,6 +5,17 @@
       <small>En línea ({{ participants.length + 1 }})</small>
     </header>
     <main class="m-list__content">
+      <div class="m-list__content__actions" v-show="isAdmin">
+        <span>
+          {{ isEveryoneBlocked ? 'Limitar acciones ' : 'Liberar acciones' }}
+        </span>
+        <q-btn
+          :icon="isEveryoneBlocked ? 'fas fa-lock-open' : 'fas fa-lock'"
+          @click="handleEveryoneActions"
+          size="12px"
+          :disable="!participants.length > 0"
+        />
+      </div>
       <div class="m-list__content__userBox">
         <div class="m-list__content__userBox__user">
           <aside class="m-list__content__userBox__avatar">
@@ -26,15 +37,6 @@
             />
           </aside>
           <label>{{ userMe.name }}</label>
-        </div>
-        <div
-          class="m-list__content__userBox__actions"
-          v-show="isAdmininistrator && participants.length > 0"
-        >
-          <q-btn
-            :icon="isEveryoneBlocked ? 'fas fa-lock' : 'fas fa-lock-open'"
-            @click="handleEveryoneActions"
-          />
         </div>
       </div>
       <div
@@ -66,7 +68,7 @@
 
         <div
           class="m-list__content__userBox__actions"
-          v-show="isAdmininistrator"
+          v-show="isAdmin"
         >
           <q-btn
             :icon="
@@ -107,17 +109,18 @@ export default defineComponent({
       lockEveryParticipantActions,
     } = useHandleParticipants();
 
-    const { userMe, isAdmininistrator } = useUserMe();
+    const { userMe, isAdmin } = useUserMe();
 
     const { sendData } = useInitWebRTC();
 
-    const isEveryoneBlocked = computed(() =>
-      participants.value.some(
-        (participant) =>
-          participant?.isMicBlocked === false ||
-          participant?.isVideoBlocked === false ||
-          participant?.isScreenShareBlocked === false
-      )
+    const isEveryoneBlocked = computed(
+      () =>
+        !participants.value.some(
+          (participant) =>
+            participant?.isMicBlocked === false &&
+            participant?.isVideoBlocked === false &&
+            participant?.isScreenShareBlocked === false
+        )
     );
 
     const hasActionsBlocked = (participant: Participant) => {
@@ -139,17 +142,22 @@ export default defineComponent({
       };
 
       if (hasActionsBlocked(participant)) {
+        console.log('Tiene acciones bloqueadas');
+
         unlockParticipantActions(participant);
+
         sendData(userMe.id, {
           ...blockActions,
-          eventType: 'UNBLOCK_PARTICIPANT_ACTION',
+          eventType: 'UNLOCK_PARTICIPANT_ACTION',
         });
-        // desbloquear
       } else {
+        console.log('No Tiene acciones bloqueadas');
+
         lockParticipantActions(participant);
+
         sendData(userMe.id, {
           ...blockActions,
-          eventType: 'BLOCK_PARTICIPANT_ACTION',
+          eventType: 'LOCK_PARTICIPANT_ACTION',
         });
       }
     };
@@ -160,19 +168,27 @@ export default defineComponent({
         streamId: userMe.id,
       };
 
-      console.log(blockActions);
-
       if (isEveryoneBlocked.value) {
+        console.log('Todos bloqueados');
+
         unlockEveryParticipantActions();
+
+        console.log(participants.value);
+
         sendData(userMe.id, {
           ...blockActions,
-          eventType: 'UNBLOCK_EVERYONE_ACTION',
+          eventType: 'UNLOCK_EVERYONE_ACTION',
         });
       } else {
+        console.log('Minimo 1 desbloqueado');
+
         lockEveryParticipantActions();
+
+        console.log(participants.value);
+
         sendData(userMe.id, {
           ...blockActions,
-          eventType: 'BLOCK_EVERYONE_ACTION',
+          eventType: 'LOCK_EVERYONE_ACTION',
         });
       }
     };
@@ -185,7 +201,7 @@ export default defineComponent({
       handlePartipantActions,
       handleEveryoneActions,
       userMe,
-      isAdmininistrator,
+      isAdmin,
       isEveryoneBlocked,
     };
   },

@@ -66,15 +66,12 @@
           <label>{{ participant.name }}</label>
         </div>
 
-        <div
-          class="m-list__content__userBox__actions"
-          v-show="isAdmin"
-        >
+        <div class="m-list__content__userBox__actions" v-show="isAdmin">
           <q-btn
             :icon="
               hasActionsBlocked(participant)
-                ? 'fas fa-microphone'
-                : 'fas fa-microphone-slash'
+                ? 'fas fa-lock-open'
+                : 'fas fa-lock'
             "
             @click="handlePartipantActions(participant)"
           />
@@ -127,6 +124,7 @@ export default defineComponent({
       const participantActions = participants.value.find(
         (part) => part.id === participant.id
       );
+      
       return (
         participantActions?.isMicBlocked === true &&
         participantActions?.isVideoBlocked === true &&
@@ -151,7 +149,7 @@ export default defineComponent({
           eventType: 'UNLOCK_PARTICIPANT_ACTION',
         });
       } else {
-        console.log('No Tiene acciones bloqueadas');
+        console.log('No tiene acciones bloqueadas');
 
         lockParticipantActions(participant);
 

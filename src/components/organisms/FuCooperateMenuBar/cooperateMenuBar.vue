@@ -93,10 +93,28 @@
           flat
           round
           color="white"
-          @click="renderFunctionResponsiveMenu = !renderFunctionResponsiveMenu"
+          @click="openResponsiveMenuOfFunctions"
         />
+        <q-btn
+          icon="pan_tool"
+          class="a-menuBar__functions__responsive__handBtn"
+          flat
+          round
+          color="grey-1"
+          size="12px"
+          @click="handleEspecialBehaviour('HANDUP')"
+        >
+          <q-badge
+            v-show="functionsOnMenuBar.handNotificationInfo.length > 0"
+            color="red"
+            rounded
+            floating
+            >x</q-badge
+          >
+        </q-btn>
+
         <fu-cooperate-menu
-          v-show="renderFunctionResponsiveMenu"
+          v-show="functionsOnMenuBar.renderResponsiveFunctionMenu"
           :objectFunctionalities="objectFunctionalities"
           class="a-menuBar__functions__responsive__menu"
           :isActions="false"
@@ -216,6 +234,7 @@ export default defineComponent({
       removeHandNotification,
       setIDButtonSelected,
       openOptionsMenu,
+      openFunctionResponsiveMenu,
     } = useToogleFunctions();
     let { isSidebarRender, setSidebarState } = useSidebarToogle();
     const {
@@ -246,7 +265,6 @@ export default defineComponent({
 
     const toogleShareNotes = () => {
       if (!isSidebarRender.value) {
-        console.log('notes');
         setSidebarState(true);
         setShowNotes(true);
         setShowChat(false);
@@ -263,7 +281,6 @@ export default defineComponent({
 
     const toggleUsersList = () => {
       if (!isSidebarRender.value) {
-        console.log('userslitst');
         setSidebarState(true);
         setShowUsersList(true);
         setShowNotes(false);
@@ -366,6 +383,12 @@ export default defineComponent({
       objectPeriferics[interaction as keyof Periferics]();
     };
 
+    const openResponsiveMenuOfFunctions = () => {
+      openFunctionResponsiveMenu(
+        !functionsOnMenuBar.renderResponsiveFunctionMenu
+      );
+    };
+
     return {
       periferics,
       userMe,
@@ -383,6 +406,7 @@ export default defineComponent({
       isOptions,
       handleEspecialBehaviour,
       handNotificationActive,
+      openResponsiveMenuOfFunctions,
     };
   },
 });

@@ -12,3 +12,9 @@
   border: 1px solid rgba(255, 255, 255, 0.2);
   z-index: 9999;
 }
+
+@media only screen and (min-width: 300px) and (max-width: 578px) {
+  .m-sideBar {
+    width: 100vw;
+  }
+}

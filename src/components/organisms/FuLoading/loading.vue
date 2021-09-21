@@ -12,6 +12,7 @@
         />
       </figure>
 
+      <q-spinner-dots v-if="loadingMessage === ''" color="blue-1" size="2em" />
       <div :style="{ 'font-size': '2vw', opacity: '0.3', margin: '12px 0' }">
         {{ loadingMessage }}
       </div>

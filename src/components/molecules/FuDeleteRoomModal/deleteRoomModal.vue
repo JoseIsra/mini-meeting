@@ -30,7 +30,7 @@ import { ZoidWindow } from '@/types/zoid';
 import { useUserMe } from '@/composables/userMe';
 import { useRoom } from '@/composables/room';
 import { useInitWebRTC } from '@/composables/antMedia';
-
+import { REASON_TO_LEAVE_ROOM } from '@/types';
 export default defineComponent({
   name: 'FuDeleteRoom',
   setup() {
@@ -39,12 +39,13 @@ export default defineComponent({
     const { sendData } = useInitWebRTC();
 
     const executeDeleteRoom = () => {
-      console.log('borra?');
       deleteRoom(roomState.id)
         .then(() => {
           (window as ZoidWindow).xprops?.handleEndCall?.();
           sendData(userMe.id, { eventType: 'KICK', to: 'all' });
-          (window as ZoidWindow).xprops?.handleLeaveCall?.();
+          (window as ZoidWindow).xprops?.handleLeaveCall?.(
+            REASON_TO_LEAVE_ROOM.MODERATOR_CLOSE_ROOM
+          );
         })
         .catch((e) => console.log(e));
     };

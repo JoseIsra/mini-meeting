@@ -62,6 +62,7 @@ import { menuOptions, MenuOptions } from '@/helpers/menuOptions';
 import { ZoidWindow } from '@/types/zoid';
 import FuDeleteRoomModal from 'molecules/FuDeleteRoomModal';
 import { useToogleFunctions } from '@/composables';
+import { REASON_TO_LEAVE_ROOM } from '@/types';
 
 interface OptionsClickMethods {
   LEAVE: () => void;
@@ -77,7 +78,10 @@ export default defineComponent({
     const { watchInfoRoomCard, openOptionsMenu } = useToogleFunctions();
 
     const optionsMethodsObject = reactive<OptionsClickMethods>({
-      LEAVE: () => (window as ZoidWindow).xprops?.handleLeaveCall?.(),
+      LEAVE: () =>
+        (window as ZoidWindow).xprops?.handleLeaveCall?.(
+          REASON_TO_LEAVE_ROOM.MODERATOR_CLOSE_ROOM
+        ),
       END: () => openDeleteRoomModal(),
       ROOMDETAILS: () => openInfoRoomCard(),
     });

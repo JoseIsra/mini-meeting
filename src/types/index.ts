@@ -58,6 +58,7 @@ export interface Icons {
   toolTipSecondMessage?: string;
   ubication?: string;
   interaction?: string;
+  behaviour?: string;
 }
 export const regexp = /^(?!\s*$).+/;
 
@@ -125,4 +126,9 @@ export interface Functionalities {
   USERLIST?: () => void;
   CONNECTION?: () => void;
   MINIMIZE?: () => void;
+}
+
+export enum REASON_TO_LEAVE_ROOM {
+  YOURSELF = 0,
+  MODERATOR_CLOSE_ROOM = 1,
 }

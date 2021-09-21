@@ -1,5 +1,9 @@
 <template>
-  <section class="o-cooperate" @mousemove="toogleMenuBar" @click.self="test">
+  <section
+    class="o-cooperate"
+    @mousemove="toogleMenuBar"
+    @click.self="closePanels"
+  >
     <q-icon
       name="fas fa-expand-alt"
       size="24px"
@@ -74,10 +78,13 @@ export default defineComponent({
 
     let showMenuBar = ref<boolean>(false);
     let { isSidebarRender, setSidebarState } = useSidebarToogle();
-    const { functionsOnMenuBar, isFullScreen, setIDButtonSelected } =
-      useToogleFunctions();
+    const {
+      functionsOnMenuBar,
+      isFullScreen,
+      setIDButtonSelected,
+      openOptionsMenu,
+    } = useToogleFunctions();
     const { roomState } = useRoom();
-
     const { screenMinimized, updateScreenState } = useScreen();
 
     const hideMenuBar = _.debounce(() => {
@@ -91,8 +98,9 @@ export default defineComponent({
         hideMenuBar();
       }
     };
-    const test = () => {
+    const closePanels = () => {
       setSidebarState(false);
+      openOptionsMenu(false);
       setIDButtonSelected('');
     };
     return {
@@ -102,7 +110,7 @@ export default defineComponent({
       isSidebarRender,
       functionsOnMenuBar,
       isFullScreen,
-      test,
+      closePanels,
       screenMinimized,
       updateScreenState,
       ...toRefs(roomState),

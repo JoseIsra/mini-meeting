@@ -2,7 +2,7 @@ import { ref } from 'vue';
 import { WebRTCAdaptor } from '@/utils/webrtc/webrtc_adaptor';
 import { useUserMe, User } from '@/composables/userMe';
 import { useAuthState } from '@/composables/auth';
-import { objWebRTC } from '@/types/index';
+import { objWebRTC, REASON_TO_LEAVE_ROOM } from '@/types/index';
 import { useHandleParticipants } from '@/composables/participants';
 import { Message, useHandleMessage } from '@/composables/chat';
 import { useToogleFunctions } from '@/composables';
@@ -543,7 +543,9 @@ export function useInitWebRTC() {
           } else if (eventType === 'KICK') {
             const kickedEvent = JSON.parse(obj.data) as ObjKickedEvent;
             if (kickedEvent.to === 'all') {
-              (window as ZoidWindow).xprops?.handleLeaveCall?.();
+              (window as ZoidWindow).xprops?.handleLeaveCall?.(
+                REASON_TO_LEAVE_ROOM.MODERATOR_CLOSE_ROOM
+              );
             }
           }
         }

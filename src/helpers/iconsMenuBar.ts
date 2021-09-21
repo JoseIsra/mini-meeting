@@ -14,7 +14,11 @@ enum interactionType {
   CONNECTION = 'CONNECTION',
   WEBCAM = 'WEBCAM',
   MIC = 'MIC',
-  MINIMIZE= 'MINIMIZE'
+  MINIMIZE = 'MINIMIZE',
+}
+enum typeOfBehaviour {
+  NORMAL = 'NORMAL',
+  ESPECIAL = 'ESPECIAL',
 }
 export const iconsPeriferics = [
   {
@@ -45,6 +49,7 @@ export const iconsFunctions = [
     toolTipMessage: 'Compartir pantalla',
     toolTipSecondMessage: 'Dejar de compartir pantalla',
     interaction: interactionType.SHARESCREEN,
+    behaviour: typeOfBehaviour.NORMAL,
   },
   {
     id: '2',
@@ -54,6 +59,7 @@ export const iconsFunctions = [
     toolTipMessage: 'Levantar la mano',
     toolTipSecondMessage: 'Bajar la mano',
     interaction: interactionType.HANDUP,
+    behaviour: typeOfBehaviour.ESPECIAL,
   },
   {
     id: '3',
@@ -63,6 +69,7 @@ export const iconsFunctions = [
     toolTipMessage: 'Lista de usuarios',
     toolTipSecondMessage: 'Ocultar lista de usuarios',
     interaction: interactionType.USERLIST,
+    behaviour: typeOfBehaviour.NORMAL,
   },
   {
     id: '4',
@@ -72,15 +79,17 @@ export const iconsFunctions = [
     toolTipMessage: 'Chat',
     toolTipSecondMessage: 'Ocultar chat',
     interaction: interactionType.CHAT,
+    behaviour: typeOfBehaviour.NORMAL,
   },
   {
     id: '5',
     onState: 'branding_watermark',
     offState: 'branding_watermark',
     active: screenMinimized.value,
-    toolTipMessage: 'Minimize',
+    toolTipMessage: 'Minimizar ventana',
     toolTipSecondMessage: 'Minimizar ventana',
     interaction: interactionType.MINIMIZE,
+    behaviour: typeOfBehaviour.ESPECIAL,
   },
   /* {
     id: '5',
@@ -90,6 +99,7 @@ export const iconsFunctions = [
     toolTipMessage: 'Notas compartidas',
     toolTipSecondMessage: 'Notas compartidas',
     interaction: interactionType.SHARENOTES,
+    behaviour: typeOfBehaviour.NORMAL
   }, */
   /* {
     id: '6',
@@ -99,6 +109,7 @@ export const iconsFunctions = [
     toolTipMessage: 'Estado de la conexión',
     toolTipSecondMessage: 'Estado de la conexión',
     interaction: interactionType.CONNECTION,
+    behaviour: typeOfBehaviour.NORMAL
   }, */
 ];
 

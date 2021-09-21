@@ -16,10 +16,12 @@
     border-radius: 7px;
     padding: 10px;
   }
-  .active {
+  .active,
+  .activeHand {
     background-color: rgba(0, 0, 0, 0.15);
     border: 1px solid #fffffe;
   }
+
   &__icon {
     color: rgba(255, 255, 255, 0.6) !important;
     margin: 0 0.3rem;

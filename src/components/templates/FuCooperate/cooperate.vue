@@ -31,7 +31,7 @@ import { useRoute } from 'vue-router';
 import { useUserMe } from '@/composables/userMe';
 import { ZoidWindow } from '@/types/zoid';
 import FuTLoading from 'organisms/FuLoading';
-
+import { REASON_TO_LEAVE_ROOM } from '@/types';
 import { useInitWebRTC } from '@/composables/antMedia';
 
 import { useAuthState } from '@/composables/auth';
@@ -246,7 +246,9 @@ export default defineComponent({
     }); */
 
     const handleZoidLeaveCall = () =>
-      (window as ZoidWindow).xprops?.handleLeaveCall?.();
+      (window as ZoidWindow).xprops?.handleLeaveCall?.(
+        REASON_TO_LEAVE_ROOM.MODERATOR_CLOSE_ROOM
+      );
 
     return {
       fuCooperateMountedHandler,

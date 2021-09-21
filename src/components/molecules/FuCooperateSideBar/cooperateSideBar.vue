@@ -1,5 +1,5 @@
 <template>
-  <section class="m-sideBar">
+  <section class="m-sideBar" v-touch:swipe.left="handleLeftMovement">
     <fu-cooperate-chat v-show="functionsOnMenuBar.renderChat" />
     <fu-cooperate-notes
       v-show="functionsOnMenuBar.renderNotes && !functionsOnMenuBar.renderChat"
@@ -19,16 +19,22 @@ import { defineComponent, toRefs } from 'vue';
 import FuCooperateChat from 'molecules/FuCooperateChat';
 import FuCooperateUsersList from 'molecules/FuCooperateUsersList';
 import FuCooperateNotes from 'molecules/FuCooperateNotes';
-import { useToogleFunctions } from '@/composables';
+import { useSidebarToogle, useToogleFunctions } from '@/composables';
 
 export default defineComponent({
   name: 'FuCooperateSideBar',
   components: { FuCooperateChat, FuCooperateUsersList, FuCooperateNotes },
   setup(props) {
     let { functionsOnMenuBar } = useToogleFunctions();
+    let { setSidebarState } = useSidebarToogle();
+    const handleLeftMovement = () => {
+      setSidebarState(false);
+    };
+
     return {
       functionsOnMenuBar,
       ...toRefs(props),
+      handleLeftMovement,
     };
   },
 });

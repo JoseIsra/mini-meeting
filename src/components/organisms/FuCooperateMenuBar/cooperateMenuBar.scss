@@ -62,8 +62,7 @@
     &__functions {
       display: none;
       &__responsive {
-        display: block;
-        margin: 0 1.5rem;
+        margin: 0 0.5rem;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -77,9 +76,6 @@
     &__responsiveOptions {
       display: block;
       position: absolute;
-      // top: 150px;
-      // margin-left: 20px;
-      // width: calc(100% - 40px);
     }
   }
 }

@@ -23,11 +23,10 @@
       :toggleLocalMic="toggleLocalMic"
       :toggleDesktopCapture="toggleDesktopCapture"
     />
-    <transition name="slide">
+    <transition :name="$q.screen.lt.sm ? 'dragged' : 'slide'">
       <fu-cooperate-side-bar v-show="isSidebarRender" />
     </transition>
     <fu-cooperate-user-video />
-
     <fu-hand-notification
       v-show="functionsOnMenuBar.handNotificationInfo.length > 0"
     />
@@ -47,7 +46,6 @@ import _ from 'lodash';
 import { useSidebarToogle, useToogleFunctions } from '@/composables';
 import { useScreen } from '@/composables/screen';
 import FuSharedStream from 'molecules/FuSharedStream';
-
 export default defineComponent({
   name: 'FuCooperate',
   props: {
@@ -82,6 +80,7 @@ export default defineComponent({
       isFullScreen,
       setIDButtonSelected,
       openOptionsMenu,
+      openFunctionResponsiveMenu,
     } = useToogleFunctions();
 
     const { screenMinimized, updateScreenState } = useScreen();
@@ -100,6 +99,7 @@ export default defineComponent({
     const closePanels = () => {
       setSidebarState(false);
       openOptionsMenu(false);
+      openFunctionResponsiveMenu(false);
       setIDButtonSelected('');
     };
     return {

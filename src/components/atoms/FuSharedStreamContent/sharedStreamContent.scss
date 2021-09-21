@@ -1,6 +1,6 @@
 .m-shared {
   height: 200px;
-  width: 400px;
+  width: clamp(320px, 2.5vw, 400px);
   border-radius: 7px;
   background-color: #202125;
   position: relative;

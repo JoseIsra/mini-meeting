@@ -3,7 +3,7 @@
     <ul class="a-menu__actionList">
       <li
         class="a-menu__actionList__item"
-        v-for="icon in icons"
+        v-for="icon in iconList"
         :key="icon.id"
         @click="handleFunctionSelected(icon.interaction)"
       >
@@ -17,9 +17,10 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, PropType } from 'vue';
+import { defineComponent, ref, PropType, computed } from 'vue';
 import { iconsFunctions } from '@/helpers/iconsMenuBar';
 import { Icons, Functionalities } from '@/types';
+import { useToogleFunctions } from '@/composables';
 
 export default defineComponent({
   name: 'FuMenuFunctions',
@@ -30,11 +31,18 @@ export default defineComponent({
   },
   setup(props) {
     const icons = ref<Icons[]>(iconsFunctions);
+
+    const { openFunctionResponsiveMenu } = useToogleFunctions();
+
     const handleFunctionSelected = (interaction: string) => {
       props?.objectFunctionalities?.[interaction as keyof Functionalities]?.();
+      openFunctionResponsiveMenu(false);
     };
+    const iconList = computed(() =>
+      icons.value.filter((icon) => icon.interaction !== 'HANDUP')
+    );
     return {
-      icons,
+      iconList,
       handleFunctionSelected,
     };
   },

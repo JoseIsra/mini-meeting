@@ -20,6 +20,7 @@ export default defineComponent({
   props: {
     sharedLink: {
       type: String,
+      default: 'sharedLink',
     },
   },
   setup() {

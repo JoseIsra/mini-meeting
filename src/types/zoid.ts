@@ -6,6 +6,7 @@ interface ZoidProps {
   publishToken?: string;
   playToken?: string;
   photoURL?: string;
+  sharedLink?: string;
   handleLeaveCall?: (arg: number) => void;
   handleEndCall?: () => void;
   handleStopRecording?: (urlOfRecording: string) => void;

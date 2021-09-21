@@ -8,6 +8,18 @@ export interface User {
   isMicOn: boolean;
   isScreenSharing: boolean;
   isVideoActivated: boolean;
+  stream?: MediaStream;
+}
+
+export interface UpdatedUserfields {
+  id?: string;
+  name?: string;
+  avatar?: string;
+  isCameraOn?: boolean;
+  isMicOn?: boolean;
+  isScreenSharing?: boolean;
+  isVideoActivated?: boolean;
+  stream?: MediaStream;
 }
 
 const userState = {} as User;
@@ -19,6 +31,10 @@ const pinnedUserStream = reactive(pinnedStream);
 export function useUserMe() {
   const setUserMe = (value: User) => {
     Object.assign(userState, value);
+  };
+
+  const updateUserMe = (value: UpdatedUserfields) => {
+    Object.assign(userMe, { ...userMe, ...value });
   };
 
   const setMicState = (value: boolean) => {
@@ -53,5 +69,6 @@ export function useUserMe() {
     setCameraState,
     setScreenState,
     setVideoActivatedState,
+    updateUserMe,
   };
 }

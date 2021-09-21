@@ -13,7 +13,7 @@
     />
     <fu-cooperate-header v-show="!screenMinimized" />
     <fu-shared-stream
-      sharedLink="sharedLink"
+      :sharedLink="sharingLink"
       v-show="functionsOnMenuBar.renderInfoRoomCard"
     />
     <fu-cooperate-user-video />
@@ -47,6 +47,7 @@ import _ from 'lodash';
 import { useSidebarToogle, useToogleFunctions } from '@/composables';
 import { useScreen } from '@/composables/screen';
 import FuSharedStream from 'molecules/FuSharedStream';
+import { useRoom } from '@/composables/room';
 
 export default defineComponent({
   name: 'FuCooperate',
@@ -83,7 +84,7 @@ export default defineComponent({
       setIDButtonSelected,
       openOptionsMenu,
     } = useToogleFunctions();
-
+    const { roomState } = useRoom();
     const { screenMinimized, updateScreenState } = useScreen();
 
     const hideMenuBar = _.debounce(() => {
@@ -112,6 +113,7 @@ export default defineComponent({
       closePanels,
       screenMinimized,
       updateScreenState,
+      ...toRefs(roomState),
     };
   },
 });

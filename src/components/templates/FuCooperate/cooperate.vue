@@ -88,6 +88,11 @@ export default defineComponent({
     const blockActions = ref(false);
 
     const roleId = (window as ZoidWindow)?.xprops?.roleId || 0;
+    
+    const sharingLink =
+      (window as ZoidWindow)?.xprops?.sharedLink ||
+      (route.query.sharedLink as string) ||
+      '';
 
     setUserMe({
       id: streamId,
@@ -105,6 +110,7 @@ export default defineComponent({
 
     setRoom({
       id: roomId,
+      sharingLink,
     });
 
     const publishToken =

@@ -357,7 +357,7 @@ export function useInitWebRTC() {
           isDataChannelOpen.value = true;
         } else if (info == 'data_channel_closed') {
           console.log('Data Channel closed for stream id', obj);
-          isDataChannelOpen.value = false;
+          // isDataChannelOpen.value = false;
         } else if (info == 'data_received') {
           //console.log(obj);
           const objParsed = JSON.parse(obj.data) as Message;
@@ -515,6 +515,8 @@ export function useInitWebRTC() {
                 user.isMicOn = remoteUserInfoParsed.userInfo.isMicOn;
                 user.isScreenSharing =
                   remoteUserInfoParsed.userInfo.isScreenSharing;
+                user.isVideoActivated =
+                  remoteUserInfoParsed.userInfo.isVideoActivated;
               }
             }
           } else if (eventType === 'USER_INFO_FINISH') {
@@ -538,6 +540,8 @@ export function useInitWebRTC() {
                 user.isMicOn = remoteUserInfoParsed.userInfo.isMicOn;
                 user.isScreenSharing =
                   remoteUserInfoParsed.userInfo.isScreenSharing;
+                user.isVideoActivated =
+                  remoteUserInfoParsed.userInfo.isVideoActivated;
               }
             }
           } else if (eventType === 'KICK') {

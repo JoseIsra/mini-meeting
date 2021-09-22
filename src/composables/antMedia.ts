@@ -15,19 +15,14 @@ const { userMe, setScreenState, setVideoActivatedState, updateUserMe } =
 const { setIsLoadingOrError, setLoadingOrErrorMessage, setExistRoom } =
   useAuthState();
 const { setRecorded } = useRoom();
-const {
-  deleteParticipantById,
-  participants,
-  addParticipants,
-  deleteAllParticipants,
-} = useHandleParticipants();
+const { deleteParticipantById, participants, addParticipants } =
+  useHandleParticipants();
 const { setUserMessage, deleteLoadingMessage } = useHandleMessage();
 const { addHandNotificationInfo, removeHandNotification } =
   useToogleFunctions();
 
 const roomTimerId = ref<ReturnType<typeof setInterval> | null>(null);
 const isDataChannelOpen = ref(false);
-
 interface ObjInfoRequested {
   to: string;
   from: string;
@@ -250,9 +245,9 @@ export function useInitWebRTC() {
           }
 
           //TODO: este es el error por el que sale streamid que ya se está escuchando
-          if (participants.value.length !== 0) {
+          /* if (participants.value.length !== 0) {
             deleteAllParticipants();
-          }
+          } */
           /* if (streamsList.value != null) { */
           /* this.streamsList.forEach(function (item) {
             removeRemoteVideo(item);
@@ -275,7 +270,7 @@ export function useInitWebRTC() {
         } else if (info == 'play_finished') {
           /* console.log('play_finished');
         removeRemoteVideo(obj.streamId); */
-          removeRemoteVideo(obj.streamId);
+          //removeRemoteVideo(obj.streamId);
         } else if (info == 'streamInformation') {
           streamInformation(obj, roomId, playToken);
         } else if (info == 'roomInformation') {

@@ -42,7 +42,7 @@ export default defineComponent({
     const recordTime = ref('00:00:00');
     const secondsElapsed = ref(0);
     const isRecording = ref<boolean>(false);
-    const { createMergeInstance, stopMerge } = useInitMerge();
+    const { recordingStream, stopRecordingStream } = useInitMerge();
     const { sendNotificationEvent } = useInitWebRTC();
     const { userMe } = useUserMe();
     const { roomState } = useRoom();
@@ -66,7 +66,15 @@ export default defineComponent({
       mergedName.value = `m-r-${roomState.id}-${timestamp}`;
 
       sendNotificationEvent('RECORDING_STARTED', userMe.id);
-      createMergeInstance(roomState.id, mergedName.value, mergedName.value)
+      /* createMergeInstance(roomState.id, mergedName.value, mergedName.value)
+        .then(() => {
+          isLoading.value = false;
+          interval.value = setInterval(oneSecondElapsed, 1000);
+          isRecording.value = true;
+        })
+        .catch((e) => console.log(e)); */
+
+      recordingStream(mergedName.value, mergedName.value, roomState.id)
         .then(() => {
           isLoading.value = false;
           successMessage('Grabando la sesión');
@@ -81,7 +89,8 @@ export default defineComponent({
       isRecording.value = false;
       recordTime.value = '00:00:00';
       clearInterval(interval.value);
-      stopMerge();
+      /* stopMerge(); */
+      stopRecordingStream(mergedName.value);
       secondsElapsed.value = 0;
       (window as ZoidWindow).xprops?.handleStopRecording?.(
         `https://f002.backblazeb2.com/file/antmedia/${mergedName.value}.m3u8`

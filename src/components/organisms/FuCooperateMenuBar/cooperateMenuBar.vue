@@ -352,7 +352,13 @@ export default defineComponent({
 
     const { updateScreenState } = useScreen();
 
-    const minimizeScreen = () => updateScreenState();
+    const minimizeScreen = () => {
+      updateScreenState();
+      setSidebarState(false);
+      setShowUsersList(false);
+      setShowNotes(false);
+      setShowChat(false);
+    };
 
     const handleMenuPosition = (ubication?: string) => {
       if (ubication == 'actions') {

@@ -16,7 +16,6 @@
       :sharedLink="sharingLink"
       v-show="functionsOnMenuBar.renderInfoRoomCard"
     />
-    <fu-cooperate-user-video />
     <fu-cooperate-menu-bar
       v-show="showMenuBar && !screenMinimized"
       :toggleLocalCamera="toggleLocalCamera"
@@ -26,7 +25,7 @@
     <transition :name="$q.screen.lt.sm ? 'dragged' : 'slide'">
       <fu-cooperate-side-bar v-show="isSidebarRender" />
     </transition>
-    <fu-cooperate-user-video />
+    <fu-cooperate-user-video v-show="!screenMinimized" />
     <fu-hand-notification
       v-show="functionsOnMenuBar.handNotificationInfo.length > 0"
     />

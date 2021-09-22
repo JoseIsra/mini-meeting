@@ -114,6 +114,7 @@ export function useToogleFunctions() {
     openOptionsMenu,
     watchInfoRoomCard,
     openFunctionResponsiveMenu,
+    functionState,
   };
 }
 

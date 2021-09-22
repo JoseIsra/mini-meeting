@@ -586,17 +586,23 @@ export function useInitWebRTC() {
         ) {
           errorMessage =
             'Camera or Mic is being used by some other process that does not not allow these devices to be read.';
+          setExistRoom(false);
+          setLoadingOrErrorMessage(errorMessage);
         } else if (
           error.indexOf('OverconstrainedError') != -1 ||
           error.indexOf('ConstraintNotSatisfiedError') != -1
         ) {
           errorMessage =
             'There is no device found that fits your video and audio constraints. You may change video and audio constraints.';
+          setExistRoom(false);
+          setLoadingOrErrorMessage(errorMessage);
         } else if (
           error.indexOf('NotAllowedError') != -1 ||
           error.indexOf('PermissionDeniedError') != -1
         ) {
           errorMessage = 'You are not allowed to access camera and mic.';
+          setExistRoom(false);
+          setLoadingOrErrorMessage(errorMessage);
         } else if (error.indexOf('TypeError') != -1) {
           errorMessage = 'Video/Audio is required.';
         } else if (error.indexOf('UnsecureContext') != -1) {

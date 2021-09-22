@@ -555,28 +555,63 @@ export function useInitWebRTC() {
               (window as ZoidWindow).xprops?.handleLeaveCall?.();
             }
           } else if (eventType === 'UNLOCK_PARTICIPANT_ACTION') {
-            const blockData = JSON.parse(obj.data) as ObjBlockParticipantAction;
-            console.log(blockData.participantId);
-            console.log(userMe.id);
+            const lockData = JSON.parse(obj.data) as ObjBlockParticipantAction;
 
-            if (blockData.participantId !== userMe.id) {
+            if (lockData.participantId !== userMe.id) {
               return;
             }
 
             unlockUserActions();
           } else if (eventType === 'LOCK_PARTICIPANT_ACTION') {
-            const blockData = JSON.parse(obj.data) as ObjBlockParticipantAction;
-            console.log(blockData.participantId);
-            console.log(userMe.id);
+            const lockData = JSON.parse(obj.data) as ObjBlockParticipantAction;
 
-            if (blockData.participantId !== userMe.id) {
+            if (lockData.participantId !== userMe.id) {
               return;
+            }
+
+            if (userMe.isMicOn) {
+              userMe.isMicOn = false;
+              muteLocalMic();
+              sendNotificationEvent('MIC_MUTED', userMe.id);
+            }
+
+            if (userMe.isCameraOn) {
+              userMe.isCameraOn = false;
+              turnOffLocalCamera(userMe.id);
+              sendNotificationEvent('CAM_TURNED_OFF', userMe.id);
+            }
+
+            if (userMe.isScreenSharing) {
+              userMe.isScreenSharing = false;
+              resetDesktop();
+              sendNotificationEvent('SCREEN_SHARING_OFF', userMe.id);
             }
 
             lockUserActions();
           } else if (eventType === 'UNLOCK_EVERYONE_ACTION') {
+            // Send notification
             unlockUserActions();
           } else if (eventType === 'LOCK_EVERYONE_ACTION') {
+            // Send notification
+
+            if (userMe.isMicOn) {
+              userMe.isMicOn = false;
+              muteLocalMic();
+              sendNotificationEvent('MIC_MUTED', userMe.id);
+            }
+
+            if (userMe.isCameraOn) {
+              userMe.isCameraOn = false;
+              turnOffLocalCamera(userMe.id);
+              sendNotificationEvent('CAM_TURNED_OFF', userMe.id);
+            }
+
+            if (userMe.isScreenSharing) {
+              userMe.isScreenSharing = false;
+              resetDesktop();
+              sendNotificationEvent('SCREEN_SHARING_OFF', userMe.id);
+            }
+
             lockUserActions();
           }
         }

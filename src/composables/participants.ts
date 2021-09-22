@@ -38,6 +38,7 @@ export function useHandleParticipants() {
 
   const unlockParticipantActions = (value: Participant) => {
     participants.value = participants.value.map((participant) => {
+      // isVideoActivated 
       if (participant.id === value.id) {
         return {
           ...participant,
@@ -45,6 +46,7 @@ export function useHandleParticipants() {
           isVideoBlocked: false,
           isScreenShareBlocked: false,
         };
+        // isVideoActivated: false,
       }
       return participant;
     });

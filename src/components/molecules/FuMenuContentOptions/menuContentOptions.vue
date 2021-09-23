@@ -36,13 +36,14 @@
       </li>
       <!-- <q-separator spaced color="white" /> -->
       <li
-        v-for="option in options.fourthSection"
+        v-for="(option) in options.fourthSection"
         :class="[
           'a-menu__optionList__item',
           { '--important': option.important },
         ]"
         :key="option.id"
         @click="handleOptionSelected(option.interaction)"
+        v-show="option.id === '9' ? isAdmin : false"
       >
         <q-icon :name="option.iconName" size="18px" color="white" />
         <label class="a-menu__optionList__item__description">{{
@@ -62,6 +63,7 @@ import { menuOptions, MenuOptions } from '@/helpers/menuOptions';
 import { ZoidWindow } from '@/types/zoid';
 import FuDeleteRoomModal from 'molecules/FuDeleteRoomModal';
 import { useToogleFunctions } from '@/composables';
+import { useUserMe } from '@/composables/userMe';
 
 interface OptionsClickMethods {
   LEAVE: () => void;
@@ -75,6 +77,8 @@ export default defineComponent({
     const options = ref<MenuOptions>(menuOptions);
     let openModal = ref(false);
     const { watchInfoRoomCard, openOptionsMenu } = useToogleFunctions();
+
+    const { isAdmin} = useUserMe();
 
     const optionsMethodsObject = reactive<OptionsClickMethods>({
       LEAVE: () => (window as ZoidWindow).xprops?.handleLeaveCall?.(),
@@ -99,6 +103,7 @@ export default defineComponent({
       options,
       handleOptionSelected,
       openModal,
+      isAdmin
     };
   },
 });

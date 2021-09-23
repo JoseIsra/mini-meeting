@@ -5,7 +5,7 @@
       <small>En línea ({{ participants.length + 1 }})</small>
     </header>
     <main class="m-list__content">
-      <div class="m-list__content__actions" v-show="isAdmin">
+      <div class="m-list__content__actions" v-show="isAdmin()">
         <span>
           {{ isEveryoneBlocked ? 'Limitar acciones ' : 'Liberar acciones' }}
         </span>
@@ -66,7 +66,7 @@
           <label>{{ participant.name }}</label>
         </div>
 
-        <div class="m-list__content__userBox__actions" v-show="isAdmin">
+        <div class="m-list__content__userBox__actions" v-show="isAdmin()">
           <q-btn
             :icon="
               hasActionsBlocked(participant)
@@ -124,7 +124,7 @@ export default defineComponent({
       const participantActions = participants.value.find(
         (part) => part.id === participant.id
       );
-      
+
       return (
         participantActions?.isMicBlocked === true &&
         participantActions?.isVideoBlocked === true &&

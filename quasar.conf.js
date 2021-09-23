@@ -101,7 +101,7 @@ module.exports = configure(function (ctx) {
         key: fs.readFileSync(`${ospath.homedir()}/web-certs/localhost-key.pem`),
       },
       port: 8080,
-      open: true, // opens browser window automatically
+      open: false, // opens browser window automatically
     },
 
     // https://v2.quasar.dev/quasar-cli/quasar-conf-js#Property%3A-framework

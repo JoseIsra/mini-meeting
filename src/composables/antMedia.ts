@@ -2,7 +2,7 @@ import { ref } from 'vue';
 import { WebRTCAdaptor } from '@/utils/webrtc/webrtc_adaptor';
 import { useUserMe, User } from '@/composables/userMe';
 import { useAuthState } from '@/composables/auth';
-import { objWebRTC, REASON_TO_LEAVE_ROOM } from '@/types/index';
+import { objWebRTC, REASON_TO_LEAVE_ROOM, LOCK_ACTION_TYPE } from '@/types/index';
 import { useHandleParticipants } from '@/composables/participants';
 import { Message, useHandleMessage } from '@/composables/chat';
 import { useToogleFunctions } from '@/composables';
@@ -583,7 +583,7 @@ export function useInitWebRTC() {
               return;
             }
 
-            if (action === 0) {
+            if (action === LOCK_ACTION_TYPE.All) {
               setMicBlock(value);
               setVideoBlock(value);
               setScreenShareBlock(value);
@@ -599,17 +599,15 @@ export function useInitWebRTC() {
                 resetDesktop();
                 sendNotificationEvent('SCREEN_SHARING_OFF', userMe.id);
               }
-            } else if (action === 1) {
+            } else if (action === LOCK_ACTION_TYPE.Mic) {
               setMicBlock(value);
-
               if (value) {
                 setMicState(false);
                 muteLocalMic();
                 sendNotificationEvent('MIC_MUTED', userMe.id);
               }
-            } else if (action === 2) {
+            } else if (action === LOCK_ACTION_TYPE.Camera) {
               setVideoBlock(value);
-
               if (value) {
                 setCameraState(false);
                 setVideoActivatedState(false);
@@ -617,8 +615,7 @@ export function useInitWebRTC() {
                 sendNotificationEvent('CAM_TURNED_OFF', userMe.id);
               }
             } else {
-              value;
-
+              // LOCK_ACTION_TYPE.Screen
               if (value) {
                 setScreenState(false);
                 setVideoActivatedState(false);
@@ -631,7 +628,7 @@ export function useInitWebRTC() {
               obj.data
             ) as ObjBlockEveryoneAction;
 
-            if (action === 0) {
+            if (action === LOCK_ACTION_TYPE.All) {
               setMicBlock(value);
               setVideoBlock(value);
               setScreenShareBlock(value);
@@ -647,17 +644,15 @@ export function useInitWebRTC() {
                 resetDesktop();
                 sendNotificationEvent('SCREEN_SHARING_OFF', userMe.id);
               }
-            } else if (action === 1) {
+            } else if (action === LOCK_ACTION_TYPE.Mic) {
               setMicBlock(value);
-
               if (value) {
                 setMicState(false);
                 muteLocalMic();
                 sendNotificationEvent('MIC_MUTED', userMe.id);
               }
-            } else if (action === 2) {
+            } else if (action === LOCK_ACTION_TYPE.Camera) {
               setVideoBlock(value);
-
               if (value) {
                 setCameraState(false);
                 setVideoActivatedState(false);
@@ -665,8 +660,7 @@ export function useInitWebRTC() {
                 sendNotificationEvent('CAM_TURNED_OFF', userMe.id);
               }
             } else {
-              value;
-
+              // LOCK_ACTION_TYPE.Screen
               if (value) {
                 setScreenState(false);
                 setVideoActivatedState(false);

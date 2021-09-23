@@ -14,7 +14,7 @@
 
         <q-btn
           :icon="isEveryoneMicBlocked ? 'mic' : 'mic_off'"
-          @click="handleEveryoneActions(1)"
+          @click="handleEveryoneActions(LOCK_ACTION_TYPE.Mic)"
           size="8px"
         >
           <q-tooltip
@@ -35,7 +35,7 @@
 
         <q-btn
           :icon="isEveryoneVideoBlocked ? 'videocam' : 'videocam_off'"
-          @click="handleEveryoneActions(2)"
+          @click="handleEveryoneActions(LOCK_ACTION_TYPE.Camera)"
           size="8px"
         >
           <q-tooltip
@@ -60,7 +60,7 @@
               ? 'desktop_windows'
               : 'desktop_access_disabled'
           "
-          @click="handleEveryoneActions(3)"
+          @click="handleEveryoneActions(LOCK_ACTION_TYPE.Screen)"
           size="8px"
         >
           <q-tooltip
@@ -81,7 +81,7 @@
 
         <q-btn
           :icon="isEveryoneActionsBlocked ? 'fas fa-lock-open' : 'fas fa-lock'"
-          @click="handleEveryoneActions(0)"
+          @click="handleEveryoneActions(LOCK_ACTION_TYPE.All)"
           size="10px"
           :disable="!participants.length > 0"
         >
@@ -179,7 +179,7 @@
 
           <q-btn
             :icon="isMicBlocked(participant) ? 'mic' : 'mic_off'"
-            @click="handleParticipantActions(participant, 1)"
+            @click="handleParticipantActions(participant, LOCK_ACTION_TYPE.Mic)"
           >
             <q-tooltip
               class="bg-grey-10"
@@ -199,7 +199,7 @@
 
           <q-btn
             :icon="isVideoBlocked(participant) ? 'videocam' : 'videocam_off'"
-            @click="handleParticipantActions(participant, 2)"
+            @click="handleParticipantActions(participant, LOCK_ACTION_TYPE.Camera)"
           >
             <q-tooltip
               class="bg-grey-10"
@@ -223,7 +223,7 @@
                 ? 'desktop_windows'
                 : 'desktop_access_disabled'
             "
-            @click="handleParticipantActions(participant, 3)"
+            @click="handleParticipantActions(participant,  LOCK_ACTION_TYPE.Screen)"
           >
             <q-tooltip
               class="bg-grey-10"
@@ -251,7 +251,7 @@ import { defineComponent, computed } from 'vue';
 import { useHandleParticipants } from '@/composables/participants';
 import { useUserMe } from '@/composables/userMe';
 import { useInitWebRTC } from '@/composables/antMedia';
-import { Participant } from '@/types';
+import { Participant, LOCK_ACTION_TYPE } from '@/types';
 import { nanoid } from 'nanoid';
 
 export default defineComponent({
@@ -327,13 +327,13 @@ export default defineComponent({
         action: action,
       };
 
-      if (action === 0) {
+      if (action === LOCK_ACTION_TYPE.All) {
         if (isEveryoneActionsBlocked.value) {
           setParticipantActions(participant, action, false);
         } else {
           setParticipantActions(participant, action, true);
         }
-      } else if (action === 1) {
+      } else if (action === LOCK_ACTION_TYPE.Mic) {
         if (isMicBlocked(participant)) {
           setParticipantActions(participant, action, false);
 
@@ -351,7 +351,7 @@ export default defineComponent({
             value: true,
           });
         }
-      } else if (action === 2) {
+      } else if (action === LOCK_ACTION_TYPE.Camera) {
         if (isVideoBlocked(participant)) {
           setParticipantActions(participant, action, false);
 
@@ -370,6 +370,7 @@ export default defineComponent({
           });
         }
       } else {
+        // LOCK_ACTION_TYPE.Screen
         if (isScreenShareBlocked(participant)) {
           setParticipantActions(participant, action, false);
 
@@ -397,7 +398,7 @@ export default defineComponent({
         action: action,
       };
 
-      if (action === 0) {
+      if (action ===  LOCK_ACTION_TYPE.All) {
         if (isEveryoneActionsBlocked.value) {
           setEveryParticipantActions(action, false);
 
@@ -415,7 +416,7 @@ export default defineComponent({
             value: true,
           });
         }
-      } else if (action === 1) {
+      } else if (action === LOCK_ACTION_TYPE.Mic) {
         if (isEveryoneMicBlocked.value) {
           setEveryParticipantActions(action, false);
 
@@ -433,7 +434,7 @@ export default defineComponent({
             value: true,
           });
         }
-      } else if (action === 2) {
+      } else if (action === LOCK_ACTION_TYPE.Camera) {
         if (isEveryoneVideoBlocked.value) {
           setEveryParticipantActions(action, false);
 
@@ -451,7 +452,7 @@ export default defineComponent({
             value: true,
           });
         }
-      } else if (action === 3) {
+      } else if (action === LOCK_ACTION_TYPE.Screen) {
         if (isEveryoneScreenShareBlocked.value) {
           setEveryParticipantActions(action, false);
 
@@ -509,6 +510,7 @@ export default defineComponent({
       isVideoBlocked,
       isScreenShareBlocked,
       handleParticipantActions,
+      LOCK_ACTION_TYPE
     };
   },
 });

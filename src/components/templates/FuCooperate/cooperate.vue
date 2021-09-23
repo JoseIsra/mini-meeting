@@ -94,8 +94,6 @@ export default defineComponent({
       parseInt(route.query.roleId as string) ||
       0;
 
-    console.log(roleId, typeof roleId, '🅰️🅰️🅰️🅰️🅰️');
-
     const sharingLink =
       (window as ZoidWindow)?.xprops?.sharedLink ||
       (route.query.sharedLink as string) ||

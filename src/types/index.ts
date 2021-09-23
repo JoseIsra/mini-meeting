@@ -138,3 +138,10 @@ export enum REASON_TO_LEAVE_ROOM {
   YOURSELF = 0,
   MODERATOR_CLOSE_ROOM = 1,
 }
+
+export enum LOCK_ACTION_TYPE {
+  'All',
+  'Mic',
+  'Camera',
+  'Screen',
+}

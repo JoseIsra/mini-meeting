@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-show="isAdmin">
     <q-btn
       v-if="!isRecording"
       :disable="roomState.isBeingRecorded"
@@ -41,7 +41,7 @@ export default defineComponent({
     const isRecording = ref<boolean>(false);
     const { createMergeInstance, stopMerge } = useInitMerge();
     const { sendNotificationEvent } = useInitWebRTC();
-    const { userMe } = useUserMe();
+    const { userMe, isAdmin } = useUserMe();
     const { roomState } = useRoom();
     const isLoading = ref(false);
 
@@ -91,6 +91,7 @@ export default defineComponent({
       recordTime,
       isLoading,
       roomState,
+      isAdmin
     };
   },
 });

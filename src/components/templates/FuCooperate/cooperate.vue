@@ -58,7 +58,9 @@ export default defineComponent({
       sendNotificationEvent,
       justTurnOnLocalCamera,
     } = useInitWebRTC();
+
     const { userMe, setUserMe, setVideoActivatedState, isAdmin } = useUserMe();
+
     const { setRoom } = useRoom();
     const route = useRoute();
     const { authState, setLoadingOrErrorMessage, setExistRoom } =

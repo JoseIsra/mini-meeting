@@ -7,12 +7,82 @@
     <main class="m-list__content">
       <div class="m-list__content__actions" v-show="isAdmin()">
         <span>
-          {{ isEveryoneBlocked ? 'Limitar acciones ' : 'Liberar acciones' }}
+          {{
+            isEveryoneActionsBlocked ? 'Limitar acciones ' : 'Liberar acciones'
+          }}
         </span>
+
         <q-btn
-          :icon="isEveryoneBlocked ? 'fas fa-lock-open' : 'fas fa-lock'"
-          @click="handleEveryoneActions"
-          size="12px"
+          :icon="isEveryoneMicBlocked ? 'mic' : 'mic_off'"
+          @click="handleEveryoneActions(1)"
+          size="8px"
+        >
+          <q-tooltip
+            class="bg-grey-10"
+            anchor="top middle"
+            self="bottom middle"
+            :offset="[50, 10]"
+            transition-show="scale"
+            transition-hide="scale"
+          >
+            <label class="">{{
+              isEveryoneMicBlocked
+                ? 'Desbloquear Microfono para la sala'
+                : 'Bloquear Microfono para la sala'
+            }}</label>
+          </q-tooltip>
+        </q-btn>
+
+        <q-btn
+          :icon="isEveryoneVideoBlocked ? 'videocam' : 'videocam_off'"
+          @click="handleEveryoneActions(2)"
+          size="8px"
+        >
+          <q-tooltip
+            class="bg-grey-10"
+            anchor="top middle"
+            self="bottom middle"
+            :offset="[50, 10]"
+            transition-show="scale"
+            transition-hide="scale"
+          >
+            <label class="">{{
+              isEveryoneVideoBlocked
+                ? 'Desbloquear Camara para la sala'
+                : 'Bloquear Camara para la sala'
+            }}</label>
+          </q-tooltip>
+        </q-btn>
+
+        <q-btn
+          :icon="
+            isEveryoneScreenShareBlocked
+              ? 'desktop_windows'
+              : 'desktop_access_disabled'
+          "
+          @click="handleEveryoneActions(3)"
+          size="8px"
+        >
+          <q-tooltip
+            class="bg-grey-10"
+            anchor="top middle"
+            self="bottom middle"
+            :offset="[50, 10]"
+            transition-show="scale"
+            transition-hide="scale"
+          >
+            <label class="">{{
+              isEveryoneScreenShareBlocked
+                ? 'Desbloquear Compartir Pantalla para la sala'
+                : 'Bloquear Compartir Pantalla para la sala'
+            }}</label>
+          </q-tooltip>
+        </q-btn>
+
+        <q-btn
+          :icon="isEveryoneActionsBlocked ? 'fas fa-lock-open' : 'fas fa-lock'"
+          @click="handleEveryoneActions(0)"
+          size="10px"
           :disable="!participants.length > 0"
         >
           <q-tooltip
@@ -24,7 +94,9 @@
             transition-hide="scale"
           >
             <label class="">{{
-              isEveryoneBlocked ? 'Desbloquear acciones para todos' : 'Bloquear acciones para todos'
+              isEveryoneActionsBlocked
+                ? 'Desbloquear acciones para todos'
+                : 'Bloquear acciones para todos'
             }}</label>
           </q-tooltip>
         </q-btn>
@@ -80,7 +152,7 @@
         </div>
 
         <div class="m-list__content__userBox__actions" v-show="isAdmin()">
-          <q-btn
+          <!-- <q-btn
             :icon="
               hasActionsBlocked(participant)
                 ? 'fas fa-lock-open'
@@ -103,13 +175,71 @@
                   : 'Bloquear acciones'
               }}</label>
             </q-tooltip>
+          </q-btn> -->
+
+          <q-btn
+            :icon="isMicBlocked(participant) ? 'mic' : 'mic_off'"
+            @click="handleParticipantActions(participant, 1)"
+          >
+            <q-tooltip
+              class="bg-grey-10"
+              anchor="top middle"
+              self="bottom middle"
+              :offset="[50, 10]"
+              transition-show="scale"
+              transition-hide="scale"
+            >
+              <label class="">{{
+                isMicBlocked(participant)
+                  ? 'Desbloquear Microfono'
+                  : 'Bloquear Microfono'
+              }}</label>
+            </q-tooltip>
           </q-btn>
-          <!-- <q-btn
-            icon="fas fa-video-slash"
-          />
-            <q-btn
-            icon="desktop_access_disabled"
-          /> -->
+
+          <q-btn
+            :icon="isVideoBlocked(participant) ? 'videocam' : 'videocam_off'"
+            @click="handleParticipantActions(participant, 2)"
+          >
+            <q-tooltip
+              class="bg-grey-10"
+              anchor="top middle"
+              self="bottom middle"
+              :offset="[50, 10]"
+              transition-show="scale"
+              transition-hide="scale"
+            >
+              <label class="">{{
+                isVideoBlocked(participant)
+                  ? 'Desbloquear Camara'
+                  : 'Bloquear Camara'
+              }}</label>
+            </q-tooltip>
+          </q-btn>
+
+          <q-btn
+            :icon="
+              isScreenShareBlocked(participant)
+                ? 'desktop_windows'
+                : 'desktop_access_disabled'
+            "
+            @click="handleParticipantActions(participant, 3)"
+          >
+            <q-tooltip
+              class="bg-grey-10"
+              anchor="top middle"
+              self="bottom middle"
+              :offset="[50, 10]"
+              transition-show="scale"
+              transition-hide="scale"
+            >
+              <label class="">{{
+                isScreenShareBlocked(participant)
+                  ? 'Desbloquear Compartir Pantalla'
+                  : 'Bloquear Compartir Pantalla'
+              }}</label>
+            </q-tooltip>
+          </q-btn>
         </div>
       </div>
     </main>
@@ -127,26 +257,39 @@ import { nanoid } from 'nanoid';
 export default defineComponent({
   name: 'FuCooperateUsersList',
   setup() {
-    const {
-      participants,
-      unlockParticipantActions,
-      lockParticipantActions,
-      unlockEveryParticipantActions,
-      lockEveryParticipantActions,
-    } = useHandleParticipants();
+    const { participants, setParticipantActions, setEveryParticipantActions } =
+      useHandleParticipants();
 
     const { userMe, isAdmin } = useUserMe();
 
     const { sendData } = useInitWebRTC();
 
-    const isEveryoneBlocked = computed(
+    const isEveryoneMicBlocked = computed(
       () =>
         !participants.value.some(
-          (participant) =>
-            participant?.isMicBlocked === false &&
-            participant?.isVideoBlocked === false &&
-            participant?.isScreenShareBlocked === false
+          (participant) => participant?.isMicBlocked === false
         )
+    );
+
+    const isEveryoneVideoBlocked = computed(
+      () =>
+        !participants.value.some(
+          (participant) => participant?.isVideoBlocked === false
+        )
+    );
+
+    const isEveryoneScreenShareBlocked = computed(
+      () =>
+        !participants.value.some(
+          (participant) => participant?.isScreenShareBlocked === false
+        )
+    );
+
+    const isEveryoneActionsBlocked = computed(
+      () =>
+        isEveryoneMicBlocked.value &&
+        isEveryoneVideoBlocked.value &&
+        isEveryoneScreenShareBlocked.value
     );
 
     const hasActionsBlocked = (participant: Participant) => {
@@ -161,75 +304,211 @@ export default defineComponent({
       );
     };
 
-    const handlePartipantActions = (participant: Participant) => {
+    const isMicBlocked = (participant: Participant) =>
+      participants.value.find((part) => part.id === participant.id)
+        ?.isMicBlocked === true;
+
+    const isVideoBlocked = (participant: Participant) =>
+      participants.value.find((part) => part.id === participant.id)
+        ?.isVideoBlocked === true;
+
+    const isScreenShareBlocked = (participant: Participant) =>
+      participants.value.find((part) => part.id === participant.id)
+        ?.isScreenShareBlocked === true;
+
+    const handleParticipantActions = (
+      participant: Participant,
+      action: number
+    ) => {
       const blockActions = {
         id: nanoid(),
         streamId: userMe.id,
         participantId: participant.id,
+        action: action,
       };
 
-      if (hasActionsBlocked(participant)) {
-        console.log('Tiene acciones bloqueadas');
+      if (action === 0) {
+        if (isEveryoneActionsBlocked.value) {
+          setParticipantActions(participant, action, false);
+        } else {
+          setParticipantActions(participant, action, true);
+        }
+      } else if (action === 1) {
+        if (isMicBlocked(participant)) {
+          setParticipantActions(participant, action, false);
 
-        unlockParticipantActions(participant);
+          sendData(userMe.id, {
+            ...blockActions,
+            eventType: 'SET_PARTICIPANT_ACTION',
+            value: false,
+          });
+        } else {
+          setParticipantActions(participant, action, true);
 
-        sendData(userMe.id, {
-          ...blockActions,
-          eventType: 'UNLOCK_PARTICIPANT_ACTION',
-        });
+          sendData(userMe.id, {
+            ...blockActions,
+            eventType: 'SET_PARTICIPANT_ACTION',
+            value: true,
+          });
+        }
+      } else if (action === 2) {
+        if (isVideoBlocked(participant)) {
+          setParticipantActions(participant, action, false);
+
+          sendData(userMe.id, {
+            ...blockActions,
+            eventType: 'SET_PARTICIPANT_ACTION',
+            value: false,
+          });
+        } else {
+          setParticipantActions(participant, action, true);
+
+          sendData(userMe.id, {
+            ...blockActions,
+            eventType: 'SET_PARTICIPANT_ACTION',
+            value: true,
+          });
+        }
       } else {
-        console.log('No tiene acciones bloqueadas');
+        if (isScreenShareBlocked(participant)) {
+          setParticipantActions(participant, action, false);
 
-        lockParticipantActions(participant);
+          sendData(userMe.id, {
+            ...blockActions,
+            eventType: 'SET_PARTICIPANT_ACTION',
+            value: false,
+          });
+        } else {
+          setParticipantActions(participant, action, true);
 
-        sendData(userMe.id, {
-          ...blockActions,
-          eventType: 'LOCK_PARTICIPANT_ACTION',
-        });
+          sendData(userMe.id, {
+            ...blockActions,
+            eventType: 'SET_PARTICIPANT_ACTION',
+            value: true,
+          });
+        }
       }
     };
 
-    const handleEveryoneActions = () => {
+    const handleEveryoneActions = (action: number) => {
       const blockActions = {
         id: nanoid(),
         streamId: userMe.id,
+        action: action,
       };
 
-      if (isEveryoneBlocked.value) {
-        console.log('Todos bloqueados');
+      if (action === 0) {
+        if (isEveryoneActionsBlocked.value) {
+          setEveryParticipantActions(action, false);
 
-        unlockEveryParticipantActions();
+          sendData(userMe.id, {
+            ...blockActions,
+            eventType: 'SET_EVERYONE_ACTION',
+            value: false,
+          });
+        } else {
+          setEveryParticipantActions(action, true);
 
-        console.log(participants.value);
+          sendData(userMe.id, {
+            ...blockActions,
+            eventType: 'SET_EVERYONE_ACTION',
+            value: true,
+          });
+        }
+      } else if (action === 1) {
+        if (isEveryoneMicBlocked.value) {
+          setEveryParticipantActions(action, false);
 
-        sendData(userMe.id, {
-          ...blockActions,
-          eventType: 'UNLOCK_EVERYONE_ACTION',
-        });
-      } else {
-        console.log('Minimo 1 desbloqueado');
+          sendData(userMe.id, {
+            ...blockActions,
+            eventType: 'SET_EVERYONE_ACTION',
+            value: false,
+          });
+        } else {
+          setEveryParticipantActions(action, true);
 
-        lockEveryParticipantActions();
+          sendData(userMe.id, {
+            ...blockActions,
+            eventType: 'SET_EVERYONE_ACTION',
+            value: true,
+          });
+        }
+      } else if (action === 2) {
+        if (isEveryoneVideoBlocked.value) {
+          setEveryParticipantActions(action, false);
 
-        console.log(participants.value);
+          sendData(userMe.id, {
+            ...blockActions,
+            eventType: 'SET_EVERYONE_ACTION',
+            value: false,
+          });
+        } else {
+          setEveryParticipantActions(action, true);
 
-        sendData(userMe.id, {
-          ...blockActions,
-          eventType: 'LOCK_EVERYONE_ACTION',
-        });
+          sendData(userMe.id, {
+            ...blockActions,
+            eventType: 'SET_EVERYONE_ACTION',
+            value: true,
+          });
+        }
+      } else if (action === 3) {
+        if (isEveryoneScreenShareBlocked.value) {
+          setEveryParticipantActions(action, false);
+
+          sendData(userMe.id, {
+            ...blockActions,
+            eventType: 'SET_EVERYONE_ACTION',
+            value: false,
+          });
+        } else {
+          setEveryParticipantActions(action, true);
+
+          sendData(userMe.id, {
+            ...blockActions,
+            eventType: 'SET_EVERYONE_ACTION',
+            value: true,
+          });
+        }
       }
-    };
 
-    // const areAllBlocked = () => participants.value.some(participant => participant.isBlock === false)
+      // AllActionsBlocked
+      // AllMicBlocked
+      // AllCameraBlocked
+      // AllShareScreenBlocked
+
+      // if (isEveryoneBlocked.value) {
+      //   unlockEveryParticipantActions();
+
+      // sendData(userMe.id, {
+      //   ...blockActions,
+      //   eventType: 'SET_EVERYONE_ACTION',
+      //   value: false,
+      // });
+      // } else {
+      //   lockEveryParticipantActions();
+
+      //   sendData(userMe.id, {
+      //     ...blockActions,
+      //     eventType: 'SET_EVERYONE_ACTION',
+      //     value: true,
+      //   });
+      // }
+    };
 
     return {
       participants,
       hasActionsBlocked,
-      handlePartipantActions,
       handleEveryoneActions,
       userMe,
       isAdmin,
-      isEveryoneBlocked,
+      isEveryoneMicBlocked,
+      isEveryoneVideoBlocked,
+      isEveryoneScreenShareBlocked,
+      isEveryoneActionsBlocked,
+      isMicBlocked,
+      isVideoBlocked,
+      isScreenShareBlocked,
+      handleParticipantActions,
     };
   },
 });

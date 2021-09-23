@@ -14,10 +14,14 @@ const {
   userMe,
   setScreenState,
   setVideoActivatedState,
-  lockUserActions,
-  unlockUserActions,
   updateUserMe,
+  setMicBlock,
+  setVideoBlock,
+  setScreenShareBlock,
+  setMicState,
+  setCameraState,
 } = useUserMe();
+
 const { setIsLoadingOrError, setLoadingOrErrorMessage, setExistRoom } =
   useAuthState();
 const { setRecorded } = useRoom();
@@ -55,6 +59,16 @@ interface ObjBlockParticipantAction {
   streamId: string;
   participantId: string;
   eventType: string;
+  action: number;
+  value: boolean;
+}
+
+interface ObjBlockEveryoneAction {
+  id: string;
+  streamId: string;
+  eventType: string;
+  action: number;
+  value: boolean;
 }
 
 export function useInitWebRTC() {
@@ -560,67 +574,108 @@ export function useInitWebRTC() {
                 REASON_TO_LEAVE_ROOM.MODERATOR_CLOSE_ROOM
               );
             }
-          } else if (eventType === 'UNLOCK_PARTICIPANT_ACTION') {
-            const lockData = JSON.parse(obj.data) as ObjBlockParticipantAction;
+          } else if (eventType === 'SET_PARTICIPANT_ACTION') {
+            const { action, value, participantId } = JSON.parse(
+              obj.data
+            ) as ObjBlockParticipantAction;
 
-            if (lockData.participantId !== userMe.id) {
+            if (participantId !== userMe.id) {
               return;
             }
 
-            unlockUserActions();
-          } else if (eventType === 'LOCK_PARTICIPANT_ACTION') {
-            const lockData = JSON.parse(obj.data) as ObjBlockParticipantAction;
+            if (action === 0) {
+              setMicBlock(value);
+              setVideoBlock(value);
+              setScreenShareBlock(value);
+              if (value) {
+                setMicState(false);
+                muteLocalMic();
+                sendNotificationEvent('MIC_MUTED', userMe.id);
+                setCameraState(false);
+                turnOffLocalCamera(userMe.id);
+                sendNotificationEvent('CAM_TURNED_OFF', userMe.id);
+                setScreenState(false);
+                setVideoActivatedState(false);
+                resetDesktop();
+                sendNotificationEvent('SCREEN_SHARING_OFF', userMe.id);
+              }
+            } else if (action === 1) {
+              setMicBlock(value);
 
-            if (lockData.participantId !== userMe.id) {
-              return;
+              if (value) {
+                setMicState(false);
+                muteLocalMic();
+                sendNotificationEvent('MIC_MUTED', userMe.id);
+              }
+            } else if (action === 2) {
+              setVideoBlock(value);
+
+              if (value) {
+                setCameraState(false);
+                setVideoActivatedState(false);
+                turnOffLocalCamera(userMe.id);
+                sendNotificationEvent('CAM_TURNED_OFF', userMe.id);
+              }
+            } else {
+              value;
+
+              if (value) {
+                setScreenState(false);
+                setVideoActivatedState(false);
+                resetDesktop();
+                sendNotificationEvent('SCREEN_SHARING_OFF', userMe.id);
+              }
+            }
+          } else if (eventType === 'SET_EVERYONE_ACTION') {
+            const { action, value } = JSON.parse(
+              obj.data
+            ) as ObjBlockEveryoneAction;
+
+            if (action === 0) {
+              setMicBlock(value);
+              setVideoBlock(value);
+              setScreenShareBlock(value);
+              if (value) {
+                setMicState(false);
+                muteLocalMic();
+                sendNotificationEvent('MIC_MUTED', userMe.id);
+                setCameraState(false);
+                turnOffLocalCamera(userMe.id);
+                sendNotificationEvent('CAM_TURNED_OFF', userMe.id);
+                setScreenState(false);
+                setVideoActivatedState(false);
+                resetDesktop();
+                sendNotificationEvent('SCREEN_SHARING_OFF', userMe.id);
+              }
+            } else if (action === 1) {
+              setMicBlock(value);
+
+              if (value) {
+                setMicState(false);
+                muteLocalMic();
+                sendNotificationEvent('MIC_MUTED', userMe.id);
+              }
+            } else if (action === 2) {
+              setVideoBlock(value);
+
+              if (value) {
+                setCameraState(false);
+                setVideoActivatedState(false);
+                turnOffLocalCamera(userMe.id);
+                sendNotificationEvent('CAM_TURNED_OFF', userMe.id);
+              }
+            } else {
+              value;
+
+              if (value) {
+                setScreenState(false);
+                setVideoActivatedState(false);
+                resetDesktop();
+                sendNotificationEvent('SCREEN_SHARING_OFF', userMe.id);
+              }
             }
 
-            if (userMe.isMicOn) {
-              userMe.isMicOn = false;
-              muteLocalMic();
-              sendNotificationEvent('MIC_MUTED', userMe.id);
-            }
-
-            if (userMe.isCameraOn) {
-              userMe.isCameraOn = false;
-              userMe.isVideoActivated = false;
-              turnOffLocalCamera(userMe.id);
-              sendNotificationEvent('CAM_TURNED_OFF', userMe.id);
-            }
-
-            if (userMe.isScreenSharing) {
-              userMe.isScreenSharing = false;
-              userMe.isVideoActivated = false;
-              resetDesktop();
-              sendNotificationEvent('SCREEN_SHARING_OFF', userMe.id);
-            }
-
-            lockUserActions();
-          } else if (eventType === 'UNLOCK_EVERYONE_ACTION') {
-            // Send notification
-            unlockUserActions();
-          } else if (eventType === 'LOCK_EVERYONE_ACTION') {
-            // Send notification
-
-            if (userMe.isMicOn) {
-              userMe.isMicOn = false;
-              muteLocalMic();
-              sendNotificationEvent('MIC_MUTED', userMe.id);
-            }
-
-            if (userMe.isCameraOn) {
-              userMe.isCameraOn = false;
-              turnOffLocalCamera(userMe.id);
-              sendNotificationEvent('CAM_TURNED_OFF', userMe.id);
-            }
-
-            if (userMe.isScreenSharing) {
-              userMe.isScreenSharing = false;
-              resetDesktop();
-              sendNotificationEvent('SCREEN_SHARING_OFF', userMe.id);
-            }
-
-            lockUserActions();
+            // setUserActions(lockData.action, lockData.value);
           }
         }
       },

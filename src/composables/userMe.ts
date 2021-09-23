@@ -41,7 +41,7 @@ export function useUserMe() {
   };
 
   const isAdmin = () => userMe.roleId === 0;
-  
+
   const updateUserMe = (value: UpdatedUserfields) => {
     Object.assign(userMe, { ...userMe, ...value });
   };
@@ -58,17 +58,16 @@ export function useUserMe() {
     userMe.isScreenSharing = value;
   };
 
-  const lockUserActions = () => {
-    // mic/video/screen-share
-    userMe.isMicBlocked = true;
-    userMe.isVideoBlocked = true;
-    userMe.isScreenShareBlocked = true;
+  const setMicBlock = (value: boolean) => {
+    userMe.isMicBlocked = value;
   };
 
-  const unlockUserActions = () => {
-    userMe.isMicBlocked = false;
-    userMe.isVideoBlocked = false;
-    userMe.isScreenShareBlocked = false;
+  const setVideoBlock = (value: boolean) => {
+    userMe.isVideoBlocked = value;
+  };
+
+  const setScreenShareBlock = (value: boolean) => {
+    userMe.isScreenShareBlocked = value;
   };
 
   // const setCameraDevice = (value: string) => {
@@ -93,8 +92,9 @@ export function useUserMe() {
     setScreenState,
     setVideoActivatedState,
     isAdmin,
-    lockUserActions,
-    unlockUserActions,
     updateUserMe,
+    setMicBlock,
+    setVideoBlock,
+    setScreenShareBlock,
   };
 }

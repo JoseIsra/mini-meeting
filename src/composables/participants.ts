@@ -22,55 +22,52 @@ export function useHandleParticipants() {
     participants.value.splice(0, 1);
   };
 
-  const lockParticipantActions = (value: Participant) => {
-    participants.value = participants.value.map((participant) => {
-      if (participant.id === value.id) {
-        return {
-          ...participant,
-          isMicBlocked: true,
-          isVideoBlocked: true,
-          isScreenShareBlocked: true,
-        };
+  const setParticipantActions = (
+    participant: Participant,
+    action: number,
+    value: boolean
+  ) => {
+    participants.value = participants.value.map((part) => {
+      if (part.id === participant.id) {
+        if (action === 0) {
+          return {
+            ...part,
+            isMicBlocked: value,
+            isVideoBlocked: value,
+            isScreenShareBlocked: value,
+          };
+        } else {
+          return {
+            ...part,
+            isMicBlocked: action === 1 ? value : part.isMicBlocked,
+            isVideoBlocked: action === 2 ? value : part.isVideoBlocked,
+            isScreenShareBlocked:
+              action === 3 ? value : part.isScreenShareBlocked,
+          };
+        }
       }
       return participant;
     });
   };
 
-  const unlockParticipantActions = (value: Participant) => {
-    participants.value = participants.value.map((participant) => {
-      // isVideoActivated 
-      if (participant.id === value.id) {
+  const setEveryParticipantActions = (action: number, value: boolean) => {
+    participants.value = participants.value.map((part) => {
+      if (action === 0) {
         return {
-          ...participant,
-          isMicBlocked: false,
-          isVideoBlocked: false,
-          isScreenShareBlocked: false,
+          ...part,
+          isMicBlocked: value,
+          isVideoBlocked: value,
+          isScreenShareBlocked: value,
         };
-        // isVideoActivated: false,
+      } else {
+        return {
+          ...part,
+          isMicBlocked: action === 1 ? value : part.isMicBlocked,
+          isVideoBlocked: action === 2 ? value : part.isVideoBlocked,
+          isScreenShareBlocked:
+            action === 3 ? value : part.isScreenShareBlocked,
+        };
       }
-      return participant;
-    });
-  };
-
-  const lockEveryParticipantActions = () => {
-    participants.value = participants.value.map((participant) => {
-      return {
-        ...participant,
-        isMicBlocked: true,
-        isVideoBlocked: true,
-        isScreenShareBlocked: true,
-      };
-    });
-  };
-
-  const unlockEveryParticipantActions = () => {
-    participants.value = participants.value.map((participant) => {
-      return {
-        ...participant,
-        isMicBlocked: false,
-        isVideoBlocked: false,
-        isScreenShareBlocked: false,
-      };
     });
   };
 
@@ -79,9 +76,7 @@ export function useHandleParticipants() {
     addParticipants,
     deleteParticipantById,
     participants,
-    lockParticipantActions,
-    unlockParticipantActions,
-    lockEveryParticipantActions,
-    unlockEveryParticipantActions,
+    setParticipantActions,
+    setEveryParticipantActions,
   };
 }

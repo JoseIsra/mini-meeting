@@ -36,7 +36,7 @@
       </li>
       <!-- <q-separator spaced color="white" /> -->
       <li
-        v-for="(option) in options.fourthSection"
+        v-for="option in options.fourthSection"
         :class="[
           'a-menu__optionList__item',
           { '--important': option.important },
@@ -64,6 +64,7 @@ import { ZoidWindow } from '@/types/zoid';
 import FuDeleteRoomModal from 'molecules/FuDeleteRoomModal';
 import { useToogleFunctions } from '@/composables';
 import { useUserMe } from '@/composables/userMe';
+import { REASON_TO_LEAVE_ROOM } from '@/types';
 
 interface OptionsClickMethods {
   LEAVE: () => void;
@@ -78,10 +79,13 @@ export default defineComponent({
     let openModal = ref(false);
     const { watchInfoRoomCard, openOptionsMenu } = useToogleFunctions();
 
-    const { isAdmin} = useUserMe();
+    const { isAdmin } = useUserMe();
 
     const optionsMethodsObject = reactive<OptionsClickMethods>({
-      LEAVE: () => (window as ZoidWindow).xprops?.handleLeaveCall?.(),
+      LEAVE: () =>
+        (window as ZoidWindow).xprops?.handleLeaveCall?.(
+          REASON_TO_LEAVE_ROOM.MODERATOR_CLOSE_ROOM
+        ),
       END: () => openDeleteRoomModal(),
       ROOMDETAILS: () => openInfoRoomCard(),
     });
@@ -103,7 +107,7 @@ export default defineComponent({
       options,
       handleOptionSelected,
       openModal,
-      isAdmin
+      isAdmin,
     };
   },
 });

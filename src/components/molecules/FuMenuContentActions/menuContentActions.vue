@@ -24,6 +24,7 @@
 import { defineComponent, ref } from 'vue';
 import { menuActions, Options } from '@/helpers/menuOptions';
 import FuRetransmissionContent from 'molecules/FuRetransmissionContent';
+import { useToogleFunctions } from '@/composables';
 
 export default defineComponent({
   name: 'FuMenuContentActions',
@@ -31,10 +32,12 @@ export default defineComponent({
     FuRetransmissionContent,
   },
   setup() {
+    const { openOptionsMenu } = useToogleFunctions();
     const actions = ref<Options[]>(menuActions);
     const filterContent = ref('');
     let modal = ref(false);
     const openModal = (interaction: string) => {
+      openOptionsMenu(false);
       modal.value = true;
       filterContent.value = interaction;
     };

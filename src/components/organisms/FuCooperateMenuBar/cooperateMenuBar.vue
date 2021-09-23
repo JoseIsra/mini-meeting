@@ -42,30 +42,47 @@
                   ? icon.id == functionsOnMenuBar.selectedButtonID
                   : userMe.isScreenSharing,
             },
+            {
+              activeHand:
+                handNotificationActive && icon.interaction == 'HANDUP',
+            },
           ]"
           :key="icon.id"
           :icon="icon.onState"
           size="14px"
-          :disabled="disableAction(icon)"
-          @click="
-            icon.active = !icon.active;
-            handleFunctionSelected(icon.interaction, icon.id);
+          :disabled="icon.id === '1' && userMe.isCameraOn"
+          v-on="
+            icon.behaviour == 'ESPECIAL'
+              ? { click: () => handleEspecialBehaviour(icon.interaction) }
+              : {
+                  click: () =>
+                    handleFunctionSelected(icon.interaction, icon.id),
+                }
           "
         >
-          <q-tooltip
-            class="bg-grey-10"
-            v-if="icon.id !== functionsOnMenuBar.selectedButtonID"
-          >
-            <label class="a-menuBar__icon__tooltip">
+          <q-tooltip class="bg-grey-10" v-if="icon.behaviour == 'NORMAL'">
+            <label
+              class="a-menuBar__icon__tooltip"
+              v-if="icon.id !== functionsOnMenuBar.selectedButtonID"
+            >
               {{ icon.toolTipMessage }}
             </label>
-          </q-tooltip>
-          <q-tooltip
-            class="bg-grey-10"
-            v-if="icon.id == functionsOnMenuBar.selectedButtonID"
-          >
-            <label class="a-menuBar__icon__tooltip">
+            <label v-else class="a-menuBar__icon__tooltip">
               {{ icon.toolTipSecondMessage }}
+            </label>
+          </q-tooltip>
+          <q-tooltip class="bg-grey-10" v-if="icon.behaviour == 'ESPECIAL'">
+            <label
+              class="a-menuBar__icon__tooltip"
+              v-if="functionsOnMenuBar.handNotificationInfo.length > 0"
+            >
+              {{ icon.toolTipSecondMessage }}
+            </label>
+            <label
+              class="a-menuBar__icon__tooltip"
+              v-if="functionsOnMenuBar.handNotificationInfo.length == 0"
+            >
+              {{ icon.toolTipMessage }}
             </label>
           </q-tooltip>
         </q-btn>
@@ -76,10 +93,28 @@
           flat
           round
           color="white"
-          @click="renderFunctionResponsiveMenu = !renderFunctionResponsiveMenu"
+          @click="openResponsiveMenuOfFunctions"
         />
+        <q-btn
+          icon="pan_tool"
+          class="a-menuBar__functions__responsive__handBtn"
+          flat
+          round
+          color="grey-1"
+          size="12px"
+          @click="handleEspecialBehaviour('HANDUP')"
+        >
+          <q-badge
+            v-show="functionsOnMenuBar.handNotificationInfo.length > 0"
+            color="red"
+            rounded
+            floating
+            >x</q-badge
+          >
+        </q-btn>
+
         <fu-cooperate-menu
-          v-show="renderFunctionResponsiveMenu"
+          v-show="functionsOnMenuBar.renderResponsiveFunctionMenu"
           :objectFunctionalities="objectFunctionalities"
           class="a-menuBar__functions__responsive__menu"
           :isActions="false"
@@ -199,6 +234,7 @@ export default defineComponent({
       removeHandNotification,
       setIDButtonSelected,
       openOptionsMenu,
+      openFunctionResponsiveMenu,      
     } = useToogleFunctions();
     let { isSidebarRender, setSidebarState } = useSidebarToogle();
     const {
@@ -208,6 +244,8 @@ export default defineComponent({
       setScreenState,
       setVideoActivatedState,
     } = useUserMe();
+    let handNotificationActive = ref(false);
+
     //**********************++FUNCIONES ********************** */
     const toogleChat = () => {
       if (!isSidebarRender.value) {
@@ -227,7 +265,6 @@ export default defineComponent({
 
     const toogleShareNotes = () => {
       if (!isSidebarRender.value) {
-        console.log('notes');
         setSidebarState(true);
         setShowNotes(true);
         setShowChat(false);
@@ -244,7 +281,6 @@ export default defineComponent({
 
     const toggleUsersList = () => {
       if (!isSidebarRender.value) {
-        console.log('userslitst');
         setSidebarState(true);
         setShowUsersList(true);
         setShowNotes(false);
@@ -290,11 +326,12 @@ export default defineComponent({
         )
       ) {
         const downHand = { ...riseHand, eventType: 'NOHAND' };
-
         sendData(userMe.id, downHand);
+        handNotificationActive.value = false;
         removeHandNotification(downHand.streamId);
         return;
       }
+      handNotificationActive.value = true;
       sendData(userMe.id, riseHand);
       addHandNotificationInfo(riseHand);
     };
@@ -315,7 +352,13 @@ export default defineComponent({
 
     const { updateScreenState } = useScreen();
 
-    const minimizeScreen = () => updateScreenState();
+    const minimizeScreen = () => {
+      updateScreenState();
+      setSidebarState(false);
+      setShowUsersList(false);
+      setShowNotes(false);
+      setShowChat(false);
+    };
 
     const handleMenuPosition = (ubication?: string) => {
       if (ubication == 'actions') {
@@ -335,6 +378,10 @@ export default defineComponent({
         return;
       }
       setIDButtonSelected(ID as string);
+      objectFunctionalities[interaction as keyof Functionalities]?.();
+    };
+
+    const handleEspecialBehaviour = (interaction: string) => {
       objectFunctionalities[interaction as keyof Functionalities]?.();
     };
 
@@ -366,6 +413,12 @@ export default defineComponent({
       if (action.onState === 'monitor' && userMe.isCameraOn) {
         return true;
       }
+    }
+
+    const openResponsiveMenuOfFunctions = () => {
+      openFunctionResponsiveMenu(
+        !functionsOnMenuBar.renderResponsiveFunctionMenu
+      );
     };
 
     return {
@@ -384,6 +437,9 @@ export default defineComponent({
       objectFunctionalities,
       isOptions,
       disableAction,
+      handleEspecialBehaviour,
+      handNotificationActive,
+      openResponsiveMenuOfFunctions,
     };
   },
 });

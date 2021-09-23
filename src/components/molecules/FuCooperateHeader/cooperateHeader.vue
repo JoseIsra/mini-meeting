@@ -10,10 +10,10 @@
     <div class="m-header__recordingContainer">
       <fu-recording />
     </div>
-    <div class="m-header__minimizeContainer">
-      <!-- Para el botoón de minimizar -->
-      <!-- <q-btn color="primary" icon="check" label="Minimizar" /> -->
-    </div>
+    <!-- <div class="m-header__minimizeContainer"> -->
+    <!-- Para el botoón de minimizar -->
+    <!-- <q-btn color="primary" icon="check" label="Minimizar" /> -->
+    <!-- </div> -->
   </header>
 </template>
 

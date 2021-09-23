@@ -32,13 +32,14 @@
         </div>
       </div>
       <video
+        :srcObject.prop="userMe.stream"
         v-show="userMe.isVideoActivated"
-        id="localVideo"
         class="a-userVideo__box__stream"
         autoplay
         muted
         playsinline
       ></video>
+
       <q-btn
         flat
         round

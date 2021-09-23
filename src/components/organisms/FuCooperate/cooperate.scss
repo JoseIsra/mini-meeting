@@ -36,3 +36,15 @@
 .slide-leave-active {
   transition: all 0.3s;
 }
+
+.dragged-enter-from {
+  transform: translateX(-100vw);
+}
+.dragged-leave-to {
+  transform: translateX(-100vw);
+}
+
+.dragged-enter-active,
+.dragged-leave-active {
+  transition: all 0.3s;
+}

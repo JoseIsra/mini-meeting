@@ -10,6 +10,7 @@ interface FunctionState {
   selectedButtonID: string;
   renderPopupMenu: boolean;
   renderInfoRoomCard: boolean;
+  renderResponsiveFunctionMenu: boolean;
 }
 
 interface PerifericsState {
@@ -38,6 +39,7 @@ const functionState = {
   selectedButtonID: '',
   renderPopupMenu: false,
   renderInfoRoomCard: false,
+  renderResponsiveFunctionMenu: false,
 };
 
 const perifericsState = {
@@ -94,6 +96,10 @@ export function useToogleFunctions() {
     functionsOnMenuBar.renderInfoRoomCard = value;
   };
 
+  const openFunctionResponsiveMenu = (value: boolean) => {
+    functionsOnMenuBar.renderResponsiveFunctionMenu = value;
+  };
+
   return {
     functionsOnMenuBar,
     setShowChat,
@@ -107,6 +113,8 @@ export function useToogleFunctions() {
     setIDButtonSelected,
     openOptionsMenu,
     watchInfoRoomCard,
+    openFunctionResponsiveMenu,
+    functionState,
   };
 }
 

@@ -1,9 +1,10 @@
 import { useScreen } from '@/composables/screen';
 import { useUserMe } from '@/composables/userMe';
+import { useToogleFunctions } from '@/composables';
 
 const { userMe } = useUserMe();
-
 const { screenMinimized } = useScreen();
+const { functionState } = useToogleFunctions();
 
 enum interactionType {
   CHAT = 'CHAT',
@@ -14,7 +15,11 @@ enum interactionType {
   CONNECTION = 'CONNECTION',
   WEBCAM = 'WEBCAM',
   MIC = 'MIC',
-  MINIMIZE= 'MINIMIZE'
+  MINIMIZE = 'MINIMIZE',
+}
+enum typeOfBehaviour {
+  NORMAL = 'NORMAL',
+  ESPECIAL = 'ESPECIAL',
 }
 export const iconsPeriferics = [
   {
@@ -45,6 +50,7 @@ export const iconsFunctions = [
     toolTipMessage: 'Compartir pantalla',
     toolTipSecondMessage: 'Dejar de compartir pantalla',
     interaction: interactionType.SHARESCREEN,
+    behaviour: typeOfBehaviour.NORMAL,
   },
   {
     id: '2',
@@ -54,24 +60,27 @@ export const iconsFunctions = [
     toolTipMessage: 'Levantar la mano',
     toolTipSecondMessage: 'Bajar la mano',
     interaction: interactionType.HANDUP,
+    behaviour: typeOfBehaviour.ESPECIAL,
   },
   {
     id: '3',
     onState: 'person',
     offState: 'person',
-    active: false,
+    active: functionState.renderUsersList,
     toolTipMessage: 'Lista de usuarios',
     toolTipSecondMessage: 'Ocultar lista de usuarios',
     interaction: interactionType.USERLIST,
+    behaviour: typeOfBehaviour.NORMAL,
   },
   {
     id: '4',
     onState: 'far fa-comments',
     offState: 'far fa-comments',
-    active: false,
+    active: functionState.renderChat,
     toolTipMessage: 'Chat',
     toolTipSecondMessage: 'Ocultar chat',
     interaction: interactionType.CHAT,
+    behaviour: typeOfBehaviour.NORMAL,
   },
   {
     id: '5',
@@ -81,6 +90,7 @@ export const iconsFunctions = [
     toolTipMessage: 'Minimizar ventana',
     toolTipSecondMessage: 'Minimizar ventana',
     interaction: interactionType.MINIMIZE,
+    behaviour: typeOfBehaviour.ESPECIAL,
   },
   /* {
     id: '5',
@@ -90,6 +100,7 @@ export const iconsFunctions = [
     toolTipMessage: 'Notas compartidas',
     toolTipSecondMessage: 'Notas compartidas',
     interaction: interactionType.SHARENOTES,
+    behaviour: typeOfBehaviour.NORMAL
   }, */
   /* {
     id: '6',
@@ -99,6 +110,7 @@ export const iconsFunctions = [
     toolTipMessage: 'Estado de la conexión',
     toolTipSecondMessage: 'Estado de la conexión',
     interaction: interactionType.CONNECTION,
+    behaviour: typeOfBehaviour.NORMAL
   }, */
 ];
 

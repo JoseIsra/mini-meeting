@@ -1,5 +1,9 @@
 <template>
-  <section class="o-cooperate" @mousemove="toogleMenuBar" @click.self="test">
+  <section
+    class="o-cooperate"
+    @mousemove="toogleMenuBar"
+    @click.self="closePanels"
+  >
     <q-icon
       name="fas fa-expand-alt"
       size="24px"
@@ -12,18 +16,16 @@
       :sharedLink="sharingLink"
       v-show="functionsOnMenuBar.renderInfoRoomCard"
     />
-    <fu-cooperate-user-video />
     <fu-cooperate-menu-bar
       v-show="showMenuBar && !screenMinimized"
       :toggleLocalCamera="toggleLocalCamera"
       :toggleLocalMic="toggleLocalMic"
       :toggleDesktopCapture="toggleDesktopCapture"
     />
-    <transition name="slide">
+    <transition :name="$q.screen.lt.sm ? 'dragged' : 'slide'">
       <fu-cooperate-side-bar v-show="isSidebarRender" />
     </transition>
-    <fu-cooperate-user-video />
-
+    <fu-cooperate-user-video v-show="!screenMinimized" />
     <fu-hand-notification
       v-show="functionsOnMenuBar.handNotificationInfo.length > 0"
     />
@@ -74,10 +76,14 @@ export default defineComponent({
 
     let showMenuBar = ref<boolean>(false);
     let { isSidebarRender, setSidebarState } = useSidebarToogle();
-    const { functionsOnMenuBar, isFullScreen, setIDButtonSelected } =
-      useToogleFunctions();
+    const {
+      functionsOnMenuBar,
+      isFullScreen,
+      setIDButtonSelected,
+      openOptionsMenu,
+      openFunctionResponsiveMenu,
+    } = useToogleFunctions();
     const { roomState } = useRoom();
-
     const { screenMinimized, updateScreenState } = useScreen();
 
     const hideMenuBar = _.debounce(() => {
@@ -91,8 +97,10 @@ export default defineComponent({
         hideMenuBar();
       }
     };
-    const test = () => {
+    const closePanels = () => {
       setSidebarState(false);
+      openOptionsMenu(false);
+      openFunctionResponsiveMenu(false);
       setIDButtonSelected('');
     };
     return {
@@ -102,7 +110,7 @@ export default defineComponent({
       isSidebarRender,
       functionsOnMenuBar,
       isFullScreen,
-      test,
+      closePanels,
       screenMinimized,
       updateScreenState,
       ...toRefs(roomState),

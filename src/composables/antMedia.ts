@@ -2,7 +2,7 @@ import { ref } from 'vue';
 import { WebRTCAdaptor } from '@/utils/webrtc/webrtc_adaptor';
 import { useUserMe, User } from '@/composables/userMe';
 import { useAuthState } from '@/composables/auth';
-import { objWebRTC } from '@/types/index';
+import { objWebRTC, REASON_TO_LEAVE_ROOM } from '@/types/index';
 import { useHandleParticipants } from '@/composables/participants';
 import { Message, useHandleMessage } from '@/composables/chat';
 import { useToogleFunctions } from '@/composables';
@@ -16,23 +16,19 @@ const {
   setVideoActivatedState,
   lockUserActions,
   unlockUserActions,
+  updateUserMe
 } = useUserMe();
 const { setIsLoadingOrError, setLoadingOrErrorMessage, setExistRoom } =
   useAuthState();
 const { setRecorded } = useRoom();
-const {
-  deleteParticipantById,
-  participants,
-  addParticipants,
-  deleteAllParticipants,
-} = useHandleParticipants();
+const { deleteParticipantById, participants, addParticipants } =
+  useHandleParticipants();
 const { setUserMessage, deleteLoadingMessage } = useHandleMessage();
 const { addHandNotificationInfo, removeHandNotification } =
   useToogleFunctions();
 
 const roomTimerId = ref<ReturnType<typeof setInterval> | null>(null);
 const isDataChannelOpen = ref(false);
-
 interface ObjInfoRequested {
   to: string;
   from: string;
@@ -160,7 +156,6 @@ export function useInitWebRTC() {
       mediaConstraints: mediaConstraints,
       peerconnection_config: pc_config,
       sdp_constraints: sdpConstraints,
-      localVideoId: 'localVideo',
       isPlayMode: false,
       debug: true,
       dataChannelEnabled: true,
@@ -174,6 +169,11 @@ export function useInitWebRTC() {
           if (!userMe.isCameraOn) {
             webRTCInstance.value.turnOffLocalCamera?.(streamId);
           }
+
+          const localStream = webRTCInstance.value.getLocalStream?.();
+
+          updateUserMe({ stream: localStream });
+
           joinRoom(roomId, streamId);
         } else if (info == 'joinedTheRoom') {
           window.addEventListener('unload', () => {
@@ -259,9 +259,9 @@ export function useInitWebRTC() {
           }
 
           //TODO: este es el error por el que sale streamid que ya se está escuchando
-          if (participants.value.length !== 0) {
+          /* if (participants.value.length !== 0) {
             deleteAllParticipants();
-          }
+          } */
           /* if (streamsList.value != null) { */
           /* this.streamsList.forEach(function (item) {
             removeRemoteVideo(item);
@@ -284,7 +284,7 @@ export function useInitWebRTC() {
         } else if (info == 'play_finished') {
           /* console.log('play_finished');
         removeRemoteVideo(obj.streamId); */
-          removeRemoteVideo(obj.streamId);
+          //removeRemoteVideo(obj.streamId);
         } else if (info == 'streamInformation') {
           streamInformation(obj, roomId, playToken);
         } else if (info == 'roomInformation') {
@@ -366,7 +366,7 @@ export function useInitWebRTC() {
           isDataChannelOpen.value = true;
         } else if (info == 'data_channel_closed') {
           console.log('Data Channel closed for stream id', obj);
-          isDataChannelOpen.value = false;
+          // isDataChannelOpen.value = false;
         } else if (info == 'data_received') {
           // console.log(obj);
           const objParsed = JSON.parse(obj.data) as Message;
@@ -524,6 +524,8 @@ export function useInitWebRTC() {
                 user.isMicOn = remoteUserInfoParsed.userInfo.isMicOn;
                 user.isScreenSharing =
                   remoteUserInfoParsed.userInfo.isScreenSharing;
+                user.isVideoActivated =
+                  remoteUserInfoParsed.userInfo.isVideoActivated;
               }
             }
           } else if (eventType === 'USER_INFO_FINISH') {
@@ -547,12 +549,16 @@ export function useInitWebRTC() {
                 user.isMicOn = remoteUserInfoParsed.userInfo.isMicOn;
                 user.isScreenSharing =
                   remoteUserInfoParsed.userInfo.isScreenSharing;
+                user.isVideoActivated =
+                  remoteUserInfoParsed.userInfo.isVideoActivated;
               }
             }
           } else if (eventType === 'KICK') {
             const kickedEvent = JSON.parse(obj.data) as ObjKickedEvent;
             if (kickedEvent.to === 'all') {
-              (window as ZoidWindow).xprops?.handleLeaveCall?.();
+              (window as ZoidWindow).xprops?.handleLeaveCall?.(
+                REASON_TO_LEAVE_ROOM.MODERATOR_CLOSE_ROOM
+              );
             }
           } else if (eventType === 'UNLOCK_PARTICIPANT_ACTION') {
             const lockData = JSON.parse(obj.data) as ObjBlockParticipantAction;
@@ -648,17 +654,23 @@ export function useInitWebRTC() {
         ) {
           errorMessage =
             'Camera or Mic is being used by some other process that does not not allow these devices to be read.';
+          setExistRoom(false);
+          setLoadingOrErrorMessage(errorMessage);
         } else if (
           error.indexOf('OverconstrainedError') != -1 ||
           error.indexOf('ConstraintNotSatisfiedError') != -1
         ) {
           errorMessage =
             'There is no device found that fits your video and audio constraints. You may change video and audio constraints.';
+          setExistRoom(false);
+          setLoadingOrErrorMessage(errorMessage);
         } else if (
           error.indexOf('NotAllowedError') != -1 ||
           error.indexOf('PermissionDeniedError') != -1
         ) {
           errorMessage = 'You are not allowed to access camera and mic.';
+          setExistRoom(false);
+          setLoadingOrErrorMessage(errorMessage);
         } else if (error.indexOf('TypeError') != -1) {
           errorMessage = 'Video/Audio is required.';
         } else if (error.indexOf('UnsecureContext') != -1) {
@@ -763,10 +775,6 @@ export function useInitWebRTC() {
     webRTCInstance.value.justTurnOnLocalCamera?.(streamId);
   };
 
-  const metodoDePrueba = (): MediaStream => {
-    return webRTCInstance.value.metodoDePrueba?.() as MediaStream;
-  };
-
   return {
     createInstance,
     sendData,
@@ -780,6 +788,5 @@ export function useInitWebRTC() {
     muteLocalMic,
     sendNotificationEvent,
     justTurnOnLocalCamera,
-    metodoDePrueba,
   };
 }

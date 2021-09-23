@@ -12,6 +12,18 @@ export interface User {
   isMicBlocked: boolean;
   isVideoBlocked: boolean;
   isScreenShareBlocked: boolean;
+  stream?: MediaStream;
+}
+
+export interface UpdatedUserfields {
+  id?: string;
+  name?: string;
+  avatar?: string;
+  isCameraOn?: boolean;
+  isMicOn?: boolean;
+  isScreenSharing?: boolean;
+  isVideoActivated?: boolean;
+  stream?: MediaStream;
 }
 
 // blocked: some functionalities blocked (mic, screen, camera)
@@ -29,6 +41,10 @@ export function useUserMe() {
   };
 
   const isAdmin = () => userMe.roleId === 0;
+  
+  const updateUserMe = (value: UpdatedUserfields) => {
+    Object.assign(userMe, { ...userMe, ...value });
+  };
 
   const setMicState = (value: boolean) => {
     userMe.isMicOn = value;
@@ -79,5 +95,6 @@ export function useUserMe() {
     isAdmin,
     lockUserActions,
     unlockUserActions,
+    updateUserMe,
   };
 }

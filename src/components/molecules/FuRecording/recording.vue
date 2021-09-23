@@ -6,7 +6,9 @@
       color="primary"
       icon="fas fa-record-vinyl"
       :label="
-        roomState.isBeingRecorded
+        $q.screen.lt.sm
+          ? ''
+          : roomState.isBeingRecorded
           ? 'La reunión está siendo grabada'
           : isLoading
           ? 'Cargando...'
@@ -17,8 +19,8 @@
     <q-btn
       v-if="isRecording && !isLoading"
       color="negative"
-      icon="fas fa-record-vinyl"
-      :label="`Detener Grabación ${recordTime}`"
+      icon="radio_button_checked"
+      :label="$q.screen.lt.sm ? '' : `Detener Grabación ${recordTime}`"
       @click="stopRecording"
     />
   </div>
@@ -31,6 +33,7 @@ import { useInitWebRTC } from '@/composables/antMedia';
 import { useUserMe } from '@/composables/userMe';
 import { useRoom } from '@/composables/room';
 import { ZoidWindow } from '@/types/zoid';
+import { warningMessage, successMessage } from '@/utils/notify';
 
 export default defineComponent({
   name: 'FuMRecording',
@@ -39,7 +42,7 @@ export default defineComponent({
     const recordTime = ref('00:00:00');
     const secondsElapsed = ref(0);
     const isRecording = ref<boolean>(false);
-    const { createMergeInstance, stopMerge } = useInitMerge();
+    const { recordingStream, stopRecordingStream } = useInitMerge();
     const { sendNotificationEvent } = useInitWebRTC();
     const { userMe, isAdmin } = useUserMe();
     const { roomState } = useRoom();
@@ -59,13 +62,22 @@ export default defineComponent({
       const timestamp = new Date().getTime();
 
       isLoading.value = true;
-
+      warningMessage('Iniciando grabación...');
       mergedName.value = `m-r-${roomState.id}-${timestamp}`;
 
       sendNotificationEvent('RECORDING_STARTED', userMe.id);
-      createMergeInstance(roomState.id, mergedName.value, mergedName.value)
+      /* createMergeInstance(roomState.id, mergedName.value, mergedName.value)
         .then(() => {
           isLoading.value = false;
+          interval.value = setInterval(oneSecondElapsed, 1000);
+          isRecording.value = true;
+        })
+        .catch((e) => console.log(e)); */
+
+      recordingStream(mergedName.value, mergedName.value, roomState.id)
+        .then(() => {
+          isLoading.value = false;
+          successMessage('Grabando la sesión');
           interval.value = setInterval(oneSecondElapsed, 1000);
           isRecording.value = true;
         })
@@ -73,10 +85,12 @@ export default defineComponent({
     };
 
     const stopRecording = () => {
+      warningMessage('Grabación terminada');
       isRecording.value = false;
       recordTime.value = '00:00:00';
       clearInterval(interval.value);
-      stopMerge();
+      /* stopMerge(); */
+      stopRecordingStream(mergedName.value);
       secondsElapsed.value = 0;
       (window as ZoidWindow).xprops?.handleStopRecording?.(
         `https://f002.backblazeb2.com/file/antmedia/${mergedName.value}.m3u8`

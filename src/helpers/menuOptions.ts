@@ -21,33 +21,35 @@ enum interactionType {
   CLEARCHAT = 'CLEARCHAT',
   COPYCHAT = 'COPYCHAT',
   ROOMDETAILS = 'ROOMDETAILS',
+  EXTERNALVIDEO = 'EXTERNALVIDEO',
 }
 
 export const menuActions = [
-  /* {
-    id: '1',
-    iconName: 'format_list_bulleted',
-    description: 'Iniciar una encuesta',
-    important: false,
-  },
-  {
-    id: '2',
-    iconName: 'monitor',
-    description: 'Gestionar presentaciones',
-    important: false,
-  },
+  // {
+  //   id: '1',
+  //   iconName: 'format_list_bulleted',
+  //   description: 'Iniciar una encuesta',
+  //   important: false,
+  // },
+  // {
+  //   id: '2',
+  //   iconName: 'monitor',
+  //   description: 'Gestionar presentaciones',
+  //   important: false,
+  // },
   {
     id: '3',
     iconName: 'videocam',
     description: 'Compartir un video externo',
     important: false,
+    interaction: interactionType.EXTERNALVIDEO,
   },
-  {
-    id: '4',
-    iconName: 'person',
-    description: 'Seleccionar usuario aleatoriamente',
-    important: false,
-  }, */
+  // {
+  //   id: '4',
+  //   iconName: 'person',
+  //   description: 'Seleccionar usuario aleatoriamente',
+  //   important: false,
+  // },
   {
     id: '5',
     iconName: 'fas fa-satellite-dish',

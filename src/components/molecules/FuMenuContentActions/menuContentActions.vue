@@ -15,7 +15,8 @@
     </ul>
 
     <q-dialog v-model="modal">
-      <fu-retransmission-content />
+      <fu-retransmission-content v-if="filterContent == 'RETRANSMISSION'" />
+      <fu-external-video-modal v-if="filterContent == 'EXTERNALVIDEO'" />
     </q-dialog>
   </section>
 </template>
@@ -25,17 +26,20 @@ import { defineComponent, ref } from 'vue';
 import { menuActions, Options } from '@/helpers/menuOptions';
 import FuRetransmissionContent from 'molecules/FuRetransmissionContent';
 import { useToogleFunctions } from '@/composables';
+import FuExternalVideoModal from 'molecules/FuExternalVideoModal';
 
 export default defineComponent({
   name: 'FuMenuContentActions',
   components: {
     FuRetransmissionContent,
+    FuExternalVideoModal,
   },
   setup() {
     const { openOptionsMenu } = useToogleFunctions();
     const actions = ref<Options[]>(menuActions);
     const filterContent = ref('');
     let modal = ref(false);
+
     const openModal = (interaction: string) => {
       openOptionsMenu(false);
       modal.value = true;

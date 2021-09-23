@@ -161,7 +161,7 @@
 <script lang="ts">
 import { defineComponent, ref, VueElement, nextTick, onUpdated } from 'vue';
 import { regexp } from '@/types';
-import { warningMessage } from '@/utils/notify';
+
 import { useRoute } from 'vue-router';
 import moment from 'moment';
 import { useHandleMessage } from '@/composables/chat';
@@ -176,6 +176,7 @@ import { renameFile } from '@/utils/file';
 import backblazeService from '@/services/backblaze';
 const { uploadFileToBackblaze } = backblazeService;
 import { fetchApi } from '@/utils/api';
+import { warningMessage } from '@/utils/notify';
 
 interface HTMLInputEvent extends Event {
   target: HTMLInputElement & EventTarget;

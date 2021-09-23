@@ -2,33 +2,20 @@
   <section class="a-userVideo">
     <div
       class="a-userVideo__box"
-      :class="{ full: userMe.id === streamIdPinned }"
+      :class="{ fade: userMe.id == fullScreenObject.id }"
     >
-      <div
-        v-show="!userMe.isVideoActivated"
-        class="a-userVideo__box__avatar"
-        :class="{ full__content: userMe.id === streamIdPinned }"
-      >
-        <figure
-          class="a-userVideo__box__avatar__imageBox"
-          :class="{ full__content__avatar: userMe.id === streamIdPinned }"
-        >
+      <div v-show="!userMe.isVideoActivated" class="a-userVideo__box__avatar">
+        <figure class="a-userVideo__box__avatar__imageBox">
           <img
             class="a-userVideo__box__avatar__imageBox__image"
             :src="userMe.avatar"
           />
         </figure>
         <div class="a-userVideo__box__avatar__info">
-          <label
-            class="a-userVideo__box__avatar__info__userName"
-            :class="{ full__content__name: userMe.id === streamIdPinned }"
-            >{{ userMe.name }}</label
-          >
-          <q-icon
-            :name="userMe.isMicOn ? 'mic' : 'mic_off'"
-            :size="userMe.id === streamIdPinned ? '40px' : '20px'"
-            color="white"
-          />
+          <label class="a-userVideo__box__avatar__info__userName">{{
+            userMe.name
+          }}</label>
+          <q-icon :name="userMe.isMicOn ? 'mic' : 'mic_off'" color="white" />
         </div>
       </div>
       <video
@@ -44,14 +31,10 @@
         flat
         round
         :ripple="false"
-        :icon="userMe.id === streamIdPinned ? 'fullscreen_exit' : 'launch'"
+        icon="launch"
         color="white"
         class="a-userVideo__box__avatar__screenBtn"
-        @click="
-          userMe.id === streamIdPinned
-            ? goFullScreen('off')
-            : goFullScreen(userMe.id)
-        "
+        @click="goFullScreen(userMe)"
       >
         <q-tooltip
           anchor="top middle"
@@ -61,9 +44,9 @@
           transition-show="scale"
           transition-hide="scale"
         >
-          <label class="a-userVideo__box__avatar__screenBtn__label">{{
-            userMe.id === streamIdPinned ? 'Minimizar' : 'Pantalla completa'
-          }}</label>
+          <label class="a-userVideo__box__avatar__screenBtn__label"
+            >Pantalla completa</label
+          >
         </q-tooltip>
       </q-btn>
     </div>
@@ -71,17 +54,7 @@
       class="a-userVideo__box"
       v-for="participant in participants"
       :key="participant.id"
-      :style="
-        participant.id === streamIdPinned
-          ? {
-              position: 'fixed',
-              width: '100vw',
-              height: '100vh',
-              top: 0,
-              'z-index': '-5',
-            }
-          : ''
-      "
+      :class="{ fade: participant.id == fullScreenObject.id }"
     >
       <div
         v-show="!participant.isVideoActivated"
@@ -121,14 +94,10 @@
         flat
         round
         :ripple="false"
-        :icon="participant.id === streamIdPinned ? 'fullscreen_exit' : 'launch'"
+        icon="launch"
         color="white"
         class="a-userVideo__box__avatar__screenBtn"
-        @click="
-          participant.id === streamIdPinned
-            ? goFullScreen('off')
-            : goFullScreen(participant.id)
-        "
+        @click="goFullScreen(participant)"
       >
         <q-tooltip
           anchor="top middle"
@@ -138,11 +107,9 @@
           transition-show="scale"
           transition-hide="scale"
         >
-          <label class="a-userVideo__box__avatar__screenBtn__label">{{
-            participant.id === streamIdPinned
-              ? 'Minimizar'
-              : 'Pantalla completa'
-          }}</label>
+          <label class="a-userVideo__box__avatar__screenBtn__label"
+            >Pantalla completa</label
+          >
         </q-tooltip>
       </q-btn>
     </div>
@@ -153,7 +120,7 @@
 import { defineComponent, ref } from 'vue';
 import { userStreams } from '@/helpers/usersVideo';
 import { useToogleFunctions } from '@/composables';
-import { useUserMe } from '@/composables/userMe';
+import { User, useUserMe } from '@/composables/userMe';
 import { useHandleParticipants } from '@/composables/participants';
 
 interface UserStream {
@@ -166,28 +133,32 @@ export default defineComponent({
   setup() {
     const users = ref<UserStream[]>(userStreams);
     const { participants } = useHandleParticipants();
-    const { isFullScreen } = useToogleFunctions();
+    const {
+      setFullScreen,
+      setFullScreenObject,
+      fullScreenObject,
+      isFullScreen,
+    } = useToogleFunctions();
     const { userMe } = useUserMe();
 
     const streamIdPinned = ref('');
 
-    const goFullScreen = (streamId: string) => {
-      //TODO: PASAR ARGUMENTO DE OBJETO STREAM PARA ESPECIFICAR FULL SCREEN
-      //setFullScreen(true);
-      console.log(streamId);
-      if (streamId === 'off') streamIdPinned.value = '';
-      else {
-        streamIdPinned.value = streamId;
+    const goFullScreen = (arg: User | string) => {
+      if (isFullScreen.value) {
+        setFullScreenObject(arg as User);
+        return;
       }
+      setFullScreen('user');
+      setFullScreenObject(arg as User);
     };
 
     return {
       users,
       userMe,
       goFullScreen,
-      isFullScreen,
       participants,
       streamIdPinned,
+      fullScreenObject,
     };
   },
 });

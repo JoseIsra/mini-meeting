@@ -1,23 +1,25 @@
-.a-full {
+.m-fuser {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
+  width: 100vw;
+  height: 100vh;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.4);
   &__avatar {
-    width: 100%;
-    height: 100%;
+    position: relative;
+    width: 400px;
+    height: 250px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    background-color: rgba(0, 0, 0, 0.9);
+    border-radius: 20px;
     &__imageBox {
       margin: 15px 0px;
       width: 100%;
@@ -30,15 +32,15 @@
     }
   }
   &__info {
-    display: flex;
+    padding: 20px;
     width: 100%;
+    display: flex;
     align-items: center;
     justify-content: center;
-    position: relative;
-    bottom: 10px;
     &__userName {
       color: #fffffe;
-      font-size: 12px;
+      font-size: 22px;
+      font-weight: bolder;
       cursor: default;
       overflow: hidden;
       white-space: nowrap;
@@ -53,11 +55,10 @@
   }
   &__actions {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    right: 10px;
+    top: 10px;
     &__message {
-      color: #fffffe;
+      font-size: 0.68rem;
     }
   }
   &__stream {
@@ -65,6 +66,16 @@
     height: 100%;
     object-fit: cover;
     min-height: 100px;
-    border: 1px solid red;
+  }
+  &__quitBtn {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 12px;
+    color: #fffffe;
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 10px;
+    font-weight: bolder;
   }
 }

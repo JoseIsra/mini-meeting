@@ -6,6 +6,7 @@
   "author": "dialguiba <dialguiba@gmail.com>",
   "private": true,
   "scripts": {
+    "dev-all": "(cd parent && npm run serve) & npm run dev",
     "dev": "quasar dev",
     "build": "quasar build",
     "lint": "eslint --ext .js,.ts,.vue ./",

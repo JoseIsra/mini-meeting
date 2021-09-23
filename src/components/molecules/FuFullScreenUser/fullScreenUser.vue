@@ -1,0 +1,93 @@
+<template>
+  <section class="m-fuser">
+    <div v-show="!fullScreenObject.isVideoActivated" class="m-fuser__avatar">
+      <figure class="m-fuser__avatar__imageBox">
+        <img
+          class="m-fuser__avatar__imageBox__image"
+          :src="fullScreenObject.avatar"
+        />
+      </figure>
+      <div class="m-fuser__info">
+        <label class="m-fuser__info__userName">{{
+          fullScreenObject.name
+        }}</label>
+      </div>
+      <div class="m-fuser__actions">
+        <q-btn
+          @click="exitFullScreen"
+          round
+          flat
+          icon="fullscreen_exit"
+          color="white"
+        >
+          <q-tooltip
+            class="bg-grey-10"
+            transition-show="scale"
+            transition-hide="scale"
+          >
+            <label class="m-fuser__actions__message"> Minimizar </label>
+          </q-tooltip>
+        </q-btn>
+      </div>
+    </div>
+    <video
+      v-show="fullScreenObject.isVideoActivated"
+      class="m-fuser__stream"
+      autoplay
+      @mousemove="toggleMinimizeMessage"
+      muted
+      playsinline
+      :srcObject.prop="fullScreenObject.stream"
+    ></video>
+    <q-btn
+      flat
+      label="Minimizar pantalla"
+      class="m-fuser__quitBtn"
+      icon="fullscreen_exit"
+      @click="exitFullScreen"
+      v-show="showMinimizeMessage && fullScreenObject.isVideoActivated"
+    />
+  </section>
+</template>
+
+<script lang="ts">
+import { defineComponent, ref } from 'vue';
+import { useToogleFunctions } from '@/composables';
+import _ from 'lodash';
+
+export default defineComponent({
+  name: 'FuFullScreenUser',
+  setup() {
+    const { fullScreenObject, setFullScreen, clearFullScreenObject } =
+      useToogleFunctions();
+    let showMinimizeMessage = ref(false);
+    const exitFullScreen = () => {
+      setFullScreen('none');
+      clearFullScreenObject();
+    };
+
+    const hideMinimizeMessage = _.debounce(() => {
+      showMinimizeMessage.value = false;
+    }, 4000);
+
+    const toggleMinimizeMessage = () => {
+      if (!showMinimizeMessage.value) {
+        showMinimizeMessage.value = true;
+      } else {
+        hideMinimizeMessage();
+      }
+    };
+
+    return {
+      fullScreenObject,
+      exitFullScreen,
+      toggleMinimizeMessage,
+      showMinimizeMessage,
+    };
+  },
+});
+</script>
+
+<style scoped lang="scss">
+@import './fullScreenUser.scss';
+</style>

@@ -1,10 +1,8 @@
 import { useScreen } from '@/composables/screen';
 import { useUserMe } from '@/composables/userMe';
-import { useToogleFunctions } from '@/composables';
 
 const { userMe } = useUserMe();
 const { screenMinimized } = useScreen();
-const { functionState } = useToogleFunctions();
 
 enum interactionType {
   CHAT = 'CHAT',
@@ -66,7 +64,7 @@ export const iconsFunctions = [
     id: '3',
     onState: 'person',
     offState: 'person',
-    active: functionState.renderUsersList,
+    active: false,
     toolTipMessage: 'Lista de usuarios',
     toolTipSecondMessage: 'Ocultar lista de usuarios',
     interaction: interactionType.USERLIST,
@@ -76,7 +74,7 @@ export const iconsFunctions = [
     id: '4',
     onState: 'far fa-comments',
     offState: 'far fa-comments',
-    active: functionState.renderChat,
+    active: false,
     toolTipMessage: 'Chat',
     toolTipSecondMessage: 'Ocultar chat',
     interaction: interactionType.CHAT,

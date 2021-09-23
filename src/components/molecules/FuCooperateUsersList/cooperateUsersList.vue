@@ -5,7 +5,7 @@
       <small>En línea ({{ participants.length + 1 }})</small>
     </header>
     <main class="m-list__content">
-      <div class="m-list__content__actions" v-show="isAdmin">
+      <div class="m-list__content__actions" v-show="isAdmin()">
         <span>
           {{ isEveryoneBlocked ? 'Limitar acciones ' : 'Liberar acciones' }}
         </span>
@@ -79,7 +79,7 @@
           <label>{{ participant.name }}</label>
         </div>
 
-        <div class="m-list__content__userBox__actions" v-show="isAdmin">
+        <div class="m-list__content__userBox__actions" v-show="isAdmin()">
           <q-btn
             :icon="
               hasActionsBlocked(participant)

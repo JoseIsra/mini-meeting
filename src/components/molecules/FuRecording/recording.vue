@@ -1,5 +1,5 @@
 <template>
-  <div v-show="isAdmin">
+  <div v-show="isAdmin()">
     <q-btn
       v-if="!isRecording"
       :disable="roomState.isBeingRecorded"
@@ -105,7 +105,7 @@ export default defineComponent({
       recordTime,
       isLoading,
       roomState,
-      isAdmin
+      isAdmin,
     };
   },
 });

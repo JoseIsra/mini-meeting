@@ -16,7 +16,7 @@ const {
   setVideoActivatedState,
   lockUserActions,
   unlockUserActions,
-  updateUserMe
+  updateUserMe,
 } = useUserMe();
 const { setIsLoadingOrError, setLoadingOrErrorMessage, setExistRoom } =
   useAuthState();
@@ -583,12 +583,14 @@ export function useInitWebRTC() {
 
             if (userMe.isCameraOn) {
               userMe.isCameraOn = false;
+              userMe.isVideoActivated = false;
               turnOffLocalCamera(userMe.id);
               sendNotificationEvent('CAM_TURNED_OFF', userMe.id);
             }
 
             if (userMe.isScreenSharing) {
               userMe.isScreenSharing = false;
+              userMe.isVideoActivated = false;
               resetDesktop();
               sendNotificationEvent('SCREEN_SHARING_OFF', userMe.id);
             }

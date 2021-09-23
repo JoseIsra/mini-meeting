@@ -58,7 +58,7 @@ export default defineComponent({
       sendNotificationEvent,
       justTurnOnLocalCamera,
     } = useInitWebRTC();
-    const { userMe, setUserMe, setVideoActivatedState } = useUserMe();
+    const { userMe, setUserMe, setVideoActivatedState, isAdmin } = useUserMe();
     const { setRoom } = useRoom();
     const route = useRoute();
     const { authState, setLoadingOrErrorMessage, setExistRoom } =
@@ -87,8 +87,13 @@ export default defineComponent({
     // Estado inicial, cooperate actions blocked by default or allowed (?)
     const blockActions = ref(false);
 
-    const roleId = (window as ZoidWindow)?.xprops?.roleId || 0;
-    
+    const roleId =
+      (window as ZoidWindow)?.xprops?.roleId ||
+      parseInt(route.query.roleId as string) ||
+      0;
+
+    console.log(roleId, typeof roleId, '🅰️🅰️🅰️🅰️🅰️');
+
     const sharingLink =
       (window as ZoidWindow)?.xprops?.sharedLink ||
       (route.query.sharedLink as string) ||
@@ -101,12 +106,13 @@ export default defineComponent({
       isCameraOn: false,
       isMicOn: true,
       isScreenSharing: false,
-      isVideoActivated: false,  
+      isVideoActivated: false,
       roleId: roleId,
       isMicBlocked: blockActions.value,
       isVideoBlocked: blockActions.value,
-      isScreenShareBlocked: blockActions.value
+      isScreenShareBlocked: blockActions.value,
     });
+    console.log(isAdmin, '🆕🆕🆕🆕');
 
     setRoom({
       id: roomId,

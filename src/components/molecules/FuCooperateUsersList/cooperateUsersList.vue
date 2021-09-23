@@ -14,7 +14,20 @@
           @click="handleEveryoneActions"
           size="12px"
           :disable="!participants.length > 0"
-        />
+        >
+          <q-tooltip
+            class="bg-grey-10"
+            anchor="top middle"
+            self="bottom middle"
+            :offset="[50, 10]"
+            transition-show="scale"
+            transition-hide="scale"
+          >
+            <label class="">{{
+              isEveryoneBlocked ? 'Desbloquear acciones para todos' : 'Bloquear acciones para todos'
+            }}</label>
+          </q-tooltip>
+        </q-btn>
       </div>
       <div class="m-list__content__userBox">
         <div class="m-list__content__userBox__user">
@@ -74,7 +87,23 @@
                 : 'fas fa-lock'
             "
             @click="handlePartipantActions(participant)"
-          />
+            style="z-index: 100"
+          >
+            <q-tooltip
+              class="bg-grey-10"
+              anchor="top middle"
+              self="bottom middle"
+              :offset="[50, 10]"
+              transition-show="scale"
+              transition-hide="scale"
+            >
+              <label class="">{{
+                hasActionsBlocked(participant)
+                  ? 'Desbloquear acciones'
+                  : 'Bloquear acciones'
+              }}</label>
+            </q-tooltip>
+          </q-btn>
           <!-- <q-btn
             icon="fas fa-video-slash"
           />
@@ -124,7 +153,7 @@ export default defineComponent({
       const participantActions = participants.value.find(
         (part) => part.id === participant.id
       );
-      
+
       return (
         participantActions?.isMicBlocked === true &&
         participantActions?.isVideoBlocked === true &&

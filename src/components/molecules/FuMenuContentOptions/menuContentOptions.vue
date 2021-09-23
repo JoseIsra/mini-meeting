@@ -43,7 +43,7 @@
         ]"
         :key="option.id"
         @click="handleOptionSelected(option.interaction)"
-        v-show="option.id === '9' ? isAdmin : false"
+        v-show="option.id === '9' ? (isAdmin ? true : false) : true"
       >
         <q-icon :name="option.iconName" size="18px" color="white" />
         <label class="a-menu__optionList__item__description">{{

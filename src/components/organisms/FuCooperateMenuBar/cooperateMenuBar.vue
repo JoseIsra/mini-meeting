@@ -50,7 +50,7 @@
           :key="icon.id"
           :icon="icon.onState"
           size="14px"
-          :disabled="icon.id === '1' && userMe.isCameraOn"
+          :disabled="disableAction(icon)"
           v-on="
             icon.behaviour == 'ESPECIAL'
               ? { click: () => handleEspecialBehaviour(icon.interaction) }

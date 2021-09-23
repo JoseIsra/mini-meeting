@@ -355,9 +355,7 @@ export default defineComponent({
     const minimizeScreen = () => {
       updateScreenState();
       setSidebarState(false);
-      setShowUsersList(false);
-      setShowNotes(false);
-      setShowChat(false);
+      setIDButtonSelected('');
     };
 
     const handleMenuPosition = (ubication?: string) => {

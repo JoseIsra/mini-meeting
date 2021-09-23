@@ -1,4 +1,5 @@
 import { ref, reactive } from 'vue';
+import { User } from './userMe';
 //import { ZoidWindow } from '@/types/zoid';
 
 interface FunctionState {
@@ -28,7 +29,9 @@ export interface HandNotification {
   eventType: string;
 }
 
-// const handNotificationsArray = new Set<HandNotification[]>();
+export interface FullScreenContent<T> {
+  content: T;
+}
 
 const functionState = {
   renderChat: false,
@@ -54,7 +57,8 @@ const isSidebarRender = ref<boolean>(false);
 const functionsOnMenuBar = reactive<FunctionState>(functionState);
 const perifericsControl = reactive<PerifericsState>(perifericsState);
 const isFullScreen = ref<boolean>(false);
-// const fullScreenObject = reactive({});
+const fullScreenMode = ref('');
+const fullScreenObject = reactive<User>({} as User);
 export function useToogleFunctions() {
   const setShowChat = (value: boolean) => {
     functionsOnMenuBar.renderChat = value;
@@ -80,8 +84,18 @@ export function useToogleFunctions() {
       );
   };
 
-  const setFullScreen = (value: boolean) => {
-    isFullScreen.value = value;
+  const setFullScreen = (specificMode: string) => {
+    isFullScreen.value = !isFullScreen.value;
+    fullScreenMode.value = specificMode;
+  };
+
+  const setFullScreenObject = (value: User) => {
+    Object.assign(fullScreenObject, value);
+  };
+  const clearFullScreenObject = () => {
+    Object.keys(fullScreenObject).forEach((key) => {
+      delete fullScreenObject[key as keyof User];
+    });
   };
 
   const setIDButtonSelected = (value: string) => {
@@ -114,6 +128,11 @@ export function useToogleFunctions() {
     openOptionsMenu,
     watchInfoRoomCard,
     openFunctionResponsiveMenu,
+    functionState,
+    fullScreenMode,
+    setFullScreenObject,
+    fullScreenObject,
+    clearFullScreenObject,
   };
 }
 

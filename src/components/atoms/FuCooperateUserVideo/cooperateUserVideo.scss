@@ -79,24 +79,7 @@
       min-height: 100px;
     }
   }
-  .full {
-    position: fixed;
-    width: 100vw;
-    height: 100vh;
-    top: 0;
-    z-index: -5;
-    &__content {
-      &__avatar {
-        width: 150px;
-        height: 150px;
-      }
-      &__name {
-        font-size: 1.8rem;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        width: fit-content;
-        max-width: 200px;
-      }
-    }
-  }
+}
+.fade {
+  display: none;
 }

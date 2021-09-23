@@ -40,7 +40,7 @@ import FuCooperateHeader from 'molecules/FuCooperateHeader';
 import FuCooperateUserVideo from 'atoms/FuCooperateUserVideo';
 import FuCooperateSideBar from 'molecules/FuCooperateSideBar';
 import FuHandNotification from 'atoms/FuHandNotification';
-import FuFullScreen from 'atoms/FuFullScreen';
+import FuFullScreen from 'molecules/FuFullScreen';
 import _ from 'lodash';
 import { useSidebarToogle, useToogleFunctions } from '@/composables';
 import { useScreen } from '@/composables/screen';

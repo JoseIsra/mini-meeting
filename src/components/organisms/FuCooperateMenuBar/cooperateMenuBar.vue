@@ -111,43 +111,7 @@
             floating
             >x</q-badge
           >
-        </q-btn>participants.value = participants.value.map((part) => {
-      const participantToChange = participants.value.find(
-        (p) => p.id === participant.id
-      );
-
-      if (participantToChange) {
-        console.log('SetParticipantActions: ', participantToChange.id);
-        
-        if (action === LOCK_ACTION_TYPE.All) {
-          return {
-            ...participantToChange,
-            isMicBlocked: value,
-            isVideoBlocked: value,
-            isScreenShareBlocked: value,
-          };
-        } else {
-          return {
-            ...participantToChange,
-            isMicBlocked:
-              action === LOCK_ACTION_TYPE.Mic
-                ? value
-                : participantToChange.isMicBlocked,
-            isVideoBlocked:
-              action === LOCK_ACTION_TYPE.Camera
-                ? value
-                : participantToChange.isVideoBlocked,
-            isScreenShareBlocked:
-              action === LOCK_ACTION_TYPE.Screen
-                ? value
-                : participantToChange.isScreenShareBlocked,
-          };
-        }
-      }
-
-      return part;
-    });
-
+        </q-btn>
         <fu-cooperate-menu
           v-show="functionsOnMenuBar.renderResponsiveFunctionMenu"
           :objectFunctionalities="objectFunctionalities"
@@ -269,7 +233,7 @@ export default defineComponent({
       removeHandNotification,
       setIDButtonSelected,
       openOptionsMenu,
-      openFunctionResponsiveMenu,      
+      openFunctionResponsiveMenu,
     } = useToogleFunctions();
     let { isSidebarRender, setSidebarState } = useSidebarToogle();
     const {
@@ -446,7 +410,7 @@ export default defineComponent({
       if (action.onState === 'monitor' && userMe.isCameraOn) {
         return true;
       }
-    }
+    };
 
     const openResponsiveMenuOfFunctions = () => {
       openFunctionResponsiveMenu(

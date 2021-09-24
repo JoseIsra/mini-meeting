@@ -10,7 +10,6 @@ import {
 import { useHandleParticipants } from '@/composables/participants';
 import { Message, useHandleMessage } from '@/composables/chat';
 import { useToogleFunctions } from '@/composables';
-import { ZoidWindow } from '@/types/zoid';
 import { useRoom } from '@/composables/room';
 const webRTCInstance = ref<WebRTCAdaptor>({} as WebRTCAdaptor);
 
@@ -544,6 +543,8 @@ export function useInitWebRTC() {
                   remoteUserInfoParsed.userInfo.isScreenSharing;
                 user.isVideoActivated =
                   remoteUserInfoParsed.userInfo.isVideoActivated;
+                user.fractalUserId =
+                  remoteUserInfoParsed.userInfo.fractalUserId;
               }
             }
           } else if (eventType === 'USER_INFO_FINISH') {
@@ -569,13 +570,15 @@ export function useInitWebRTC() {
                   remoteUserInfoParsed.userInfo.isScreenSharing;
                 user.isVideoActivated =
                   remoteUserInfoParsed.userInfo.isVideoActivated;
+                user.fractalUserId =
+                  remoteUserInfoParsed.userInfo.fractalUserId;
               }
             }
           } else if (eventType === 'KICK') {
             const kickedEvent = JSON.parse(obj.data) as ObjKickedEvent;
             if (kickedEvent.to === 'all') {
-              (window as ZoidWindow).xprops?.handleLeaveCall?.(
-                REASON_TO_LEAVE_ROOM.MODERATOR_CLOSE_ROOM
+              window.xprops?.handleLeaveCall?.(
+                REASON_TO_LEAVE_ROOM.BY_MODERATOR_CLOSE_ROOM
               );
             }
           } else if (eventType === 'SET_PARTICIPANT_ACTION') {

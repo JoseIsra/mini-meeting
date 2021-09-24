@@ -45,7 +45,7 @@
         </q-btn>
       </div>
 
-      <div class="m-shared__admin" v-show="isAdmin()">
+      <div class="m-shared__admin" v-show="canModifyActions">
         <div class="m-shared__admin__actions">
           <q-toggle
             class="m-shared__admin__toggle"
@@ -104,7 +104,7 @@
               <q-tooltip
                 class="bg-grey-10"
                 anchor="bottom middle"
-                self="top middle"                
+                self="top middle"
                 transition-show="scale"
                 transition-hide="scale"
               >
@@ -137,7 +137,6 @@
 <script lang="ts">
 import { defineComponent, ref, computed, watch } from 'vue';
 import { useUserMe } from '@/composables/userMe';
-import { ZoidWindow } from '@/types/zoid';
 import { LOCK_ACTION_TYPE, lockAction } from '@/types/index';
 
 export default defineComponent({
@@ -153,15 +152,13 @@ export default defineComponent({
   setup(props, { emit }) {
     let sharedLinkOnInput = ref(props.sharedLink);
 
-    const { isAdmin } = useUserMe();
+    const { userMe } = useUserMe();
 
-    const isMicLcked = (window as ZoidWindow)?.xprops?.isMicLocked || false;
+    const isMicLcked = window.xprops?.isMicLocked || false;
 
-    const isCameraLocked =
-      (window as ZoidWindow)?.xprops?.isCameraLocked || false;
+    const isCameraLocked = window.xprops?.isCameraLocked || false;
 
-    const isScreenShareLocked =
-      (window as ZoidWindow)?.xprops?.isScreenShareLocked || false;
+    const isScreenShareLocked = window.xprops?.isScreenShareLocked || false;
 
     const cooperateMicState = ref(!isMicLcked);
 
@@ -176,13 +173,15 @@ export default defineComponent({
         cooperateCameraState.value
     );
 
+    const canModifyActions = ref(userMe.roleId === 0 || userMe.roleId === 2);
+
     watch(cooperateMicState, (value) => {
       const lockAction = {
         type: LOCK_ACTION_TYPE.Mic,
         state: Number(value),
       } as lockAction;
 
-      (window as ZoidWindow)?.xprops?.toggleLockAction?.(lockAction);
+      window.xprops?.toggleLockAction?.(lockAction);
     });
 
     watch(cooperateCameraState, (value) => {
@@ -191,7 +190,7 @@ export default defineComponent({
         state: Number(value),
       } as lockAction;
 
-      (window as ZoidWindow)?.xprops?.toggleLockAction?.(lockAction);
+      window.xprops?.toggleLockAction?.(lockAction);
     });
 
     watch(cooperateScreenShareState, (value) => {
@@ -200,7 +199,7 @@ export default defineComponent({
         state: Number(value),
       } as lockAction;
 
-      (window as ZoidWindow)?.xprops?.toggleLockAction?.(lockAction);
+      window.xprops?.toggleLockAction?.(lockAction);
     });
 
     watch(
@@ -212,7 +211,7 @@ export default defineComponent({
             state: 0,
           } as lockAction;
 
-          (window as ZoidWindow)?.xprops?.toggleLockAction?.(lockAction);
+          window.xprops?.toggleLockAction?.(lockAction);
         }
 
         if (!mic && !camera && !screenShare) {
@@ -221,7 +220,7 @@ export default defineComponent({
             state: 1,
           } as lockAction;
 
-          (window as ZoidWindow)?.xprops?.toggleLockAction?.(lockAction);
+          window.xprops?.toggleLockAction?.(lockAction);
         }
       }
     );
@@ -255,7 +254,7 @@ export default defineComponent({
       copySharedLink,
       toolTipMessage,
       closeInfoRoomCard,
-      isAdmin,
+      canModifyActions,
       cooperateMicState,
       cooperateCameraState,
       cooperateScreenShareState,

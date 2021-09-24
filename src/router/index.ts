@@ -8,8 +8,6 @@ import {
 import { StateInterface } from '../store';
 import routes from './routes';
 
-//import { ZoidWindow } from '@/types/zoid';
-
 /*
  * If not building with SSR mode, you can
  * directly export the Router instantiation;

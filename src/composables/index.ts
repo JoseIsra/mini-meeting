@@ -1,6 +1,5 @@
 import { ref, reactive } from 'vue';
 import { User } from './userMe';
-//import { ZoidWindow } from '@/types/zoid';
 
 interface FunctionState {
   renderChat: boolean;

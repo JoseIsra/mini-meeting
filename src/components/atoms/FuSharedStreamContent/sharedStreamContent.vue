@@ -84,6 +84,18 @@
               cooperateScreenShareState ? 'monitor' : 'desktop_access_disabled'
             "
           />
+
+          <q-toggle
+            class="m-shared__admin__toggle"
+            v-model="cooperateActionsState"
+            left-label
+            :label="
+              cooperateActionsState
+                ? 'Acciones habilitadas'
+                : 'Acciones bloqueadas'
+            "
+            :icon="cooperateActionsState ? 'fas fa-lock-open' : 'fas fa-lock'"
+          />
         </div>
       </div>
     </main>
@@ -121,66 +133,79 @@ export default defineComponent({
 
     const cooperateMicState = ref(!isMicLcked);
 
-    watch(cooperateMicState, (value) => {
-      const lockAction = {
-        type: LOCK_ACTION_TYPE.Mic,
-        state: Number(value),
-      } as lockAction;
-
-      (window as ZoidWindow)?.xprops?.toggleLockAction?.(lockAction);
-    });
-
     const cooperateCameraState = ref(!isCameraLocked);
-
-    watch(cooperateCameraState, (value) => {
-      const lockAction = {
-        type: LOCK_ACTION_TYPE.Camera,
-        state: Number(value),
-      } as lockAction;
-
-      (window as ZoidWindow)?.xprops?.toggleLockAction?.(lockAction);
-    });
 
     const cooperateScreenShareState = ref(!isScreenShareLocked);
 
-    watch(cooperateScreenShareState, (value) => {
-      const lockAction = {
-        type: LOCK_ACTION_TYPE.Screen,
-        state: Number(value),
-      } as lockAction;
+    const cooperateActionsState = ref(
+      !isScreenShareLocked && !isCameraLocked && !isMicLcked
+    );
 
-      (window as ZoidWindow)?.xprops?.toggleLockAction?.(lockAction);
+    watch(cooperateActionsState, (value) => {
+      cooperateMicState.value = value;
+      cooperateCameraState.value = value;
+      cooperateScreenShareState.value = value;
     });
 
     watch(
-      [cooperateMicState, cooperateCameraState, cooperateScreenShareState],
-      () => {
-        const lockAction = {
-          type: LOCK_ACTION_TYPE.Screen,
-        } as lockAction;
+      [
+        cooperateMicState,
+        cooperateCameraState,
+        cooperateScreenShareState,
+        cooperateActionsState,
+      ],
+      (
+        [mic, camera, screenShare, all],
+        [prevMic, prevCamera, prevScreenShare, prevAll]
+      ) => {
+        const allChanged = all !== prevAll;
 
-        if (
-          cooperateMicState.value &&
-          cooperateCameraState.value &&
-          cooperateScreenShareState.value
-        ) {
-          console.log('Los 3 habilitados');
+        if (mic !== prevMic && !allChanged) {
+          console.log('Se cambio mic');
 
-          (window as ZoidWindow)?.xprops?.toggleLockAction?.({
-            ...lockAction,
-            state: 0,
-          });
-        } else if (
-          !cooperateMicState.value &&
-          !cooperateCameraState.value &&
-          !cooperateScreenShareState.value
-        ) {
-          console.log('Los 3 deshabilitados');
+          const lockAction = {
+            type: LOCK_ACTION_TYPE.Mic,
+            state: Number(mic),
+          } as lockAction;
 
-          (window as ZoidWindow)?.xprops?.toggleLockAction?.({
-            ...lockAction,
-            state: 1,
-          });
+          (window as ZoidWindow)?.xprops?.toggleLockAction?.(lockAction);
+        }
+
+        if (camera !== prevCamera && !allChanged) {
+          console.log('Se cambio camera');
+
+          const lockAction = {
+            type: LOCK_ACTION_TYPE.Camera,
+            state: Number(camera),
+          } as lockAction;
+
+          (window as ZoidWindow)?.xprops?.toggleLockAction?.(lockAction);
+        }
+
+        if (screenShare !== prevScreenShare && !allChanged) {
+          console.log('Se cambio screenShare');
+
+          const lockAction = {
+            type: LOCK_ACTION_TYPE.Screen,
+            state: Number(screenShare),
+          } as lockAction;
+
+          (window as ZoidWindow)?.xprops?.toggleLockAction?.(lockAction);
+        }
+
+        if (allChanged) {
+          const lockAction = {
+            type: LOCK_ACTION_TYPE.All,
+            state: Number(all),
+          } as lockAction;
+
+          (window as ZoidWindow)?.xprops?.toggleLockAction?.(lockAction);
+        }
+
+        if (mic && camera && screenShare) {
+          cooperateActionsState.value = true;
+        } else if (!mic && !camera && !screenShare) {
+          cooperateActionsState.value = false;
         }
       }
     );
@@ -192,6 +217,7 @@ export default defineComponent({
     const copySharedLink = () => {
       emit('copy-shared-link', sharedLinkOnInput.value);
     };
+
     const closeInfoRoomCard = () => {
       emit('close-room-info-card');
     };
@@ -205,6 +231,7 @@ export default defineComponent({
       cooperateMicState,
       cooperateCameraState,
       cooperateScreenShareState,
+      cooperateActionsState,
     };
   },
 });

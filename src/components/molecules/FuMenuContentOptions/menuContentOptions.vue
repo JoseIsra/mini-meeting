@@ -43,6 +43,7 @@
         ]"
         :key="option.id"
         @click="handleOptionSelected(option.interaction)"
+        v-show="option.id === '9' ? (isAdmin() ? true : false) : true"
       >
         <q-icon :name="option.iconName" size="18px" color="white" />
         <label class="a-menu__optionList__item__description">{{
@@ -62,6 +63,7 @@ import { menuOptions, MenuOptions } from '@/helpers/menuOptions';
 import { ZoidWindow } from '@/types/zoid';
 import FuDeleteRoomModal from 'molecules/FuDeleteRoomModal';
 import { useToogleFunctions } from '@/composables';
+import { useUserMe } from '@/composables/userMe';
 import { REASON_TO_LEAVE_ROOM } from '@/types';
 
 interface OptionsClickMethods {
@@ -76,6 +78,8 @@ export default defineComponent({
     const options = ref<MenuOptions>(menuOptions);
     let openModal = ref(false);
     const { watchInfoRoomCard, openOptionsMenu } = useToogleFunctions();
+
+    const { isAdmin } = useUserMe();
 
     const optionsMethodsObject = reactive<OptionsClickMethods>({
       LEAVE: () =>
@@ -103,6 +107,7 @@ export default defineComponent({
       options,
       handleOptionSelected,
       openModal,
+      isAdmin,
     };
   },
 });

@@ -10,7 +10,7 @@
           :key="icon.id"
           :icon="icon.active ? icon.onState : icon.offState"
           size="0.7rem"
-          :disable="icon.id === '2' && userMe.isScreenSharing"
+          :disable="disableAction(icon)"
           @click="
             icon.active = !icon.active;
             tooglePeriferic(icon?.interaction);
@@ -50,7 +50,7 @@
           :key="icon.id"
           :icon="icon.onState"
           size="14px"
-          :disabled="icon.id === '1' && userMe.isCameraOn"
+          :disabled="disableAction(icon)"
           v-on="
             icon.behaviour == 'ESPECIAL'
               ? { click: () => handleEspecialBehaviour(icon.interaction) }
@@ -111,7 +111,42 @@
             floating
             >x</q-badge
           >
-        </q-btn>
+        </q-btn>participants.value = participants.value.map((part) => {
+      const participantToChange = participants.value.find(
+        (p) => p.id === participant.id
+      );
+
+      if (participantToChange) {
+        console.log('SetParticipantActions: ', participantToChange.id);
+        
+        if (action === LOCK_ACTION_TYPE.All) {
+          return {
+            ...participantToChange,
+            isMicBlocked: value,
+            isVideoBlocked: value,
+            isScreenShareBlocked: value,
+          };
+        } else {
+          return {
+            ...participantToChange,
+            isMicBlocked:
+              action === LOCK_ACTION_TYPE.Mic
+                ? value
+                : participantToChange.isMicBlocked,
+            isVideoBlocked:
+              action === LOCK_ACTION_TYPE.Camera
+                ? value
+                : participantToChange.isVideoBlocked,
+            isScreenShareBlocked:
+              action === LOCK_ACTION_TYPE.Screen
+                ? value
+                : participantToChange.isScreenShareBlocked,
+          };
+        }
+      }
+
+      return part;
+    });
 
         <fu-cooperate-menu
           v-show="functionsOnMenuBar.renderResponsiveFunctionMenu"
@@ -234,7 +269,7 @@ export default defineComponent({
       removeHandNotification,
       setIDButtonSelected,
       openOptionsMenu,
-      openFunctionResponsiveMenu,
+      openFunctionResponsiveMenu,      
     } = useToogleFunctions();
     let { isSidebarRender, setSidebarState } = useSidebarToogle();
     const {
@@ -387,6 +422,32 @@ export default defineComponent({
       objectPeriferics[interaction as keyof Periferics]();
     };
 
+    const disableAction = (action: Icons) => {
+      if (action.onState === 'mic' && userMe.isMicBlocked) {
+        return true;
+      }
+
+      if (
+        action.id === '2' &&
+        action.onState === 'videocam' &&
+        userMe.isScreenSharing
+      ) {
+        return true;
+      }
+
+      if (action.onState === 'videocam' && userMe.isVideoBlocked) {
+        return true;
+      }
+
+      if (action.onState === 'monitor' && userMe.isScreenShareBlocked) {
+        return true;
+      }
+
+      if (action.onState === 'monitor' && userMe.isCameraOn) {
+        return true;
+      }
+    }
+
     const openResponsiveMenuOfFunctions = () => {
       openFunctionResponsiveMenu(
         !functionsOnMenuBar.renderResponsiveFunctionMenu
@@ -408,6 +469,7 @@ export default defineComponent({
       functionsOnMenuBar,
       objectFunctionalities,
       isOptions,
+      disableAction,
       handleEspecialBehaviour,
       handNotificationActive,
       openResponsiveMenuOfFunctions,

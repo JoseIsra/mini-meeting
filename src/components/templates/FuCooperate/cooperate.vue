@@ -58,9 +58,13 @@ export default defineComponent({
       sendNotificationEvent,
       justTurnOnLocalCamera,
     } = useInitWebRTC();
+
     const { userMe, setUserMe, setVideoActivatedState } = useUserMe();
+
     const { setRoom } = useRoom();
+
     const route = useRoute();
+
     const { authState, setLoadingOrErrorMessage, setExistRoom } =
       useAuthState();
 
@@ -84,6 +88,21 @@ export default defineComponent({
       (route.query.roomId as string) ||
       '';
 
+    // Estado inicial, cooperate actions blocked by default or allowed (?)
+
+    const isMicLcked = (window as ZoidWindow)?.xprops?.isMicLocked || false;
+
+    const isCameraLocked =
+      (window as ZoidWindow)?.xprops?.isCameraLocked || false;
+
+    const isScreenShareLocked =
+      (window as ZoidWindow)?.xprops?.isScreenShareLocked || false;
+
+    const roleId =
+      (window as ZoidWindow)?.xprops?.roleId ||
+      parseInt(route.query.roleId as string) ||
+      0;
+
     const sharingLink =
       (window as ZoidWindow)?.xprops?.sharedLink ||
       (route.query.sharedLink as string) ||
@@ -97,6 +116,10 @@ export default defineComponent({
       isMicOn: true,
       isScreenSharing: false,
       isVideoActivated: false,
+      roleId: roleId,
+      isMicBlocked: isMicLcked,
+      isVideoBlocked: isCameraLocked,
+      isScreenShareBlocked: isScreenShareLocked,
     });
 
     setRoom({
@@ -112,6 +135,7 @@ export default defineComponent({
       (window as ZoidWindow)?.xprops?.playToken ||
       (route.query.playToken as string) ||
       '';
+
     const subscriberId = (route.query.subscriberId as string) || undefined;
     const subscriberCode = (route.query.subscriberCode as string) || undefined;
 
@@ -140,6 +164,7 @@ export default defineComponent({
         justTurnOnLocalCamera(streamId);
       }
     };
+
     const toggleLocalCamera = () => {
       if (userMe.isCameraOn) {
         if (userMe.isScreenSharing) {
@@ -157,6 +182,7 @@ export default defineComponent({
         sendNotificationEvent('CAM_TURNED_ON', streamId);
       }
     };
+
     const toggleLocalMic = () => {
       if (!userMe.isMicOn) {
         unmuteLocalMic();

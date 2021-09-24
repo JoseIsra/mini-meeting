@@ -89,18 +89,32 @@
             <span>
               {{
                 actionsActivated
-                  ? 'Acciones bloqueadas'
-                  : 'Acciones desbloqueadas'
+                  ? 'Acciones desbloqueadas'
+                  : 'Acciones bloqueadas'
               }}
             </span>
 
             <q-btn
-              :icon="actionsActivated ? 'fas fa-lock-open' : 'fas fa-lock'"
+              :icon="!actionsActivated ? 'fas fa-lock-open' : 'fas fa-lock'"
               @click="handleAllActions"
               flat
               size="10px"
               style="padding: 8px; margin-right: 8px"
-            ></q-btn>
+            >
+              <q-tooltip
+                class="bg-grey-10"
+                anchor="bottom middle"
+                self="top middle"                
+                transition-show="scale"
+                transition-hide="scale"
+              >
+                <label>{{
+                  !actionsActivated
+                    ? 'Desbloquear todas las acciones'
+                    : 'Bloquear todas las acciones'
+                }}</label>
+              </q-tooltip>
+            </q-btn>
 
             <!-- <q-toggle
               class="m-shared__admin__toggle"

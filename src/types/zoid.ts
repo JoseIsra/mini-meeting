@@ -1,3 +1,5 @@
+import { lockAction } from './index';
+
 interface ZoidProps {
   streamId?: string;
   roomId: string;
@@ -7,11 +9,15 @@ interface ZoidProps {
   playToken?: string;
   photoURL?: string;
   roleId?: number;
-  handleLeaveCall?: (arg: number) => void;
   sharedLink?: string;
+  isMicLocked?: boolean;
+  isCameraLocked?: boolean;
+  isScreenShareLocked?: boolean;
+  handleLeaveCall?: (arg: number) => void;
   handleEndCall?: () => void;
   handleStopRecording?: (urlOfRecording: string) => void;
   toggleMinimize?: (isMinimize: boolean) => void;
+  toggleLockAction?: (lockAction: lockAction) => void;
 }
 
 export interface ZoidWindow extends Window {

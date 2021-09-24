@@ -139,6 +139,11 @@ export enum REASON_TO_LEAVE_ROOM {
   MODERATOR_CLOSE_ROOM = 1,
 }
 
+export interface lockAction {
+  type: number;
+  state: number;
+}
+
 export enum LOCK_ACTION_TYPE {
   'All',
   'Mic',

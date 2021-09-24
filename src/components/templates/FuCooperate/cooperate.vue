@@ -25,7 +25,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, toRefs, onMounted } from 'vue';
+import { defineComponent, toRefs, onMounted } from 'vue';
 import FuCooperate from 'organisms/FuCooperate';
 import { useRoute } from 'vue-router';
 import { useUserMe } from '@/composables/userMe';
@@ -59,10 +59,12 @@ export default defineComponent({
       justTurnOnLocalCamera,
     } = useInitWebRTC();
 
-    const { userMe, setUserMe, setVideoActivatedState, isAdmin } = useUserMe();
+    const { userMe, setUserMe, setVideoActivatedState } = useUserMe();
 
     const { setRoom } = useRoom();
+
     const route = useRoute();
+
     const { authState, setLoadingOrErrorMessage, setExistRoom } =
       useAuthState();
 
@@ -87,7 +89,14 @@ export default defineComponent({
       '';
 
     // Estado inicial, cooperate actions blocked by default or allowed (?)
-    const blockActions = ref(false);
+
+    const isMicLcked = (window as ZoidWindow)?.xprops?.isMicLocked || false;
+
+    const isCameraLocked =
+      (window as ZoidWindow)?.xprops?.isCameraLocked || false;
+
+    const isScreenShareLocked =
+      (window as ZoidWindow)?.xprops?.isScreenShareLocked || false;
 
     const roleId =
       (window as ZoidWindow)?.xprops?.roleId ||
@@ -108,11 +117,10 @@ export default defineComponent({
       isScreenSharing: false,
       isVideoActivated: false,
       roleId: roleId,
-      isMicBlocked: blockActions.value,
-      isVideoBlocked: blockActions.value,
-      isScreenShareBlocked: blockActions.value,
+      isMicBlocked: isMicLcked,
+      isVideoBlocked: isCameraLocked,
+      isScreenShareBlocked: isScreenShareLocked,
     });
-    console.log(isAdmin, '🆕🆕🆕🆕');
 
     setRoom({
       id: roomId,
@@ -156,6 +164,7 @@ export default defineComponent({
         justTurnOnLocalCamera(streamId);
       }
     };
+
     const toggleLocalCamera = () => {
       if (userMe.isCameraOn) {
         if (userMe.isScreenSharing) {

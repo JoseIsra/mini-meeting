@@ -85,17 +85,35 @@
             "
           />
 
-          <q-toggle
-            class="m-shared__admin__toggle"
-            v-model="cooperateActionsState"
-            left-label
-            :label="
-              cooperateActionsState
-                ? 'Acciones habilitadas'
-                : 'Acciones bloqueadas'
-            "
-            :icon="cooperateActionsState ? 'fas fa-lock-open' : 'fas fa-lock'"
-          />
+          <div class="m-shared__admin__toggle" style="height: 40px">
+            <span>
+              {{
+                actionsActivated
+                  ? 'Acciones bloqueadas'
+                  : 'Acciones desbloqueadas'
+              }}
+            </span>
+
+            <q-btn
+              :icon="actionsActivated ? 'fas fa-lock-open' : 'fas fa-lock'"
+              @click="handleAllActions"
+              flat
+              size="10px"
+              style="padding: 8px; margin-right: 8px"
+            ></q-btn>
+
+            <!-- <q-toggle
+              class="m-shared__admin__toggle"
+              v-model="actionsActivated"
+              left-label
+              :label="
+                actionsActivated
+                  ? 'Todos estan en true'
+                  : 'No estan todos en true'
+              "
+              :icon="actionsActivated ? 'fas fa-lock-open' : 'fas fa-lock'"
+            /> -->
+          </div>
         </div>
       </div>
     </main>
@@ -137,78 +155,74 @@ export default defineComponent({
 
     const cooperateScreenShareState = ref(!isScreenShareLocked);
 
-    const cooperateActionsState = ref(
-      !isScreenShareLocked && !isCameraLocked && !isMicLcked
+    const actionsActivated = computed(
+      () =>
+        cooperateMicState.value &&
+        cooperateScreenShareState.value &&
+        cooperateCameraState.value
     );
 
-    watch(cooperateActionsState, (value) => {
-      cooperateMicState.value = value;
-      cooperateCameraState.value = value;
-      cooperateScreenShareState.value = value;
+    watch(cooperateMicState, (value) => {
+      const lockAction = {
+        type: LOCK_ACTION_TYPE.Mic,
+        state: Number(value),
+      } as lockAction;
+
+      (window as ZoidWindow)?.xprops?.toggleLockAction?.(lockAction);
+    });
+
+    watch(cooperateCameraState, (value) => {
+      const lockAction = {
+        type: LOCK_ACTION_TYPE.Camera,
+        state: Number(value),
+      } as lockAction;
+
+      (window as ZoidWindow)?.xprops?.toggleLockAction?.(lockAction);
+    });
+
+    watch(cooperateScreenShareState, (value) => {
+      const lockAction = {
+        type: LOCK_ACTION_TYPE.Screen,
+        state: Number(value),
+      } as lockAction;
+
+      (window as ZoidWindow)?.xprops?.toggleLockAction?.(lockAction);
     });
 
     watch(
-      [
-        cooperateMicState,
-        cooperateCameraState,
-        cooperateScreenShareState,
-        cooperateActionsState,
-      ],
-      (
-        [mic, camera, screenShare, all],
-        [prevMic, prevCamera, prevScreenShare, prevAll]
-      ) => {
-        const allChanged = all !== prevAll;
-
-        if (mic !== prevMic && !allChanged) {
-          console.log('Se cambio mic');
-
-          const lockAction = {
-            type: LOCK_ACTION_TYPE.Mic,
-            state: Number(mic),
-          } as lockAction;
-
-          (window as ZoidWindow)?.xprops?.toggleLockAction?.(lockAction);
-        }
-
-        if (camera !== prevCamera && !allChanged) {
-          console.log('Se cambio camera');
-
-          const lockAction = {
-            type: LOCK_ACTION_TYPE.Camera,
-            state: Number(camera),
-          } as lockAction;
-
-          (window as ZoidWindow)?.xprops?.toggleLockAction?.(lockAction);
-        }
-
-        if (screenShare !== prevScreenShare && !allChanged) {
-          console.log('Se cambio screenShare');
-
-          const lockAction = {
-            type: LOCK_ACTION_TYPE.Screen,
-            state: Number(screenShare),
-          } as lockAction;
-
-          (window as ZoidWindow)?.xprops?.toggleLockAction?.(lockAction);
-        }
-
-        if (allChanged) {
+      [cooperateMicState, cooperateCameraState, cooperateScreenShareState],
+      ([mic, camera, screenShare]) => {
+        if (mic && camera && screenShare) {
           const lockAction = {
             type: LOCK_ACTION_TYPE.All,
-            state: Number(all),
+            state: 0,
           } as lockAction;
 
           (window as ZoidWindow)?.xprops?.toggleLockAction?.(lockAction);
         }
 
-        if (mic && camera && screenShare) {
-          cooperateActionsState.value = true;
-        } else if (!mic && !camera && !screenShare) {
-          cooperateActionsState.value = false;
+        if (!mic && !camera && !screenShare) {
+          const lockAction = {
+            type: LOCK_ACTION_TYPE.All,
+            state: 1,
+          } as lockAction;
+
+          (window as ZoidWindow)?.xprops?.toggleLockAction?.(lockAction);
         }
       }
     );
+
+    const handleAllActions = () => {
+      if (actionsActivated.value) {
+        cooperateMicState.value = false;
+        cooperateScreenShareState.value = false;
+        cooperateCameraState.value = false;
+      } else {
+        cooperateMicState.value = true;
+        cooperateScreenShareState.value = true;
+        cooperateCameraState.value = true;
+      }
+    };
 
     const toolTipMessage = computed(() => {
       return props.unCopyText ? 'Enlace copiado' : 'Copiar enlace';
@@ -231,7 +245,8 @@ export default defineComponent({
       cooperateMicState,
       cooperateCameraState,
       cooperateScreenShareState,
-      cooperateActionsState,
+      actionsActivated,
+      handleAllActions,
     };
   },
 });

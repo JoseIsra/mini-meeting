@@ -1,5 +1,5 @@
 import { ref } from 'vue';
-import { Participant } from '@/types';
+import { Participant, LOCK_ACTION_TYPE } from '@/types';
 
 const participants = ref<Participant[]>([]);
 
@@ -23,36 +23,37 @@ export function useHandleParticipants() {
   };
 
   const setParticipantActions = (
-    participant: Participant,
+    participantId: string,
     action: number,
     value: boolean
   ) => {
-    participants.value = participants.value.map((part) => {
-      if (part.id === participant.id) {
-        if (action === 0) {
-          return {
-            ...part,
-            isMicBlocked: value,
-            isVideoBlocked: value,
-            isScreenShareBlocked: value,
-          };
-        } else {
-          return {
-            ...part,
-            isMicBlocked: action === 1 ? value : part.isMicBlocked,
-            isVideoBlocked: action === 2 ? value : part.isVideoBlocked,
-            isScreenShareBlocked:
-              action === 3 ? value : part.isScreenShareBlocked,
-          };
-        }
-      }
-      return participant;
-    });
+    const participantToModify = participants.value.filter(
+      (currentParticipant) => currentParticipant.id === participantId
+    )[0];
+
+    if (action === LOCK_ACTION_TYPE.All) {
+      participantToModify.isMicBlocked = value;
+      participantToModify.isVideoBlocked = value;
+      participantToModify.isScreenShareBlocked = value;
+    } else {
+      participantToModify.isMicBlocked =
+        action === LOCK_ACTION_TYPE.Mic
+          ? value
+          : participantToModify.isMicBlocked;
+      participantToModify.isVideoBlocked =
+        action === LOCK_ACTION_TYPE.Camera
+          ? value
+          : participantToModify.isVideoBlocked;
+      participantToModify.isScreenShareBlocked =
+        action === LOCK_ACTION_TYPE.Screen
+          ? value
+          : participantToModify.isScreenShareBlocked;
+    }
   };
 
   const setEveryParticipantActions = (action: number, value: boolean) => {
     participants.value = participants.value.map((part) => {
-      if (action === 0) {
+      if (action === LOCK_ACTION_TYPE.All) {
         return {
           ...part,
           isMicBlocked: value,
@@ -62,10 +63,14 @@ export function useHandleParticipants() {
       } else {
         return {
           ...part,
-          isMicBlocked: action === 1 ? value : part.isMicBlocked,
-          isVideoBlocked: action === 2 ? value : part.isVideoBlocked,
+          isMicBlocked:
+            action === LOCK_ACTION_TYPE.Mic ? value : part.isMicBlocked,
+          isVideoBlocked:
+            action === LOCK_ACTION_TYPE.Camera ? value : part.isVideoBlocked,
           isScreenShareBlocked:
-            action === 3 ? value : part.isScreenShareBlocked,
+            action === LOCK_ACTION_TYPE.Screen
+              ? value
+              : part.isScreenShareBlocked,
         };
       }
     });

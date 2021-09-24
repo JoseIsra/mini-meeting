@@ -199,7 +199,9 @@
 
           <q-btn
             :icon="isVideoBlocked(participant) ? 'videocam' : 'videocam_off'"
-            @click="handleParticipantActions(participant, LOCK_ACTION_TYPE.Camera)"
+            @click="
+              handleParticipantActions(participant, LOCK_ACTION_TYPE.Camera)
+            "
           >
             <q-tooltip
               class="bg-grey-10"
@@ -223,7 +225,9 @@
                 ? 'desktop_windows'
                 : 'desktop_access_disabled'
             "
-            @click="handleParticipantActions(participant,  LOCK_ACTION_TYPE.Screen)"
+            @click="
+              handleParticipantActions(participant, LOCK_ACTION_TYPE.Screen)
+            "
           >
             <q-tooltip
               class="bg-grey-10"
@@ -329,13 +333,13 @@ export default defineComponent({
 
       if (action === LOCK_ACTION_TYPE.All) {
         if (isEveryoneActionsBlocked.value) {
-          setParticipantActions(participant, action, false);
+          setParticipantActions(participant.id as string, action, false);
         } else {
-          setParticipantActions(participant, action, true);
+          setParticipantActions(participant.id as string, action, true);
         }
       } else if (action === LOCK_ACTION_TYPE.Mic) {
         if (isMicBlocked(participant)) {
-          setParticipantActions(participant, action, false);
+          setParticipantActions(participant.id as string, action, false);
 
           sendData(userMe.id, {
             ...blockActions,
@@ -343,7 +347,7 @@ export default defineComponent({
             value: false,
           });
         } else {
-          setParticipantActions(participant, action, true);
+          setParticipantActions(participant.id as string, action, true);
 
           sendData(userMe.id, {
             ...blockActions,
@@ -353,7 +357,7 @@ export default defineComponent({
         }
       } else if (action === LOCK_ACTION_TYPE.Camera) {
         if (isVideoBlocked(participant)) {
-          setParticipantActions(participant, action, false);
+          setParticipantActions(participant.id as string, action, false);
 
           sendData(userMe.id, {
             ...blockActions,
@@ -361,7 +365,7 @@ export default defineComponent({
             value: false,
           });
         } else {
-          setParticipantActions(participant, action, true);
+          setParticipantActions(participant.id as string, action, true);
 
           sendData(userMe.id, {
             ...blockActions,
@@ -372,7 +376,7 @@ export default defineComponent({
       } else {
         // LOCK_ACTION_TYPE.Screen
         if (isScreenShareBlocked(participant)) {
-          setParticipantActions(participant, action, false);
+          setParticipantActions(participant.id as string, action, false);
 
           sendData(userMe.id, {
             ...blockActions,
@@ -380,7 +384,7 @@ export default defineComponent({
             value: false,
           });
         } else {
-          setParticipantActions(participant, action, true);
+          setParticipantActions(participant.id as string, action, true);
 
           sendData(userMe.id, {
             ...blockActions,
@@ -398,7 +402,7 @@ export default defineComponent({
         action: action,
       };
 
-      if (action ===  LOCK_ACTION_TYPE.All) {
+      if (action === LOCK_ACTION_TYPE.All) {
         if (isEveryoneActionsBlocked.value) {
           setEveryParticipantActions(action, false);
 
@@ -510,7 +514,7 @@ export default defineComponent({
       isVideoBlocked,
       isScreenShareBlocked,
       handleParticipantActions,
-      LOCK_ACTION_TYPE
+      LOCK_ACTION_TYPE,
     };
   },
 });

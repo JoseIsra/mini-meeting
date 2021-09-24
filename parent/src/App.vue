@@ -46,8 +46,8 @@ export default Vue.extend({
     toggleMinimize: function (state: boolean) {
       console.log("⭐ toggleMinimize function executed with params", state);
     },
-    handleStopRecording: function () {
-      console.log("⭐ handleStopRecording function executed");
+    handleStopRecording: function (url: string) {
+      console.log("⭐ handleStopRecording function executed with params", url);
     },
     toggleLockAction: function (options: Record<string, number>) {
       console.log("⭐ toggle log action with params", options);

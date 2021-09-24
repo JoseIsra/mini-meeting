@@ -41,6 +41,8 @@
       display: flex;
       justify-content: space-around;
       align-items: center;
+
+      margin-bottom: 12px;
     }
     &__input {
       flex: 0.7;
@@ -61,8 +63,6 @@
     color: white;
     font-weight: 400;
     font-size: 12px;
-
-    margin-top: 12px;
 
     &__toggle {
       display: flex;

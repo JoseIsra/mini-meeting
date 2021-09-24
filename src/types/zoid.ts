@@ -1,4 +1,4 @@
-interface ZoidProps {
+export interface ZoidProps {
   streamId?: string;
   roomId: string;
   streamName?: string;
@@ -6,13 +6,11 @@ interface ZoidProps {
   publishToken?: string;
   playToken?: string;
   photoURL?: string;
+  fractalUserId?: string;
   handleLeaveCall?: (arg: number) => void;
   sharedLink?: string;
-  handleEndCall?: () => void;
+  handleEndCall?: () => Promise<void>;
   handleStopRecording?: (urlOfRecording: string) => void;
   toggleMinimize?: (isMinimize: boolean) => void;
-}
-
-export interface ZoidWindow extends Window {
-  xprops?: ZoidProps;
+  logJoined?: () => void;
 }

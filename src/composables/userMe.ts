@@ -9,6 +9,7 @@ export interface User {
   isScreenSharing: boolean;
   isVideoActivated: boolean;
   stream?: MediaStream;
+  fractalUserId: string;
 }
 
 export interface UpdatedUserfields {
@@ -20,6 +21,7 @@ export interface UpdatedUserfields {
   isScreenSharing?: boolean;
   isVideoActivated?: boolean;
   stream?: MediaStream;
+  fractalUserId?: string;
 }
 
 const userState = {} as User;

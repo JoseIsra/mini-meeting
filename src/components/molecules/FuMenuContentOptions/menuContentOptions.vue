@@ -59,7 +59,6 @@
 <script lang="ts">
 import { defineComponent, ref, reactive } from 'vue';
 import { menuOptions, MenuOptions } from '@/helpers/menuOptions';
-import { ZoidWindow } from '@/types/zoid';
 import FuDeleteRoomModal from 'molecules/FuDeleteRoomModal';
 import { useToogleFunctions } from '@/composables';
 import { REASON_TO_LEAVE_ROOM } from '@/types';
@@ -79,9 +78,7 @@ export default defineComponent({
 
     const optionsMethodsObject = reactive<OptionsClickMethods>({
       LEAVE: () =>
-        (window as ZoidWindow).xprops?.handleLeaveCall?.(
-          REASON_TO_LEAVE_ROOM.MODERATOR_CLOSE_ROOM
-        ),
+        window.xprops?.handleLeaveCall?.(REASON_TO_LEAVE_ROOM.BY_MYSELF),
       END: () => openDeleteRoomModal(),
       ROOMDETAILS: () => openInfoRoomCard(),
     });

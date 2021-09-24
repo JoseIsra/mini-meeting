@@ -26,7 +26,6 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { ZoidWindow } from '@/types/zoid';
 import { useUserMe } from '@/composables/userMe';
 import { useRoom } from '@/composables/room';
 import { useInitWebRTC } from '@/composables/antMedia';
@@ -40,12 +39,12 @@ export default defineComponent({
 
     const executeDeleteRoom = () => {
       deleteRoom(roomState.id)
-        .then(() => {
-          (window as ZoidWindow).xprops?.handleEndCall?.();
+        .then(async () => {
+          await window.xprops?.handleEndCall?.();
           sendData(userMe.id, { eventType: 'KICK', to: 'all' });
-          (window as ZoidWindow).xprops?.handleLeaveCall?.(
-            REASON_TO_LEAVE_ROOM.MODERATOR_CLOSE_ROOM
-          );
+          //TODO: Este es el gozu y falta añadirle el segundo parámetro opcional
+          // Si eres host ejecutas el end, chifado mandando objeto de usuarios (idfractaluserid) y el leave gozu.
+          window.xprops?.handleLeaveCall?.(REASON_TO_LEAVE_ROOM.I_CLOSE_ROOM);
         })
         .catch((e) => console.log(e));
     };

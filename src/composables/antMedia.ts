@@ -8,6 +8,7 @@ import { Message, useHandleMessage } from '@/composables/chat';
 import { useToogleFunctions } from '@/composables';
 import { ZoidWindow } from '@/types/zoid';
 import { useRoom } from '@/composables/room';
+import { useExternalVideo } from './external-video';
 const webRTCInstance = ref<WebRTCAdaptor>({} as WebRTCAdaptor);
 
 const { userMe, setScreenState, setVideoActivatedState, updateUserMe } =
@@ -18,11 +19,13 @@ const { setRecorded } = useRoom();
 const { deleteParticipantById, participants, addParticipants } =
   useHandleParticipants();
 const { setUserMessage, deleteLoadingMessage } = useHandleMessage();
-const { addHandNotificationInfo, removeHandNotification } =
+const { addHandNotificationInfo, removeHandNotification, setFullScreen } =
   useToogleFunctions();
 
 const roomTimerId = ref<ReturnType<typeof setInterval> | null>(null);
 const isDataChannelOpen = ref(false);
+const { setUrlVideo, setPlayingVideoState } = useExternalVideo();
+
 interface ObjInfoRequested {
   to: string;
   from: string;
@@ -41,6 +44,10 @@ interface ObjRemoteUserInfo extends ObjInfoRequested {
 interface ObjKickedEvent {
   eventType: string;
   to: string;
+}
+interface ExternalVideoObject {
+  eventType: string;
+  urlContent: string;
 }
 
 export function useInitWebRTC() {
@@ -546,6 +553,15 @@ export function useInitWebRTC() {
                 REASON_TO_LEAVE_ROOM.MODERATOR_CLOSE_ROOM
               );
             }
+          } else if (eventType === 'SHARE_EXTERNAL_VIDEO') {
+            const externalVideoObject = JSON.parse(
+              obj.data
+            ) as ExternalVideoObject;
+            setFullScreen('video');
+            setUrlVideo(externalVideoObject.urlContent);
+          } else if (eventType == 'PLAYING_VIDEO') {
+            console.log('PLAYIN A VIDEO I THINK 🤔');
+            setPlayingVideoState(true);
           }
         }
       },

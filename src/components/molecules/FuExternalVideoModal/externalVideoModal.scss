@@ -1,6 +1,26 @@
 .m-external {
-  width: 630px;
+  width: 530px;
   height: auto;
   background-color: #202125;
   max-width: 800px;
+  border-radius: 10px;
+  &__content {
+    &__message {
+      color: #fffffe;
+      font-size: clamp(0.8rem, 2.5vw, 1.1rem);
+      font-weight: bolder;
+    }
+  }
+  &__actions {
+    &__btn {
+      padding: 10px;
+      margin-left: 30px;
+      width: calc(100% - 60px);
+      font-size: clamp(0.7rem, 2.5vw, 0.8rem);
+      color: #fffffe;
+      font-weight: bolder;
+      border-radius: 7px;
+      background-color: rgba(49, 90, 165, 0.931);
+    }
+  }
 }

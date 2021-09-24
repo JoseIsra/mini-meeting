@@ -2,8 +2,10 @@ export interface Options {
   id: string;
   iconName: string;
   description: string;
+  secondDescription?: string;
   important: boolean;
   interaction?: string;
+  active?: boolean;
 }
 
 export interface MenuOptions {
@@ -41,8 +43,10 @@ export const menuActions = [
     id: '3',
     iconName: 'videocam',
     description: 'Compartir un video externo',
+    secondDescription: 'Dejar de compartir video externo',
     important: false,
     interaction: interactionType.EXTERNALVIDEO,
+    active: false,
   },
   // {
   //   id: '4',
@@ -54,8 +58,10 @@ export const menuActions = [
     id: '5',
     iconName: 'fas fa-satellite-dish',
     description: 'Retransmitir en redes sociales',
+    secondDescription: 'Retransmitir en redes sociales',
     important: false,
     interaction: interactionType.RETRANSMISSION,
+    active: false,
   },
 ];
 

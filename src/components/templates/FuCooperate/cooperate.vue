@@ -58,7 +58,14 @@ export default defineComponent({
       justTurnOnLocalCamera,
     } = useInitWebRTC();
 
-    const { userMe, setUserMe, setVideoActivatedState } = useUserMe();
+    const {
+      userMe,
+      setUserMe,
+      setVideoActivatedState,
+      setMicState,
+      setCameraState,
+      setScreenState,
+    } = useUserMe();
 
     const { setRoom } = useRoom();
 
@@ -84,11 +91,31 @@ export default defineComponent({
 
     // Estado inicial, cooperate actions blocked by default or allowed (?)
 
-    const isMicLcked = window.xprops?.isMicLocked || false;
+    const isMicLocked = window.xprops?.isMicLocked || false;
+
+    if (isMicLocked) {
+      setMicState(false);
+      muteLocalMic();
+      sendNotificationEvent('MIC_MUTED', userMe.id);
+    }
 
     const isCameraLocked = window.xprops?.isCameraLocked || false;
 
+    if (isCameraLocked) {
+      setCameraState(false);
+      setVideoActivatedState(false);
+      turnOffLocalCamera(userMe.id);
+      sendNotificationEvent('CAM_TURNED_OFF', userMe.id);
+    }
+
     const isScreenShareLocked = window.xprops?.isScreenShareLocked || false;
+
+    if (isScreenShareLocked) {
+      setScreenState(false);
+      setVideoActivatedState(false);
+      resetDesktop();
+      sendNotificationEvent('SCREEN_SHARING_OFF', userMe.id);
+    }
 
     const roleId =
       window.xprops?.roleId || parseInt(route.query.roleId as string) || 0;
@@ -110,7 +137,7 @@ export default defineComponent({
       isScreenSharing: false,
       isVideoActivated: false,
       roleId: roleId,
-      isMicBlocked: isMicLcked,
+      isMicBlocked: isMicLocked,
       isVideoBlocked: isCameraLocked,
       isScreenShareBlocked: isScreenShareLocked,
       fractalUserId,

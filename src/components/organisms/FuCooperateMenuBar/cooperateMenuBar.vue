@@ -112,6 +112,7 @@
             >x</q-badge
           >
         </q-btn>
+        
         <fu-cooperate-menu
           v-show="functionsOnMenuBar.renderResponsiveFunctionMenu"
           :objectFunctionalities="objectFunctionalities"

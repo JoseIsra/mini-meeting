@@ -543,6 +543,11 @@ export function useInitWebRTC() {
                   remoteUserInfoParsed.userInfo.isScreenSharing;
                 user.isVideoActivated =
                   remoteUserInfoParsed.userInfo.isVideoActivated;
+                user.isMicBlocked = remoteUserInfoParsed.userInfo.isMicBlocked;
+                user.isVideoBlocked =
+                  remoteUserInfoParsed.userInfo.isVideoBlocked;
+                user.isScreenShareBlocked =
+                  remoteUserInfoParsed.userInfo.isScreenShareBlocked;
                 user.fractalUserId =
                   remoteUserInfoParsed.userInfo.fractalUserId;
               }
@@ -570,8 +575,13 @@ export function useInitWebRTC() {
                   remoteUserInfoParsed.userInfo.isScreenSharing;
                 user.isVideoActivated =
                   remoteUserInfoParsed.userInfo.isVideoActivated;
+                user.isMicBlocked = remoteUserInfoParsed.userInfo.isMicBlocked;
+                user.isVideoBlocked =
+                  remoteUserInfoParsed.userInfo.isVideoBlocked;
+                user.isScreenShareBlocked =
+                  remoteUserInfoParsed.userInfo.isScreenShareBlocked;
                 user.fractalUserId =
-                  remoteUserInfoParsed.userInfo.fractalUserId;
+                  remoteUserInfoParsed.userInfo.fractalUserId ;
               }
             }
           } else if (eventType === 'KICK') {

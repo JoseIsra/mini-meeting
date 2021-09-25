@@ -115,18 +115,6 @@
                 }}</label>
               </q-tooltip>
             </q-btn>
-
-            <!-- <q-toggle
-              class="m-shared__admin__toggle"
-              v-model="actionsActivated"
-              left-label
-              :label="
-                actionsActivated
-                  ? 'Todos estan en true'
-                  : 'No estan todos en true'
-              "
-              :icon="actionsActivated ? 'fas fa-lock-open' : 'fas fa-lock'"
-            /> -->
           </div>
         </div>
       </div>
@@ -154,13 +142,13 @@ export default defineComponent({
 
     const { userMe } = useUserMe();
 
-    const isMicLcked = window.xprops?.isMicLocked || false;
+    const isMicLocked = window.xprops?.isMicLocked || false;
 
     const isCameraLocked = window.xprops?.isCameraLocked || false;
 
     const isScreenShareLocked = window.xprops?.isScreenShareLocked || false;
 
-    const cooperateMicState = ref(!isMicLcked);
+    const cooperateMicState = ref(!isMicLocked);
 
     const cooperateCameraState = ref(!isCameraLocked);
 
@@ -173,57 +161,64 @@ export default defineComponent({
         cooperateCameraState.value
     );
 
-    const canModifyActions = ref(userMe.roleId === 0 || userMe.roleId === 2);
-
-    watch(cooperateMicState, (value) => {
-      const lockAction = {
-        type: LOCK_ACTION_TYPE.Mic,
-        state: Number(value),
-      } as lockAction;
-
-      window.xprops?.toggleLockAction?.(lockAction);
-    });
-
-    watch(cooperateCameraState, (value) => {
-      const lockAction = {
-        type: LOCK_ACTION_TYPE.Camera,
-        state: Number(value),
-      } as lockAction;
-
-      window.xprops?.toggleLockAction?.(lockAction);
-    });
-
-    watch(cooperateScreenShareState, (value) => {
-      const lockAction = {
-        type: LOCK_ACTION_TYPE.Screen,
-        state: Number(value),
-      } as lockAction;
-
-      window.xprops?.toggleLockAction?.(lockAction);
-    });
-
     watch(
       [cooperateMicState, cooperateCameraState, cooperateScreenShareState],
-      ([mic, camera, screenShare]) => {
-        if (mic && camera && screenShare) {
-          const lockAction = {
-            type: LOCK_ACTION_TYPE.All,
-            state: 0,
-          } as lockAction;
+      ([mic, camera, screenShare], [prevMic, prevCamera, prevScreenShare]) => {
+        const haveAllChanged =
+          prevMic !== mic &&
+          camera !== prevCamera &&
+          screenShare !== prevScreenShare;
 
-          window.xprops?.toggleLockAction?.(lockAction);
-        }
+        if (haveAllChanged) {
+          if (mic && camera && screenShare) {
+            const lockAction = {
+              type: LOCK_ACTION_TYPE.All,
+              state: 0,
+            } as lockAction;
 
-        if (!mic && !camera && !screenShare) {
-          const lockAction = {
-            type: LOCK_ACTION_TYPE.All,
-            state: 1,
-          } as lockAction;
+            window.xprops?.toggleLockAction?.(lockAction);
+          }
 
-          window.xprops?.toggleLockAction?.(lockAction);
+          if (!mic && !camera && !screenShare) {
+            const lockAction = {
+              type: LOCK_ACTION_TYPE.All,
+              state: 1,
+            } as lockAction;
+
+            window.xprops?.toggleLockAction?.(lockAction);
+          }
+        } else {
+          if (mic !== prevMic) {
+            const lockAction = {
+              type: LOCK_ACTION_TYPE.Mic,
+              state: Number(!mic),
+            } as lockAction;
+
+            window.xprops?.toggleLockAction?.(lockAction);
+          }
+
+          if (camera !== prevCamera) {
+            const lockAction = {
+              type: LOCK_ACTION_TYPE.Camera,
+              state: Number(!camera),
+            } as lockAction;
+
+            window.xprops?.toggleLockAction?.(lockAction);
+          }
+
+          if (screenShare !== prevScreenShare) {
+            const lockAction = {
+              type: LOCK_ACTION_TYPE.Screen,
+              state: Number(!screenShare),
+            } as lockAction;
+
+            window.xprops?.toggleLockAction?.(lockAction);
+          }
         }
       }
     );
+
+    const canModifyActions = ref(userMe.roleId === 0 || userMe.roleId === 2);
 
     const handleAllActions = () => {
       if (actionsActivated.value) {

@@ -1,6 +1,6 @@
 import { lockAction } from './index';
 
-interface ZoidProps {
+export interface ZoidProps {
   streamId?: string;
   roomId: string;
   streamName?: string;
@@ -13,13 +13,13 @@ interface ZoidProps {
   isMicLocked?: boolean;
   isCameraLocked?: boolean;
   isScreenShareLocked?: boolean;
-  handleLeaveCall?: (arg: number) => void;
-  handleEndCall?: () => void;
+  handleLeaveCall?: (
+    arg: number,
+    remainingParticipantsFractalUserIds?: string[]
+  ) => void;
   handleStopRecording?: (urlOfRecording: string) => void;
   toggleMinimize?: (isMinimize: boolean) => void;
   toggleLockAction?: (lockAction: lockAction) => void;
-}
-
-export interface ZoidWindow extends Window {
-  xprops?: ZoidProps;
+  fractalUserId?: string;
+  logJoined?: () => void;
 }

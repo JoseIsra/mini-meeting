@@ -5,7 +5,7 @@
       <small>En línea ({{ participants.length + 1 }})</small>
     </header>
     <main class="m-list__content">
-      <div class="m-list__content__actions" v-show="isAdmin()">
+      <div class="m-list__content__actions" v-show="canLimitActions">
         <span>
           {{
             isEveryoneActionsBlocked ? 'Limitar acciones ' : 'Liberar acciones'
@@ -151,7 +151,7 @@
           <label>{{ participant.name }}</label>
         </div>
 
-        <div class="m-list__content__userBox__actions" v-show="isAdmin()">
+        <div class="m-list__content__userBox__actions" v-show="canLimitActions">
           <!-- <q-btn
             :icon="
               hasActionsBlocked(participant)
@@ -251,7 +251,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, computed } from 'vue';
+import { defineComponent, computed, ref } from 'vue';
 import { useHandleParticipants } from '@/composables/participants';
 import { useUserMe } from '@/composables/userMe';
 import { useInitWebRTC } from '@/composables/antMedia';
@@ -264,7 +264,9 @@ export default defineComponent({
     const { participants, setParticipantActions, setEveryParticipantActions } =
       useHandleParticipants();
 
-    const { userMe, isAdmin } = useUserMe();
+    const { userMe } = useUserMe();
+
+    const canLimitActions = ref(userMe.roleId === 0 || userMe.roleId === 2);
 
     const { sendData } = useInitWebRTC();
 
@@ -505,7 +507,6 @@ export default defineComponent({
       hasActionsBlocked,
       handleEveryoneActions,
       userMe,
-      isAdmin,
       isEveryoneMicBlocked,
       isEveryoneVideoBlocked,
       isEveryoneScreenShareBlocked,
@@ -515,6 +516,7 @@ export default defineComponent({
       isScreenShareBlocked,
       handleParticipantActions,
       LOCK_ACTION_TYPE,
+      canLimitActions,
     };
   },
 });

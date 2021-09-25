@@ -16,8 +16,9 @@ export interface Participant {
   isScreenSharing?: boolean;
   isVideoActivated?: boolean;
   isMicBlocked?: boolean;
-  isVideoBlocked? : boolean;
-  isScreenShareBlocked? : boolean;
+  isVideoBlocked?: boolean;
+  isScreenShareBlocked?: boolean;
+  fractalUserId?: string;
 }
 
 export type Scalars = {
@@ -135,8 +136,10 @@ export interface Functionalities {
 }
 
 export enum REASON_TO_LEAVE_ROOM {
-  YOURSELF = 0,
-  MODERATOR_CLOSE_ROOM = 1,
+  BY_MYSELF,
+  KICKED_BY_MODERATOR_CLOSE_ROOM,
+  I_CLOSE_ROOM,
+  JUST_LEAVE,
 }
 
 export interface lockAction {

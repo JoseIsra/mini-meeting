@@ -13,6 +13,7 @@ export interface User {
   isVideoBlocked: boolean;
   isScreenShareBlocked: boolean;
   stream?: MediaStream;
+  fractalUserId: string;
 }
 
 export interface UpdatedUserfields {
@@ -24,6 +25,7 @@ export interface UpdatedUserfields {
   isScreenSharing?: boolean;
   isVideoActivated?: boolean;
   stream?: MediaStream;
+  fractalUserId?: string;
 }
 
 // blocked: some functionalities blocked (mic, screen, camera)
@@ -39,8 +41,6 @@ export function useUserMe() {
   const setUserMe = (value: User) => {
     Object.assign(userState, value);
   };
-
-  const isAdmin = () => userMe.roleId === 0;
 
   const updateUserMe = (value: UpdatedUserfields) => {
     Object.assign(userMe, { ...userMe, ...value });
@@ -91,7 +91,6 @@ export function useUserMe() {
     setCameraState,
     setScreenState,
     setVideoActivatedState,
-    isAdmin,
     updateUserMe,
     setMicBlock,
     setVideoBlock,

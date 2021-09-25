@@ -43,7 +43,13 @@
         ]"
         :key="option.id"
         @click="handleOptionSelected(option.interaction)"
-        v-show="option.id === '9' ? (isAdmin() ? true : false) : true"
+        v-show="
+          option.id === '9'
+            ? canEndCall
+            : true || option.id === '10'
+            ? canLeaveCall
+            : true
+        "
       >
         <q-icon :name="option.iconName" size="18px" color="white" />
         <label class="a-menu__optionList__item__description">{{
@@ -60,11 +66,11 @@
 <script lang="ts">
 import { defineComponent, ref, reactive } from 'vue';
 import { menuOptions, MenuOptions } from '@/helpers/menuOptions';
-import { ZoidWindow } from '@/types/zoid';
 import FuDeleteRoomModal from 'molecules/FuDeleteRoomModal';
 import { useToogleFunctions } from '@/composables';
 import { useUserMe } from '@/composables/userMe';
 import { REASON_TO_LEAVE_ROOM } from '@/types';
+import { useHandleParticipants } from '@/composables/participants';
 
 interface OptionsClickMethods {
   LEAVE: () => void;
@@ -78,14 +84,15 @@ export default defineComponent({
     const options = ref<MenuOptions>(menuOptions);
     let openModal = ref(false);
     const { watchInfoRoomCard, openOptionsMenu } = useToogleFunctions();
+    const { participants } = useHandleParticipants();
 
-    const { isAdmin } = useUserMe();
+    const { userMe } = useUserMe();
 
     const optionsMethodsObject = reactive<OptionsClickMethods>({
       LEAVE: () =>
-        (window as ZoidWindow).xprops?.handleLeaveCall?.(
-          REASON_TO_LEAVE_ROOM.MODERATOR_CLOSE_ROOM
-        ),
+        participants.value.length > 0
+          ? window.xprops?.handleLeaveCall?.(REASON_TO_LEAVE_ROOM.BY_MYSELF)
+          : window.xprops?.handleLeaveCall?.(REASON_TO_LEAVE_ROOM.I_CLOSE_ROOM),
       END: () => openDeleteRoomModal(),
       ROOMDETAILS: () => openInfoRoomCard(),
     });
@@ -103,11 +110,16 @@ export default defineComponent({
       openOptionsMenu(false);
     };
 
+    const canEndCall = ref(userMe.roleId === 0 || userMe.roleId === 2);
+
+    const canLeaveCall = ref(userMe.roleId === 0 || userMe.roleId === 1);
+
     return {
       options,
       handleOptionSelected,
       openModal,
-      isAdmin,
+      canEndCall,
+      canLeaveCall,
     };
   },
 });

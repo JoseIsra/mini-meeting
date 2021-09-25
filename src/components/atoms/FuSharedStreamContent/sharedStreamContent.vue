@@ -45,7 +45,7 @@
         </q-btn>
       </div>
 
-      <div class="m-shared__admin" v-show="isAdmin()">
+      <div class="m-shared__admin" v-show="canModifyActions">
         <div class="m-shared__admin__actions">
           <q-toggle
             class="m-shared__admin__toggle"
@@ -115,18 +115,6 @@
                 }}</label>
               </q-tooltip>
             </q-btn>
-
-            <!-- <q-toggle
-              class="m-shared__admin__toggle"
-              v-model="actionsActivated"
-              left-label
-              :label="
-                actionsActivated
-                  ? 'Todos estan en true'
-                  : 'No estan todos en true'
-              "
-              :icon="actionsActivated ? 'fas fa-lock-open' : 'fas fa-lock'"
-            /> -->
           </div>
         </div>
       </div>
@@ -137,7 +125,6 @@
 <script lang="ts">
 import { defineComponent, ref, computed, watch } from 'vue';
 import { useUserMe } from '@/composables/userMe';
-import { ZoidWindow } from '@/types/zoid';
 import { LOCK_ACTION_TYPE, lockAction } from '@/types/index';
 
 export default defineComponent({
@@ -153,15 +140,13 @@ export default defineComponent({
   setup(props, { emit }) {
     let sharedLinkOnInput = ref(props.sharedLink);
 
-    const { isAdmin } = useUserMe();
+    const { userMe } = useUserMe();
 
-    const isMicLcked = (window as ZoidWindow)?.xprops?.isMicLocked || false;
+    const isMicLcked = window.xprops?.isMicLocked || false;
 
-    const isCameraLocked =
-      (window as ZoidWindow)?.xprops?.isCameraLocked || false;
+    const isCameraLocked = window.xprops?.isCameraLocked || false;
 
-    const isScreenShareLocked =
-      (window as ZoidWindow)?.xprops?.isScreenShareLocked || false;
+    const isScreenShareLocked = window.xprops?.isScreenShareLocked || false;
 
     const cooperateMicState = ref(!isMicLcked);
 
@@ -191,7 +176,7 @@ export default defineComponent({
               state: 0,
             } as lockAction;
 
-            (window as ZoidWindow)?.xprops?.toggleLockAction?.(lockAction);
+            window.xprops?.toggleLockAction?.(lockAction);
           }
 
           if (!mic && !camera && !screenShare) {
@@ -200,7 +185,7 @@ export default defineComponent({
               state: 1,
             } as lockAction;
 
-            (window as ZoidWindow)?.xprops?.toggleLockAction?.(lockAction);
+            window.xprops?.toggleLockAction?.(lockAction);
           }
         } else {
           if (mic !== prevMic) {
@@ -209,7 +194,7 @@ export default defineComponent({
               state: Number(mic),
             } as lockAction;
 
-            (window as ZoidWindow)?.xprops?.toggleLockAction?.(lockAction);
+            window.xprops?.toggleLockAction?.(lockAction);
           }
 
           if (camera !== prevCamera) {
@@ -218,7 +203,7 @@ export default defineComponent({
               state: Number(camera),
             } as lockAction;
 
-            (window as ZoidWindow)?.xprops?.toggleLockAction?.(lockAction);
+            window.xprops?.toggleLockAction?.(lockAction);
           }
 
           if (screenShare !== prevScreenShare) {
@@ -227,11 +212,13 @@ export default defineComponent({
               state: Number(screenShare),
             } as lockAction;
 
-            (window as ZoidWindow)?.xprops?.toggleLockAction?.(lockAction);
+            window.xprops?.toggleLockAction?.(lockAction);
           }
         }
       }
     );
+
+    const canModifyActions = ref(userMe.roleId === 0 || userMe.roleId === 2);
 
     const handleAllActions = () => {
       if (actionsActivated.value) {
@@ -262,7 +249,7 @@ export default defineComponent({
       copySharedLink,
       toolTipMessage,
       closeInfoRoomCard,
-      isAdmin,
+      canModifyActions,
       cooperateMicState,
       cooperateCameraState,
       cooperateScreenShareState,

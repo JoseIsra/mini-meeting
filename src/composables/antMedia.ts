@@ -544,6 +544,11 @@ export function useInitWebRTC() {
                   remoteUserInfoParsed.userInfo.isScreenSharing;
                 user.isVideoActivated =
                   remoteUserInfoParsed.userInfo.isVideoActivated;
+                user.isMicBlocked = remoteUserInfoParsed.userInfo.isMicBlocked;
+                user.isVideoBlocked =
+                  remoteUserInfoParsed.userInfo.isVideoBlocked;
+                user.isScreenShareBlocked =
+                  remoteUserInfoParsed.userInfo.isScreenShareBlocked;
               }
             }
           } else if (eventType === 'USER_INFO_FINISH') {
@@ -569,6 +574,11 @@ export function useInitWebRTC() {
                   remoteUserInfoParsed.userInfo.isScreenSharing;
                 user.isVideoActivated =
                   remoteUserInfoParsed.userInfo.isVideoActivated;
+                user.isMicBlocked = remoteUserInfoParsed.userInfo.isMicBlocked;
+                user.isVideoBlocked =
+                  remoteUserInfoParsed.userInfo.isVideoBlocked;
+                user.isScreenShareBlocked =
+                  remoteUserInfoParsed.userInfo.isScreenShareBlocked;
               }
             }
           } else if (eventType === 'KICK') {

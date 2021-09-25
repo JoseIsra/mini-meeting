@@ -59,7 +59,14 @@ export default defineComponent({
       justTurnOnLocalCamera,
     } = useInitWebRTC();
 
-    const { userMe, setUserMe, setVideoActivatedState } = useUserMe();
+    const {
+      userMe,
+      setUserMe,
+      setVideoActivatedState,
+      setMicState,
+      setCameraState,
+      setScreenState,
+    } = useUserMe();
 
     const { setRoom } = useRoom();
 
@@ -92,11 +99,31 @@ export default defineComponent({
 
     const isMicLcked = (window as ZoidWindow)?.xprops?.isMicLocked || false;
 
+    if (isMicLcked) {
+      setMicState(false);
+      muteLocalMic();
+      sendNotificationEvent('MIC_MUTED', userMe.id);
+    }
+
     const isCameraLocked =
       (window as ZoidWindow)?.xprops?.isCameraLocked || false;
 
+    if (isCameraLocked) {
+      setCameraState(false);
+      setVideoActivatedState(false);
+      turnOffLocalCamera(userMe.id);
+      sendNotificationEvent('CAM_TURNED_OFF', userMe.id);
+    }
+
     const isScreenShareLocked =
       (window as ZoidWindow)?.xprops?.isScreenShareLocked || false;
+
+    if (isScreenShareLocked) {
+      setScreenState(false);
+      setVideoActivatedState(false);
+      resetDesktop();
+      sendNotificationEvent('SCREEN_SHARING_OFF', userMe.id);
+    }
 
     const roleId =
       (window as ZoidWindow)?.xprops?.roleId ||

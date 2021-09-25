@@ -104,7 +104,7 @@
               <q-tooltip
                 class="bg-grey-10"
                 anchor="bottom middle"
-                self="top middle"                
+                self="top middle"
                 transition-show="scale"
                 transition-hide="scale"
               >
@@ -176,52 +176,59 @@ export default defineComponent({
         cooperateCameraState.value
     );
 
-    watch(cooperateMicState, (value) => {
-      const lockAction = {
-        type: LOCK_ACTION_TYPE.Mic,
-        state: Number(value),
-      } as lockAction;
-
-      (window as ZoidWindow)?.xprops?.toggleLockAction?.(lockAction);
-    });
-
-    watch(cooperateCameraState, (value) => {
-      const lockAction = {
-        type: LOCK_ACTION_TYPE.Camera,
-        state: Number(value),
-      } as lockAction;
-
-      (window as ZoidWindow)?.xprops?.toggleLockAction?.(lockAction);
-    });
-
-    watch(cooperateScreenShareState, (value) => {
-      const lockAction = {
-        type: LOCK_ACTION_TYPE.Screen,
-        state: Number(value),
-      } as lockAction;
-
-      (window as ZoidWindow)?.xprops?.toggleLockAction?.(lockAction);
-    });
-
     watch(
       [cooperateMicState, cooperateCameraState, cooperateScreenShareState],
-      ([mic, camera, screenShare]) => {
-        if (mic && camera && screenShare) {
-          const lockAction = {
-            type: LOCK_ACTION_TYPE.All,
-            state: 0,
-          } as lockAction;
+      ([mic, camera, screenShare], [prevMic, prevCamera, prevScreenShare]) => {
+        const haveAllChanged =
+          prevMic !== mic &&
+          camera !== prevCamera &&
+          screenShare !== prevScreenShare;
 
-          (window as ZoidWindow)?.xprops?.toggleLockAction?.(lockAction);
-        }
+        if (haveAllChanged) {
+          if (mic && camera && screenShare) {
+            const lockAction = {
+              type: LOCK_ACTION_TYPE.All,
+              state: 0,
+            } as lockAction;
 
-        if (!mic && !camera && !screenShare) {
-          const lockAction = {
-            type: LOCK_ACTION_TYPE.All,
-            state: 1,
-          } as lockAction;
+            (window as ZoidWindow)?.xprops?.toggleLockAction?.(lockAction);
+          }
 
-          (window as ZoidWindow)?.xprops?.toggleLockAction?.(lockAction);
+          if (!mic && !camera && !screenShare) {
+            const lockAction = {
+              type: LOCK_ACTION_TYPE.All,
+              state: 1,
+            } as lockAction;
+
+            (window as ZoidWindow)?.xprops?.toggleLockAction?.(lockAction);
+          }
+        } else {
+          if (mic !== prevMic) {
+            const lockAction = {
+              type: LOCK_ACTION_TYPE.Mic,
+              state: Number(mic),
+            } as lockAction;
+
+            (window as ZoidWindow)?.xprops?.toggleLockAction?.(lockAction);
+          }
+
+          if (camera !== prevCamera) {
+            const lockAction = {
+              type: LOCK_ACTION_TYPE.Camera,
+              state: Number(camera),
+            } as lockAction;
+
+            (window as ZoidWindow)?.xprops?.toggleLockAction?.(lockAction);
+          }
+
+          if (screenShare !== prevScreenShare) {
+            const lockAction = {
+              type: LOCK_ACTION_TYPE.Screen,
+              state: Number(screenShare),
+            } as lockAction;
+
+            (window as ZoidWindow)?.xprops?.toggleLockAction?.(lockAction);
+          }
         }
       }
     );

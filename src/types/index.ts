@@ -137,7 +137,7 @@ export interface Functionalities {
 
 export enum REASON_TO_LEAVE_ROOM {
   BY_MYSELF,
-  BY_MODERATOR_CLOSE_ROOM,
+  KICKED_BY_MODERATOR_CLOSE_ROOM,
   I_CLOSE_ROOM,
   JUST_LEAVE,
 }

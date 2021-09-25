@@ -13,8 +13,10 @@ export interface ZoidProps {
   isMicLocked?: boolean;
   isCameraLocked?: boolean;
   isScreenShareLocked?: boolean;
-  handleLeaveCall?: (arg: number) => void;
-  handleEndCall?: () => Promise<void>;
+  handleLeaveCall?: (
+    arg: number,
+    remainingParticipantsFractalUserIds?: string[]
+  ) => void;
   handleStopRecording?: (urlOfRecording: string) => void;
   toggleMinimize?: (isMinimize: boolean) => void;
   toggleLockAction?: (lockAction: lockAction) => void;

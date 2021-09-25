@@ -70,6 +70,7 @@ import FuDeleteRoomModal from 'molecules/FuDeleteRoomModal';
 import { useToogleFunctions } from '@/composables';
 import { useUserMe } from '@/composables/userMe';
 import { REASON_TO_LEAVE_ROOM } from '@/types';
+import { useHandleParticipants } from '@/composables/participants';
 
 interface OptionsClickMethods {
   LEAVE: () => void;
@@ -83,12 +84,15 @@ export default defineComponent({
     const options = ref<MenuOptions>(menuOptions);
     let openModal = ref(false);
     const { watchInfoRoomCard, openOptionsMenu } = useToogleFunctions();
+    const { participants } = useHandleParticipants();
 
     const { userMe } = useUserMe();
 
     const optionsMethodsObject = reactive<OptionsClickMethods>({
       LEAVE: () =>
-        window.xprops?.handleLeaveCall?.(REASON_TO_LEAVE_ROOM.BY_MYSELF),
+        participants.value.length > 0
+          ? window.xprops?.handleLeaveCall?.(REASON_TO_LEAVE_ROOM.BY_MYSELF)
+          : window.xprops?.handleLeaveCall?.(REASON_TO_LEAVE_ROOM.I_CLOSE_ROOM),
       END: () => openDeleteRoomModal(),
       ROOMDETAILS: () => openInfoRoomCard(),
     });

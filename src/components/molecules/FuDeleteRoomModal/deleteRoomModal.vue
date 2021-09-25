@@ -29,22 +29,33 @@ import { defineComponent } from 'vue';
 import { useUserMe } from '@/composables/userMe';
 import { useRoom } from '@/composables/room';
 import { useInitWebRTC } from '@/composables/antMedia';
-import { REASON_TO_LEAVE_ROOM } from '@/types';
+import { Participant, REASON_TO_LEAVE_ROOM } from '@/types';
+import { useHandleParticipants } from '@/composables/participants';
 export default defineComponent({
   name: 'FuDeleteRoom',
   setup() {
     const { userMe } = useUserMe();
     const { roomState } = useRoom();
     const { sendData } = useInitWebRTC();
+    const { participants } = useHandleParticipants();
 
     const executeDeleteRoom = () => {
       deleteRoom(roomState.id)
-        .then(async () => {
-          await window.xprops?.handleEndCall?.();
+        .then(() => {
           sendData(userMe.id, { eventType: 'KICK', to: 'all' });
-          //TODO: Este es el gozu y falta añadirle el segundo parámetro opcional
-          // Si eres host ejecutas el end, chifado mandando objeto de usuarios (idfractaluserid) y el leave gozu.
-          window.xprops?.handleLeaveCall?.(REASON_TO_LEAVE_ROOM.I_CLOSE_ROOM);
+
+          const remainingParticipantsFractalUserIds = participants.value.reduce(
+            (newArray: string[], participant: Participant) => {
+              newArray.push(participant.fractalUserId as string);
+              return newArray;
+            },
+            []
+          );
+
+          window.xprops?.handleLeaveCall?.(
+            REASON_TO_LEAVE_ROOM.I_CLOSE_ROOM,
+            remainingParticipantsFractalUserIds
+          );
         })
         .catch((e) => console.log(e));
     };

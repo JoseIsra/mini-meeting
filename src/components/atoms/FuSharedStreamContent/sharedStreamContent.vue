@@ -191,7 +191,7 @@ export default defineComponent({
           if (mic !== prevMic) {
             const lockAction = {
               type: LOCK_ACTION_TYPE.Mic,
-              state: Number(mic),
+              state: Number(!mic),
             } as lockAction;
 
             window.xprops?.toggleLockAction?.(lockAction);
@@ -200,7 +200,7 @@ export default defineComponent({
           if (camera !== prevCamera) {
             const lockAction = {
               type: LOCK_ACTION_TYPE.Camera,
-              state: Number(camera),
+              state: Number(!camera),
             } as lockAction;
 
             window.xprops?.toggleLockAction?.(lockAction);
@@ -209,7 +209,7 @@ export default defineComponent({
           if (screenShare !== prevScreenShare) {
             const lockAction = {
               type: LOCK_ACTION_TYPE.Screen,
-              state: Number(screenShare),
+              state: Number(!screenShare),
             } as lockAction;
 
             window.xprops?.toggleLockAction?.(lockAction);

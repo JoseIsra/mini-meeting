@@ -142,13 +142,13 @@ export default defineComponent({
 
     const { userMe } = useUserMe();
 
-    const isMicLcked = window.xprops?.isMicLocked || false;
+    const isMicLocked = window.xprops?.isMicLocked || false;
 
     const isCameraLocked = window.xprops?.isCameraLocked || false;
 
     const isScreenShareLocked = window.xprops?.isScreenShareLocked || false;
 
-    const cooperateMicState = ref(!isMicLcked);
+    const cooperateMicState = ref(!isMicLocked);
 
     const cooperateCameraState = ref(!isCameraLocked);
 

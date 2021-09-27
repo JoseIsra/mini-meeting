@@ -1,5 +1,5 @@
 .m-shared {
-  height: 200px;
+  // height: 200px;
   width: clamp(320px, 2.5vw, 400px);
   border-radius: 7px;
   background-color: #202125;
@@ -7,8 +7,8 @@
   box-shadow: 4px 6px 10px rgba(0, 0, 0, 0.08);
   z-index: 1;
   perspective: 1000px;
+  padding: 8px 16px;
   &__head {
-    padding: 0 15px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -21,10 +21,10 @@
       &:after {
         position: absolute;
         content: '';
-        bottom: 10px;
+        bottom: 8px;
         left: 0;
         width: 100px;
-        height: 5px;
+        height: 4px;
         background-color: rgb(45, 114, 226);
       }
     }
@@ -32,7 +32,6 @@
   &__body {
     display: flex;
     flex-direction: column;
-    padding: 10px;
     &__message {
       font-size: clamp(0.7rem, 2.5vw, 0.7rem);
       color: #fffffe;
@@ -42,6 +41,8 @@
       display: flex;
       justify-content: space-around;
       align-items: center;
+
+      margin-bottom: 12px;
     }
     &__input {
       flex: 0.7;
@@ -55,6 +56,23 @@
       &__label {
         font-size: 0.65rem;
       }
+    }
+  }
+
+  &__admin {
+    color: white;
+    font-weight: 400;
+    font-size: 12px;
+
+    &__toggle {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    &__actions {
+      display: flex;
+      flex-direction: column;
+      // justify-content: flex-start;
     }
   }
 }

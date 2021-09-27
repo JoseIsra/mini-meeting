@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-show="canRecording">
     <q-btn
       v-if="!isRecording"
       :disable="roomState.isBeingRecorded"
@@ -32,7 +32,6 @@ import { useInitMerge } from '@/composables/antMediaMerge';
 import { useInitWebRTC } from '@/composables/antMedia';
 import { useUserMe } from '@/composables/userMe';
 import { useRoom } from '@/composables/room';
-import { ZoidWindow } from '@/types/zoid';
 import { warningMessage, successMessage } from '@/utils/notify';
 
 export default defineComponent({
@@ -92,11 +91,13 @@ export default defineComponent({
       /* stopMerge(); */
       stopRecordingStream(mergedName.value);
       secondsElapsed.value = 0;
-      (window as ZoidWindow).xprops?.handleStopRecording?.(
+      window.xprops?.handleStopRecording?.(
         `https://f002.backblazeb2.com/file/antmedia/${mergedName.value}.m3u8`
       );
       sendNotificationEvent('RECORDING_STOPPED', userMe.id);
     };
+
+    const canRecording = ref(userMe.roleId === 0 || userMe.roleId === 2);
 
     return {
       isRecording,
@@ -105,6 +106,7 @@ export default defineComponent({
       recordTime,
       isLoading,
       roomState,
+      canRecording,
     };
   },
 });

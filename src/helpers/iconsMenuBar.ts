@@ -1,24 +1,13 @@
 import { useScreen } from '@/composables/screen';
 import { useUserMe } from '@/composables/userMe';
+import {
+  INTERACTION_TYPE_MENU_BAR,
+  BEHAVIOUR_TYPE_MENU_BAR,
+} from '@/utils/enums';
 
 const { userMe } = useUserMe();
 const { screenMinimized } = useScreen();
 
-enum interactionType {
-  CHAT = 'CHAT',
-  HANDUP = 'HANDUP',
-  SHARESCREEN = 'SHARESCREEN',
-  SHARENOTES = 'SHARENOTES',
-  USERLIST = 'USERLIST',
-  CONNECTION = 'CONNECTION',
-  WEBCAM = 'WEBCAM',
-  MIC = 'MIC',
-  MINIMIZE = 'MINIMIZE',
-}
-enum typeOfBehaviour {
-  NORMAL = 'NORMAL',
-  ESPECIAL = 'ESPECIAL',
-}
 export const iconsPeriferics = [
   {
     id: '1',
@@ -27,7 +16,7 @@ export const iconsPeriferics = [
     active: true,
     toolTipMessage: 'Habilitar audio',
     toolTipSecondMessage: 'Deshabilitar audio',
-    interaction: interactionType.MIC,
+    interaction: INTERACTION_TYPE_MENU_BAR.MIC,
   },
   {
     id: '2',
@@ -36,7 +25,7 @@ export const iconsPeriferics = [
     active: userMe.isCameraOn,
     toolTipMessage: 'Habilitar webcam',
     toolTipSecondMessage: 'Deshabilitar webcam',
-    interaction: interactionType.WEBCAM,
+    interaction: INTERACTION_TYPE_MENU_BAR.WEBCAM,
   },
 ];
 export const iconsFunctions = [
@@ -47,8 +36,8 @@ export const iconsFunctions = [
     active: userMe.isScreenSharing,
     toolTipMessage: 'Compartir pantalla',
     toolTipSecondMessage: 'Dejar de compartir pantalla',
-    interaction: interactionType.SHARESCREEN,
-    behaviour: typeOfBehaviour.NORMAL,
+    interaction: INTERACTION_TYPE_MENU_BAR.SHARESCREEN,
+    behaviour: BEHAVIOUR_TYPE_MENU_BAR.NORMAL,
   },
   {
     id: '2',
@@ -57,8 +46,8 @@ export const iconsFunctions = [
     active: false,
     toolTipMessage: 'Levantar la mano',
     toolTipSecondMessage: 'Bajar la mano',
-    interaction: interactionType.HANDUP,
-    behaviour: typeOfBehaviour.ESPECIAL,
+    interaction: INTERACTION_TYPE_MENU_BAR.HANDUP,
+    behaviour: BEHAVIOUR_TYPE_MENU_BAR.ESPECIAL,
   },
   {
     id: '3',
@@ -67,8 +56,8 @@ export const iconsFunctions = [
     active: false,
     toolTipMessage: 'Lista de usuarios',
     toolTipSecondMessage: 'Ocultar lista de usuarios',
-    interaction: interactionType.USERLIST,
-    behaviour: typeOfBehaviour.NORMAL,
+    interaction: INTERACTION_TYPE_MENU_BAR.USERLIST,
+    behaviour: BEHAVIOUR_TYPE_MENU_BAR.NORMAL,
   },
   {
     id: '4',
@@ -77,8 +66,8 @@ export const iconsFunctions = [
     active: false,
     toolTipMessage: 'Chat',
     toolTipSecondMessage: 'Ocultar chat',
-    interaction: interactionType.CHAT,
-    behaviour: typeOfBehaviour.NORMAL,
+    interaction: INTERACTION_TYPE_MENU_BAR.CHAT,
+    behaviour: BEHAVIOUR_TYPE_MENU_BAR.NORMAL,
   },
   {
     id: '5',
@@ -87,8 +76,8 @@ export const iconsFunctions = [
     active: screenMinimized.value,
     toolTipMessage: 'Minimizar ventana',
     toolTipSecondMessage: 'Minimizar ventana',
-    interaction: interactionType.MINIMIZE,
-    behaviour: typeOfBehaviour.ESPECIAL,
+    interaction: INTERACTION_TYPE_MENU_BAR.MINIMIZE,
+    behaviour: BEHAVIOUR_TYPE_MENU_BAR.ESPECIAL,
   },
   /* {
     id: '5',

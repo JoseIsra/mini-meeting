@@ -8,7 +8,12 @@ export interface User {
   isMicOn: boolean;
   isScreenSharing: boolean;
   isVideoActivated: boolean;
+  roleId: number;
+  isMicBlocked: boolean;
+  isVideoBlocked: boolean;
+  isScreenShareBlocked: boolean;
   stream?: MediaStream;
+  fractalUserId: string;
 }
 
 export interface UpdatedUserfields {
@@ -20,7 +25,11 @@ export interface UpdatedUserfields {
   isScreenSharing?: boolean;
   isVideoActivated?: boolean;
   stream?: MediaStream;
+  fractalUserId?: string;
 }
+
+// blocked: some functionalities blocked (mic, screen, camera)
+// Role id: 'Admin|0' ; 'participant|1';
 
 const userState = {} as User;
 const pinnedStream = {} as MediaStream;
@@ -40,12 +49,25 @@ export function useUserMe() {
   const setMicState = (value: boolean) => {
     userMe.isMicOn = value;
   };
+
   const setCameraState = (value: boolean) => {
     userMe.isCameraOn = value;
   };
 
   const setScreenState = (value: boolean) => {
     userMe.isScreenSharing = value;
+  };
+
+  const setMicBlock = (value: boolean) => {
+    userMe.isMicBlocked = value;
+  };
+
+  const setVideoBlock = (value: boolean) => {
+    userMe.isVideoBlocked = value;
+  };
+
+  const setScreenShareBlock = (value: boolean) => {
+    userMe.isScreenShareBlocked = value;
   };
 
   // const setCameraDevice = (value: string) => {
@@ -70,5 +92,8 @@ export function useUserMe() {
     setScreenState,
     setVideoActivatedState,
     updateUserMe,
+    setMicBlock,
+    setVideoBlock,
+    setScreenShareBlock,
   };
 }

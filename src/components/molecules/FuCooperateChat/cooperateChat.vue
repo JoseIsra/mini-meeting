@@ -168,7 +168,7 @@ import { useHandleMessage } from '@/composables/chat';
 import { useUserMe } from '@/composables/userMe';
 import { nanoid } from 'nanoid';
 import { useSidebarToogle, useToogleFunctions } from '@/composables';
-import { ZoidWindow } from '@/types/zoid';
+
 import { useInitWebRTC } from '@/composables/antMedia';
 import { simplifyExtension } from '@/utils/file';
 import FuCooperateMenu from 'molecules/FuCooperateMenu';
@@ -202,9 +202,7 @@ export default defineComponent({
     const { setIDButtonSelected } = useToogleFunctions();
     const { sendData } = useInitWebRTC();
     const { userMe } = useUserMe();
-    let userName = ref(
-      (window as ZoidWindow)?.xprops?.streamId || route.query.streamName
-    );
+    let userName = ref(window?.xprops?.streamId || route.query.streamName);
     const sendMessage = () => {
       if (!regexp.test(userInput.value)) {
         warningMessage('Complete los campos');

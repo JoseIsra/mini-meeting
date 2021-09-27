@@ -2,18 +2,28 @@ import { ref } from 'vue';
 import { WebRTCAdaptor } from '@/utils/webrtc/webrtc_adaptor';
 import { useUserMe, User } from '@/composables/userMe';
 import { useAuthState } from '@/composables/auth';
-import { objWebRTC, REASON_TO_LEAVE_ROOM } from '@/types/index';
+import { objWebRTC } from '@/types/index';
+import { REASON_TO_LEAVE_ROOM, LOCK_ACTION_TYPE } from '@/utils/enums';
 import { useHandleParticipants } from '@/composables/participants';
 import { Message, useHandleMessage } from '@/composables/chat';
 import { useToogleFunctions } from '@/composables';
-import { ZoidWindow } from '@/types/zoid';
 import { useRoom } from '@/composables/room';
 import { useExternalVideo } from './external-video';
 import videojs from 'video.js';
 const webRTCInstance = ref<WebRTCAdaptor>({} as WebRTCAdaptor);
 
-const { userMe, setScreenState, setVideoActivatedState, updateUserMe } =
-  useUserMe();
+const {
+  userMe,
+  setScreenState,
+  setVideoActivatedState,
+  updateUserMe,
+  setMicBlock,
+  setVideoBlock,
+  setScreenShareBlock,
+  setMicState,
+  setCameraState,
+} = useUserMe();
+
 const { setIsLoadingOrError, setLoadingOrErrorMessage, setExistRoom } =
   useAuthState();
 const { setRecorded } = useRoom();
@@ -33,6 +43,7 @@ interface ObjInfoRequested {
   to: string;
   from: string;
 }
+
 interface Data {
   streamId: string;
   notificationType: string;
@@ -55,6 +66,23 @@ interface ExternalVideoObject {
   eventType?: string;
   urlContent?: string;
   remoteInstance?: VideoID;
+}
+
+interface ObjBlockParticipantAction {
+  id: string;
+  streamId: string;
+  participantId: string;
+  eventType: string;
+  action: number;
+  value: boolean;
+}
+
+interface ObjBlockEveryoneAction {
+  id: string;
+  streamId: string;
+  eventType: string;
+  action: number;
+  value: boolean;
 }
 
 export function useInitWebRTC() {
@@ -388,7 +416,7 @@ export function useInitWebRTC() {
           console.log('Data Channel closed for stream id', obj);
           // isDataChannelOpen.value = false;
         } else if (info == 'data_received') {
-          //console.log(obj);
+          // console.log(obj);
           const objParsed = JSON.parse(obj.data) as Message;
           const { eventType } = objParsed;
           //console.log(objParsed);
@@ -546,6 +574,13 @@ export function useInitWebRTC() {
                   remoteUserInfoParsed.userInfo.isScreenSharing;
                 user.isVideoActivated =
                   remoteUserInfoParsed.userInfo.isVideoActivated;
+                user.isMicBlocked = remoteUserInfoParsed.userInfo.isMicBlocked;
+                user.isVideoBlocked =
+                  remoteUserInfoParsed.userInfo.isVideoBlocked;
+                user.isScreenShareBlocked =
+                  remoteUserInfoParsed.userInfo.isScreenShareBlocked;
+                user.fractalUserId =
+                  remoteUserInfoParsed.userInfo.fractalUserId;
               }
             }
           } else if (eventType === 'USER_INFO_FINISH') {
@@ -571,15 +606,121 @@ export function useInitWebRTC() {
                   remoteUserInfoParsed.userInfo.isScreenSharing;
                 user.isVideoActivated =
                   remoteUserInfoParsed.userInfo.isVideoActivated;
+                user.isMicBlocked = remoteUserInfoParsed.userInfo.isMicBlocked;
+                user.isVideoBlocked =
+                  remoteUserInfoParsed.userInfo.isVideoBlocked;
+                user.isScreenShareBlocked =
+                  remoteUserInfoParsed.userInfo.isScreenShareBlocked;
+                user.fractalUserId =
+                  remoteUserInfoParsed.userInfo.fractalUserId;
               }
             }
           } else if (eventType === 'KICK') {
             const kickedEvent = JSON.parse(obj.data) as ObjKickedEvent;
             if (kickedEvent.to === 'all') {
-              (window as ZoidWindow).xprops?.handleLeaveCall?.(
-                REASON_TO_LEAVE_ROOM.MODERATOR_CLOSE_ROOM
+              window.xprops?.handleLeaveCall?.(
+                REASON_TO_LEAVE_ROOM.KICKED_BY_MODERATOR_CLOSE_ROOM
               );
             }
+          } else if (eventType === 'SET_PARTICIPANT_ACTION') {
+            const { action, value, participantId } = JSON.parse(
+              obj.data
+            ) as ObjBlockParticipantAction;
+
+            if (participantId !== userMe.id) {
+              return;
+            }
+
+            console.log(participantId);
+
+            if (action === LOCK_ACTION_TYPE.All) {
+              setMicBlock(value);
+              setVideoBlock(value);
+              setScreenShareBlock(value);
+              if (value) {
+                setMicState(false);
+                muteLocalMic();
+                sendNotificationEvent('MIC_MUTED', userMe.id);
+                setCameraState(false);
+                turnOffLocalCamera(userMe.id);
+                sendNotificationEvent('CAM_TURNED_OFF', userMe.id);
+                setScreenState(false);
+                setVideoActivatedState(false);
+                resetDesktop();
+                sendNotificationEvent('SCREEN_SHARING_OFF', userMe.id);
+              }
+            } else if (action === LOCK_ACTION_TYPE.Mic) {
+              setMicBlock(value);
+              if (value) {
+                setMicState(false);
+                muteLocalMic();
+                sendNotificationEvent('MIC_MUTED', userMe.id);
+              }
+            } else if (action === LOCK_ACTION_TYPE.Camera) {
+              setVideoBlock(value);
+              if (value) {
+                setCameraState(false);
+                setVideoActivatedState(false);
+                turnOffLocalCamera(userMe.id);
+                sendNotificationEvent('CAM_TURNED_OFF', userMe.id);
+              }
+            } else if (action === LOCK_ACTION_TYPE.Screen) {
+              setScreenShareBlock(value);
+              if (value) {
+                setScreenState(false);
+                setVideoActivatedState(false);
+                resetDesktop();
+                sendNotificationEvent('SCREEN_SHARING_OFF', userMe.id);
+              }
+            }
+          } else if (eventType === 'SET_EVERYONE_ACTION') {
+            const { action, value } = JSON.parse(
+              obj.data
+            ) as ObjBlockEveryoneAction;
+
+            if (action === LOCK_ACTION_TYPE.All) {
+              setMicBlock(value);
+              setVideoBlock(value);
+              setScreenShareBlock(value);
+
+              if (value) {
+                setMicState(false);
+                muteLocalMic();
+                sendNotificationEvent('MIC_MUTED', userMe.id);
+                setCameraState(false);
+                turnOffLocalCamera(userMe.id);
+                sendNotificationEvent('CAM_TURNED_OFF', userMe.id);
+                setScreenState(false);
+                setVideoActivatedState(false);
+                resetDesktop();
+                sendNotificationEvent('SCREEN_SHARING_OFF', userMe.id);
+              }
+            } else if (action === LOCK_ACTION_TYPE.Mic) {
+              setMicBlock(value);
+              if (value) {
+                setMicState(false);
+                muteLocalMic();
+                sendNotificationEvent('MIC_MUTED', userMe.id);
+              }
+            } else if (action === LOCK_ACTION_TYPE.Camera) {
+              setVideoBlock(value);
+              if (value) {
+                setCameraState(false);
+                setVideoActivatedState(false);
+                turnOffLocalCamera(userMe.id);
+                sendNotificationEvent('CAM_TURNED_OFF', userMe.id);
+              }
+            } else if (action === LOCK_ACTION_TYPE.Screen) {
+              setScreenShareBlock(value);
+              if (value) {
+                setScreenState(false);
+                setVideoActivatedState(false);
+                resetDesktop();
+                sendNotificationEvent('SCREEN_SHARING_OFF', userMe.id);
+              }
+            }
+
+            // setUserActions(lockData.action, lockData.value);
           } else if (eventType === 'SHARE_EXTERNAL_VIDEO') {
             const externalVideoObject = JSON.parse(
               obj.data

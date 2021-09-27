@@ -29,9 +29,8 @@ import { defineComponent, toRefs, onMounted } from 'vue';
 import FuCooperate from 'organisms/FuCooperate';
 import { useRoute } from 'vue-router';
 import { useUserMe } from '@/composables/userMe';
-import { ZoidWindow } from '@/types/zoid';
 import FuTLoading from 'organisms/FuLoading';
-import { REASON_TO_LEAVE_ROOM } from '@/types';
+import { REASON_TO_LEAVE_ROOM } from '@/utils/enums';
 import { useInitWebRTC } from '@/composables/antMedia';
 
 import { useAuthState } from '@/composables/auth';
@@ -58,35 +57,75 @@ export default defineComponent({
       sendNotificationEvent,
       justTurnOnLocalCamera,
     } = useInitWebRTC();
-    const { userMe, setUserMe, setVideoActivatedState } = useUserMe();
+
+    const {
+      userMe,
+      setUserMe,
+      setVideoActivatedState,
+      setMicState,
+      setCameraState,
+      setScreenState,
+    } = useUserMe();
+
     const { setRoom } = useRoom();
+
     const route = useRoute();
+
     const { authState, setLoadingOrErrorMessage, setExistRoom } =
       useAuthState();
 
     //Datos del usuario
     const streamId =
-      (window as ZoidWindow)?.xprops?.streamId ||
-      (route.query.streamId as string) ||
-      '';
+      window?.xprops?.streamId || (route.query.streamId as string) || '';
 
     const streamName =
-      (window as ZoidWindow)?.xprops?.streamName ||
-      (route.query.streamName as string);
+      window?.xprops?.streamName || (route.query.streamName as string);
 
     const avatar =
-      (window as ZoidWindow)?.xprops?.photoURL ||
+      window?.xprops?.photoURL ||
       (route.query.photoURL as string) ||
       'https://f002.backblazeb2.com/file/FractalUp/Logos/logo_azul.svg';
 
     const roomId =
-      (window as ZoidWindow)?.xprops?.roomId ||
-      (route.query.roomId as string) ||
-      '';
+      window?.xprops?.roomId || (route.query.roomId as string) || '';
+
+    // Estado inicial, cooperate actions blocked by default or allowed (?)
+
+    const isMicLocked = window.xprops?.isMicLocked || false;
+
+    if (isMicLocked) {
+      setMicState(false);
+      muteLocalMic();
+      sendNotificationEvent('MIC_MUTED', userMe.id);
+    }
+
+    const isCameraLocked = window.xprops?.isCameraLocked || false;
+
+    if (isCameraLocked) {
+      setCameraState(false);
+      setVideoActivatedState(false);
+      turnOffLocalCamera(userMe.id);
+      sendNotificationEvent('CAM_TURNED_OFF', userMe.id);
+    }
+
+    const isScreenShareLocked = window.xprops?.isScreenShareLocked || false;
+
+    if (isScreenShareLocked) {
+      setScreenState(false);
+      setVideoActivatedState(false);
+      resetDesktop();
+      sendNotificationEvent('SCREEN_SHARING_OFF', userMe.id);
+    }
+
+    const roleId =
+      window.xprops?.roleId || parseInt(route.query.roleId as string) || 0;
 
     const sharingLink =
-      (window as ZoidWindow)?.xprops?.sharedLink ||
-      (route.query.sharedLink as string) ||
+      window?.xprops?.sharedLink || (route.query.sharedLink as string) || '';
+
+    const fractalUserId =
+      window?.xprops?.fractalUserId ||
+      (route.query.fractalUserId as string) ||
       '';
 
     setUserMe({
@@ -97,6 +136,11 @@ export default defineComponent({
       isMicOn: true,
       isScreenSharing: false,
       isVideoActivated: false,
+      roleId: roleId,
+      isMicBlocked: isMicLocked,
+      isVideoBlocked: isCameraLocked,
+      isScreenShareBlocked: isScreenShareLocked,
+      fractalUserId,
     });
 
     setRoom({
@@ -105,13 +149,11 @@ export default defineComponent({
     });
 
     const publishToken =
-      (window as ZoidWindow)?.xprops?.publishToken ||
+      window?.xprops?.publishToken ||
       (route.query.publishToken as string) ||
       '';
     const playToken =
-      (window as ZoidWindow)?.xprops?.playToken ||
-      (route.query.playToken as string) ||
-      '';
+      window?.xprops?.playToken || (route.query.playToken as string) || '';
     const subscriberId = (route.query.subscriberId as string) || undefined;
     const subscriberCode = (route.query.subscriberCode as string) || undefined;
 
@@ -140,6 +182,7 @@ export default defineComponent({
         justTurnOnLocalCamera(streamId);
       }
     };
+
     const toggleLocalCamera = () => {
       if (userMe.isCameraOn) {
         if (userMe.isScreenSharing) {
@@ -157,6 +200,7 @@ export default defineComponent({
         sendNotificationEvent('CAM_TURNED_ON', streamId);
       }
     };
+
     const toggleLocalMic = () => {
       if (!userMe.isMicOn) {
         unmuteLocalMic();
@@ -235,6 +279,7 @@ export default defineComponent({
         subscriberId,
         subscriberCode
       );
+      window.xprops?.logJoined?.();
     };
 
     /* onUnmounted(() => {
@@ -246,9 +291,7 @@ export default defineComponent({
     }); */
 
     const handleZoidLeaveCall = () =>
-      (window as ZoidWindow).xprops?.handleLeaveCall?.(
-        REASON_TO_LEAVE_ROOM.MODERATOR_CLOSE_ROOM
-      );
+      window.xprops?.handleLeaveCall?.(REASON_TO_LEAVE_ROOM.JUST_LEAVE);
 
     return {
       fuCooperateMountedHandler,

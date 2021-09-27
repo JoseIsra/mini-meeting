@@ -15,7 +15,12 @@ export interface Participant {
   isMicOn?: boolean;
   isScreenSharing?: boolean;
   isVideoActivated?: boolean;
+  isMicBlocked?: boolean;
+  isVideoBlocked?: boolean;
+  isScreenShareBlocked?: boolean;
+  fractalUserId?: string;
 }
+
 export type Scalars = {
   ID: string;
   String: string;
@@ -30,6 +35,7 @@ export type Scalars = {
 };
 
 export type Maybe<T> = T | null;
+
 export type B2 = {
   __typename?: 'B2';
   authorizationToken?: Maybe<Scalars['String']>;
@@ -60,6 +66,7 @@ export interface Icons {
   interaction?: string;
   behaviour?: string;
 }
+
 export const regexp = /^(?!\s*$).+/;
 
 export interface WebRTCAdaptorType {
@@ -128,7 +135,7 @@ export interface Functionalities {
   MINIMIZE?: () => void;
 }
 
-export enum REASON_TO_LEAVE_ROOM {
-  YOURSELF = 0,
-  MODERATOR_CLOSE_ROOM = 1,
+export interface lockAction {
+  type: number;
+  state: number;
 }

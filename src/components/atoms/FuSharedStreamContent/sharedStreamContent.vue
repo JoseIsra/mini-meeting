@@ -51,11 +51,7 @@
             class="m-shared__admin__toggle"
             v-model="cooperateMicState"
             left-label
-            :label="
-              cooperateMicState
-                ? 'Microfonos habilitados'
-                : 'Microfonos deshabilitados'
-            "
+            label="Microfonos"
             :icon="cooperateMicState ? 'mic' : 'mic_off'"
           />
 
@@ -63,11 +59,7 @@
             class="m-shared__admin__toggle"
             v-model="cooperateCameraState"
             left-label
-            :label="
-              cooperateCameraState
-                ? 'Camaras habilitada'
-                : 'Camaras deshabilitada'
-            "
+            label="Camaras"
             :icon="cooperateCameraState ? 'videocam' : 'videocam_off'"
           />
 
@@ -75,11 +67,7 @@
             class="m-shared__admin__toggle"
             v-model="cooperateScreenShareState"
             left-label
-            :label="
-              cooperateScreenShareState
-                ? 'Compartir Pantalla habilitado'
-                : 'Compartir Pantalla bloqueado'
-            "
+            label="Compartir Pantalla"
             :icon="
               cooperateScreenShareState ? 'monitor' : 'desktop_access_disabled'
             "

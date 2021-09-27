@@ -3,12 +3,12 @@ import videojs from 'video.js';
 
 interface ExternalVideo {
   urlVideo: string;
-  isPlaying: boolean;
+  thereIsVideo: boolean;
 }
 
-const extVideo = reactive<ExternalVideo>({
+const externalVideo = reactive<ExternalVideo>({
   urlVideo: '',
-  isPlaying: false,
+  thereIsVideo: false,
 });
 
 const playerObject = reactive({} as videojs.Player);
@@ -17,11 +17,11 @@ const optionsPlayerTest = reactive({} as videojs.PlayerOptions);
 
 export function useExternalVideo() {
   const setUrlVideo = (value: string) => {
-    extVideo.urlVideo = value;
+    externalVideo.urlVideo = value;
   };
 
-  const setPlayingVideoState = (value: boolean) => {
-    extVideo.isPlaying = value;
+  const isVideoRender = (value: boolean) => {
+    externalVideo.thereIsVideo = value;
   };
 
   const setvideoOptions = (value: videojs.PlayerOptions) => {
@@ -29,9 +29,9 @@ export function useExternalVideo() {
   };
 
   return {
-    extVideo,
+    externalVideo,
     setUrlVideo,
-    setPlayingVideoState,
+    isVideoRender,
     playerObject,
     setvideoOptions,
     videoPlayerTest,

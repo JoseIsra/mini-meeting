@@ -43,7 +43,7 @@ export default defineComponent({
     const actions = ref<Options[]>(menuActions);
     const filterContent = ref('');
     let modal = ref(false);
-    const { extVideo } = useExternalVideo();
+    const { externalVideo } = useExternalVideo();
 
     const executeAction = (interaction: string) => {
       openOptionsMenu(false);
@@ -61,7 +61,7 @@ export default defineComponent({
       filterContent,
       executeAction,
       hideModal,
-      extVideo,
+      externalVideo,
     };
   },
 });

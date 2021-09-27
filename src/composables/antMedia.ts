@@ -35,8 +35,7 @@ const { addHandNotificationInfo, removeHandNotification, setFullScreen } =
 
 const roomTimerId = ref<ReturnType<typeof setInterval> | null>(null);
 const isDataChannelOpen = ref(false);
-const { setUrlVideo, setPlayingVideoState, optionsPlayerTest } =
-  useExternalVideo();
+const { setUrlVideo, isVideoRender, optionsPlayerTest } = useExternalVideo();
 const remotePlayer = ref<videojs.Player>({} as videojs.Player);
 
 interface ObjInfoRequested {
@@ -184,7 +183,7 @@ export function useInitWebRTC() {
         arg?.remoteInstance?.playerId as string,
         optionsPlayerTest,
         function onReadyMode() {
-          console.log('init');
+          console.log('initVIDEO');
         }
       );
     };
@@ -581,6 +580,7 @@ export function useInitWebRTC() {
                   remoteUserInfoParsed.userInfo.isScreenShareBlocked;
                 user.fractalUserId =
                   remoteUserInfoParsed.userInfo.fractalUserId;
+                user.videoOnRoom = remoteUserInfoParsed.userInfo.videoOnRoom;
               }
             }
           } else if (eventType === 'USER_INFO_FINISH') {
@@ -598,21 +598,29 @@ export function useInitWebRTC() {
               );
               //user = { avatar : remoteUserInfoParsed.userInfo.avatar ,...user}
               if (user) {
-                user.avatar = remoteUserInfoParsed.userInfo.avatar;
-                user.name = remoteUserInfoParsed.userInfo.name;
-                user.isCameraOn = remoteUserInfoParsed.userInfo.isCameraOn;
-                user.isMicOn = remoteUserInfoParsed.userInfo.isMicOn;
-                user.isScreenSharing =
-                  remoteUserInfoParsed.userInfo.isScreenSharing;
-                user.isVideoActivated =
-                  remoteUserInfoParsed.userInfo.isVideoActivated;
-                user.isMicBlocked = remoteUserInfoParsed.userInfo.isMicBlocked;
-                user.isVideoBlocked =
-                  remoteUserInfoParsed.userInfo.isVideoBlocked;
-                user.isScreenShareBlocked =
-                  remoteUserInfoParsed.userInfo.isScreenShareBlocked;
-                user.fractalUserId =
-                  remoteUserInfoParsed.userInfo.fractalUserId;
+                Object.assign(user, remoteUserInfoParsed.userInfo);
+                // user.avatar = remoteUserInfoParsed.userInfo.avatar;
+                // user.name = remoteUserInfoParsed.userInfo.name;
+                // user.isCameraOn = remoteUserInfoParsed.userInfo.isCameraOn;
+                // user.isMicOn = remoteUserInfoParsed.userInfo.isMicOn;
+                // user.isScreenSharing =
+                //   remoteUserInfoParsed.userInfo.isScreenSharing;
+                // user.isVideoActivated =
+                //   remoteUserInfoParsed.userInfo.isVideoActivated;
+                // user.isMicBlocked = remoteUserInfoParsed.userInfo.isMicBlocked;
+                // user.isVideoBlocked =
+                //   remoteUserInfoParsed.userInfo.isVideoBlocked;
+                // user.isScreenShareBlocked =
+                //   remoteUserInfoParsed.userInfo.isScreenShareBlocked;
+                // user.fractalUserId =
+                //   remoteUserInfoParsed.userInfo.fractalUserId;
+                // user.videoOnRoom = remoteUserInfoParsed.userInfo.videoOnRoom;
+                // user.videoURL = remoteUserInfoParsed.userInfo.videoURL;
+                if (remoteUserInfoParsed.userInfo.videoOnRoom) {
+                  isVideoRender(true);
+                  setFullScreen('video');
+                  setUrlVideo(remoteUserInfoParsed.userInfo.videoURL as string);
+                }
               }
             }
           } else if (eventType === 'KICK') {
@@ -728,18 +736,17 @@ export function useInitWebRTC() {
             setFullScreen('video');
             setUrlVideo(externalVideoObject.urlContent as string);
           } else if (eventType == 'INITIALIZE_VIDEO') {
+            isVideoRender(true);
             const externalVideoInfo = JSON.parse(
               obj.data
             ) as ExternalVideoObject;
             createVideoInstance(externalVideoInfo);
           } else if (eventType == 'PLAYING_VIDEO') {
-            setPlayingVideoState(true);
             const externalVideoInfo = JSON.parse(
               obj.data
             ) as ExternalVideoObject;
             playExternalVideo(externalVideoInfo);
           } else if (eventType == 'PAUSE_VIDEO') {
-            setPlayingVideoState(false);
             const externalVideoInfo = JSON.parse(
               obj.data
             ) as ExternalVideoObject;

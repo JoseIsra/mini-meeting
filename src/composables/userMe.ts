@@ -14,6 +14,8 @@ export interface User {
   isScreenShareBlocked: boolean;
   stream?: MediaStream;
   fractalUserId: string;
+  videoOnRoom?: boolean;
+  videoURL?: string;
 }
 
 export interface UpdatedUserfields {
@@ -26,6 +28,8 @@ export interface UpdatedUserfields {
   isVideoActivated?: boolean;
   stream?: MediaStream;
   fractalUserId?: string;
+  videoOnRoom?: boolean;
+  videoURL?: string;
 }
 
 // blocked: some functionalities blocked (mic, screen, camera)
@@ -82,6 +86,14 @@ export function useUserMe() {
     Object.assign(pinnedUserStream, value);
   };
 
+  const setUserSharingVideo = (value: boolean) => {
+    userMe.videoOnRoom = value;
+  };
+
+  const setPublicURLToShare = (value: string) => {
+    userMe.videoURL = value;
+  };
+
   return {
     userMe,
     setUserMe,
@@ -95,5 +107,7 @@ export function useUserMe() {
     setMicBlock,
     setVideoBlock,
     setScreenShareBlock,
+    setUserSharingVideo,
+    setPublicURLToShare,
   };
 }

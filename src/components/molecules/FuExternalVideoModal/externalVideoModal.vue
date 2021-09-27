@@ -36,7 +36,7 @@ export default defineComponent({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   setup(_prop, { emit }) {
     let inputURL = ref('');
-    const { setUrlVideo } = useExternalVideo();
+    const { setUrlVideo, isVideoRender } = useExternalVideo();
     const { sendData } = useInitWebRTC();
     const { userMe } = useUserMe();
     const { setFullScreen } = useToogleFunctions();
@@ -50,6 +50,7 @@ export default defineComponent({
         };
         setUrlVideo(inputURL.value);
         setFullScreen('video');
+        isVideoRender(true);
         sendData(userMe.id, URLData);
         emit('hide-modal');
         return;

@@ -29,8 +29,8 @@ export default defineComponent({
   name: 'FuExternalVideo',
   setup() {
     const { sendData } = useInitWebRTC();
-    const { userMe } = useUserMe();
-    const { extVideo, setvideoOptions } = useExternalVideo();
+    const { userMe, setPublicURLToShare, setUserSharingVideo } = useUserMe();
+    const { externalVideo, setvideoOptions } = useExternalVideo();
     const videoPlayer = ref({} as HTMLVideoElement);
     const player = ref<videojs.Player>({} as videojs.Player);
     const showPlayButton = ref(false);
@@ -39,13 +39,18 @@ export default defineComponent({
       autoplay: false,
       bigPlayButton: false,
       responsive: true,
+      controlBar: {
+        progressControl: {
+          seekBar: true,
+        },
+      },
       width: 800,
-      height: 450,
+      height: 350,
       techOrder: ['youtube'],
       sources: [
         {
           type: 'video/youtube',
-          src: extVideo.urlVideo,
+          src: externalVideo.urlVideo,
         },
       ],
     });
@@ -54,16 +59,22 @@ export default defineComponent({
         videoPlayer.value,
         optionsForPlayer,
         function onPlayerReady() {
-          if (player.value) {
-            showPlayButton.value = true;
-            setvideoOptions(optionsForPlayer);
-            sendData(userMe.id, {
-              remoteInstance: videoPlayer.value,
-              eventType: 'INITIALIZE_VIDEO',
-            });
-            player.value.on('pause', handlePause);
-            player.value.on('play', handlePlaying);
-          }
+          showPlayButton.value = true;
+          setvideoOptions(optionsForPlayer);
+          sendData(userMe.id, {
+            remoteInstance: videoPlayer.value,
+            eventType: 'INITIALIZE_VIDEO',
+          });
+          setUserSharingVideo(true);
+          setPublicURLToShare(externalVideo.urlVideo);
+          player.value.on('pause', handlePause);
+          player.value.on('play', handlePlaying);
+          player.value.on('timeupdate', () => {
+            console.log(player.value.currentTime());
+          });
+          player.value.controlBar.on('mouseup', () => {
+            console.log('Barra en movimiento');
+          });
         }
       );
     });
@@ -92,11 +103,12 @@ export default defineComponent({
     };
 
     return {
-      extVideo,
+      externalVideo,
       videoPlayer,
       player,
       handlePlaying,
       showPlayButton,
+      userMe,
     };
   },
 });

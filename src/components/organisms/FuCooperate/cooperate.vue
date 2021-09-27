@@ -85,7 +85,6 @@ export default defineComponent({
     } = useToogleFunctions();
     const { roomState } = useRoom();
     const { screenMinimized, updateScreenState } = useScreen();
-
     const hideMenuBar = _.debounce(() => {
       showMenuBar.value = false;
     }, 6000);
@@ -103,6 +102,7 @@ export default defineComponent({
       openFunctionResponsiveMenu(false);
       setIDButtonSelected('');
     };
+
     return {
       toogleMenuBar,
       showMenuBar,

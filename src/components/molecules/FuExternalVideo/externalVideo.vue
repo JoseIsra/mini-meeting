@@ -1,5 +1,11 @@
 <template>
   <section class="m-video">
+    <q-btn
+      icon="play_arrow"
+      v-show="showPlayButton"
+      class="m-video__btn --playVideo"
+      @click="handlePlaying"
+    />
     <video ref="videoPlayer" class="video-js vjs-default-skin"></video>
   </section>
 </template>
@@ -24,14 +30,17 @@ export default defineComponent({
   setup() {
     const { sendData } = useInitWebRTC();
     const { userMe } = useUserMe();
-    const { extVideo, setPlayingVideoState } = useExternalVideo();
+    const { extVideo, setvideoOptions } = useExternalVideo();
     const videoPlayer = ref({} as HTMLVideoElement);
     const player = ref<videojs.Player>({} as videojs.Player);
+    const showPlayButton = ref(false);
     const optionsForPlayer = reactive({
       controls: true,
       autoplay: false,
-      width: 600,
-      height: 350,
+      bigPlayButton: false,
+      responsive: true,
+      width: 800,
+      height: 450,
       techOrder: ['youtube'],
       sources: [
         {
@@ -46,6 +55,13 @@ export default defineComponent({
         optionsForPlayer,
         function onPlayerReady() {
           if (player.value) {
+            showPlayButton.value = true;
+            setvideoOptions(optionsForPlayer);
+            sendData(userMe.id, {
+              remoteInstance: videoPlayer.value,
+              eventType: 'INITIALIZE_VIDEO',
+            });
+            player.value.on('pause', handlePause);
             player.value.on('play', handlePlaying);
           }
         }
@@ -59,24 +75,28 @@ export default defineComponent({
     });
 
     const handlePlaying = () => {
-      console.log('playing video');
-      setPlayingVideoState(true);
+      showPlayButton.value = false;
+      void player.value.play();
       sendData(userMe.id, {
+        remoteInstance: videoPlayer.value,
         eventType: 'PLAYING_VIDEO',
       });
     };
 
-    const onPause = () => {
-      console.log('video pauses 💤');
+    const handlePause = () => {
+      showPlayButton.value = true;
+      sendData(userMe.id, {
+        remoteInstance: videoPlayer.value,
+        eventType: 'PAUSE_VIDEO',
+      });
     };
 
     return {
       extVideo,
       videoPlayer,
       player,
-
       handlePlaying,
-      onPause,
+      showPlayButton,
     };
   },
 });

@@ -9,6 +9,7 @@ import { useToogleFunctions } from '@/composables';
 import { ZoidWindow } from '@/types/zoid';
 import { useRoom } from '@/composables/room';
 import { useExternalVideo } from './external-video';
+import videojs from 'video.js';
 const webRTCInstance = ref<WebRTCAdaptor>({} as WebRTCAdaptor);
 
 const { userMe, setScreenState, setVideoActivatedState, updateUserMe } =
@@ -24,7 +25,9 @@ const { addHandNotificationInfo, removeHandNotification, setFullScreen } =
 
 const roomTimerId = ref<ReturnType<typeof setInterval> | null>(null);
 const isDataChannelOpen = ref(false);
-const { setUrlVideo, setPlayingVideoState } = useExternalVideo();
+const { setUrlVideo, setPlayingVideoState, optionsPlayerTest } =
+  useExternalVideo();
+const remotePlayer = ref<videojs.Player>({} as videojs.Player);
 
 interface ObjInfoRequested {
   to: string;
@@ -45,9 +48,13 @@ interface ObjKickedEvent {
   eventType: string;
   to: string;
 }
+interface VideoID {
+  playerId: string;
+}
 interface ExternalVideoObject {
-  eventType: string;
-  urlContent: string;
+  eventType?: string;
+  urlContent?: string;
+  remoteInstance?: VideoID;
 }
 
 export function useInitWebRTC() {
@@ -142,6 +149,26 @@ export function useInitWebRTC() {
     const sdpConstraints = {
       OfferToReceiveAudio: false,
       OfferToReceiveVideo: false,
+    };
+
+    const createVideoInstance = (arg: ExternalVideoObject) => {
+      remotePlayer.value = videojs(
+        arg?.remoteInstance?.playerId as string,
+        optionsPlayerTest,
+        function onReadyMode() {
+          console.log('init');
+        }
+      );
+    };
+
+    const playExternalVideo = (arg: ExternalVideoObject) => {
+      remotePlayer.value = videojs(arg.remoteInstance?.playerId as string);
+      void remotePlayer.value.play();
+    };
+
+    const pauseExternalVideo = (arg: ExternalVideoObject) => {
+      remotePlayer.value = videojs(arg.remoteInstance?.playerId as string);
+      void remotePlayer.value.pause();
     };
 
     webRTCInstance.value = new WebRTCAdaptor({
@@ -558,10 +585,24 @@ export function useInitWebRTC() {
               obj.data
             ) as ExternalVideoObject;
             setFullScreen('video');
-            setUrlVideo(externalVideoObject.urlContent);
+            setUrlVideo(externalVideoObject.urlContent as string);
+          } else if (eventType == 'INITIALIZE_VIDEO') {
+            const externalVideoInfo = JSON.parse(
+              obj.data
+            ) as ExternalVideoObject;
+            createVideoInstance(externalVideoInfo);
           } else if (eventType == 'PLAYING_VIDEO') {
-            console.log('PLAYIN A VIDEO I THINK 🤔');
             setPlayingVideoState(true);
+            const externalVideoInfo = JSON.parse(
+              obj.data
+            ) as ExternalVideoObject;
+            playExternalVideo(externalVideoInfo);
+          } else if (eventType == 'PAUSE_VIDEO') {
+            setPlayingVideoState(false);
+            const externalVideoInfo = JSON.parse(
+              obj.data
+            ) as ExternalVideoObject;
+            pauseExternalVideo(externalVideoInfo);
           }
         }
       },
@@ -664,7 +705,7 @@ export function useInitWebRTC() {
     webRTCInstance.value.switchDesktopCapture?.(streamId);
   };
 
-  //TODO: Get the device id in the websocket as it works in player.html
+  //TODO: Get the device id in the websocket as it works in remotePlayer.html
   const switchVideoCameraCapture = (streamId: string) => {
     let cameraId: string;
     navigator.mediaDevices

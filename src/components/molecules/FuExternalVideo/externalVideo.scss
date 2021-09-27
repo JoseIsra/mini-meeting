@@ -1,1 +1,18 @@
-
+.m-video {
+  position: relative;
+  &__btn {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+    &.--playVideo {
+      padding: 15px;
+      width: 80px;
+      color: white;
+      border-radius: 7px !important;
+      border: 1px solid #fffffe;
+      background-color: rgba(0, 0, 0, 0.6);
+    }
+  }
+}

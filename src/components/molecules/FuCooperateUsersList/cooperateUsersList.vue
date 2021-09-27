@@ -255,7 +255,8 @@ import { defineComponent, computed, ref } from 'vue';
 import { useHandleParticipants } from '@/composables/participants';
 import { useUserMe } from '@/composables/userMe';
 import { useInitWebRTC } from '@/composables/antMedia';
-import { Participant, LOCK_ACTION_TYPE } from '@/types';
+import { Participant } from '@/types';
+import { LOCK_ACTION_TYPE } from '@/utils/enums';
 import { nanoid } from 'nanoid';
 
 export default defineComponent({

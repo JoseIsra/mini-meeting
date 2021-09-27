@@ -1,3 +1,4 @@
+import { INTERACTION_TYPE_MENU_OPTIONS } from '@/utils/enums';
 export interface Options {
   id: string;
   iconName: string;
@@ -11,16 +12,6 @@ export interface MenuOptions {
   secondSection: Options[];
   thirdSection: Options[];
   fourthSection: Options[];
-}
-
-enum interactionType {
-  LEAVE = 'LEAVE',
-  END = 'END',
-  RETRANSMISSION = 'RETRANSMISSION',
-  SAVECHAT = 'SAVECHAT',
-  CLEARCHAT = 'CLEARCHAT',
-  COPYCHAT = 'COPYCHAT',
-  ROOMDETAILS = 'ROOMDETAILS',
 }
 
 export const menuActions = [
@@ -53,7 +44,7 @@ export const menuActions = [
     iconName: 'fas fa-satellite-dish',
     description: 'Retransmitir en redes sociales',
     important: false,
-    interaction: interactionType.RETRANSMISSION,
+    interaction: INTERACTION_TYPE_MENU_OPTIONS.RETRANSMISSION,
   },
 ];
 
@@ -77,7 +68,7 @@ export const menuOptions = {
       iconName: 'info',
       description: 'Detalles de la reunión',
       important: false,
-      interaction: interactionType.ROOMDETAILS,
+      interaction: INTERACTION_TYPE_MENU_OPTIONS.ROOMDETAILS,
     },
   ],
   secondSection: [
@@ -120,14 +111,14 @@ export const menuOptions = {
       iconName: 'call_end',
       description: 'Finalizar reunión',
       important: false,
-      interaction: interactionType.END,
+      interaction: INTERACTION_TYPE_MENU_OPTIONS.END,
     },
     {
       id: '10',
       iconName: 'logout',
       description: 'Abandonar la reunión',
       important: true,
-      interaction: interactionType.LEAVE,
+      interaction: INTERACTION_TYPE_MENU_OPTIONS.LEAVE,
     },
   ],
 };
@@ -152,6 +143,6 @@ export const chatMenuIcon = [
     iconName: 'delete',
     description: 'Vaciar chat',
     important: false,
-    interaction: interactionType.CLEARCHAT,
+    interaction: INTERACTION_TYPE_MENU_OPTIONS.CLEARCHAT,
   },
 ];

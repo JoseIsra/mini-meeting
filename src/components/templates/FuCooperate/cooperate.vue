@@ -30,7 +30,7 @@ import FuCooperate from 'organisms/FuCooperate';
 import { useRoute } from 'vue-router';
 import { useUserMe } from '@/composables/userMe';
 import FuTLoading from 'organisms/FuLoading';
-import { REASON_TO_LEAVE_ROOM } from '@/types';
+import { REASON_TO_LEAVE_ROOM } from '@/utils/enums';
 import { useInitWebRTC } from '@/composables/antMedia';
 
 import { useAuthState } from '@/composables/auth';

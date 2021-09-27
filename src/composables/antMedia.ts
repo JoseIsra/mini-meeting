@@ -2,11 +2,8 @@ import { ref } from 'vue';
 import { WebRTCAdaptor } from '@/utils/webrtc/webrtc_adaptor';
 import { useUserMe, User } from '@/composables/userMe';
 import { useAuthState } from '@/composables/auth';
-import {
-  objWebRTC,
-  REASON_TO_LEAVE_ROOM,
-  LOCK_ACTION_TYPE,
-} from '@/types/index';
+import { objWebRTC } from '@/types/index';
+import { REASON_TO_LEAVE_ROOM, LOCK_ACTION_TYPE } from '@/utils/enums';
 import { useHandleParticipants } from '@/composables/participants';
 import { Message, useHandleMessage } from '@/composables/chat';
 import { useToogleFunctions } from '@/composables';
@@ -581,7 +578,7 @@ export function useInitWebRTC() {
                 user.isScreenShareBlocked =
                   remoteUserInfoParsed.userInfo.isScreenShareBlocked;
                 user.fractalUserId =
-                  remoteUserInfoParsed.userInfo.fractalUserId ;
+                  remoteUserInfoParsed.userInfo.fractalUserId;
               }
             }
           } else if (eventType === 'KICK') {

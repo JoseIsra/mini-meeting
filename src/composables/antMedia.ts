@@ -102,14 +102,16 @@ export function useInitWebRTC() {
     roomId: string,
     playToken?: string
   ) => {
-    webRTCInstance.value.play?.(
-      obj.streamId,
-      playToken,
-      roomId,
-      undefined,
-      undefined,
-      undefined
-    );
+    const isMerge = obj.streamId.split('-')[0] === 'm';
+    if (!isMerge)
+      webRTCInstance.value.play?.(
+        obj.streamId,
+        playToken,
+        roomId,
+        undefined,
+        undefined,
+        undefined
+      );
   };
 
   const handleNotificationEvent = (obj: objWebRTC) => {
@@ -321,8 +323,9 @@ export function useInitWebRTC() {
             const participant = participants.value.filter(
               (participant) => participant.id === str
             )[0];
+            const isMerge = str.split('-')[0] === 'm';
             //Si el participante es nuevo - play
-            if (!participant) {
+            if (!participant && !isMerge) {
               webRTCInstance.value.play?.(
                 str,
                 playToken,

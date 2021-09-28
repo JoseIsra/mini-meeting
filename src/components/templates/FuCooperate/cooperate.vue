@@ -89,6 +89,9 @@ export default defineComponent({
     const roomId =
       window?.xprops?.roomId || (route.query.roomId as string) || '';
 
+    const classroomId =
+      window?.xprops?.classroomId || (route.query.classroomId as string) || '1';
+
     // Estado inicial, cooperate actions blocked by default or allowed (?)
 
     const isMicLocked = window.xprops?.isMicLocked || false;
@@ -146,6 +149,7 @@ export default defineComponent({
     setRoom({
       id: roomId,
       sharingLink,
+      classroomId,
     });
 
     const publishToken =

@@ -32,9 +32,7 @@ import { useUserMe } from '@/composables/userMe';
 import FuTLoading from 'organisms/FuLoading';
 import { REASON_TO_LEAVE_ROOM } from '@/utils/enums';
 import { useInitWebRTC } from '@/composables/antMedia';
-
 import { useAuthState } from '@/composables/auth';
-
 import { useRoom } from '@/composables/room';
 
 export default defineComponent({
@@ -92,6 +90,9 @@ export default defineComponent({
     const classroomId =
       window?.xprops?.classroomId || (route.query.classroomId as string) || '1';
 
+    const roleId =
+      window.xprops?.roleId || parseInt(route.query.roleId as string) || 0;
+
     // Estado inicial, cooperate actions blocked by default or allowed (?)
 
     const isMicLocked =
@@ -99,35 +100,12 @@ export default defineComponent({
       (route.query.mic as string) === '1' ||
       false;
 
-    if (isMicLocked) {
-      setMicState(false);
-      muteLocalMic();
-      sendNotificationEvent('MIC_MUTED', userMe.id);
-    }
-
     const isCameraLocked = window.xprops?.isCameraLocked || false;
-
-    if (isCameraLocked) {
-      setCameraState(false);
-      setVideoActivatedState(false);
-      turnOffLocalCamera(userMe.id);
-      sendNotificationEvent('CAM_TURNED_OFF', userMe.id);
-    }
 
     const isScreenShareLocked =
       window.xprops?.isScreenShareLocked ||
       (route.query.screen as string) === '1' ||
       false;
-
-    if (isScreenShareLocked) {
-      setScreenState(false);
-      setVideoActivatedState(false);
-      resetDesktop();
-      sendNotificationEvent('SCREEN_SHARING_OFF', userMe.id);
-    }
-
-    const roleId =
-      window.xprops?.roleId || parseInt(route.query.roleId as string) || 0;
 
     const sharingLink =
       window?.xprops?.sharedLink || (route.query.sharedLink as string) || '';
@@ -141,16 +119,42 @@ export default defineComponent({
       id: streamId,
       name: streamName,
       avatar,
-      isCameraOn: false,
+      roleId: roleId,
       isMicOn: !isMicLocked,
+      isCameraOn: false,
       isScreenSharing: false,
       isVideoActivated: false,
-      roleId: roleId,
-      isMicBlocked: isMicLocked,
+      isMicBlocked: roleId === 1 ? isMicLocked : false,
       isVideoBlocked: isCameraLocked,
       isScreenShareBlocked: isScreenShareLocked,
       fractalUserId,
     });
+
+    if (isMicLocked) {
+      sendNotificationEvent('MIC_MUTED', streamId);
+
+      if (roleId === 1) {
+        setMicState(!isMicLocked);
+      }
+    }
+
+    if (isCameraLocked) {
+      setVideoActivatedState(!isCameraLocked);
+      sendNotificationEvent('CAM_TURNED_OFF', userMe.id);
+
+      if (roleId === 1) {
+        setCameraState(!isCameraLocked);
+      }
+    }
+
+    if (isScreenShareLocked) {
+      setVideoActivatedState(!isScreenShareLocked);
+      sendNotificationEvent('SCREEN_SHARING_OFF', userMe.id);
+
+      if (roleId === 1) {
+        setScreenState(!isScreenShareLocked);
+      }
+    }
 
     setRoom({
       id: roomId,
@@ -162,9 +166,12 @@ export default defineComponent({
       window?.xprops?.publishToken ||
       (route.query.publishToken as string) ||
       '';
+
     const playToken =
       window?.xprops?.playToken || (route.query.playToken as string) || '';
+
     const subscriberId = (route.query.subscriberId as string) || undefined;
+
     const subscriberCode = (route.query.subscriberCode as string) || undefined;
 
     //const currentVolume = ref(0.5);

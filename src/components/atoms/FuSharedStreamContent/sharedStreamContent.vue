@@ -113,7 +113,8 @@
 <script lang="ts">
 import { defineComponent, ref, computed, watch } from 'vue';
 import { useUserMe } from '@/composables/userMe';
-import { LOCK_ACTION_TYPE, lockAction } from '@/types/index';
+import { lockAction } from '@/types/index';
+import { LOCK_ACTION_TYPE } from '@/utils/enums';
 
 export default defineComponent({
   name: 'FuSharedStreamContent',

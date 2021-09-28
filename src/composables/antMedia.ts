@@ -2,11 +2,8 @@ import { ref } from 'vue';
 import { WebRTCAdaptor } from '@/utils/webrtc/webrtc_adaptor';
 import { useUserMe, User } from '@/composables/userMe';
 import { useAuthState } from '@/composables/auth';
-import {
-  objWebRTC,
-  REASON_TO_LEAVE_ROOM,
-  LOCK_ACTION_TYPE,
-} from '@/types/index';
+import { objWebRTC } from '@/types/index';
+import { REASON_TO_LEAVE_ROOM, LOCK_ACTION_TYPE } from '@/utils/enums';
 import { useHandleParticipants } from '@/composables/participants';
 import { Message, useHandleMessage } from '@/composables/chat';
 import { useToogleFunctions } from '@/composables';
@@ -109,14 +106,16 @@ export function useInitWebRTC() {
     roomId: string,
     playToken?: string
   ) => {
-    webRTCInstance.value.play?.(
-      obj.streamId,
-      playToken,
-      roomId,
-      undefined,
-      undefined,
-      undefined
-    );
+    const isMerge = obj.streamId.split('-')[0] === 'm';
+    if (!isMerge)
+      webRTCInstance.value.play?.(
+        obj.streamId,
+        playToken,
+        roomId,
+        undefined,
+        undefined,
+        undefined
+      );
   };
 
   const handleNotificationEvent = (obj: objWebRTC) => {
@@ -328,8 +327,9 @@ export function useInitWebRTC() {
             const participant = participants.value.filter(
               (participant) => participant.id === str
             )[0];
+            const isMerge = str.split('-')[0] === 'm';
             //Si el participante es nuevo - play
-            if (!participant) {
+            if (!participant && !isMerge) {
               webRTCInstance.value.play?.(
                 str,
                 playToken,

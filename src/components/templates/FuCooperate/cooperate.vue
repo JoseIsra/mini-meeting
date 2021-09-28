@@ -30,7 +30,7 @@ import FuCooperate from 'organisms/FuCooperate';
 import { useRoute } from 'vue-router';
 import { useUserMe } from '@/composables/userMe';
 import FuTLoading from 'organisms/FuLoading';
-import { REASON_TO_LEAVE_ROOM } from '@/types';
+import { REASON_TO_LEAVE_ROOM } from '@/utils/enums';
 import { useInitWebRTC } from '@/composables/antMedia';
 
 import { useAuthState } from '@/composables/auth';
@@ -88,6 +88,9 @@ export default defineComponent({
 
     const roomId =
       window?.xprops?.roomId || (route.query.roomId as string) || '';
+
+    const classroomId =
+      window?.xprops?.classroomId || (route.query.classroomId as string) || '1';
 
     // Estado inicial, cooperate actions blocked by default or allowed (?)
 
@@ -152,6 +155,7 @@ export default defineComponent({
     setRoom({
       id: roomId,
       sharingLink,
+      classroomId,
     });
 
     const publishToken =

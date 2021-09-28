@@ -1,5 +1,6 @@
 import { ref } from 'vue';
-import { Participant, LOCK_ACTION_TYPE } from '@/types';
+import { Participant } from '@/types';
+import { LOCK_ACTION_TYPE } from '@/utils/enums';
 
 const participants = ref<Participant[]>([]);
 

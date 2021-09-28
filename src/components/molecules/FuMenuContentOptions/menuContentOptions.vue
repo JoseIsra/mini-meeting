@@ -69,7 +69,7 @@ import { menuOptions, MenuOptions } from '@/helpers/menuOptions';
 import FuDeleteRoomModal from 'molecules/FuDeleteRoomModal';
 import { useToogleFunctions } from '@/composables';
 import { useUserMe } from '@/composables/userMe';
-import { REASON_TO_LEAVE_ROOM } from '@/types';
+import { REASON_TO_LEAVE_ROOM } from '@/utils/enums';
 import { useHandleParticipants } from '@/composables/participants';
 
 interface OptionsClickMethods {

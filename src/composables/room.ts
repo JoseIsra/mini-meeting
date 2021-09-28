@@ -4,6 +4,7 @@ export interface Room {
   id: string;
   isBeingRecorded?: boolean;
   sharingLink?: string;
+  classroomId: string;
 }
 
 const roomState = reactive<Room>({} as Room);

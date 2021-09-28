@@ -135,21 +135,7 @@ export interface Functionalities {
   MINIMIZE?: () => void;
 }
 
-export enum REASON_TO_LEAVE_ROOM {
-  BY_MYSELF,
-  KICKED_BY_MODERATOR_CLOSE_ROOM,
-  I_CLOSE_ROOM,
-  JUST_LEAVE,
-}
-
 export interface lockAction {
   type: number;
   state: number;
-}
-
-export enum LOCK_ACTION_TYPE {
-  'All',
-  'Mic',
-  'Camera',
-  'Screen',
 }

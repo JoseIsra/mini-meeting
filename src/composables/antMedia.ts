@@ -609,16 +609,19 @@ export function useInitWebRTC() {
               setVideoBlock(value);
               setScreenShareBlock(value);
               if (value) {
-                setMicState(false);
+                setMicState(!value);
                 muteLocalMic();
                 sendNotificationEvent('MIC_MUTED', userMe.id);
-                setCameraState(false);
+                periferics.value.filter((p) => p.id === '1')[0].active = !value;
+                setCameraState(!value);
                 turnOffLocalCamera(userMe.id);
                 sendNotificationEvent('CAM_TURNED_OFF', userMe.id);
-                setScreenState(false);
-                setVideoActivatedState(false);
+                periferics.value.filter((p) => p.id === '2')[0].active = !value;
+                setScreenState(!value);
+                setVideoActivatedState(!value);
                 resetDesktop();
                 sendNotificationEvent('SCREEN_SHARING_OFF', userMe.id);
+                functions.value.filter((f) => f.id === '1')[0].active = !value;
               }
             } else if (action === LOCK_ACTION_TYPE.Mic) {
               setMicBlock(value);
@@ -658,16 +661,16 @@ export function useInitWebRTC() {
               setScreenShareBlock(value);
 
               if (value) {
-                setMicState(false);
+                setMicState(!value);
                 muteLocalMic();
                 sendNotificationEvent('MIC_MUTED', userMe.id);
                 periferics.value.filter((p) => p.id === '1')[0].active = !value;
-                setCameraState(false);
+                setCameraState(!value);
                 turnOffLocalCamera(userMe.id);
                 sendNotificationEvent('CAM_TURNED_OFF', userMe.id);
                 periferics.value.filter((p) => p.id === '2')[0].active = !value;
-                setScreenState(false);
-                setVideoActivatedState(false);
+                setScreenState(!value);
+                setVideoActivatedState(!value);
                 resetDesktop();
                 sendNotificationEvent('SCREEN_SHARING_OFF', userMe.id);
                 functions.value.filter((f) => f.id === '1')[0].active = !value;
@@ -700,8 +703,6 @@ export function useInitWebRTC() {
                 sendNotificationEvent('SCREEN_SHARING_OFF', userMe.id);
               }
             }
-
-            // setUserActions(lockData.action, lockData.value);
           }
         }
       },

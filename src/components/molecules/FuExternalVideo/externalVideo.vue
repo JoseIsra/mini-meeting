@@ -25,13 +25,18 @@ import 'videojs-youtube/dist/Youtube.min.js';
 import 'video.js/dist/video-js.css';
 import { useInitWebRTC } from '@/composables/antMedia';
 import { useUserMe } from '@/composables/userMe';
+interface Prue {
+  currentTime: string;
+}
+
 export default defineComponent({
   name: 'FuExternalVideo',
   setup() {
+    let experimento = ref(0);
     const { sendData } = useInitWebRTC();
-    const { userMe, setPublicURLToShare, setUserSharingVideo } = useUserMe();
+    const { userMe, updateUserMe } = useUserMe();
     const { externalVideo, setvideoOptions } = useExternalVideo();
-    const videoPlayer = ref({} as HTMLVideoElement);
+    const videoPlayer = ref({} as HTMLVideoElement & { playerId: string });
     const player = ref<videojs.Player>({} as videojs.Player);
     const showPlayButton = ref(false);
     const optionsForPlayer = reactive({
@@ -39,6 +44,7 @@ export default defineComponent({
       autoplay: false,
       bigPlayButton: false,
       responsive: true,
+      liveui: true,
       controlBar: {
         progressControl: {
           seekBar: true,
@@ -61,19 +67,36 @@ export default defineComponent({
         function onPlayerReady() {
           showPlayButton.value = true;
           setvideoOptions(optionsForPlayer);
+          updateUserMe({
+            ...userMe,
+            videoOnRoom: true,
+            videoURL: externalVideo.urlVideo,
+            videoInstance: videoPlayer.value,
+          });
           sendData(userMe.id, {
             remoteInstance: videoPlayer.value,
             eventType: 'INITIALIZE_VIDEO',
           });
-          setUserSharingVideo(true);
-          setPublicURLToShare(externalVideo.urlVideo);
           player.value.on('pause', handlePause);
           player.value.on('play', handlePlaying);
           player.value.on('timeupdate', () => {
-            console.log(player.value.currentTime());
+            experimento.value = player.value.currentTime();
+            updateUserMe({
+              ...userMe,
+              videoCurrentTime: player.value.currentTime(),
+            });
           });
           player.value.controlBar.on('mouseup', () => {
-            console.log('Barra en movimiento');
+            sendData(userMe.id, {
+              remoteInstance: videoPlayer.value,
+              currentTime: player.value.currentTime(),
+              eventType: 'UPDATE_VIDEOTIME',
+            });
+            console.log('Barra tocada', player.value.play());
+          });
+
+          player.value.controlBar.on('mousedown', () => {
+            console.log('MOUSEDOWN en la barra', player.value.currentTime());
           });
         }
       );
@@ -88,6 +111,7 @@ export default defineComponent({
     const handlePlaying = () => {
       showPlayButton.value = false;
       void player.value.play();
+      updateUserMe({ ...userMe, isPlayingVideo: true });
       sendData(userMe.id, {
         remoteInstance: videoPlayer.value,
         eventType: 'PLAYING_VIDEO',
@@ -96,6 +120,7 @@ export default defineComponent({
 
     const handlePause = () => {
       showPlayButton.value = true;
+      updateUserMe({ ...userMe, isPlayingVideo: false });
       sendData(userMe.id, {
         remoteInstance: videoPlayer.value,
         eventType: 'PAUSE_VIDEO',

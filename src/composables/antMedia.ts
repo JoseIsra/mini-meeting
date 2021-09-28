@@ -65,6 +65,7 @@ interface ExternalVideoObject {
   eventType?: string;
   urlContent?: string;
   remoteInstance?: VideoID;
+  currentTime?: number;
 }
 
 interface ObjBlockParticipantAction {
@@ -178,12 +179,18 @@ export function useInitWebRTC() {
       OfferToReceiveVideo: false,
     };
 
-    const createVideoInstance = (arg: ExternalVideoObject) => {
+    const createVideoInstance = (arg: ExternalVideoObject, user?: User) => {
+      console.log('damint');
       remotePlayer.value = videojs(
         arg?.remoteInstance?.playerId as string,
         optionsPlayerTest,
         function onReadyMode() {
           console.log('initVIDEO');
+          console.log('CURRENT TIME', user?.videoCurrentTime);
+          remotePlayer.value.currentTime(30);
+          if (user?.isPlayingVideo) {
+            remotePlayer.value.autoplay('play');
+          }
         }
       );
     };
@@ -196,6 +203,11 @@ export function useInitWebRTC() {
     const pauseExternalVideo = (arg: ExternalVideoObject) => {
       remotePlayer.value = videojs(arg.remoteInstance?.playerId as string);
       void remotePlayer.value.pause();
+    };
+    const updateVideoTime = (arg: ExternalVideoObject) => {
+      remotePlayer.value = videojs(arg.remoteInstance?.playerId as string);
+      //actualizar el video
+      void remotePlayer.value.currentTime(arg.currentTime as number);
     };
 
     webRTCInstance.value = new WebRTCAdaptor({
@@ -565,22 +577,23 @@ export function useInitWebRTC() {
               );
               //user = { avatar : remoteUserInfoParsed.userInfo.avatar ,...user}
               if (user) {
-                user.avatar = remoteUserInfoParsed.userInfo.avatar;
-                user.name = remoteUserInfoParsed.userInfo.name;
-                user.isCameraOn = remoteUserInfoParsed.userInfo.isCameraOn;
-                user.isMicOn = remoteUserInfoParsed.userInfo.isMicOn;
-                user.isScreenSharing =
-                  remoteUserInfoParsed.userInfo.isScreenSharing;
-                user.isVideoActivated =
-                  remoteUserInfoParsed.userInfo.isVideoActivated;
-                user.isMicBlocked = remoteUserInfoParsed.userInfo.isMicBlocked;
-                user.isVideoBlocked =
-                  remoteUserInfoParsed.userInfo.isVideoBlocked;
-                user.isScreenShareBlocked =
-                  remoteUserInfoParsed.userInfo.isScreenShareBlocked;
-                user.fractalUserId =
-                  remoteUserInfoParsed.userInfo.fractalUserId;
-                user.videoOnRoom = remoteUserInfoParsed.userInfo.videoOnRoom;
+                Object.assign(user, remoteUserInfoParsed.userInfo);
+                // user.avatar = remoteUserInfoParsed.userInfo.avatar;
+                // user.name = remoteUserInfoParsed.userInfo.name;
+                // user.isCameraOn = remoteUserInfoParsed.userInfo.isCameraOn;
+                // user.isMicOn = remoteUserInfoParsed.userInfo.isMicOn;
+                // user.isScreenSharing =
+                //   remoteUserInfoParsed.userInfo.isScreenSharing;
+                // user.isVideoActivated =
+                //   remoteUserInfoParsed.userInfo.isVideoActivated;
+                // user.isMicBlocked = remoteUserInfoParsed.userInfo.isMicBlocked;
+                // user.isVideoBlocked =
+                //   remoteUserInfoParsed.userInfo.isVideoBlocked;
+                // user.isScreenShareBlocked =
+                //   remoteUserInfoParsed.userInfo.isScreenShareBlocked;
+                // user.fractalUserId =
+                //   remoteUserInfoParsed.userInfo.fractalUserId;
+                // user.videoOnRoom = remoteUserInfoParsed.userInfo.videoOnRoom;
               }
             }
           } else if (eventType === 'USER_INFO_FINISH') {
@@ -617,9 +630,31 @@ export function useInitWebRTC() {
                 // user.videoOnRoom = remoteUserInfoParsed.userInfo.videoOnRoom;
                 // user.videoURL = remoteUserInfoParsed.userInfo.videoURL;
                 if (remoteUserInfoParsed.userInfo.videoOnRoom) {
-                  isVideoRender(true);
                   setFullScreen('video');
                   setUrlVideo(remoteUserInfoParsed.userInfo.videoURL as string);
+                  setTimeout(() => {
+                    createVideoInstance(
+                      {
+                        remoteInstance:
+                          remoteUserInfoParsed.userInfo.videoInstance,
+                      },
+                      remoteUserInfoParsed.userInfo
+                    );
+
+                    // if (remoteUserInfoParsed.userInfo.isPlayingVideo) {
+                    //   console.log(
+                    //     'SE DETECTÓ VIDEO REPRODUCIENDO EN LA SALA AL ENTRAR 🚀'
+                    //   );
+                    //   remotePlayer.value.currentTime(
+                    //     remoteUserInfoParsed.userInfo.videoCurrentTime as number
+                    //   );
+                    //   // void remotePlayer.value.play();
+                    // } else {
+                    //   remotePlayer.value.currentTime(
+                    //     remoteUserInfoParsed.userInfo.videoCurrentTime as number
+                    //   );
+                    // }
+                  }, 1000);
                 }
               }
             }
@@ -751,6 +786,11 @@ export function useInitWebRTC() {
               obj.data
             ) as ExternalVideoObject;
             pauseExternalVideo(externalVideoInfo);
+          } else if (eventType === 'UPDATE_VIDEOTIME') {
+            const externalVideoInfo = JSON.parse(
+              obj.data
+            ) as ExternalVideoObject;
+            updateVideoTime(externalVideoInfo);
           }
         }
       },

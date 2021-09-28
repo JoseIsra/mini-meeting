@@ -1,5 +1,9 @@
 import { reactive } from 'vue';
 
+interface VideoID {
+  playerId: string;
+}
+
 export interface User {
   id: string;
   name: string;
@@ -16,6 +20,9 @@ export interface User {
   fractalUserId: string;
   videoOnRoom?: boolean;
   videoURL?: string;
+  videoCurrentTime?: number;
+  isPlayingVideo?: boolean;
+  videoInstance?: HTMLVideoElement & VideoID;
 }
 
 export interface UpdatedUserfields {
@@ -30,6 +37,9 @@ export interface UpdatedUserfields {
   fractalUserId?: string;
   videoOnRoom?: boolean;
   videoURL?: string;
+  videoCurrentTime?: number;
+  isPlayingVideo?: boolean;
+  videoInstance?: HTMLVideoElement & VideoID;
 }
 
 // blocked: some functionalities blocked (mic, screen, camera)
@@ -86,14 +96,6 @@ export function useUserMe() {
     Object.assign(pinnedUserStream, value);
   };
 
-  const setUserSharingVideo = (value: boolean) => {
-    userMe.videoOnRoom = value;
-  };
-
-  const setPublicURLToShare = (value: string) => {
-    userMe.videoURL = value;
-  };
-
   return {
     userMe,
     setUserMe,
@@ -107,7 +109,5 @@ export function useUserMe() {
     setMicBlock,
     setVideoBlock,
     setScreenShareBlock,
-    setUserSharingVideo,
-    setPublicURLToShare,
   };
 }

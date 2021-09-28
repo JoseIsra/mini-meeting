@@ -6,6 +6,10 @@ interface SoundGainType {
   };
 }
 
+interface VideoID {
+  playerId: string;
+}
+
 export interface Participant {
   id?: string;
   name?: string;
@@ -21,6 +25,9 @@ export interface Participant {
   fractalUserId?: string;
   videoOnRoom?: boolean;
   videoURL?: string;
+  videoCurrentTime?: number;
+  isPlayingVideo?: boolean;
+  videoInstance?: HTMLVideoElement & VideoID;
 }
 
 export type Scalars = {

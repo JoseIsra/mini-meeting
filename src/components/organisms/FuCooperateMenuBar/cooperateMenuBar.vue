@@ -112,7 +112,7 @@
             >x</q-badge
           >
         </q-btn>
-        
+
         <fu-cooperate-menu
           v-show="functionsOnMenuBar.renderResponsiveFunctionMenu"
           :objectFunctionalities="objectFunctionalities"
@@ -167,11 +167,6 @@
 
 <script lang="ts">
 import { defineComponent, ref, reactive } from 'vue';
-import {
-  iconsPeriferics,
-  iconsFunctions,
-  iconsOptions,
-} from '@/helpers/iconsMenuBar';
 import FuCooperateMenu from 'molecules/FuCooperateMenu';
 import { Icons, Periferics, Functionalities } from '@/types';
 
@@ -182,6 +177,7 @@ import FuCooperateNetworkInfo from 'molecules/FuCooperateNetworkInfo';
 
 import { useInitWebRTC } from '@/composables/antMedia';
 import { useScreen } from '@/composables/screen';
+import { useActions } from '@/composables/actions';
 
 export default defineComponent({
   name: 'FuCooperateMenuBar',
@@ -202,9 +198,9 @@ export default defineComponent({
   },
   setup(props) {
     const { sendData } = useInitWebRTC();
-    const periferics = ref<Icons[]>(iconsPeriferics);
-    const functions = ref<Icons[]>(iconsFunctions);
-    const options = ref<Icons[]>(iconsOptions);
+
+    const { periferics, functions, options } = useActions();
+
     let openNetworkConfig = ref(false);
     const objectPeriferics = reactive<Periferics>({
       WEBCAM: () => toggleCamera(),

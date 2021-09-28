@@ -91,7 +91,10 @@ export default defineComponent({
 
     // Estado inicial, cooperate actions blocked by default or allowed (?)
 
-    const isMicLocked = window.xprops?.isMicLocked || false;
+    const isMicLocked =
+      window.xprops?.isMicLocked ||
+      (route.query.mic as string) === '1' ||
+      false;
 
     if (isMicLocked) {
       setMicState(false);
@@ -108,7 +111,10 @@ export default defineComponent({
       sendNotificationEvent('CAM_TURNED_OFF', userMe.id);
     }
 
-    const isScreenShareLocked = window.xprops?.isScreenShareLocked || false;
+    const isScreenShareLocked =
+      window.xprops?.isScreenShareLocked ||
+      (route.query.screen as string) === '1' ||
+      false;
 
     if (isScreenShareLocked) {
       setScreenState(false);
@@ -133,7 +139,7 @@ export default defineComponent({
       name: streamName,
       avatar,
       isCameraOn: false,
-      isMicOn: true,
+      isMicOn: !isMicLocked,
       isScreenSharing: false,
       isVideoActivated: false,
       roleId: roleId,

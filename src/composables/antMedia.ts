@@ -11,6 +11,8 @@ import { useHandleParticipants } from '@/composables/participants';
 import { Message, useHandleMessage } from '@/composables/chat';
 import { useToogleFunctions } from '@/composables';
 import { useRoom } from '@/composables/room';
+import { useActions } from '@/composables/actions';
+
 const webRTCInstance = ref<WebRTCAdaptor>({} as WebRTCAdaptor);
 
 const {
@@ -78,6 +80,8 @@ export function useInitWebRTC() {
   const joinRoom = (roomId: string, streamId: string) => {
     webRTCInstance.value.joinRoom?.(roomId, streamId, 'legacy');
   };
+
+  const { periferics, functions } = useActions();
 
   const publish = (
     streamId: string,
@@ -581,7 +585,7 @@ export function useInitWebRTC() {
                 user.isScreenShareBlocked =
                   remoteUserInfoParsed.userInfo.isScreenShareBlocked;
                 user.fractalUserId =
-                  remoteUserInfoParsed.userInfo.fractalUserId ;
+                  remoteUserInfoParsed.userInfo.fractalUserId;
               }
             }
           } else if (eventType === 'KICK') {
@@ -600,8 +604,6 @@ export function useInitWebRTC() {
               return;
             }
 
-            console.log(participantId);
-
             if (action === LOCK_ACTION_TYPE.All) {
               setMicBlock(value);
               setVideoBlock(value);
@@ -621,23 +623,26 @@ export function useInitWebRTC() {
             } else if (action === LOCK_ACTION_TYPE.Mic) {
               setMicBlock(value);
               if (value) {
-                setMicState(false);
+                periferics.value.filter((p) => p.id === '1')[0].active = !value;
+                setMicState(!value);
                 muteLocalMic();
                 sendNotificationEvent('MIC_MUTED', userMe.id);
               }
             } else if (action === LOCK_ACTION_TYPE.Camera) {
               setVideoBlock(value);
               if (value) {
-                setCameraState(false);
-                setVideoActivatedState(false);
+                periferics.value.filter((p) => p.id === '2')[0].active = !value;
+                setCameraState(!value);
+                setVideoActivatedState(!value);
                 turnOffLocalCamera(userMe.id);
                 sendNotificationEvent('CAM_TURNED_OFF', userMe.id);
               }
             } else if (action === LOCK_ACTION_TYPE.Screen) {
               setScreenShareBlock(value);
               if (value) {
-                setScreenState(false);
-                setVideoActivatedState(false);
+                functions.value.filter((f) => f.id === '1')[0].active = !value;
+                setScreenState(!value);
+                setVideoActivatedState(!value);
                 resetDesktop();
                 sendNotificationEvent('SCREEN_SHARING_OFF', userMe.id);
               }
@@ -656,34 +661,41 @@ export function useInitWebRTC() {
                 setMicState(false);
                 muteLocalMic();
                 sendNotificationEvent('MIC_MUTED', userMe.id);
+                periferics.value.filter((p) => p.id === '1')[0].active = !value;
                 setCameraState(false);
                 turnOffLocalCamera(userMe.id);
                 sendNotificationEvent('CAM_TURNED_OFF', userMe.id);
+                periferics.value.filter((p) => p.id === '2')[0].active = !value;
                 setScreenState(false);
                 setVideoActivatedState(false);
                 resetDesktop();
                 sendNotificationEvent('SCREEN_SHARING_OFF', userMe.id);
+                functions.value.filter((f) => f.id === '1')[0].active = !value;
               }
             } else if (action === LOCK_ACTION_TYPE.Mic) {
               setMicBlock(value);
+
               if (value) {
-                setMicState(false);
+                periferics.value.filter((p) => p.id === '1')[0].active = !value;
+                setMicState(!value);
                 muteLocalMic();
                 sendNotificationEvent('MIC_MUTED', userMe.id);
               }
             } else if (action === LOCK_ACTION_TYPE.Camera) {
               setVideoBlock(value);
               if (value) {
-                setCameraState(false);
-                setVideoActivatedState(false);
+                periferics.value.filter((p) => p.id === '2')[0].active = !value;
+                setCameraState(!value);
+                setVideoActivatedState(!value);
                 turnOffLocalCamera(userMe.id);
                 sendNotificationEvent('CAM_TURNED_OFF', userMe.id);
               }
             } else if (action === LOCK_ACTION_TYPE.Screen) {
               setScreenShareBlock(value);
               if (value) {
-                setScreenState(false);
-                setVideoActivatedState(false);
+                functions.value.filter((f) => f.id === '1')[0].active = !value;
+                setScreenState(!value);
+                setVideoActivatedState(!value);
                 resetDesktop();
                 sendNotificationEvent('SCREEN_SHARING_OFF', userMe.id);
               }

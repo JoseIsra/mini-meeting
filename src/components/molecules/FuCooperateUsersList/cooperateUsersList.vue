@@ -13,7 +13,7 @@
         </span>
 
         <q-btn
-          :icon="isEveryoneMicBlocked ? 'mic' : 'mic_off'"
+          :icon="isEveryoneMicBlocked ? 'mic_off' : 'mic'"
           @click="handleEveryoneActions(LOCK_ACTION_TYPE.Mic)"
           size="8px"
         >
@@ -34,7 +34,7 @@
         </q-btn>
 
         <q-btn
-          :icon="isEveryoneVideoBlocked ? 'videocam' : 'videocam_off'"
+          :icon="isEveryoneVideoBlocked ? 'videocam_off' : 'videocam'"
           @click="handleEveryoneActions(LOCK_ACTION_TYPE.Camera)"
           size="8px"
         >
@@ -57,8 +57,8 @@
         <q-btn
           :icon="
             isEveryoneScreenShareBlocked
-              ? 'desktop_windows'
-              : 'desktop_access_disabled'
+              ? 'desktop_access_disabled'
+              : 'desktop_windows'
           "
           @click="handleEveryoneActions(LOCK_ACTION_TYPE.Screen)"
           size="8px"
@@ -80,7 +80,7 @@
         </q-btn>
 
         <q-btn
-          :icon="isEveryoneActionsBlocked ? 'fas fa-lock-open' : 'fas fa-lock'"
+          :icon="isEveryoneActionsBlocked ? 'fas fa-lock' : 'fas fa-lock-open'"
           @click="handleEveryoneActions(LOCK_ACTION_TYPE.All)"
           size="10px"
           :disable="!participants.length > 0"
@@ -178,7 +178,7 @@
           </q-btn> -->
 
           <q-btn
-            :icon="isMicBlocked(participant) ? 'mic' : 'mic_off'"
+            :icon="isMicBlocked(participant) ? 'mic_off' : 'mic'"
             @click="handleParticipantActions(participant, LOCK_ACTION_TYPE.Mic)"
           >
             <q-tooltip
@@ -198,7 +198,7 @@
           </q-btn>
 
           <q-btn
-            :icon="isVideoBlocked(participant) ? 'videocam' : 'videocam_off'"
+            :icon="isVideoBlocked(participant) ? 'videocam_off' : 'videocam'"
             @click="
               handleParticipantActions(participant, LOCK_ACTION_TYPE.Camera)
             "
@@ -222,8 +222,8 @@
           <q-btn
             :icon="
               isScreenShareBlocked(participant)
-                ? 'desktop_windows'
-                : 'desktop_access_disabled'
+                ? 'desktop_access_disabled'
+                : 'desktop_windows'
             "
             @click="
               handleParticipantActions(participant, LOCK_ACTION_TYPE.Screen)
@@ -255,6 +255,7 @@ import { defineComponent, computed, ref } from 'vue';
 import { useHandleParticipants } from '@/composables/participants';
 import { useUserMe } from '@/composables/userMe';
 import { useInitWebRTC } from '@/composables/antMedia';
+
 import { Participant, LOCK_ACTION_TYPE } from '@/types';
 import { nanoid } from 'nanoid';
 

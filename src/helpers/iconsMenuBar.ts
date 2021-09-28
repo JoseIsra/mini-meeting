@@ -24,7 +24,7 @@ export const iconsPeriferics = [
     id: '1',
     onState: 'mic',
     offState: 'mic_off',
-    active: true,
+    active: userMe.isMicOn,
     toolTipMessage: 'Habilitar audio',
     toolTipSecondMessage: 'Deshabilitar audio',
     interaction: interactionType.MIC,

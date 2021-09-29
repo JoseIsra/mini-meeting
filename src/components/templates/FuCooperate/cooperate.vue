@@ -141,11 +141,7 @@ export default defineComponent({
       isVideoBlocked: isCameraLocked,
       isScreenShareBlocked: isScreenShareLocked,
       fractalUserId,
-      videoOnRoom: false,
-      videoURL: '',
-      videoCurrentTime: 0,
-      isPlayingVideo: false,
-      videoInstance: {} as HTMLVideoElement & { playerId: string },
+      existVideo: false,
     });
 
     setRoom({

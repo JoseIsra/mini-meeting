@@ -36,7 +36,7 @@ export default defineComponent({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   setup(_prop, { emit }) {
     let inputURL = ref('');
-    const { setUrlVideo, isVideoRender } = useExternalVideo();
+    const { updateExternalVideoState, externalVideo } = useExternalVideo();
     const { sendData } = useInitWebRTC();
     const { userMe } = useUserMe();
     const { setFullScreen } = useToogleFunctions();
@@ -48,9 +48,13 @@ export default defineComponent({
           eventType: 'SHARE_EXTERNAL_VIDEO',
           urlContent: inputURL.value,
         };
-        setUrlVideo(inputURL.value);
+        updateExternalVideoState({
+          ...externalVideo,
+          isVideoPlaying: true,
+          videoOnRoom: true,
+          urlVideo: inputURL.value,
+        });
         setFullScreen('video');
-        isVideoRender(true);
         sendData(userMe.id, URLData);
         emit('hide-modal');
         return;

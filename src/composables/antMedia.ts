@@ -35,9 +35,9 @@ const { addHandNotificationInfo, removeHandNotification, setFullScreen } =
 
 const roomTimerId = ref<ReturnType<typeof setInterval> | null>(null);
 const isDataChannelOpen = ref(false);
-const { setUrlVideo, isVideoRender, optionsPlayerTest } = useExternalVideo();
+const { updateExternalVideoState, videoPlayerTest, externalVideo } =
+  useExternalVideo();
 const remotePlayer = ref<videojs.Player>({} as videojs.Player);
-
 interface ObjInfoRequested {
   to: string;
   from: string;
@@ -64,7 +64,7 @@ interface VideoID {
 interface ExternalVideoObject {
   eventType?: string;
   urlContent?: string;
-  remoteInstance?: VideoID;
+  remoteInstance?: VideoID | string | HTMLVideoElement;
   currentTime?: number;
 }
 
@@ -179,35 +179,34 @@ export function useInitWebRTC() {
       OfferToReceiveVideo: false,
     };
 
-    const createVideoInstance = (arg: ExternalVideoObject, user?: User) => {
-      console.log('damint');
-      remotePlayer.value = videojs(
-        arg?.remoteInstance?.playerId as string,
-        optionsPlayerTest,
-        function onReadyMode() {
-          console.log('initVIDEO');
-          console.log('CURRENT TIME', user?.videoCurrentTime);
-          remotePlayer.value.currentTime(30);
-          if (user?.isPlayingVideo) {
-            remotePlayer.value.autoplay('play');
-          }
-        }
-      );
-    };
-
     const playExternalVideo = (arg: ExternalVideoObject) => {
-      remotePlayer.value = videojs(arg.remoteInstance?.playerId as string);
+      remotePlayer.value = videojs((arg.remoteInstance as VideoID).playerId);
       void remotePlayer.value.play();
     };
 
     const pauseExternalVideo = (arg: ExternalVideoObject) => {
-      remotePlayer.value = videojs(arg.remoteInstance?.playerId as string);
+      remotePlayer.value = videojs((arg.remoteInstance as VideoID).playerId);
       void remotePlayer.value.pause();
     };
     const updateVideoTime = (arg: ExternalVideoObject) => {
-      remotePlayer.value = videojs(arg.remoteInstance?.playerId as string);
+      remotePlayer.value = videojs((arg.remoteInstance as VideoID).playerId);
       //actualizar el video
       void remotePlayer.value.currentTime(arg.currentTime as number);
+    };
+
+    const initRemotePlayerInstance = (arg: User) => {
+      setFullScreen('video');
+      updateExternalVideoState({
+        ...externalVideo,
+        urlVideo: arg.urlOfVideo,
+      });
+      setTimeout(() => {
+        remotePlayer.value = videojs(arg.videoInstance?.playerId as string);
+        remotePlayer.value.currentTime(arg.currentTime as number);
+        if (!arg.isPlayingVideo) {
+          remotePlayer.value.pause();
+        }
+      }, 1000);
     };
 
     webRTCInstance.value = new WebRTCAdaptor({
@@ -396,7 +395,6 @@ export function useInitWebRTC() {
           /* streamsList.value = obj.streams; */
         } else if (info == 'data_channel_opened') {
           console.info('Data Channel open for stream id 🃏🃏🃏', obj);
-
           //Mandar petición de data de usuario a todos los usuarios con el que se abre un canal de comunicación
 
           const user = obj as unknown as string;
@@ -577,23 +575,21 @@ export function useInitWebRTC() {
               );
               //user = { avatar : remoteUserInfoParsed.userInfo.avatar ,...user}
               if (user) {
-                Object.assign(user, remoteUserInfoParsed.userInfo);
-                // user.avatar = remoteUserInfoParsed.userInfo.avatar;
-                // user.name = remoteUserInfoParsed.userInfo.name;
-                // user.isCameraOn = remoteUserInfoParsed.userInfo.isCameraOn;
-                // user.isMicOn = remoteUserInfoParsed.userInfo.isMicOn;
-                // user.isScreenSharing =
-                //   remoteUserInfoParsed.userInfo.isScreenSharing;
-                // user.isVideoActivated =
-                //   remoteUserInfoParsed.userInfo.isVideoActivated;
-                // user.isMicBlocked = remoteUserInfoParsed.userInfo.isMicBlocked;
-                // user.isVideoBlocked =
-                //   remoteUserInfoParsed.userInfo.isVideoBlocked;
-                // user.isScreenShareBlocked =
-                //   remoteUserInfoParsed.userInfo.isScreenShareBlocked;
-                // user.fractalUserId =
-                //   remoteUserInfoParsed.userInfo.fractalUserId;
-                // user.videoOnRoom = remoteUserInfoParsed.userInfo.videoOnRoom;
+                user.avatar = remoteUserInfoParsed.userInfo.avatar;
+                user.name = remoteUserInfoParsed.userInfo.name;
+                user.isCameraOn = remoteUserInfoParsed.userInfo.isCameraOn;
+                user.isMicOn = remoteUserInfoParsed.userInfo.isMicOn;
+                user.isScreenSharing =
+                  remoteUserInfoParsed.userInfo.isScreenSharing;
+                user.isVideoActivated =
+                  remoteUserInfoParsed.userInfo.isVideoActivated;
+                user.isMicBlocked = remoteUserInfoParsed.userInfo.isMicBlocked;
+                user.isVideoBlocked =
+                  remoteUserInfoParsed.userInfo.isVideoBlocked;
+                user.isScreenShareBlocked =
+                  remoteUserInfoParsed.userInfo.isScreenShareBlocked;
+                user.fractalUserId =
+                  remoteUserInfoParsed.userInfo.fractalUserId;
               }
             }
           } else if (eventType === 'USER_INFO_FINISH') {
@@ -604,7 +600,6 @@ export function useInitWebRTC() {
             //Recieving info from another user if is for me
             if (remoteUserInfoParsed.to === userMe.id) {
               console.log('I am receiving info from another user', objParsed);
-
               const user = participants.value.find(
                 (participant) =>
                   participant.id === remoteUserInfoParsed.userInfo.id
@@ -612,49 +607,23 @@ export function useInitWebRTC() {
               //user = { avatar : remoteUserInfoParsed.userInfo.avatar ,...user}
               if (user) {
                 Object.assign(user, remoteUserInfoParsed.userInfo);
-                // user.avatar = remoteUserInfoParsed.userInfo.avatar;
-                // user.name = remoteUserInfoParsed.userInfo.name;
-                // user.isCameraOn = remoteUserInfoParsed.userInfo.isCameraOn;
-                // user.isMicOn = remoteUserInfoParsed.userInfo.isMicOn;
-                // user.isScreenSharing =
-                //   remoteUserInfoParsed.userInfo.isScreenSharing;
-                // user.isVideoActivated =
-                //   remoteUserInfoParsed.userInfo.isVideoActivated;
-                // user.isMicBlocked = remoteUserInfoParsed.userInfo.isMicBlocked;
-                // user.isVideoBlocked =
-                //   remoteUserInfoParsed.userInfo.isVideoBlocked;
-                // user.isScreenShareBlocked =
-                //   remoteUserInfoParsed.userInfo.isScreenShareBlocked;
-                // user.fractalUserId =
-                //   remoteUserInfoParsed.userInfo.fractalUserId;
-                // user.videoOnRoom = remoteUserInfoParsed.userInfo.videoOnRoom;
-                // user.videoURL = remoteUserInfoParsed.userInfo.videoURL;
-                if (remoteUserInfoParsed.userInfo.videoOnRoom) {
-                  setFullScreen('video');
-                  setUrlVideo(remoteUserInfoParsed.userInfo.videoURL as string);
-                  setTimeout(() => {
-                    createVideoInstance(
-                      {
-                        remoteInstance:
-                          remoteUserInfoParsed.userInfo.videoInstance,
-                      },
-                      remoteUserInfoParsed.userInfo
-                    );
-
-                    // if (remoteUserInfoParsed.userInfo.isPlayingVideo) {
-                    //   console.log(
-                    //     'SE DETECTÓ VIDEO REPRODUCIENDO EN LA SALA AL ENTRAR 🚀'
-                    //   );
-                    //   remotePlayer.value.currentTime(
-                    //     remoteUserInfoParsed.userInfo.videoCurrentTime as number
-                    //   );
-                    //   // void remotePlayer.value.play();
-                    // } else {
-                    //   remotePlayer.value.currentTime(
-                    //     remoteUserInfoParsed.userInfo.videoCurrentTime as number
-                    //   );
-                    // }
-                  }, 1000);
+                user.avatar = remoteUserInfoParsed.userInfo.avatar;
+                user.name = remoteUserInfoParsed.userInfo.name;
+                user.isCameraOn = remoteUserInfoParsed.userInfo.isCameraOn;
+                user.isMicOn = remoteUserInfoParsed.userInfo.isMicOn;
+                user.isScreenSharing =
+                  remoteUserInfoParsed.userInfo.isScreenSharing;
+                user.isVideoActivated =
+                  remoteUserInfoParsed.userInfo.isVideoActivated;
+                user.isMicBlocked = remoteUserInfoParsed.userInfo.isMicBlocked;
+                user.isVideoBlocked =
+                  remoteUserInfoParsed.userInfo.isVideoBlocked;
+                user.isScreenShareBlocked =
+                  remoteUserInfoParsed.userInfo.isScreenShareBlocked;
+                user.fractalUserId =
+                  remoteUserInfoParsed.userInfo.fractalUserId;
+                if (remoteUserInfoParsed.userInfo.existVideo) {
+                  initRemotePlayerInstance(remoteUserInfoParsed.userInfo);
                 }
               }
             }
@@ -769,13 +738,12 @@ export function useInitWebRTC() {
               obj.data
             ) as ExternalVideoObject;
             setFullScreen('video');
-            setUrlVideo(externalVideoObject.urlContent as string);
-          } else if (eventType == 'INITIALIZE_VIDEO') {
-            isVideoRender(true);
-            const externalVideoInfo = JSON.parse(
-              obj.data
-            ) as ExternalVideoObject;
-            createVideoInstance(externalVideoInfo);
+            updateExternalVideoState({
+              urlVideo: externalVideoObject.urlContent,
+            });
+            setTimeout(() => {
+              remotePlayer.value = videojs(videoPlayerTest.playerId);
+            }, 2000);
           } else if (eventType == 'PLAYING_VIDEO') {
             const externalVideoInfo = JSON.parse(
               obj.data

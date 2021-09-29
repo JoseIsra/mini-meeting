@@ -1,9 +1,5 @@
 import { reactive } from 'vue';
 
-interface VideoID {
-  playerId: string;
-}
-
 export interface User {
   id: string;
   name: string;
@@ -18,11 +14,11 @@ export interface User {
   isScreenShareBlocked: boolean;
   stream?: MediaStream;
   fractalUserId: string;
-  videoOnRoom?: boolean;
-  videoURL?: string;
-  videoCurrentTime?: number;
+  existVideo?: boolean;
+  urlOfVideo?: string;
+  videoInstance?: HTMLMediaElement & { playerId: string };
+  currentTime?: number;
   isPlayingVideo?: boolean;
-  videoInstance?: HTMLVideoElement & VideoID;
 }
 
 export interface UpdatedUserfields {
@@ -35,11 +31,11 @@ export interface UpdatedUserfields {
   isVideoActivated?: boolean;
   stream?: MediaStream;
   fractalUserId?: string;
-  videoOnRoom?: boolean;
-  videoURL?: string;
-  videoCurrentTime?: number;
+  existVideo?: boolean;
+  urlOfVideo?: string;
+  videoInstance?: HTMLMediaElement & { playerId: string };
+  currentTime?: number;
   isPlayingVideo?: boolean;
-  videoInstance?: HTMLVideoElement & VideoID;
 }
 
 // blocked: some functionalities blocked (mic, screen, camera)

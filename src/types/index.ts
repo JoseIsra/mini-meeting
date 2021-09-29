@@ -6,10 +6,6 @@ interface SoundGainType {
   };
 }
 
-interface VideoID {
-  playerId: string;
-}
-
 export interface Participant {
   id?: string;
   name?: string;
@@ -23,11 +19,11 @@ export interface Participant {
   isVideoBlocked?: boolean;
   isScreenShareBlocked?: boolean;
   fractalUserId?: string;
-  videoOnRoom?: boolean;
-  videoURL?: string;
-  videoCurrentTime?: number;
+  existVideo?: boolean;
+  urlOfVideo?: string;
+  videoInstance?: HTMLMediaElement & { playerId: string };
+  currentTime?: number;
   isPlayingVideo?: boolean;
-  videoInstance?: HTMLVideoElement & VideoID;
 }
 
 export type Scalars = {

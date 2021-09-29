@@ -1,12 +1,17 @@
 <template>
   <section class="m-video">
     <q-btn
+      :style="[simpleMortal ? { visibility: 'hidden' } : '']"
       icon="play_arrow"
       v-show="showPlayButton"
       class="m-video__btn --playVideo"
       @click="handlePlaying"
     />
-    <video ref="videoPlayer" class="video-js vjs-default-skin"></video>
+    <video
+      :class="{ 'vjs-tech': simpleMortal }"
+      ref="videoPlayer"
+      class="video-js vjs-default-skin"
+    ></video>
   </section>
 </template>
 
@@ -25,26 +30,24 @@ import 'videojs-youtube/dist/Youtube.min.js';
 import 'video.js/dist/video-js.css';
 import { useInitWebRTC } from '@/composables/antMedia';
 import { useUserMe } from '@/composables/userMe';
-interface Prue {
-  currentTime: string;
-}
 
 export default defineComponent({
   name: 'FuExternalVideo',
   setup() {
-    let experimento = ref(0);
     const { sendData } = useInitWebRTC();
     const { userMe, updateUserMe } = useUserMe();
-    const { externalVideo, setvideoOptions } = useExternalVideo();
-    const videoPlayer = ref({} as HTMLVideoElement & { playerId: string });
+    const { externalVideo, setvideoOptions, setVideoInstance } =
+      useExternalVideo();
+    const videoPlayer = ref({} as HTMLMediaElement & { playerId: string });
     const player = ref<videojs.Player>({} as videojs.Player);
     const showPlayButton = ref(false);
-    const optionsForPlayer = reactive({
-      controls: true,
-      autoplay: false,
+    const canManipulateVideo = ref(userMe.roleId === 0 || userMe.roleId === 2);
+    const simpleMortal = ref(userMe.roleId == 1);
+    const optionsForPlayer = reactive<videojs.PlayerOptions>({
+      controls: canManipulateVideo.value,
+      autoplay: true,
       bigPlayButton: false,
       responsive: true,
-      liveui: true,
       controlBar: {
         progressControl: {
           seekBar: true,
@@ -56,7 +59,7 @@ export default defineComponent({
       sources: [
         {
           type: 'video/youtube',
-          src: externalVideo.urlVideo,
+          src: externalVideo.urlVideo as string,
         },
       ],
     });
@@ -65,25 +68,22 @@ export default defineComponent({
         videoPlayer.value,
         optionsForPlayer,
         function onPlayerReady() {
+          console.log('READY VIDEO USERME');
           showPlayButton.value = true;
-          setvideoOptions(optionsForPlayer);
+          setvideoOptions(optionsForPlayer as videojs.PlayerOptions);
+          setVideoInstance(videoPlayer.value);
           updateUserMe({
             ...userMe,
-            videoOnRoom: true,
-            videoURL: externalVideo.urlVideo,
+            existVideo: externalVideo.videoOnRoom,
+            urlOfVideo: externalVideo.urlVideo,
             videoInstance: videoPlayer.value,
-          });
-          sendData(userMe.id, {
-            remoteInstance: videoPlayer.value,
-            eventType: 'INITIALIZE_VIDEO',
           });
           player.value.on('pause', handlePause);
           player.value.on('play', handlePlaying);
           player.value.on('timeupdate', () => {
-            experimento.value = player.value.currentTime();
             updateUserMe({
               ...userMe,
-              videoCurrentTime: player.value.currentTime(),
+              currentTime: player.value.currentTime(),
             });
           });
           player.value.controlBar.on('mouseup', () => {
@@ -92,7 +92,7 @@ export default defineComponent({
               currentTime: player.value.currentTime(),
               eventType: 'UPDATE_VIDEOTIME',
             });
-            console.log('Barra tocada', player.value.play());
+            console.log('Barra tocada');
           });
 
           player.value.controlBar.on('mousedown', () => {
@@ -109,9 +109,12 @@ export default defineComponent({
     });
 
     const handlePlaying = () => {
+      updateUserMe({
+        ...userMe,
+        isPlayingVideo: true,
+      });
       showPlayButton.value = false;
       void player.value.play();
-      updateUserMe({ ...userMe, isPlayingVideo: true });
       sendData(userMe.id, {
         remoteInstance: videoPlayer.value,
         eventType: 'PLAYING_VIDEO',
@@ -119,8 +122,11 @@ export default defineComponent({
     };
 
     const handlePause = () => {
+      updateUserMe({
+        ...userMe,
+        isPlayingVideo: false,
+      });
       showPlayButton.value = true;
-      updateUserMe({ ...userMe, isPlayingVideo: false });
       sendData(userMe.id, {
         remoteInstance: videoPlayer.value,
         eventType: 'PAUSE_VIDEO',
@@ -134,6 +140,7 @@ export default defineComponent({
       handlePlaying,
       showPlayButton,
       userMe,
+      simpleMortal,
     };
   },
 });

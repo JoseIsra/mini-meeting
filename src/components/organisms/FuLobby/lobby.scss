@@ -1,0 +1,59 @@
+.o-lobby {
+  background: #36393f;
+
+  &__media {
+    flex: 3;
+    // border: 1px solid blue;
+
+    display: flex;
+    flex-direction: column;
+
+    align-items: center;
+
+    &__screen {
+      border: 2px solid red;
+      width: 700px;
+      height: 450px;
+      margin: 24px;
+    }
+
+    &__actions {
+      // border: 2px solid blue;
+      width: 400px;
+
+      margin-bottom: 20px;
+
+      button {
+        margin: 10px;
+      }
+    }
+  }
+
+  &__info {
+    flex: 2;
+    border: 1px solid red;
+
+    // margin-right: 50px;
+    display: flex;
+    justify-content: center;
+
+    &__wrapper {
+      padding: 12px;
+      width: 400px;
+    }
+  }
+
+  &__title {
+    font-weight: bold;
+    font-size: 48px;
+  }
+
+  &__label {
+    font-weight: 400;
+    font-size: 18px;
+
+    padding: 0 40px;
+
+    margin: 24px 0;
+  }
+}

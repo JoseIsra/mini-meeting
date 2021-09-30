@@ -1,7 +1,7 @@
 <template>
   <div class="t-cooperate">
     <div class="t-cooperate__page" v-if="existRoom">
-      <h2 v-if="roomState.privacy">Sala de espera</h2>
+      <fu-lobby v-if="roomState.privacy" />
 
       <fu-cooperate
         v-else
@@ -33,6 +33,8 @@
 <script lang="ts">
 import { defineComponent, toRefs, onMounted } from 'vue';
 import FuCooperate from 'organisms/FuCooperate';
+import FuLobby from 'organisms/FuLobby';
+
 import { useRoute } from 'vue-router';
 import { useUserMe } from '@/composables/userMe';
 import FuTLoading from 'organisms/FuLoading';
@@ -48,6 +50,7 @@ export default defineComponent({
   components: {
     FuCooperate,
     FuTLoading,
+    FuLobby,
   },
   setup() {
     const {
@@ -156,6 +159,7 @@ export default defineComponent({
       isVideoBlocked: isCameraLocked,
       isScreenShareBlocked: isScreenShareLocked,
       fractalUserId,
+      denied: 0
     });
 
     setRoom({
@@ -163,6 +167,7 @@ export default defineComponent({
       sharingLink,
       classroomId,
       privacy,
+      waitList: [],
     });
 
     const publishToken =

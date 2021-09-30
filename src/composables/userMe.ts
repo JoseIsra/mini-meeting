@@ -14,6 +14,7 @@ export interface User {
   isScreenShareBlocked: boolean;
   stream?: MediaStream;
   fractalUserId: string;
+  denied: number;
 }
 
 export interface UpdatedUserfields {
@@ -82,6 +83,8 @@ export function useUserMe() {
     Object.assign(pinnedUserStream, value);
   };
 
+  const setDenied = (state: number) => (userMe.denied = state);
+
   return {
     userMe,
     setUserMe,
@@ -95,5 +98,6 @@ export function useUserMe() {
     setMicBlock,
     setVideoBlock,
     setScreenShareBlock,
+    setDenied,
   };
 }

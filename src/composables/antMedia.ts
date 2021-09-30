@@ -8,6 +8,7 @@ import { useHandleParticipants } from '@/composables/participants';
 import { Message, useHandleMessage } from '@/composables/chat';
 import { useToogleFunctions } from '@/composables';
 import { useRoom } from '@/composables/room';
+import { PERMISSION_STATUS } from '@/utils/enums';
 const webRTCInstance = ref<WebRTCAdaptor>({} as WebRTCAdaptor);
 
 const {
@@ -20,11 +21,12 @@ const {
   setScreenShareBlock,
   setMicState,
   setCameraState,
+  setDenied,
 } = useUserMe();
 
 const { setIsLoadingOrError, setLoadingOrErrorMessage, setExistRoom } =
   useAuthState();
-const { setRecorded } = useRoom();
+const { setRecorded, newParticipantOnWait, setPrivacy } = useRoom();
 const { deleteParticipantById, participants, addParticipants } =
   useHandleParticipants();
 const { setUserMessage, deleteLoadingMessage } = useHandleMessage();
@@ -68,6 +70,20 @@ interface ObjBlockEveryoneAction {
   streamId: string;
   eventType: string;
   action: number;
+  value: boolean;
+}
+
+interface ObjAskPermission {
+  id: string;
+  participantId: string;
+  participantName: string;
+  eventType: string;
+}
+
+interface ObjAnswerPermission {
+  id: string;
+  participantId: string;
+  eventType: string;
   value: boolean;
 }
 
@@ -690,6 +706,32 @@ export function useInitWebRTC() {
             }
 
             // setUserActions(lockData.action, lockData.value);
+          } else if (eventType === 'ASK_PERMISSION') {
+            const isAdmin = userMe.roleId !== 1;
+
+            if (isAdmin) {
+              const { participantId, participantName } = JSON.parse(
+                obj.data
+              ) as ObjAskPermission;
+
+              // Create notification on admin with participant name and add to participantWaitingList of room
+              newParticipantOnWait({
+                id: participantId,
+                name: participantName,
+              });
+            }
+          } else if (eventType === 'ANSWER_PERMISSION') {
+            const { participantId, value } = JSON.parse(
+              obj.data
+            ) as ObjAnswerPermission;
+
+            if (userMe.id === participantId) {
+              if (value) {
+                setPrivacy(false);
+              } else {
+                setDenied(PERMISSION_STATUS.answered);
+              }
+            }
           }
         }
       },

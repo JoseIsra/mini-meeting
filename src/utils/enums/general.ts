@@ -12,6 +12,12 @@ export enum LOCK_ACTION_TYPE {
   'Screen',
 }
 
+export enum PERMISSION_STATUS {
+  'notAsked',
+  'asked',
+  'answered',
+}
+
 export enum INTERACTION_TYPE_MENU_OPTIONS {
   LEAVE = 'LEAVE',
   END = 'END',

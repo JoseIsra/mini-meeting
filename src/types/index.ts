@@ -16,7 +16,7 @@ export interface Participant {
   isScreenSharing?: boolean;
   isVideoActivated?: boolean;
   isMicBlocked?: boolean;
-  isVideoBlocked?: boolean;
+  isCameraBlocked?: boolean;
   isScreenShareBlocked?: boolean;
   fractalUserId?: string;
 }

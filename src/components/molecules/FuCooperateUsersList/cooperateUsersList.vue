@@ -281,7 +281,7 @@ export default defineComponent({
     const isEveryoneVideoBlocked = computed(
       () =>
         !participants.value.some(
-          (participant) => participant?.isVideoBlocked === false
+          (participant) => participant?.isCameraBlocked === false
         )
     );
 
@@ -306,7 +306,7 @@ export default defineComponent({
 
       return (
         participantActions?.isMicBlocked === true &&
-        participantActions?.isVideoBlocked === true &&
+        participantActions?.isCameraBlocked === true &&
         participantActions?.isScreenShareBlocked === true
       );
     };
@@ -317,7 +317,7 @@ export default defineComponent({
 
     const isVideoBlocked = (participant: Participant) =>
       participants.value.find((part) => part.id === participant.id)
-        ?.isVideoBlocked === true;
+        ?.isCameraBlocked === true;
 
     const isScreenShareBlocked = (participant: Participant) =>
       participants.value.find((part) => part.id === participant.id)

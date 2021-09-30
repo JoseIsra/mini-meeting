@@ -16,7 +16,7 @@ export const useActions = () => {
   const setMicIconState = (state: boolean) =>
     (periferics.value.filter((p) => p.id === '1')[0].active = state);
 
-  const setCamIconState = (state: boolean) =>
+  const setCameraIconState = (state: boolean) =>
     (periferics.value.filter((p) => p.id === '2')[0].active = state);
 
   const setScreenShareIconState = (state: boolean) =>
@@ -27,7 +27,7 @@ export const useActions = () => {
     functions,
     options,
     setMicIconState,
-    setCamIconState,
+    setCameraIconState,
     setScreenShareIconState,
   };
 };

@@ -34,6 +34,7 @@ import { REASON_TO_LEAVE_ROOM } from '@/utils/enums';
 import { useInitWebRTC } from '@/composables/antMedia';
 import { useAuthState } from '@/composables/auth';
 import { useRoom } from '@/composables/room';
+import { useActions } from '@/composables/actions';
 
 export default defineComponent({
   name: 'FuTCooperate',
@@ -60,9 +61,9 @@ export default defineComponent({
       userMe,
       setUserMe,
       setVideoActivatedState,
-      setMicState,
-      setCameraState,
-      setScreenState,
+      // setMicState,
+      // setCameraState,
+      // setScreenState,
     } = useUserMe();
 
     const { setRoom } = useRoom();
@@ -71,6 +72,9 @@ export default defineComponent({
 
     const { authState, setLoadingOrErrorMessage, setExistRoom } =
       useAuthState();
+
+    const { setMicIconState, setCameraIconState, setScreenShareIconState } =
+      useActions();
 
     //Datos del usuario
     const streamId =
@@ -92,8 +96,6 @@ export default defineComponent({
 
     const roleId =
       window.xprops?.roleId || parseInt(route.query.roleId as string) || 0;
-
-    // Estado inicial, cooperate actions blocked by default or allowed (?)
 
     const isMicLocked =
       window.xprops?.isMicLocked ||
@@ -125,42 +127,48 @@ export default defineComponent({
       isScreenSharing: false,
       isVideoActivated: false,
       isMicBlocked: roleId === 1 ? isMicLocked : false,
-      isVideoBlocked: isCameraLocked,
-      isScreenShareBlocked: isScreenShareLocked,
+      isCameraBlocked: roleId === 1 ? isCameraLocked : false,
+      isScreenShareBlocked: roleId === 1 ? isScreenShareLocked : false,
       fractalUserId,
+    });
+
+    setMicIconState(!isMicLocked);
+    // setCameraIconState(!isCameraLocked);
+    // setScreenShareIconState(!isScreenShareLocked);
+
+    setRoom({
+      id: roomId,
+      sharingLink,
+      classroomId,
+      isMicBlocked: roleId === 1 ? isMicLocked : false,
+      isCameraBlocked: roleId === 1 ? isCameraLocked : false,
+      isScreenShareBlocked: roleId === 1 ? isScreenShareLocked : false,
     });
 
     if (isMicLocked) {
       sendNotificationEvent('MIC_MUTED', streamId);
-
-      if (roleId === 1) {
-        setMicState(!isMicLocked);
-      }
+      // if (roleId === 1) {
+      //   setMicState(!isMicLocked);
+      // }
     }
 
     if (isCameraLocked) {
       setVideoActivatedState(!isCameraLocked);
       sendNotificationEvent('CAM_TURNED_OFF', userMe.id);
 
-      if (roleId === 1) {
-        setCameraState(!isCameraLocked);
-      }
+      // if (roleId === 1) {
+      //   setCameraState(!isCameraLocked);
+      // }
     }
 
     if (isScreenShareLocked) {
       setVideoActivatedState(!isScreenShareLocked);
       sendNotificationEvent('SCREEN_SHARING_OFF', userMe.id);
 
-      if (roleId === 1) {
-        setScreenState(!isScreenShareLocked);
-      }
+      // if (roleId === 1) {
+      //   setScreenState(!isScreenShareLocked);
+      // }
     }
-
-    setRoom({
-      id: roomId,
-      sharingLink,
-      classroomId,
-    });
 
     const publishToken =
       window?.xprops?.publishToken ||
@@ -178,7 +186,7 @@ export default defineComponent({
 
     const toggleDesktopCapture = () => {
       if (userMe.isScreenSharing) {
-        console.log('DESACTIVAO');
+        setScreenShareIconState(false);
         resetDesktop();
         sendNotificationEvent('SCREEN_SHARING_OFF', streamId);
       }
@@ -186,6 +194,7 @@ export default defineComponent({
         turnOffLocalCamera(streamId);
         switchDesktopCaptureWithCamera(streamId);
       } else if (!userMe.isCameraOn && !userMe.isScreenSharing) {
+        setScreenShareIconState(true);
         switchDesktopCapture(streamId);
         setVideoActivatedState(true);
         sendNotificationEvent('SCREEN_SHARING_ON', streamId);
@@ -205,6 +214,7 @@ export default defineComponent({
         if (userMe.isScreenSharing) {
           switchDesktopCapture(streamId);
         } else {
+          setCameraIconState(false);
           turnOffLocalCamera(streamId);
           sendNotificationEvent('CAM_TURNED_OFF', streamId);
         }
@@ -214,15 +224,19 @@ export default defineComponent({
         } else {
           turnOnLocalCamera(streamId);
         }
+
+        setCameraIconState(true);
         sendNotificationEvent('CAM_TURNED_ON', streamId);
       }
     };
 
     const toggleLocalMic = () => {
       if (!userMe.isMicOn) {
+        setMicIconState(true);
         unmuteLocalMic();
         sendNotificationEvent('MIC_UNMUTED', streamId);
       } else {
+        setMicIconState(false);
         muteLocalMic();
         sendNotificationEvent('MIC_MUTED', streamId);
       }

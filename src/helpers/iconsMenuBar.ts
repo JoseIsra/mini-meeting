@@ -1,11 +1,9 @@
 import { useScreen } from '@/composables/screen';
-import { useUserMe } from '@/composables/userMe';
 import {
   INTERACTION_TYPE_MENU_BAR,
   BEHAVIOUR_TYPE_MENU_BAR,
 } from '@/utils/enums';
 
-const { userMe } = useUserMe();
 const { screenMinimized } = useScreen();
 
 export const iconsPeriferics = [
@@ -13,7 +11,7 @@ export const iconsPeriferics = [
     id: '1',
     onState: 'mic',
     offState: 'mic_off',
-    active: userMe.isMicOn,
+    active: false,
     toolTipMessage: 'Habilitar audio',
     toolTipSecondMessage: 'Deshabilitar audio',
     interaction: INTERACTION_TYPE_MENU_BAR.MIC,
@@ -22,18 +20,19 @@ export const iconsPeriferics = [
     id: '2',
     onState: 'videocam',
     offState: 'videocam_off',
-    active: userMe.isCameraOn,
+    active: false,
     toolTipMessage: 'Habilitar webcam',
     toolTipSecondMessage: 'Deshabilitar webcam',
     interaction: INTERACTION_TYPE_MENU_BAR.WEBCAM,
   },
 ];
+
 export const iconsFunctions = [
   {
     id: '1',
     onState: 'monitor',
     offState: 'desktop_access_disabled',
-    active: userMe.isScreenSharing,
+    active: false,
     toolTipMessage: 'Compartir pantalla',
     toolTipSecondMessage: 'Dejar de compartir pantalla',
     interaction: INTERACTION_TYPE_MENU_BAR.SHARESCREEN,

@@ -34,17 +34,17 @@ export function useHandleParticipants() {
 
     if (action === LOCK_ACTION_TYPE.All) {
       participantToModify.isMicBlocked = value;
-      participantToModify.isVideoBlocked = value;
+      participantToModify.isCameraBlocked = value;
       participantToModify.isScreenShareBlocked = value;
     } else {
       participantToModify.isMicBlocked =
         action === LOCK_ACTION_TYPE.Mic
           ? value
           : participantToModify.isMicBlocked;
-      participantToModify.isVideoBlocked =
+      participantToModify.isCameraBlocked =
         action === LOCK_ACTION_TYPE.Camera
           ? value
-          : participantToModify.isVideoBlocked;
+          : participantToModify.isCameraBlocked;
       participantToModify.isScreenShareBlocked =
         action === LOCK_ACTION_TYPE.Screen
           ? value
@@ -58,7 +58,7 @@ export function useHandleParticipants() {
         return {
           ...part,
           isMicBlocked: value,
-          isVideoBlocked: value,
+          isCameraBlocked: value,
           isScreenShareBlocked: value,
         };
       } else {
@@ -66,8 +66,8 @@ export function useHandleParticipants() {
           ...part,
           isMicBlocked:
             action === LOCK_ACTION_TYPE.Mic ? value : part.isMicBlocked,
-          isVideoBlocked:
-            action === LOCK_ACTION_TYPE.Camera ? value : part.isVideoBlocked,
+            isCameraBlocked:
+            action === LOCK_ACTION_TYPE.Camera ? value : part.isCameraBlocked,
           isScreenShareBlocked:
             action === LOCK_ACTION_TYPE.Screen
               ? value

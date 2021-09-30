@@ -66,6 +66,7 @@ interface ExternalVideoObject {
   urlContent?: string;
   remoteInstance?: VideoID | string | HTMLVideoElement;
   currentTime?: number;
+  fullScreenMode?: boolean;
 }
 
 interface ObjBlockParticipantAction {
@@ -202,10 +203,12 @@ export function useInitWebRTC() {
       });
       setTimeout(() => {
         remotePlayer.value = videojs(arg.videoInstance?.playerId as string);
-        remotePlayer.value.currentTime(arg.currentTime as number);
-        if (!arg.isPlayingVideo) {
-          remotePlayer.value.pause();
-        }
+        setTimeout(() => {
+          remotePlayer.value.currentTime(arg.currentTime as number);
+          if (!arg.isPlayingVideo) {
+            remotePlayer.value.pause();
+          }
+        }, 500);
       }, 1000);
     };
 

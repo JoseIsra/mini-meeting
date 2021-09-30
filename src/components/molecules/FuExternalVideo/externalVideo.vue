@@ -34,6 +34,7 @@ import { useUserMe } from '@/composables/userMe';
 export default defineComponent({
   name: 'FuExternalVideo',
   setup() {
+    const calculateCurrentSelectedTime = ref(0);
     const { sendData } = useInitWebRTC();
     const { userMe, updateUserMe } = useUserMe();
     const { externalVideo, setvideoOptions, setVideoInstance } =
@@ -68,7 +69,6 @@ export default defineComponent({
         videoPlayer.value,
         optionsForPlayer,
         function onPlayerReady() {
-          console.log('READY VIDEO USERME');
           showPlayButton.value = true;
           setvideoOptions(optionsForPlayer as videojs.PlayerOptions);
           setVideoInstance(videoPlayer.value);
@@ -81,22 +81,22 @@ export default defineComponent({
           player.value.on('pause', handlePause);
           player.value.on('play', handlePlaying);
           player.value.on('timeupdate', () => {
+            calculateCurrentSelectedTime.value =
+              player.value.duration() - player.value.remainingTime();
             updateUserMe({
               ...userMe,
               currentTime: player.value.currentTime(),
             });
           });
-          player.value.controlBar.on('mouseup', () => {
-            sendData(userMe.id, {
-              remoteInstance: videoPlayer.value,
-              currentTime: player.value.currentTime(),
-              eventType: 'UPDATE_VIDEOTIME',
-            });
-            console.log('Barra tocada');
-          });
 
-          player.value.controlBar.on('mousedown', () => {
-            console.log('MOUSEDOWN en la barra', player.value.currentTime());
+          player.value.controlBar.on('mouseup', () => {
+            setTimeout(() => {
+              sendData(userMe.id, {
+                remoteInstance: videoPlayer.value,
+                currentTime: calculateCurrentSelectedTime.value,
+                eventType: 'UPDATE_VIDEOTIME',
+              });
+            }, 500);
           });
         }
       );

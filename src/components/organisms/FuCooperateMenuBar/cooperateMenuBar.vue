@@ -204,8 +204,6 @@ export default defineComponent({
 
     const { roomState } = useRoom();
 
-    console.log(roomState);
-
     let openNetworkConfig = ref(false);
     const objectPeriferics = reactive<Periferics>({
       WEBCAM: () => toggleCamera(),

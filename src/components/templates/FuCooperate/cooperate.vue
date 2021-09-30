@@ -1,17 +1,23 @@
 <template>
   <div class="t-cooperate">
-    <fu-cooperate
-      :toggleLocalCamera="toggleLocalCamera"
-      :toggleLocalMic="toggleLocalMic"
-      :toggleDesktopCapture="toggleDesktopCapture"
-      v-if="existRoom"
-      @mounted="fuCooperateMountedHandler"
-    />
+    <div class="t-cooperate__page" v-if="existRoom">
+      <h2 v-if="roomState.privacy">Sala de espera</h2>
+
+      <fu-cooperate
+        v-else
+        :toggleLocalCamera="toggleLocalCamera"
+        :toggleLocalMic="toggleLocalMic"
+        :toggleDesktopCapture="toggleDesktopCapture"
+        @mounted="fuCooperateMountedHandler"
+      />
+    </div>
+
     <fu-t-loading
       v-if="isLoadingOrError"
       :loadingMessage="loadingOrErrorMessage"
       @handleLeaveCall="handleZoidLeaveCall"
     />
+
     <!-- TODO: Move This (Prev of recording) -->
     <video
       v-show="false"
@@ -67,12 +73,16 @@ export default defineComponent({
       setScreenState,
     } = useUserMe();
 
-    const { setRoom } = useRoom();
+    const { roomState, setRoom } = useRoom();
 
     const route = useRoute();
 
-    const { authState, setLoadingOrErrorMessage, setExistRoom } =
-      useAuthState();
+    const {
+      authState,
+      setLoadingOrErrorMessage,
+      setExistRoom,
+      setIsLoadingOrError,
+    } = useAuthState();
 
     //Datos del usuario
     const streamId =
@@ -95,6 +105,8 @@ export default defineComponent({
     // Estado inicial, cooperate actions blocked by default or allowed (?)
 
     const isMicLocked = window.xprops?.isMicLocked || false;
+
+    const privacy = (route.query.privacy as string) === '1' || false;
 
     if (isMicLocked) {
       setMicState(false);
@@ -150,6 +162,7 @@ export default defineComponent({
       id: roomId,
       sharingLink,
       classroomId,
+      privacy,
     });
 
     const publishToken =
@@ -261,6 +274,8 @@ export default defineComponent({
         const { status } = await checkRoom(roomId);
         if (status === 200) {
           setExistRoom(true);
+          // To review
+          setIsLoadingOrError(false);
         } else if (status === 404) {
           setLoadingOrErrorMessage('Cooperate not found');
         } else {
@@ -305,6 +320,7 @@ export default defineComponent({
       toggleDesktopCapture,
       handleZoidLeaveCall,
       ...toRefs(authState),
+      roomState,
     };
   },
 });

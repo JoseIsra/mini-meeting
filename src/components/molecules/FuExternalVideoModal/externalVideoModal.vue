@@ -50,7 +50,6 @@ export default defineComponent({
         };
         updateExternalVideoState({
           ...externalVideo,
-          isVideoPlaying: true,
           videoOnRoom: true,
           urlVideo: inputURL.value,
         });

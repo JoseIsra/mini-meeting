@@ -92,7 +92,7 @@ export default defineComponent({
       stopRecordingStream(mergedName.value);
       secondsElapsed.value = 0;
       window.xprops?.handleStopRecording?.(
-        `https://f002.backblazeb2.com/file/MainPublic/classroom/${roomState.classroomId}/cooperate/streams/${mergedName.value}.m3u8`
+        `https://f002.backblazeb2.com/file/MainPublic/classrooms/${roomState.classroomId}/cooperate/streams/${mergedName.value}.m3u8`
       );
       sendNotificationEvent('RECORDING_STOPPED', userMe.id);
     };

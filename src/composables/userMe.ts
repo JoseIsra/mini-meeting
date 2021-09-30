@@ -14,6 +14,7 @@ export interface User {
   isScreenShareBlocked: boolean;
   stream?: MediaStream;
   fractalUserId: string;
+  isRecording: boolean;
 }
 
 export interface UpdatedUserfields {
@@ -26,6 +27,7 @@ export interface UpdatedUserfields {
   isVideoActivated?: boolean;
   stream?: MediaStream;
   fractalUserId?: string;
+  isRecording?: boolean;
 }
 
 // blocked: some functionalities blocked (mic, screen, camera)

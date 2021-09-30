@@ -1,21 +1,20 @@
 import { ref } from 'vue';
 import { Participant } from '@/types';
 import { LOCK_ACTION_TYPE } from '@/utils/enums';
+import _ from 'lodash';
 
 const participants = ref<Participant[]>([]);
 
 export function useHandleParticipants() {
   const addParticipants = (value: Participant) => {
-    participants.value.push(value);
+    const newParticipants = _.cloneDeep(participants.value);
+    participants.value = [value, ...newParticipants];
   };
 
   const deleteParticipantById = (id: string) => {
-    const participantToDelete = participants.value.filter(
-      (participant) => participant.id === id
-    );
-    participants.value.splice(
-      participants.value.indexOf(participantToDelete[0]),
-      1
+    const newParticipants = _.cloneDeep(participants.value);
+    participants.value = newParticipants.filter(
+      (participant) => participant.id !== id
     );
   };
 

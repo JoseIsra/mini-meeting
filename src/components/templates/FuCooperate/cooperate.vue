@@ -144,6 +144,7 @@ export default defineComponent({
       isVideoBlocked: isCameraLocked,
       isScreenShareBlocked: isScreenShareLocked,
       fractalUserId,
+      isRecording: false,
     });
 
     setRoom({

@@ -550,6 +550,7 @@ export function useInitWebRTC() {
                   remoteUserInfoParsed.userInfo.isScreenShareBlocked;
                 user.fractalUserId =
                   remoteUserInfoParsed.userInfo.fractalUserId;
+                user.isRecording = remoteUserInfoParsed.userInfo.isRecording;
               }
             }
           } else if (eventType === 'USER_INFO_FINISH') {
@@ -582,6 +583,7 @@ export function useInitWebRTC() {
                   remoteUserInfoParsed.userInfo.isScreenShareBlocked;
                 user.fractalUserId =
                   remoteUserInfoParsed.userInfo.fractalUserId;
+                user.isRecording = remoteUserInfoParsed.userInfo.isRecording;
               }
             }
           } else if (eventType === 'KICK') {

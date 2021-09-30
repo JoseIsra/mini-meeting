@@ -62,7 +62,7 @@ export default defineComponent({
 
       isLoading.value = true;
       warningMessage('Iniciando grabación...');
-      mergedName.value = `m-r-${roomState.id}-${timestamp}`;
+      mergedName.value = `m-r-${roomState.classroomId}-${userMe.id}-${roomState.id}-${timestamp}`;
 
       sendNotificationEvent('RECORDING_STARTED', userMe.id);
       /* createMergeInstance(roomState.id, mergedName.value, mergedName.value)
@@ -92,7 +92,7 @@ export default defineComponent({
       stopRecordingStream(mergedName.value);
       secondsElapsed.value = 0;
       window.xprops?.handleStopRecording?.(
-        `https://f002.backblazeb2.com/file/antmedia/${mergedName.value}.m3u8`
+        `https://f002.backblazeb2.com/file/MainPublic/classrooms/${roomState.classroomId}/cooperate/streams/${mergedName.value}.m3u8`
       );
       sendNotificationEvent('RECORDING_STOPPED', userMe.id);
     };

@@ -21,7 +21,7 @@
 
       <q-btn
         v-if="
-          loadingMessage !==
+          loadingMessage ===
           'Error al publicar stream. Por favor, recarga la página'
         "
         label="Recargar"

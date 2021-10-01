@@ -65,13 +65,13 @@ export default defineComponent({
     const startRecording = () => {
       updateUserMe({ isRecording: true });
 
-      watchParticipants.value = watch(
+      /* watchParticipants.value = watch(
         () => participants.value,
         (actualParticipants, prevParticipants) => {
           refreshMerge(prevParticipants, actualParticipants);
         },
         { deep: true }
-      );
+      ); */
 
       const timestamp = new Date().getTime();
 
@@ -99,7 +99,7 @@ export default defineComponent({
     };
 
     const stopRecording = () => {
-      watchParticipants.value?.();
+      /* watchParticipants.value?.(); */
 
       warningMessage('Grabación terminada');
       isRecording.value = false;

@@ -83,7 +83,7 @@ export function useInitMerge() {
     setTimeout(() => {
       mergerInstance.value.start();
 
-      participants.value.forEach((participant) => {
+      /* participants.value.forEach((participant) => {
         mergerInstance.value.addStream(participant.stream, {
           Xindex: xindex,
           Yindex: yindex,
@@ -94,7 +94,7 @@ export function useInitMerge() {
           xindex.value = 0;
         }
         xindex.value++;
-      });
+      }); */
 
       const result = mergerInstance.value.getResult() as MediaStream;
 
@@ -150,7 +150,11 @@ export function useInitMerge() {
             joinRoomRecording(roomId, streamId);
           } else if (info == 'joinedTheRoom') {
             console.log(obj);
-            //mergeStreams(streamId, streamName);
+            mergeStreams(streamId, streamName);
+
+            window.addEventListener('unload', () => {
+              webRTCRecordingInstance.value.leaveFromRoom?.(roomId);
+            });
 
             obj.streams.forEach(function (item) {
               console.log(item);
@@ -185,12 +189,6 @@ export function useInitMerge() {
             }
 
             console.log(obj);
-          } else if (info == 'joinedTheRoom') {
-            window.addEventListener('unload', () => {
-              webRTCRecordingInstance.value.leaveFromRoom?.(roomId);
-            });
-
-            //mergeStreams(streamId, streamName);
           } else if (info == 'publish_started') {
             console.log(obj);
             resolve('SUCCESS');

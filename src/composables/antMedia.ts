@@ -815,6 +815,11 @@ export function useInitWebRTC() {
           setVideoActivatedState(false);
           webRTCInstance.value.turnOffLocalCamera?.(streamId);
           webRTCInstance.value.resetDesktop?.();
+        } else if (error.indexOf('AbortError') !== -1) {
+          setExistRoom(false);
+          setLoadingOrErrorMessage(
+            'Error desconocido. Por favor, verifique que sus dispositivos no estén siendo usados por otra aplicación'
+          );
         }
 
         console.log(errorMessage, '#️⃣');

@@ -105,9 +105,13 @@ export class StreamMerger implements StreamMergerType {
     videoElement.autoplay = true;
     videoElement.muted = true;
     videoElement.srcObject = mediaStream;
-    videoElement.setAttribute(
+    /* videoElement.setAttribute(
       'style',
       'position:fixed; left: 0px; top:0px; display: none pointer-events: none; opacity:0;'
+    ); */
+    videoElement.setAttribute(
+      'style',
+      'position:fixed; left: 0px; top:0px; pointer-events: none; opacity:0; z-index: -999'
     );
     document.body.appendChild(videoElement);
 

@@ -748,6 +748,10 @@ export function useInitWebRTC() {
           roomTimerId.value != null
         ) {
           clearInterval(roomTimerId.value as NodeJS.Timeout);
+          const errorMessage =
+            'Error al publicar stream. Por favor, recarga la página';
+          setLoadingOrErrorMessage(errorMessage);
+          setExistRoom(false);
         }
 
         console.log('error callback: ' + JSON.stringify(error));

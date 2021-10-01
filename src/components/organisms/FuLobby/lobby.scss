@@ -1,8 +1,14 @@
 .o-lobby {
   background: #36393f;
 
+  &__logo {
+    position: absolute;
+    top: 40px;
+    left: 40px;
+  }
+
   &__media {
-    flex: 3;
+    // flex: 3;
     // border: 1px solid blue;
 
     display: flex;
@@ -30,16 +36,23 @@
   }
 
   &__info {
-    flex: 2;
+    // flex: 2;
     border: 1px solid red;
 
     // margin-right: 50px;
     display: flex;
     justify-content: center;
 
+    margin-left: 50px;
+
     &__wrapper {
       padding: 12px;
       width: 400px;
+
+      display: flex;
+      flex-direction: column;
+
+      align-items: center;
     }
   }
 

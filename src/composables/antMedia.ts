@@ -9,6 +9,7 @@ import { Message, useHandleMessage } from '@/composables/chat';
 import { useToogleFunctions } from '@/composables';
 import { useRoom } from '@/composables/room';
 import { PERMISSION_STATUS } from '@/utils/enums';
+import { notifyWithAction } from '@/utils/notify';
 const webRTCInstance = ref<WebRTCAdaptor>({} as WebRTCAdaptor);
 
 const {
@@ -715,6 +716,9 @@ export function useInitWebRTC() {
               ) as ObjAskPermission;
 
               // Create notification on admin with participant name and add to participantWaitingList of room
+
+              notifyWithAction(participantName, participantId);
+
               newParticipantOnWait({
                 id: participantId,
                 name: participantName,

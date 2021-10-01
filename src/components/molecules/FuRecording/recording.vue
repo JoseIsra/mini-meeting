@@ -27,13 +27,13 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, watch } from 'vue';
+import { defineComponent, ref } from 'vue';
 import { useInitMerge } from '@/composables/antMediaMerge';
 import { useInitWebRTC } from '@/composables/antMedia';
 import { useUserMe } from '@/composables/userMe';
 import { useRoom } from '@/composables/room';
 import { warningMessage, successMessage } from '@/utils/notify';
-import { useHandleParticipants } from '@/composables/participants';
+/* import { useHandleParticipants } from '@/composables/participants'; */
 
 export default defineComponent({
   name: 'FuMRecording',
@@ -42,15 +42,14 @@ export default defineComponent({
     const recordTime = ref('00:00:00');
     const secondsElapsed = ref(0);
     const isRecording = ref<boolean>(false);
-    const { recordingStream, stopRecordingStream, refreshMerge } =
-      useInitMerge();
+    const { recordingStream, stopRecordingStream } = useInitMerge();
     const { sendNotificationEvent } = useInitWebRTC();
-    const { participants } = useHandleParticipants();
+    /* const { participants } = useHandleParticipants(); */
     const { userMe, updateUserMe } = useUserMe();
     const { roomState } = useRoom();
     const isLoading = ref(false);
 
-    const watchParticipants = ref<() => void>();
+    /* const watchParticipants = ref<() => void>(); */
 
     const mergedName = ref('');
 
@@ -65,13 +64,13 @@ export default defineComponent({
     const startRecording = () => {
       updateUserMe({ isRecording: true });
 
-      watchParticipants.value = watch(
+      /* watchParticipants.value = watch(
         () => participants.value,
         (actualParticipants, prevParticipants) => {
           refreshMerge(prevParticipants, actualParticipants);
         },
         { deep: true }
-      );
+      ); */
 
       const timestamp = new Date().getTime();
 
@@ -80,13 +79,6 @@ export default defineComponent({
       mergedName.value = `m-r-${roomState.classroomId}-${userMe.id}-${roomState.id}-${timestamp}`;
 
       sendNotificationEvent('RECORDING_STARTED', userMe.id);
-      /* createMergeInstance(roomState.id, mergedName.value, mergedName.value)
-        .then(() => {
-          isLoading.value = false;
-          interval.value = setInterval(oneSecondElapsed, 1000);
-          isRecording.value = true;
-        })
-        .catch((e) => console.log(e)); */
 
       recordingStream(mergedName.value, mergedName.value, roomState.id)
         .then(() => {
@@ -99,7 +91,7 @@ export default defineComponent({
     };
 
     const stopRecording = () => {
-      watchParticipants.value?.();
+      /* watchParticipants.value?.(); */
 
       warningMessage('Grabación terminada');
       isRecording.value = false;

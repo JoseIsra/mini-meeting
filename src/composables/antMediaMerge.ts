@@ -79,22 +79,9 @@ export function useInitMerge() {
 
   const mergeStreams = (streamId: string, streamName: string) => {
     const delayInMilliseconds = 3500;
-    /* let xindex = 0;
-    let yindex = 0; */
 
     setTimeout(() => {
       mergerInstance.value.start();
-
-      /* mergerInstance.value.addStream(userMe.stream, {
-        Xindex: xindex,
-        Yindex: yindex,
-        streamId: userMe.id,
-      });
-      if (xindex.value == 3) {
-        yindex.value++;
-        xindex.value = 0;
-      }
-      xindex.value++; */
 
       participants.value.forEach((participant) => {
         mergerInstance.value.addStream(participant.stream, {
@@ -118,7 +105,6 @@ export function useInitMerge() {
   };
 
   const stopRecordingStream = (streamId: string) => {
-    //webRTCRecordingInstance.value.leaveFromRoom(streamId);
     webRTCRecordingInstance.value.stop(streamId);
     mergerInstance.value.stop();
   };
@@ -132,10 +118,6 @@ export function useInitMerge() {
       const websocketURL = `wss://${process.env.ANTMEDIA_SERVER}/${process.env.ANTMEDIA_APP}/websocket`;
 
       mergerInstance.value = new StreamMerger(1280, 720, true, '16:9');
-
-      /* let oldId = '';
-    let xindex = 0;
-    let yindex = 0; */
 
       const mediaConstraints = {
         video: true,
@@ -164,13 +146,11 @@ export function useInitMerge() {
         debug: false,
         dataChannelEnabled: true,
         callback: (info: string, obj: objWebRTC) => {
-          /* console.log(info, obj); */
-
           if (info == 'initialized') {
             joinRoomRecording(roomId, streamId);
           } else if (info == 'joinedTheRoom') {
             console.log(obj);
-            mergeStreams(streamId, streamName);
+            //mergeStreams(streamId, streamName);
 
             obj.streams.forEach(function (item) {
               console.log(item);
@@ -186,7 +166,6 @@ export function useInitMerge() {
                 );
             });
           } else if (info == 'newStreamAvailable') {
-            //mergeStreams(streamId, streamName);
             console.log('new stream available 🅿️🅿️🅿️');
 
             if (!existMyOwnStream.value && userMe.id === obj.streamId) {
@@ -208,19 +187,13 @@ export function useInitMerge() {
             console.log(obj);
           } else if (info == 'joinedTheRoom') {
             window.addEventListener('unload', () => {
-              //leaveRoom(roomId);
               webRTCRecordingInstance.value.leaveFromRoom?.(roomId);
             });
-            /* console.log('joined', obj); */
 
-            mergeStreams(streamId, streamName);
+            //mergeStreams(streamId, streamName);
           } else if (info == 'publish_started') {
-            /* console.log(obj);
-            const { eventType } = JSON.parse(obj.data) as objMessage;
-            if (eventType === 'USER_INFO_REQUEST') { */
             console.log(obj);
             resolve('SUCCESS');
-            /* } */
           }
         },
         callbackError: (error: string, message: string) => {
@@ -232,7 +205,6 @@ export function useInitMerge() {
     });
 
   return {
-    mergeStreams,
     stopRecordingStream,
     recordingStream,
     refreshMerge,

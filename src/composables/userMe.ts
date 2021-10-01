@@ -14,6 +14,11 @@ export interface User {
   isScreenShareBlocked: boolean;
   stream?: MediaStream;
   fractalUserId: string;
+  existVideo?: boolean;
+  urlOfVideo?: string;
+  videoInstance?: HTMLMediaElement & { playerId: string };
+  currentTime?: number;
+  isPlayingVideo?: boolean;
   isRecording: boolean;
 }
 
@@ -27,6 +32,11 @@ export interface UpdatedUserfields {
   isVideoActivated?: boolean;
   stream?: MediaStream;
   fractalUserId?: string;
+  existVideo?: boolean;
+  urlOfVideo?: string;
+  videoInstance?: HTMLMediaElement & { playerId: string };
+  currentTime?: number;
+  isPlayingVideo?: boolean;
   isRecording?: boolean;
 }
 

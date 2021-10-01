@@ -8,6 +8,8 @@ import { useHandleParticipants } from '@/composables/participants';
 import { Message, useHandleMessage } from '@/composables/chat';
 import { useToogleFunctions } from '@/composables';
 import { useRoom } from '@/composables/room';
+import { useExternalVideo } from './external-video';
+import videojs from 'video.js';
 import { useActions } from '@/composables/actions';
 
 const webRTCInstance = ref<WebRTCAdaptor>({} as WebRTCAdaptor);
@@ -35,11 +37,14 @@ const {
 const { deleteParticipantById, participants, addParticipants } =
   useHandleParticipants();
 const { setUserMessage, deleteLoadingMessage } = useHandleMessage();
-const { addHandNotificationInfo, removeHandNotification } =
+const { addHandNotificationInfo, removeHandNotification, setFullScreen } =
   useToogleFunctions();
 
 const roomTimerId = ref<ReturnType<typeof setInterval> | null>(null);
 const isDataChannelOpen = ref(false);
+const { updateExternalVideoState, videoPlayerTest, externalVideo } =
+  useExternalVideo();
+const remotePlayer = ref<videojs.Player>({} as videojs.Player);
 interface ObjInfoRequested {
   to: string;
   from: string;
@@ -59,6 +64,16 @@ interface ObjRemoteUserInfo extends ObjInfoRequested {
 interface ObjKickedEvent {
   eventType: string;
   to: string;
+}
+interface VideoID {
+  playerId: string;
+}
+interface ExternalVideoObject {
+  eventType?: string;
+  urlContent?: string;
+  remoteInstance?: VideoID | string | HTMLVideoElement;
+  currentTime?: number;
+  fullScreenMode?: boolean;
 }
 
 interface ObjBlockParticipantAction {
@@ -175,6 +190,38 @@ export function useInitWebRTC() {
     const sdpConstraints = {
       OfferToReceiveAudio: false,
       OfferToReceiveVideo: false,
+    };
+
+    const playExternalVideo = (arg: ExternalVideoObject) => {
+      remotePlayer.value = videojs((arg.remoteInstance as VideoID).playerId);
+      void remotePlayer.value.play();
+    };
+
+    const pauseExternalVideo = (arg: ExternalVideoObject) => {
+      remotePlayer.value = videojs((arg.remoteInstance as VideoID).playerId);
+      void remotePlayer.value.pause();
+    };
+    const updateVideoTime = (arg: ExternalVideoObject) => {
+      remotePlayer.value = videojs((arg.remoteInstance as VideoID).playerId);
+      //actualizar el video
+      void remotePlayer.value.currentTime(arg.currentTime as number);
+    };
+
+    const initRemotePlayerInstance = (arg: User) => {
+      setFullScreen('video');
+      updateExternalVideoState({
+        ...externalVideo,
+        urlVideo: arg.urlOfVideo,
+      });
+      setTimeout(() => {
+        remotePlayer.value = videojs(arg.videoInstance?.playerId as string);
+        setTimeout(() => {
+          remotePlayer.value.currentTime(arg.currentTime as number);
+          if (!arg.isPlayingVideo) {
+            remotePlayer.value.pause();
+          }
+        }, 500);
+      }, 1000);
     };
 
     webRTCInstance.value = new WebRTCAdaptor({
@@ -368,7 +415,6 @@ export function useInitWebRTC() {
           /* streamsList.value = obj.streams; */
         } else if (info == 'data_channel_opened') {
           console.info('Data Channel open for stream id 🃏🃏🃏', obj);
-
           //Mandar petición de data de usuario a todos los usuarios con el que se abre un canal de comunicación
 
           const user = obj as unknown as string;
@@ -575,7 +621,6 @@ export function useInitWebRTC() {
             //Recieving info from another user if is for me
             if (remoteUserInfoParsed.to === userMe.id) {
               console.log('I am receiving info from another user', objParsed);
-
               const user = participants.value.find(
                 (participant) =>
                   participant.id === remoteUserInfoParsed.userInfo.id
@@ -600,6 +645,9 @@ export function useInitWebRTC() {
                 user.fractalUserId =
                   remoteUserInfoParsed.userInfo.fractalUserId;
                 user.isRecording = remoteUserInfoParsed.userInfo.isRecording;
+                if (remoteUserInfoParsed.userInfo.existVideo) {
+                  initRemotePlayerInstance(remoteUserInfoParsed.userInfo);
+                }
               }
             }
           } else if (eventType === 'KICK') {
@@ -734,6 +782,34 @@ export function useInitWebRTC() {
                 sendNotificationEvent('SCREEN_SHARING_OFF', userMe.id);
               }
             }
+
+            // setUserActions(lockData.action, lockData.value);
+          } else if (eventType === 'SHARE_EXTERNAL_VIDEO') {
+            const externalVideoObject = JSON.parse(
+              obj.data
+            ) as ExternalVideoObject;
+            setFullScreen('video');
+            updateExternalVideoState({
+              urlVideo: externalVideoObject.urlContent,
+            });
+            setTimeout(() => {
+              remotePlayer.value = videojs(videoPlayerTest.playerId);
+            }, 2000);
+          } else if (eventType == 'PLAYING_VIDEO') {
+            const externalVideoInfo = JSON.parse(
+              obj.data
+            ) as ExternalVideoObject;
+            playExternalVideo(externalVideoInfo);
+          } else if (eventType == 'PAUSE_VIDEO') {
+            const externalVideoInfo = JSON.parse(
+              obj.data
+            ) as ExternalVideoObject;
+            pauseExternalVideo(externalVideoInfo);
+          } else if (eventType === 'UPDATE_VIDEOTIME') {
+            const externalVideoInfo = JSON.parse(
+              obj.data
+            ) as ExternalVideoObject;
+            updateVideoTime(externalVideoInfo);
           }
         }
       },
@@ -845,7 +921,7 @@ export function useInitWebRTC() {
     webRTCInstance.value.switchDesktopCapture?.(streamId);
   };
 
-  //TODO: Get the device id in the websocket as it works in player.html
+  //TODO: Get the device id in the websocket as it works in remotePlayer.html
   const switchVideoCameraCapture = (streamId: string) => {
     let cameraId: string;
     navigator.mediaDevices

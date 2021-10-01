@@ -19,6 +19,11 @@ export interface Participant {
   isCameraBlocked?: boolean;
   isScreenShareBlocked?: boolean;
   fractalUserId?: string;
+  existVideo?: boolean;
+  urlOfVideo?: string;
+  videoInstance?: HTMLMediaElement & { playerId: string };
+  currentTime?: number;
+  isPlayingVideo?: boolean;
   isRecording?: boolean;
 }
 

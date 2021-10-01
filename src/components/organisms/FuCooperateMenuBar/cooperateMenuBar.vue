@@ -129,6 +129,7 @@
           flat
           :ripple="false"
           v-for="icon in options"
+          v-show="icon.id == '1' ? canSeeActionsMenu : true"
           :key="icon.id"
           :icon="icon.onState"
           class="a-menuBar__icon"
@@ -247,6 +248,7 @@ export default defineComponent({
     } = useUserMe();
 
     let handNotificationActive = ref(false);
+    const canSeeActionsMenu = ref(userMe.roleId === 0 || userMe.roleId === 2);
 
     //**********************++FUNCIONES ********************** */
     const toogleChat = () => {
@@ -439,6 +441,7 @@ export default defineComponent({
       handleEspecialBehaviour,
       handNotificationActive,
       openResponsiveMenuOfFunctions,
+      canSeeActionsMenu,
     };
   },
 });

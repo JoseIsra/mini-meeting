@@ -130,6 +130,7 @@ export default defineComponent({
       isCameraBlocked: roleId === 1 ? isCameraLocked : false,
       isScreenShareBlocked: roleId === 1 ? isScreenShareLocked : false,
       fractalUserId,
+      existVideo: false,
       isRecording: false,
     });
 

@@ -1,6 +1,7 @@
 <template>
   <section class="m-full">
     <fu-full-screen-user v-if="fullScreenMode === 'user'" />
+    <fu-external-video v-if="fullScreenMode === 'video'" />
   </section>
 </template>
 
@@ -8,10 +9,11 @@
 import { defineComponent } from 'vue';
 import FuFullScreenUser from 'molecules/FuFullScreenUser';
 import { useToogleFunctions } from '@/composables';
+import FuExternalVideo from 'molecules/FuExternalVideo';
 
 export default defineComponent({
   name: 'FuFullScreen',
-  components: { FuFullScreenUser },
+  components: { FuFullScreenUser, FuExternalVideo },
   setup() {
     const { fullScreenMode } = useToogleFunctions();
     return {

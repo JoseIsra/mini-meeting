@@ -112,7 +112,7 @@
             >x</q-badge
           >
         </q-btn>
-        
+
         <fu-cooperate-menu
           v-show="functionsOnMenuBar.renderResponsiveFunctionMenu"
           :objectFunctionalities="objectFunctionalities"
@@ -167,11 +167,6 @@
 
 <script lang="ts">
 import { defineComponent, ref, reactive } from 'vue';
-import {
-  iconsPeriferics,
-  iconsFunctions,
-  iconsOptions,
-} from '@/helpers/iconsMenuBar';
 import FuCooperateMenu from 'molecules/FuCooperateMenu';
 import { Icons, Periferics, Functionalities } from '@/types';
 
@@ -182,6 +177,8 @@ import FuCooperateNetworkInfo from 'molecules/FuCooperateNetworkInfo';
 
 import { useInitWebRTC } from '@/composables/antMedia';
 import { useScreen } from '@/composables/screen';
+import { useActions } from '@/composables/actions';
+import { useRoom } from '@/composables/room';
 
 export default defineComponent({
   name: 'FuCooperateMenuBar',
@@ -202,9 +199,11 @@ export default defineComponent({
   },
   setup(props) {
     const { sendData } = useInitWebRTC();
-    const periferics = ref<Icons[]>(iconsPeriferics);
-    const functions = ref<Icons[]>(iconsFunctions);
-    const options = ref<Icons[]>(iconsOptions);
+
+    const { periferics, functions, options } = useActions();
+
+    const { roomState } = useRoom();
+
     let openNetworkConfig = ref(false);
     const objectPeriferics = reactive<Periferics>({
       WEBCAM: () => toggleCamera(),
@@ -236,7 +235,9 @@ export default defineComponent({
       openOptionsMenu,
       openFunctionResponsiveMenu,
     } = useToogleFunctions();
+
     let { isSidebarRender, setSidebarState } = useSidebarToogle();
+
     const {
       userMe,
       setCameraState,
@@ -244,6 +245,7 @@ export default defineComponent({
       setScreenState,
       setVideoActivatedState,
     } = useUserMe();
+
     let handNotificationActive = ref(false);
 
     //**********************++FUNCIONES ********************** */
@@ -309,7 +311,6 @@ export default defineComponent({
 
     const toggleMIC = () => {
       props.toggleLocalMic?.();
-      //userMe.isMicOn = !userMe.isMicOn;
       setMicState(!userMe.isMicOn);
     };
 
@@ -388,7 +389,7 @@ export default defineComponent({
     };
 
     const disableAction = (action: Icons) => {
-      if (action.onState === 'mic' && userMe.isMicBlocked) {
+      if (action.onState === 'mic' && roomState.isMicBlocked) {
         return true;
       }
 
@@ -400,11 +401,11 @@ export default defineComponent({
         return true;
       }
 
-      if (action.onState === 'videocam' && userMe.isVideoBlocked) {
+      if (action.onState === 'videocam' && roomState.isCameraBlocked) {
         return true;
       }
 
-      if (action.onState === 'monitor' && userMe.isScreenShareBlocked) {
+      if (action.onState === 'monitor' && roomState.isScreenShareBlocked) {
         return true;
       }
 

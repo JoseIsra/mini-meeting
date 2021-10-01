@@ -1,13 +1,15 @@
 import { ref } from 'vue';
 import { WebRTCAdaptor } from '@/utils/webrtc/webrtc_adaptor';
 import { useUserMe } from '@/composables/userMe';
-import { objWebRTC } from '@/types/index';
+import { objWebRTC, Participant } from '@/types/index';
 import { StreamMerger } from '@/utils/webrtc/stream_merger';
 import { useHandleParticipants } from '@/composables/participants';
 
 const { participants } = useHandleParticipants();
 
 const { userMe } = useUserMe();
+
+const existMyOwnStream = ref<boolean>(false);
 
 const webRTCRecordingInstance = ref<WebRTCAdaptor>({} as WebRTCAdaptor);
 const mergerInstance = ref<StreamMerger>({} as StreamMerger);
@@ -23,7 +25,6 @@ export function useInitMerge() {
     subscriberCode?: string,
     streamName?: string
   ) => {
-    streamId = streamId;
     webRTCRecordingInstance.value.publish?.(
       streamId,
       token,
@@ -37,6 +38,45 @@ export function useInitMerge() {
     webRTCRecordingInstance.value.joinRoom?.(roomId, streamId, 'legacy');
   };
 
+  const refreshMerge = (
+    prevParticipants: Participant[],
+    actualParticipants: Participant[]
+  ) => {
+    const actualIds: string[] = [];
+    const prevIds: string[] = [];
+    for (let i = 0; i < prevParticipants.length; i++) {
+      prevIds.push(prevParticipants[i].id as string);
+    }
+    for (let i = 0; i < actualParticipants.length; i++) {
+      actualIds.push(actualParticipants[i].id as string);
+    }
+    for (let i = 0; i < prevIds.length; i++) {
+      const isInTheRoom = actualIds.includes(prevIds[i]);
+      if (!isInTheRoom) {
+        mergerInstance.value.removeStream(prevIds[i]);
+      }
+      //console.log(isInTheRoom, prevIds[i]);
+    }
+    for (let i = 0; i < actualIds.length; i++) {
+      const isNewInTheRoom = !prevIds.includes(actualIds[i]);
+      const newStream = actualParticipants.filter(
+        (participant) => participant.id === actualIds[i]
+      )[0].stream;
+      if (isNewInTheRoom) {
+        mergerInstance.value.addStream(newStream, {
+          Xindex: xindex,
+          Yindex: yindex,
+          streamId: actualIds[i],
+        });
+        if (xindex.value == 3) {
+          yindex.value++;
+          xindex.value = 0;
+        }
+        xindex.value++;
+      }
+    }
+  };
+
   const mergeStreams = (streamId: string, streamName: string) => {
     const delayInMilliseconds = 3500;
     /* let xindex = 0;
@@ -45,7 +85,7 @@ export function useInitMerge() {
     setTimeout(() => {
       mergerInstance.value.start();
 
-      mergerInstance.value.addStream(userMe.stream, {
+      /* mergerInstance.value.addStream(userMe.stream, {
         Xindex: xindex,
         Yindex: yindex,
         streamId: userMe.id,
@@ -54,7 +94,7 @@ export function useInitMerge() {
         yindex.value++;
         xindex.value = 0;
       }
-      xindex.value++;
+      xindex.value++; */
 
       participants.value.forEach((participant) => {
         mergerInstance.value.addStream(participant.stream, {
@@ -98,8 +138,8 @@ export function useInitMerge() {
     let yindex = 0; */
 
       const mediaConstraints = {
-        video: false,
-        audio: false,
+        video: true,
+        audio: true,
       };
 
       const pc_config = {
@@ -129,9 +169,43 @@ export function useInitMerge() {
           if (info == 'initialized') {
             joinRoomRecording(roomId, streamId);
           } else if (info == 'joinedTheRoom') {
+            console.log(obj);
             mergeStreams(streamId, streamName);
+
+            obj.streams.forEach(function (item) {
+              console.log(item);
+
+              if (userMe.id === item)
+                webRTCRecordingInstance.value.play?.(
+                  item,
+                  '',
+                  roomId,
+                  undefined,
+                  undefined,
+                  undefined
+                );
+            });
           } else if (info == 'newStreamAvailable') {
             //mergeStreams(streamId, streamName);
+            console.log('new stream available 🅿️🅿️🅿️');
+
+            if (!existMyOwnStream.value && userMe.id === obj.streamId) {
+              obj.stream;
+              mergerInstance.value.addStream(obj.stream, {
+                Xindex: xindex,
+                Yindex: yindex,
+                streamId: obj.streamId,
+              });
+              if (xindex.value == 3) {
+                yindex.value++;
+                xindex.value = 0;
+              }
+              xindex.value++;
+
+              existMyOwnStream.value = true;
+            }
+
+            console.log(obj);
           } else if (info == 'joinedTheRoom') {
             window.addEventListener('unload', () => {
               //leaveRoom(roomId);
@@ -150,7 +224,7 @@ export function useInitMerge() {
           }
         },
         callbackError: (error: string, message: string) => {
-          /* console.log(error, message); */
+          console.log(error, message);
           const errorMessage = message;
           reject(errorMessage);
         },
@@ -161,5 +235,6 @@ export function useInitMerge() {
     mergeStreams,
     stopRecordingStream,
     recordingStream,
+    refreshMerge,
   };
 }

@@ -1481,7 +1481,7 @@ export class WebRTCAdaptor {
       this.iceCandidateList[streamId] = new Array();
       if (!this.playStreamId.includes(streamId)) {
         if (this.localStream != null) {
-          this.remotePeerConnection[streamId].addStream(this.localStream);
+          this.remotePeerConnection[streamId].addStream(this.localStream);          
         }
       }
       this.remotePeerConnection[streamId].onicecandidate = (event) => {

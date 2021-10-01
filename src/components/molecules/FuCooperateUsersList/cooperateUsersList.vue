@@ -13,7 +13,7 @@
         </span>
 
         <q-btn
-          :icon="isEveryoneMicBlocked ? 'mic' : 'mic_off'"
+          :icon="isEveryoneMicBlocked ? 'mic_off' : 'mic'"
           @click="handleEveryoneActions(LOCK_ACTION_TYPE.Mic)"
           size="8px"
         >
@@ -34,7 +34,7 @@
         </q-btn>
 
         <q-btn
-          :icon="isEveryoneVideoBlocked ? 'videocam' : 'videocam_off'"
+          :icon="isEveryoneVideoBlocked ? 'videocam_off' : 'videocam'"
           @click="handleEveryoneActions(LOCK_ACTION_TYPE.Camera)"
           size="8px"
         >
@@ -57,8 +57,8 @@
         <q-btn
           :icon="
             isEveryoneScreenShareBlocked
-              ? 'desktop_windows'
-              : 'desktop_access_disabled'
+              ? 'desktop_access_disabled'
+              : 'desktop_windows'
           "
           @click="handleEveryoneActions(LOCK_ACTION_TYPE.Screen)"
           size="8px"
@@ -80,7 +80,7 @@
         </q-btn>
 
         <q-btn
-          :icon="isEveryoneActionsBlocked ? 'fas fa-lock-open' : 'fas fa-lock'"
+          :icon="isEveryoneActionsBlocked ? 'fas fa-lock' : 'fas fa-lock-open'"
           @click="handleEveryoneActions(LOCK_ACTION_TYPE.All)"
           size="10px"
           :disable="!participants.length > 0"
@@ -178,7 +178,7 @@
           </q-btn> -->
 
           <q-btn
-            :icon="isMicBlocked(participant) ? 'mic' : 'mic_off'"
+            :icon="isMicBlocked(participant) ? 'mic_off' : 'mic'"
             @click="handleParticipantActions(participant, LOCK_ACTION_TYPE.Mic)"
           >
             <q-tooltip
@@ -198,7 +198,7 @@
           </q-btn>
 
           <q-btn
-            :icon="isVideoBlocked(participant) ? 'videocam' : 'videocam_off'"
+            :icon="isVideoBlocked(participant) ? 'videocam_off' : 'videocam'"
             @click="
               handleParticipantActions(participant, LOCK_ACTION_TYPE.Camera)
             "
@@ -222,8 +222,8 @@
           <q-btn
             :icon="
               isScreenShareBlocked(participant)
-                ? 'desktop_windows'
-                : 'desktop_access_disabled'
+                ? 'desktop_access_disabled'
+                : 'desktop_windows'
             "
             @click="
               handleParticipantActions(participant, LOCK_ACTION_TYPE.Screen)
@@ -281,7 +281,7 @@ export default defineComponent({
     const isEveryoneVideoBlocked = computed(
       () =>
         !participants.value.some(
-          (participant) => participant?.isVideoBlocked === false
+          (participant) => participant?.isCameraBlocked === false
         )
     );
 
@@ -306,7 +306,7 @@ export default defineComponent({
 
       return (
         participantActions?.isMicBlocked === true &&
-        participantActions?.isVideoBlocked === true &&
+        participantActions?.isCameraBlocked === true &&
         participantActions?.isScreenShareBlocked === true
       );
     };
@@ -317,7 +317,7 @@ export default defineComponent({
 
     const isVideoBlocked = (participant: Participant) =>
       participants.value.find((part) => part.id === participant.id)
-        ?.isVideoBlocked === true;
+        ?.isCameraBlocked === true;
 
     const isScreenShareBlocked = (participant: Participant) =>
       participants.value.find((part) => part.id === participant.id)

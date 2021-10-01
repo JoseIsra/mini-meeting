@@ -32,10 +32,9 @@ import { useUserMe } from '@/composables/userMe';
 import FuTLoading from 'organisms/FuLoading';
 import { REASON_TO_LEAVE_ROOM } from '@/utils/enums';
 import { useInitWebRTC } from '@/composables/antMedia';
-
 import { useAuthState } from '@/composables/auth';
-
 import { useRoom } from '@/composables/room';
+import { useActions } from '@/composables/actions';
 
 export default defineComponent({
   name: 'FuTCooperate',
@@ -62,9 +61,9 @@ export default defineComponent({
       userMe,
       setUserMe,
       setVideoActivatedState,
-      setMicState,
-      setCameraState,
-      setScreenState,
+      // setMicState,
+      // setCameraState,
+      // setScreenState,
     } = useUserMe();
 
     const { setRoom } = useRoom();
@@ -73,6 +72,9 @@ export default defineComponent({
 
     const { authState, setLoadingOrErrorMessage, setExistRoom } =
       useAuthState();
+
+    const { setMicIconState, setCameraIconState, setScreenShareIconState } =
+      useActions();
 
     //Datos del usuario
     const streamId =
@@ -92,36 +94,20 @@ export default defineComponent({
     const classroomId =
       window?.xprops?.classroomId || (route.query.classroomId as string) || '1';
 
-    // Estado inicial, cooperate actions blocked by default or allowed (?)
+    const roleId =
+      window.xprops?.roleId || parseInt(route.query.roleId as string) || 0;
 
-    const isMicLocked = window.xprops?.isMicLocked || false;
-
-    if (isMicLocked) {
-      setMicState(false);
-      muteLocalMic();
-      sendNotificationEvent('MIC_MUTED', userMe.id);
-    }
+    const isMicLocked =
+      window.xprops?.isMicLocked ||
+      (route.query.mic as string) === '1' ||
+      false;
 
     const isCameraLocked = window.xprops?.isCameraLocked || false;
 
-    if (isCameraLocked) {
-      setCameraState(false);
-      setVideoActivatedState(false);
-      turnOffLocalCamera(userMe.id);
-      sendNotificationEvent('CAM_TURNED_OFF', userMe.id);
-    }
-
-    const isScreenShareLocked = window.xprops?.isScreenShareLocked || false;
-
-    if (isScreenShareLocked) {
-      setScreenState(false);
-      setVideoActivatedState(false);
-      resetDesktop();
-      sendNotificationEvent('SCREEN_SHARING_OFF', userMe.id);
-    }
-
-    const roleId =
-      window.xprops?.roleId || parseInt(route.query.roleId as string) || 0;
+    const isScreenShareLocked =
+      window.xprops?.isScreenShareLocked ||
+      (route.query.screen as string) === '1' ||
+      false;
 
     const sharingLink =
       window?.xprops?.sharedLink || (route.query.sharedLink as string) || '';
@@ -135,38 +121,73 @@ export default defineComponent({
       id: streamId,
       name: streamName,
       avatar,
+      roleId: roleId,
+      isMicOn: !isMicLocked,
       isCameraOn: false,
-      isMicOn: true,
       isScreenSharing: false,
       isVideoActivated: false,
-      roleId: roleId,
-      isMicBlocked: isMicLocked,
-      isVideoBlocked: isCameraLocked,
-      isScreenShareBlocked: isScreenShareLocked,
+      isMicBlocked: roleId === 1 ? isMicLocked : false,
+      isCameraBlocked: roleId === 1 ? isCameraLocked : false,
+      isScreenShareBlocked: roleId === 1 ? isScreenShareLocked : false,
       fractalUserId,
       isRecording: false,
     });
+
+    setMicIconState(!isMicLocked);
+    // setCameraIconState(!isCameraLocked);
+    // setScreenShareIconState(!isScreenShareLocked);
 
     setRoom({
       id: roomId,
       sharingLink,
       classroomId,
+      isMicBlocked: roleId === 1 ? isMicLocked : false,
+      isCameraBlocked: roleId === 1 ? isCameraLocked : false,
+      isScreenShareBlocked: roleId === 1 ? isScreenShareLocked : false,
     });
+
+    if (isMicLocked) {
+      sendNotificationEvent('MIC_MUTED', streamId);
+      // if (roleId === 1) {
+      //   setMicState(!isMicLocked);
+      // }
+    }
+
+    if (isCameraLocked) {
+      setVideoActivatedState(!isCameraLocked);
+      sendNotificationEvent('CAM_TURNED_OFF', userMe.id);
+
+      // if (roleId === 1) {
+      //   setCameraState(!isCameraLocked);
+      // }
+    }
+
+    if (isScreenShareLocked) {
+      setVideoActivatedState(!isScreenShareLocked);
+      sendNotificationEvent('SCREEN_SHARING_OFF', userMe.id);
+
+      // if (roleId === 1) {
+      //   setScreenState(!isScreenShareLocked);
+      // }
+    }
 
     const publishToken =
       window?.xprops?.publishToken ||
       (route.query.publishToken as string) ||
       '';
+
     const playToken =
       window?.xprops?.playToken || (route.query.playToken as string) || '';
+
     const subscriberId = (route.query.subscriberId as string) || undefined;
+
     const subscriberCode = (route.query.subscriberCode as string) || undefined;
 
     //const currentVolume = ref(0.5);
 
     const toggleDesktopCapture = () => {
       if (userMe.isScreenSharing) {
-        console.log('DESACTIVAO');
+        setScreenShareIconState(false);
         resetDesktop();
         sendNotificationEvent('SCREEN_SHARING_OFF', streamId);
       }
@@ -174,6 +195,7 @@ export default defineComponent({
         turnOffLocalCamera(streamId);
         switchDesktopCaptureWithCamera(streamId);
       } else if (!userMe.isCameraOn && !userMe.isScreenSharing) {
+        setScreenShareIconState(true);
         switchDesktopCapture(streamId);
         setVideoActivatedState(true);
         sendNotificationEvent('SCREEN_SHARING_ON', streamId);
@@ -193,6 +215,7 @@ export default defineComponent({
         if (userMe.isScreenSharing) {
           switchDesktopCapture(streamId);
         } else {
+          setCameraIconState(false);
           turnOffLocalCamera(streamId);
           sendNotificationEvent('CAM_TURNED_OFF', streamId);
         }
@@ -202,15 +225,19 @@ export default defineComponent({
         } else {
           turnOnLocalCamera(streamId);
         }
+
+        setCameraIconState(true);
         sendNotificationEvent('CAM_TURNED_ON', streamId);
       }
     };
 
     const toggleLocalMic = () => {
       if (!userMe.isMicOn) {
+        setMicIconState(true);
         unmuteLocalMic();
         sendNotificationEvent('MIC_UNMUTED', streamId);
       } else {
+        setMicIconState(false);
         muteLocalMic();
         sendNotificationEvent('MIC_MUTED', streamId);
       }

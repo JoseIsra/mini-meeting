@@ -62,7 +62,7 @@ export default defineComponent({
       setUserMe,
       setVideoActivatedState,
       // setMicState,
-      // setCameraState,
+      setCameraState,
       // setScreenState,
     } = useUserMe();
 
@@ -117,15 +117,30 @@ export default defineComponent({
       (route.query.fractalUserId as string) ||
       '';
 
+    const isCameraOn =
+      window?.xprops?.isCameraOn ||
+      (route.query.isCameraOn as string) === 'camera' ||
+      false;
+
+    const isMicOn =
+      window?.xprops?.isMicOn ||
+      (route.query.isMicOn as string) == 'micro' ||
+      false;
+
+    if (isCameraOn) {
+      setVideoActivatedState(true);
+      setCameraState(true);
+      setCameraIconState(true);
+    }
     setUserMe({
       id: streamId,
       name: streamName,
       avatar,
       roleId: roleId,
-      isMicOn: !isMicLocked,
-      isCameraOn: false,
+      isMicOn: isMicOn ? true : isMicLocked,
+      isCameraOn,
       isScreenSharing: false,
-      isVideoActivated: false,
+      isVideoActivated: isCameraOn,
       isMicBlocked: roleId === 1 ? isMicLocked : false,
       isCameraBlocked: roleId === 1 ? isCameraLocked : false,
       isScreenShareBlocked: roleId === 1 ? isScreenShareLocked : false,
@@ -134,7 +149,7 @@ export default defineComponent({
       isRecording: false,
     });
 
-    setMicIconState(!isMicLocked);
+    setMicIconState(isMicLocked || isMicOn);
     // setCameraIconState(!isCameraLocked);
     // setScreenShareIconState(!isScreenShareLocked);
 

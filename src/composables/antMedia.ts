@@ -28,8 +28,12 @@ const {
 const { setIsLoadingOrError, setLoadingOrErrorMessage, setExistRoom } =
   useAuthState();
 const { setRecorded, newParticipantOnWait, setPrivacy } = useRoom();
-const { deleteParticipantById, participants, addParticipants } =
-  useHandleParticipants();
+const {
+  deleteParticipantById,
+  participants,
+  addParticipants,
+  updateParticipantDenied,
+} = useHandleParticipants();
 const { setUserMessage, deleteLoadingMessage } = useHandleMessage();
 const { addHandNotificationInfo, removeHandNotification } =
   useToogleFunctions();
@@ -258,6 +262,10 @@ export function useInitWebRTC() {
               };
             } else {
               const isMerge = obj.streamId.split('-')[0] === 'm';
+
+              console.log('Agregando participante');
+              console.log('Id?: ', obj.streamId);
+              console.log('stream?: ', obj.stream);
 
               // objStreams.value.push(obj);
               if (!isMerge)
@@ -567,6 +575,7 @@ export function useInitWebRTC() {
                   remoteUserInfoParsed.userInfo.isScreenShareBlocked;
                 user.fractalUserId =
                   remoteUserInfoParsed.userInfo.fractalUserId;
+                user.denied = remoteUserInfoParsed.userInfo.denied;
               }
             }
           } else if (eventType === 'USER_INFO_FINISH') {
@@ -599,6 +608,7 @@ export function useInitWebRTC() {
                   remoteUserInfoParsed.userInfo.isScreenShareBlocked;
                 user.fractalUserId =
                   remoteUserInfoParsed.userInfo.fractalUserId;
+                user.denied = remoteUserInfoParsed.userInfo.denied;
               }
             }
           } else if (eventType === 'KICK') {
@@ -732,8 +742,17 @@ export function useInitWebRTC() {
             if (userMe.id === participantId) {
               if (value) {
                 setPrivacy(false);
+                setDenied(PERMISSION_STATUS.admitted);
+                updateParticipantDenied(
+                  participantId,
+                  PERMISSION_STATUS.admitted
+                );
               } else {
-                setDenied(PERMISSION_STATUS.answered);
+                setDenied(PERMISSION_STATUS.denied);
+                updateParticipantDenied(
+                  participantId,
+                  PERMISSION_STATUS.denied
+                );
               }
             }
           }

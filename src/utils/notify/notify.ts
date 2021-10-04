@@ -1,4 +1,9 @@
+import { useInitWebRTC } from '@/composables/antMedia';
+import { useUserMe } from '@/composables/userMe';
 import { Notify } from 'quasar';
+
+const { sendData } = useInitWebRTC();
+const { userMe } = useUserMe();
 
 export interface notifyAction {
   label: string;
@@ -26,18 +31,26 @@ export const notifyWithAction = (name: string, id: string): void => {
     actions: [
       {
         label: 'Denegar',
-        color: 'red',
+        color: 'white',
         handler: () => {
-          console.log(name);
-          console.log(id);
+          sendData(userMe.id, {
+            id: '',
+            participantId: id,
+            eventType: 'ANSWER_PERMISSION',
+            value: false,
+          });
         },
       },
       {
         label: 'Permitir',
-        color: 'green',
+        color: 'black',
         handler: () => {
-          console.log(name);
-          console.log(id);
+          sendData(userMe.id, {
+            id: '',
+            participantId: id,
+            eventType: 'ANSWER_PERMISSION',
+            value: true,
+          });
         },
       },
     ],

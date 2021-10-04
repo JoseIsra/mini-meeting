@@ -15,7 +15,8 @@ export enum LOCK_ACTION_TYPE {
 export enum PERMISSION_STATUS {
   'notAsked',
   'asked',
-  'answered',
+  'admitted',
+  'denied'
 }
 
 export enum INTERACTION_TYPE_MENU_OPTIONS {

@@ -30,6 +30,16 @@
       v-show="functionsOnMenuBar.handNotificationInfo.length > 0"
     />
     <fu-full-screen v-if="isFullScreen" />
+
+    <q-dialog
+      v-model="showParticipantPanel"
+      transition-show="flip-down"
+      transition-hide="flip-up"
+    >
+      <q-card>
+        <fu-cooperate-participants-panel />
+      </q-card>
+    </q-dialog>
   </section>
 </template>
 //TODO: OBJETO DE USUARIO GLOBAL
@@ -41,6 +51,7 @@ import FuCooperateUserVideo from 'atoms/FuCooperateUserVideo';
 import FuCooperateSideBar from 'molecules/FuCooperateSideBar';
 import FuHandNotification from 'atoms/FuHandNotification';
 import FuFullScreen from 'molecules/FuFullScreen';
+import FuCooperateParticipantsPanel from '@/components/molecules/FuCooperateParticipantsPanel';
 import _ from 'lodash';
 import { useSidebarToogle, useToogleFunctions } from '@/composables';
 import { useScreen } from '@/composables/screen';
@@ -68,6 +79,7 @@ export default defineComponent({
     FuHandNotification,
     FuFullScreen,
     FuSharedStream,
+    FuCooperateParticipantsPanel,
   },
   setup(props, { emit }) {
     onMounted(() => {
@@ -75,7 +87,10 @@ export default defineComponent({
     });
 
     let showMenuBar = ref<boolean>(false);
-    let { isSidebarRender, setSidebarState } = useSidebarToogle();
+
+    let { isSidebarRender, setSidebarState, showParticipantPanel } =
+      useSidebarToogle();
+
     const {
       functionsOnMenuBar,
       isFullScreen,
@@ -83,7 +98,9 @@ export default defineComponent({
       openOptionsMenu,
       openFunctionResponsiveMenu,
     } = useToogleFunctions();
+
     const { roomState } = useRoom();
+
     const { screenMinimized, updateScreenState } = useScreen();
 
     const hideMenuBar = _.debounce(() => {
@@ -97,12 +114,14 @@ export default defineComponent({
         hideMenuBar();
       }
     };
+
     const closePanels = () => {
       setSidebarState(false);
       openOptionsMenu(false);
       openFunctionResponsiveMenu(false);
       setIDButtonSelected('');
     };
+
     return {
       toogleMenuBar,
       showMenuBar,
@@ -114,6 +133,7 @@ export default defineComponent({
       screenMinimized,
       updateScreenState,
       ...toRefs(roomState),
+      showParticipantPanel,
     };
   },
 });

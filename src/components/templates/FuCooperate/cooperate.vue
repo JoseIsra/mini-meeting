@@ -159,7 +159,7 @@ export default defineComponent({
       isVideoBlocked: isCameraLocked,
       isScreenShareBlocked: isScreenShareLocked,
       fractalUserId,
-      denied: 0
+      denied: 0,
     });
 
     setRoom({
@@ -281,6 +281,17 @@ export default defineComponent({
           setExistRoom(true);
           // To review
           setIsLoadingOrError(false);
+
+          // Initialize room?
+          createInstance(
+            roomId,
+            streamId,
+            streamName,
+            publishToken,
+            playToken,
+            subscriberId,
+            subscriberCode
+          );
         } else if (status === 404) {
           setLoadingOrErrorMessage('Cooperate not found');
         } else {
@@ -294,15 +305,15 @@ export default defineComponent({
     //TODO: Dont dissapear loading until the host accept the user. Needed to implement logic for that (dont publish neither play streams)
 
     const fuCooperateMountedHandler = () => {
-      createInstance(
-        roomId,
-        streamId,
-        streamName,
-        publishToken,
-        playToken,
-        subscriberId,
-        subscriberCode
-      );
+      // createInstance(
+      //   roomId,
+      //   streamId,
+      //   streamName,
+      //   publishToken,
+      //   playToken,
+      //   subscriberId,
+      //   subscriberCode
+      // );
       window.xprops?.logJoined?.();
     };
 

@@ -2,7 +2,16 @@
   <section class="m-list">
     <header class="m-list__title">
       <label class="m-list__title__text">Lista de Usuarios</label>
-      <small>En línea ({{ participants.length + 1 }})</small>
+      <small>En línea ({{ admittedParticipants.length + 1 }})</small>
+      <q-btn
+        v-show="canLimitActions && waitingParticipants.length > 0"
+        :label="`En espera (${waitingParticipants.length})`"
+        color="green"
+        text-color="white"
+        icon="fa fa-clock"
+        style="margin: 16px 0"
+        @click="toggleParticipantPanel"
+      ></q-btn>
     </header>
     <main class="m-list__content">
       <div class="m-list__content__actions" v-show="canLimitActions">
@@ -83,7 +92,7 @@
           :icon="isEveryoneActionsBlocked ? 'fas fa-lock-open' : 'fas fa-lock'"
           @click="handleEveryoneActions(LOCK_ACTION_TYPE.All)"
           size="10px"
-          :disable="!participants.length > 0"
+          :disable="!admittedParticipants.length > 0"
         >
           <q-tooltip
             class="bg-grey-10"
@@ -126,7 +135,7 @@
       </div>
       <div
         class="m-list__content__userBox"
-        v-for="participant in participants"
+        v-for="participant in admittedParticipants"
         :key="participant.id"
       >
         <div class="m-list__content__userBox__user">
@@ -258,12 +267,19 @@ import { useInitWebRTC } from '@/composables/antMedia';
 import { Participant } from '@/types';
 import { LOCK_ACTION_TYPE } from '@/utils/enums';
 import { nanoid } from 'nanoid';
+import { useSidebarToogle } from '@/composables';
 
 export default defineComponent({
   name: 'FuCooperateUsersList',
   setup() {
-    const { participants, setParticipantActions, setEveryParticipantActions } =
-      useHandleParticipants();
+    const {
+      setParticipantActions,
+      setEveryParticipantActions,
+      waitingParticipants,
+      admittedParticipants,
+    } = useHandleParticipants();
+
+    const { toggleParticipantPanel } = useSidebarToogle();
 
     const { userMe } = useUserMe();
 
@@ -273,21 +289,21 @@ export default defineComponent({
 
     const isEveryoneMicBlocked = computed(
       () =>
-        !participants.value.some(
+        !admittedParticipants.value.some(
           (participant) => participant?.isMicBlocked === false
         )
     );
 
     const isEveryoneVideoBlocked = computed(
       () =>
-        !participants.value.some(
+        !admittedParticipants.value.some(
           (participant) => participant?.isVideoBlocked === false
         )
     );
 
     const isEveryoneScreenShareBlocked = computed(
       () =>
-        !participants.value.some(
+        !admittedParticipants.value.some(
           (participant) => participant?.isScreenShareBlocked === false
         )
     );
@@ -300,7 +316,7 @@ export default defineComponent({
     );
 
     const hasActionsBlocked = (participant: Participant) => {
-      const participantActions = participants.value.find(
+      const participantActions = admittedParticipants.value.find(
         (part) => part.id === participant.id
       );
 
@@ -312,15 +328,15 @@ export default defineComponent({
     };
 
     const isMicBlocked = (participant: Participant) =>
-      participants.value.find((part) => part.id === participant.id)
+      admittedParticipants.value.find((part) => part.id === participant.id)
         ?.isMicBlocked === true;
 
     const isVideoBlocked = (participant: Participant) =>
-      participants.value.find((part) => part.id === participant.id)
+      admittedParticipants.value.find((part) => part.id === participant.id)
         ?.isVideoBlocked === true;
 
     const isScreenShareBlocked = (participant: Participant) =>
-      participants.value.find((part) => part.id === participant.id)
+      admittedParticipants.value.find((part) => part.id === participant.id)
         ?.isScreenShareBlocked === true;
 
     const handleParticipantActions = (
@@ -504,7 +520,9 @@ export default defineComponent({
     };
 
     return {
-      participants,
+      waitingParticipants,
+      admittedParticipants,
+      toggleParticipantPanel,
       hasActionsBlocked,
       handleEveryoneActions,
       userMe,

@@ -19,6 +19,7 @@ export interface Participant {
   isVideoBlocked?: boolean;
   isScreenShareBlocked?: boolean;
   fractalUserId?: string;
+  denied?: number;
 }
 
 export type Scalars = {

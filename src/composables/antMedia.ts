@@ -884,13 +884,15 @@ export function useInitWebRTC() {
         } else if (error.indexOf('data_channel_error') != -1) {
           errorMessage = 'There was a error during data channel communication';
         } else if (error.indexOf('ScreenSharePermissionDenied') != -1) {
+          setTimeout(() => {
+            setVideoActivatedState(false);
+            setScreenState(false);
+          }, 500);
           errorMessage = 'You are not allowed to access screen share';
           console.log('hola diosito soy yo de nuevo 🥲');
           //screen_share_checkbox.checked = false;
-          setScreenState(false);
-          setVideoActivatedState(false);
-          webRTCInstance.value.turnOffLocalCamera?.(streamId);
-          webRTCInstance.value.resetDesktop?.();
+          //webRTCInstance.value.turnOffLocalCamera?.(streamId);
+          //webRTCInstance.value.resetDesktop?.();
         } else if (error.indexOf('AbortError') !== -1) {
           setExistRoom(false);
           setLoadingOrErrorMessage(

@@ -39,6 +39,7 @@ const FractalUpCooperate: zoidCreated = (zoid as zoidType).create({
       scrolling: "no",
       allow: "camera *; microphone *; display-capture *",
       allowFullScreen: "true",
+      allowusermedia: "true",
     },
   },
   props: {

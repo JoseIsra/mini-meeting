@@ -122,6 +122,25 @@
             />
           </aside>
           <label>{{ userMe.name }}</label>
+          <q-btn
+            class="m-list__content__userBox__pinBtn"
+            flat
+            rounded
+            dense
+            :icon="
+              listenFullScreen.id == userMe.id
+                ? 'location_disabled'
+                : 'gps_fixed'
+            "
+            @click="activeFullScreen(userMe)"
+          >
+            <q-tooltip class="bg-grey-10">
+              <label v-if="listenFullScreen.id == userMe.id"
+                >Estás fijado
+              </label>
+              <label v-else>Fijarte a ti mismo</label>
+            </q-tooltip>
+          </q-btn>
         </div>
       </div>
       <div
@@ -149,6 +168,25 @@
             />
           </aside>
           <label>{{ participant.name }}</label>
+          <q-btn
+            class="m-list__content__userBox__pinBtn"
+            flat
+            rounded
+            :icon="
+              listenFullScreen.id == participant.id
+                ? 'location_disabled'
+                : 'gps_fixed'
+            "
+            dense
+            @click="activeFullScreen(participant)"
+          >
+            <q-tooltip class="bg-grey-10">
+              <label v-if="listenFullScreen.id == participant.id">
+                Usuario fijado</label
+              >
+              <label v-else> Fijar usuario</label>
+            </q-tooltip>
+          </q-btn>
         </div>
 
         <div class="m-list__content__userBox__actions" v-show="canLimitActions">
@@ -253,11 +291,12 @@
 <script lang="ts">
 import { defineComponent, computed, ref } from 'vue';
 import { useHandleParticipants } from '@/composables/participants';
-import { useUserMe } from '@/composables/userMe';
+import { User, useUserMe } from '@/composables/userMe';
 import { useInitWebRTC } from '@/composables/antMedia';
 import { Participant } from '@/types';
 import { LOCK_ACTION_TYPE } from '@/utils/enums';
 import { nanoid } from 'nanoid';
+import { useToogleFunctions } from '@/composables';
 
 export default defineComponent({
   name: 'FuCooperateUsersList',
@@ -270,6 +309,16 @@ export default defineComponent({
     const canLimitActions = ref(userMe.roleId === 0 || userMe.roleId === 2);
 
     const { sendData } = useInitWebRTC();
+    const {
+      setFullScreen,
+      setFullScreenObject,
+      isFullScreen,
+      fullScreenObject,
+    } = useToogleFunctions();
+    const listenFullScreen = computed(() => {
+      if (fullScreenObject.id) return fullScreenObject;
+      return '';
+    });
 
     const isEveryoneMicBlocked = computed(
       () =>
@@ -503,6 +552,15 @@ export default defineComponent({
       // }
     };
 
+    const activeFullScreen = (arg: User) => {
+      if (isFullScreen.value) {
+        setFullScreenObject(arg);
+        return;
+      }
+      setFullScreen('user');
+      setFullScreenObject(arg);
+    };
+
     return {
       participants,
       hasActionsBlocked,
@@ -518,6 +576,10 @@ export default defineComponent({
       handleParticipantActions,
       LOCK_ACTION_TYPE,
       canLimitActions,
+      activeFullScreen,
+      isFullScreen,
+      fullScreenObject,
+      listenFullScreen,
     };
   },
 });

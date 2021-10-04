@@ -10,7 +10,7 @@
     <video
       :class="{ 'vjs-tech': simpleMortal }"
       ref="videoPlayer"
-      class="video-js vjs-default-skin"
+      class="video-js vjs-16-9"
     ></video>
   </section>
 </template>
@@ -48,14 +48,14 @@ export default defineComponent({
       controls: canManipulateVideo.value,
       autoplay: true,
       bigPlayButton: false,
-      responsive: true,
+      // responsive: true,
+      fluid: true,
       controlBar: {
         progressControl: {
           seekBar: true,
         },
       },
-      width: 800,
-      height: 350,
+
       techOrder: ['youtube'],
       sources: [
         {

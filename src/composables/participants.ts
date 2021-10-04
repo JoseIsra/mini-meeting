@@ -84,8 +84,12 @@ export function useHandleParticipants() {
     participants.value.filter((p) => p.denied === PERMISSION_STATUS.asked)
   );
 
-  const updateParticipantDenied = (id: string, state: number) =>
-    (participants.value.filter((p) => p.id === id)[0].denied = state);
+  const updateParticipantDenied = (id: string, state: number) => {
+    console.log(id);
+    console.log(state);
+
+    participants.value.filter((p) => p.id === id)[0].denied = state;
+  };
 
   return {
     deleteAllParticipants,

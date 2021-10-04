@@ -36,19 +36,34 @@ const {
   setRoomMicState,
   setRoomCameraState,
   setRoomScreenShareState,
-  newParticipantOnWait, setPrivacy
+  newParticipantOnWait,
+  setPrivacy,
 } = useRoom();
-const { deleteParticipantById, participants, addParticipants, updateParticipantDenied } =
-  useHandleParticipants();
+
+const {
+  deleteParticipantById,
+  participants,
+  addParticipants,
+  updateParticipantDenied,
+} = useHandleParticipants();
+
 const { setUserMessage, deleteLoadingMessage } = useHandleMessage();
+
 const { addHandNotificationInfo, removeHandNotification, setFullScreen } =
   useToogleFunctions();
 
 const roomTimerId = ref<ReturnType<typeof setInterval> | null>(null);
+
 const isDataChannelOpen = ref(false);
+
 const { updateExternalVideoState, videoPlayerTest, externalVideo } =
   useExternalVideo();
+
+const { setMicIconState, setCameraIconState, setScreenShareIconState } =
+  useActions();
+
 const remotePlayer = ref<videojs.Player>({} as videojs.Player);
+
 interface ObjInfoRequested {
   to: string;
   from: string;
@@ -115,9 +130,6 @@ export function useInitWebRTC() {
   const joinRoom = (roomId: string, streamId: string) => {
     webRTCInstance.value.joinRoom?.(roomId, streamId, 'legacy');
   };
-
-  const { setMicIconState, setCameraIconState, setScreenShareIconState } =
-    useActions();
 
   const publish = (
     streamId: string,
@@ -820,6 +832,8 @@ export function useInitWebRTC() {
 
               notifyWithAction(participantName, participantId);
 
+              updateParticipantDenied(participantId, PERMISSION_STATUS.asked);
+
               newParticipantOnWait({
                 id: participantId,
                 name: participantName,
@@ -834,17 +848,14 @@ export function useInitWebRTC() {
               if (value) {
                 setPrivacy(false);
                 setDenied(PERMISSION_STATUS.admitted);
-                updateParticipantDenied(
-                  participantId,
-                  PERMISSION_STATUS.admitted
-                );
               } else {
                 setDenied(PERMISSION_STATUS.denied);
-                updateParticipantDenied(
-                  participantId,
-                  PERMISSION_STATUS.denied
-                );
               }
+            } else {
+              updateParticipantDenied(
+                participantId,
+                value ? PERMISSION_STATUS.admitted : PERMISSION_STATUS.denied
+              );
             }
           } else if (eventType === 'SHARE_EXTERNAL_VIDEO') {
             const externalVideoObject = JSON.parse(

@@ -145,7 +145,7 @@ export default defineComponent({
       isCameraBlocked: roleId === 1 ? isCameraLocked : false,
       isScreenShareBlocked: roleId === 1 ? isScreenShareLocked : false,
       fractalUserId,
-      denied: 0,
+      denied: roleId === 1 ? (privacy ? 0 : 2) : 2,
       existVideo: false,
       isRecording: false,
     });
@@ -175,7 +175,6 @@ export default defineComponent({
     if (isCameraLocked) {
       setVideoActivatedState(!isCameraLocked);
       sendNotificationEvent('CAM_TURNED_OFF', userMe.id);
-
       // if (roleId === 1) {
       //   setCameraState(!isCameraLocked);
       // }
@@ -184,7 +183,6 @@ export default defineComponent({
     if (isScreenShareLocked) {
       setVideoActivatedState(!isScreenShareLocked);
       sendNotificationEvent('SCREEN_SHARING_OFF', userMe.id);
-
       // if (roleId === 1) {
       //   setScreenState(!isScreenShareLocked);
       // }
@@ -310,7 +308,6 @@ export default defineComponent({
           setExistRoom(true);
           // To review
           setIsLoadingOrError(false);
-
           // Initialize room?
           createInstance(
             roomId,
@@ -332,7 +329,6 @@ export default defineComponent({
     });
 
     //TODO: Dont dissapear loading until the host accept the user. Needed to implement logic for that (dont publish neither play streams)
-
     const fuCooperateMountedHandler = () => {
       // createInstance(
       //   roomId,

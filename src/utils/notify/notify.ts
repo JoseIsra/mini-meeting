@@ -1,9 +1,13 @@
 import { useInitWebRTC } from '@/composables/antMedia';
+import { useHandleParticipants } from '@/composables/participants';
 import { useUserMe } from '@/composables/userMe';
 import { Notify } from 'quasar';
+import { PERMISSION_STATUS } from '../enums';
 
 const { sendData } = useInitWebRTC();
 const { userMe } = useUserMe();
+
+const { updateParticipantDenied } = useHandleParticipants();
 
 export interface notifyAction {
   label: string;
@@ -39,6 +43,8 @@ export const notifyWithAction = (name: string, id: string): void => {
             eventType: 'ANSWER_PERMISSION',
             value: false,
           });
+
+          updateParticipantDenied(id, PERMISSION_STATUS.denied);
         },
       },
       {
@@ -51,6 +57,8 @@ export const notifyWithAction = (name: string, id: string): void => {
             eventType: 'ANSWER_PERMISSION',
             value: true,
           });
+
+          updateParticipantDenied(id, PERMISSION_STATUS.admitted);
         },
       },
     ],

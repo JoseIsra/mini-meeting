@@ -312,11 +312,15 @@ export default defineComponent({
   name: 'FuCooperateUsersList',
   setup() {
     const {
+      participants,
       setParticipantActions,
       setEveryParticipantActions,
       waitingParticipants,
       admittedParticipants,
     } = useHandleParticipants();
+
+    console.log(participants);
+    
 
     const { toggleParticipantPanel } = useSidebarToogle();
 
@@ -325,6 +329,7 @@ export default defineComponent({
     const canLimitActions = ref(userMe.roleId === 0 || userMe.roleId === 2);
 
     const { sendData } = useInitWebRTC();
+
     const {
       setFullScreen,
       setFullScreenObject,

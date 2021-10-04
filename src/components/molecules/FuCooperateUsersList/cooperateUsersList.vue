@@ -4,13 +4,18 @@
       <label class="m-list__title__text">Lista de Usuarios</label>
       <small>En línea ({{ admittedParticipants.length + 1 }})</small>
       <q-btn
-        v-show="canLimitActions && waitingParticipants.length > 0"
-        :label="`En espera (${waitingParticipants.length})`"
-        color="green"
+        v-show="canLimitActions"
+        :label="
+          waitingParticipants.length > 0
+            ? `En espera (${waitingParticipants.length})`
+            : 'Sin solicitudes'
+        "
+        :color="waitingParticipants.length > 0 ? 'green' : 'grey'"
         text-color="white"
         icon="fa fa-clock"
-        style="margin: 16px 0"
+        style="margin: 16px 0; text-transform: capitalize"
         @click="toggleParticipantPanel"
+        :disable="!waitingParticipants.length > 0"
       ></q-btn>
     </header>
     <main class="m-list__content">
@@ -320,7 +325,6 @@ export default defineComponent({
     } = useHandleParticipants();
 
     console.log(participants);
-    
 
     const { toggleParticipantPanel } = useSidebarToogle();
 

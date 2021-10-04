@@ -1,6 +1,6 @@
 .o-cooperate {
   width: 100vw;
-  min-height: 100vh;
+  height: 100vh;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -19,6 +19,7 @@
     position: absolute;
     top: 10px;
     transition: 0.3s;
+    z-index: 9999;
 
     &:hover {
       opacity: 1;

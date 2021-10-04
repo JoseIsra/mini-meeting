@@ -84,6 +84,11 @@
           font-size: 8px;
         }
       }
+
+      &__pinBtn {
+        position: relative;
+        left: 1rem;
+      }
     }
   }
 }

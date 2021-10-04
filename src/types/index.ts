@@ -16,10 +16,16 @@ export interface Participant {
   isScreenSharing?: boolean;
   isVideoActivated?: boolean;
   isMicBlocked?: boolean;
-  isVideoBlocked?: boolean;
+  isCameraBlocked?: boolean;
   isScreenShareBlocked?: boolean;
   fractalUserId?: string;
   denied?: number;
+  existVideo?: boolean;
+  urlOfVideo?: string;
+  videoInstance?: HTMLMediaElement & { playerId: string };
+  currentTime?: number;
+  isPlayingVideo?: boolean;
+  isRecording?: boolean;
 }
 
 export type Scalars = {

@@ -18,6 +18,15 @@
       </div>
 
       <q-btn v-if="loadingMessage !== ''" label="Regresar" @click="leaveCall" />
+
+      <q-btn
+        v-if="
+          loadingMessage ===
+          'Error al publicar stream. Por favor, recarga la página'
+        "
+        label="Recargar"
+        @click="refreshPage"
+      />
     </div>
   </div>
 </template>
@@ -35,8 +44,11 @@ export default defineComponent({
   },
   setup(props, { emit }) {
     const leaveCall = () => emit('handleLeaveCall');
+    const refreshPage = () => {
+      window.location.reload();
+    };
 
-    return { ...toRefs(props), leaveCall };
+    return { ...toRefs(props), leaveCall, refreshPage };
   },
 });
 </script>

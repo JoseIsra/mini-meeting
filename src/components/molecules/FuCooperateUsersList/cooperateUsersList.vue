@@ -22,7 +22,7 @@
         </span>
 
         <q-btn
-          :icon="isEveryoneMicBlocked ? 'mic' : 'mic_off'"
+          :icon="isEveryoneMicBlocked ? 'mic_off' : 'mic'"
           @click="handleEveryoneActions(LOCK_ACTION_TYPE.Mic)"
           size="8px"
         >
@@ -43,7 +43,7 @@
         </q-btn>
 
         <q-btn
-          :icon="isEveryoneVideoBlocked ? 'videocam' : 'videocam_off'"
+          :icon="isEveryoneVideoBlocked ? 'videocam_off' : 'videocam'"
           @click="handleEveryoneActions(LOCK_ACTION_TYPE.Camera)"
           size="8px"
         >
@@ -66,8 +66,8 @@
         <q-btn
           :icon="
             isEveryoneScreenShareBlocked
-              ? 'desktop_windows'
-              : 'desktop_access_disabled'
+              ? 'desktop_access_disabled'
+              : 'desktop_windows'
           "
           @click="handleEveryoneActions(LOCK_ACTION_TYPE.Screen)"
           size="8px"
@@ -89,7 +89,7 @@
         </q-btn>
 
         <q-btn
-          :icon="isEveryoneActionsBlocked ? 'fas fa-lock-open' : 'fas fa-lock'"
+          :icon="isEveryoneActionsBlocked ? 'fas fa-lock' : 'fas fa-lock-open'"
           @click="handleEveryoneActions(LOCK_ACTION_TYPE.All)"
           size="10px"
           :disable="!admittedParticipants.length > 0"
@@ -131,6 +131,25 @@
             />
           </aside>
           <label>{{ userMe.name }}</label>
+          <q-btn
+            class="m-list__content__userBox__pinBtn"
+            flat
+            rounded
+            dense
+            :icon="
+              listenFullScreen.id == userMe.id
+                ? 'location_disabled'
+                : 'gps_fixed'
+            "
+            @click="activeFullScreen(userMe)"
+          >
+            <q-tooltip class="bg-grey-10">
+              <label v-if="listenFullScreen.id == userMe.id"
+                >Estás fijado
+              </label>
+              <label v-else>Fijarte a ti mismo</label>
+            </q-tooltip>
+          </q-btn>
         </div>
       </div>
       <div
@@ -158,6 +177,25 @@
             />
           </aside>
           <label>{{ participant.name }}</label>
+          <q-btn
+            class="m-list__content__userBox__pinBtn"
+            flat
+            rounded
+            :icon="
+              listenFullScreen.id == participant.id
+                ? 'location_disabled'
+                : 'gps_fixed'
+            "
+            dense
+            @click="activeFullScreen(participant)"
+          >
+            <q-tooltip class="bg-grey-10">
+              <label v-if="listenFullScreen.id == participant.id">
+                Usuario fijado</label
+              >
+              <label v-else> Fijar usuario</label>
+            </q-tooltip>
+          </q-btn>
         </div>
 
         <div class="m-list__content__userBox__actions" v-show="canLimitActions">
@@ -187,7 +225,7 @@
           </q-btn> -->
 
           <q-btn
-            :icon="isMicBlocked(participant) ? 'mic' : 'mic_off'"
+            :icon="isMicBlocked(participant) ? 'mic_off' : 'mic'"
             @click="handleParticipantActions(participant, LOCK_ACTION_TYPE.Mic)"
           >
             <q-tooltip
@@ -207,7 +245,7 @@
           </q-btn>
 
           <q-btn
-            :icon="isVideoBlocked(participant) ? 'videocam' : 'videocam_off'"
+            :icon="isVideoBlocked(participant) ? 'videocam_off' : 'videocam'"
             @click="
               handleParticipantActions(participant, LOCK_ACTION_TYPE.Camera)
             "
@@ -231,8 +269,8 @@
           <q-btn
             :icon="
               isScreenShareBlocked(participant)
-                ? 'desktop_windows'
-                : 'desktop_access_disabled'
+                ? 'desktop_access_disabled'
+                : 'desktop_windows'
             "
             @click="
               handleParticipantActions(participant, LOCK_ACTION_TYPE.Screen)
@@ -262,12 +300,13 @@
 <script lang="ts">
 import { defineComponent, computed, ref } from 'vue';
 import { useHandleParticipants } from '@/composables/participants';
-import { useUserMe } from '@/composables/userMe';
+import { User, useUserMe } from '@/composables/userMe';
 import { useInitWebRTC } from '@/composables/antMedia';
 import { Participant } from '@/types';
 import { LOCK_ACTION_TYPE } from '@/utils/enums';
 import { nanoid } from 'nanoid';
 import { useSidebarToogle } from '@/composables';
+import { useToogleFunctions } from '@/composables';
 
 export default defineComponent({
   name: 'FuCooperateUsersList',
@@ -286,6 +325,17 @@ export default defineComponent({
     const canLimitActions = ref(userMe.roleId === 0 || userMe.roleId === 2);
 
     const { sendData } = useInitWebRTC();
+    const {
+      setFullScreen,
+      setFullScreenObject,
+      isFullScreen,
+      fullScreenObject,
+    } = useToogleFunctions();
+
+    const listenFullScreen = computed(() => {
+      if (fullScreenObject.id) return fullScreenObject;
+      return '';
+    });
 
     const isEveryoneMicBlocked = computed(
       () =>
@@ -297,7 +347,7 @@ export default defineComponent({
     const isEveryoneVideoBlocked = computed(
       () =>
         !admittedParticipants.value.some(
-          (participant) => participant?.isVideoBlocked === false
+          (participant) => participant?.isCameraBlocked === false
         )
     );
 
@@ -322,7 +372,7 @@ export default defineComponent({
 
       return (
         participantActions?.isMicBlocked === true &&
-        participantActions?.isVideoBlocked === true &&
+        participantActions?.isCameraBlocked === true &&
         participantActions?.isScreenShareBlocked === true
       );
     };
@@ -333,7 +383,7 @@ export default defineComponent({
 
     const isVideoBlocked = (participant: Participant) =>
       admittedParticipants.value.find((part) => part.id === participant.id)
-        ?.isVideoBlocked === true;
+        ?.isCameraBlocked === true;
 
     const isScreenShareBlocked = (participant: Participant) =>
       admittedParticipants.value.find((part) => part.id === participant.id)
@@ -519,6 +569,15 @@ export default defineComponent({
       // }
     };
 
+    const activeFullScreen = (arg: User) => {
+      if (isFullScreen.value) {
+        setFullScreenObject(arg);
+        return;
+      }
+      setFullScreen('user');
+      setFullScreenObject(arg);
+    };
+
     return {
       waitingParticipants,
       admittedParticipants,
@@ -536,6 +595,10 @@ export default defineComponent({
       handleParticipantActions,
       LOCK_ACTION_TYPE,
       canLimitActions,
+      activeFullScreen,
+      isFullScreen,
+      fullScreenObject,
+      listenFullScreen,
     };
   },
 });

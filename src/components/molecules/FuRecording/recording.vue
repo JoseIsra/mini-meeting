@@ -27,12 +27,13 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
+import { defineComponent, ref, watch } from 'vue';
 import { useInitMerge } from '@/composables/antMediaMerge';
 import { useInitWebRTC } from '@/composables/antMedia';
 import { useUserMe } from '@/composables/userMe';
 import { useRoom } from '@/composables/room';
 import { warningMessage, successMessage } from '@/utils/notify';
+import { useHandleParticipants } from '@/composables/participants';
 
 export default defineComponent({
   name: 'FuMRecording',
@@ -41,11 +42,15 @@ export default defineComponent({
     const recordTime = ref('00:00:00');
     const secondsElapsed = ref(0);
     const isRecording = ref<boolean>(false);
-    const { recordingStream, stopRecordingStream } = useInitMerge();
+    const { recordingStream, stopRecordingStream, refreshMerge } =
+      useInitMerge();
     const { sendNotificationEvent } = useInitWebRTC();
-    const { userMe } = useUserMe();
+    const { participants } = useHandleParticipants();
+    const { userMe, updateUserMe } = useUserMe();
     const { roomState } = useRoom();
     const isLoading = ref(false);
+
+    const watchParticipants = ref<() => void>();
 
     const mergedName = ref('');
 
@@ -58,6 +63,16 @@ export default defineComponent({
     };
 
     const startRecording = () => {
+      updateUserMe({ isRecording: true });
+
+      /* watchParticipants.value = watch(
+        () => participants.value,
+        (actualParticipants, prevParticipants) => {
+          refreshMerge(prevParticipants, actualParticipants);
+        },
+        { deep: true }
+      ); */
+
       const timestamp = new Date().getTime();
 
       isLoading.value = true;
@@ -84,6 +99,8 @@ export default defineComponent({
     };
 
     const stopRecording = () => {
+      /* watchParticipants.value?.(); */
+
       warningMessage('Grabación terminada');
       isRecording.value = false;
       recordTime.value = '00:00:00';

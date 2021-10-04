@@ -1,5 +1,5 @@
 <template>
-  <section class="a-hand">
+  <section class="a-hand" v-if="!screenMinimized">
     <div
       class="a-hand__content"
       v-for="notification in functionsOnMenuBar.handNotificationInfo"
@@ -13,15 +13,16 @@
 import { defineComponent } from 'vue';
 import { useToogleFunctions } from '@/composables';
 import FuNotificationInfo from 'atoms/FuHandNotificationInfo';
-
+import { useScreen } from '@/composables/screen';
 export default defineComponent({
   name: 'FuHandNotification',
   components: { FuNotificationInfo },
   setup() {
     const { functionsOnMenuBar } = useToogleFunctions();
-
+    const { screenMinimized } = useScreen();
     return {
       functionsOnMenuBar,
+      screenMinimized,
     };
   },
 });

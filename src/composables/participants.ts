@@ -1,21 +1,20 @@
 import { ref, computed } from 'vue';
 import { Participant } from '@/types';
 import { LOCK_ACTION_TYPE, PERMISSION_STATUS } from '@/utils/enums';
+import _ from 'lodash';
 
 const participants = ref<Participant[]>([]);
 
 export function useHandleParticipants() {
   const addParticipants = (value: Participant) => {
-    participants.value.push(value);
+    const newParticipants = _.cloneDeep(participants.value);
+    participants.value = [value, ...newParticipants];
   };
 
   const deleteParticipantById = (id: string) => {
-    const participantToDelete = participants.value.filter(
-      (participant) => participant.id === id
-    );
-    participants.value.splice(
-      participants.value.indexOf(participantToDelete[0]),
-      1
+    const newParticipants = _.cloneDeep(participants.value);
+    participants.value = newParticipants.filter(
+      (participant) => participant.id !== id
     );
   };
 
@@ -34,17 +33,17 @@ export function useHandleParticipants() {
 
     if (action === LOCK_ACTION_TYPE.All) {
       participantToModify.isMicBlocked = value;
-      participantToModify.isVideoBlocked = value;
+      participantToModify.isCameraBlocked = value;
       participantToModify.isScreenShareBlocked = value;
     } else {
       participantToModify.isMicBlocked =
         action === LOCK_ACTION_TYPE.Mic
           ? value
           : participantToModify.isMicBlocked;
-      participantToModify.isVideoBlocked =
+      participantToModify.isCameraBlocked =
         action === LOCK_ACTION_TYPE.Camera
           ? value
-          : participantToModify.isVideoBlocked;
+          : participantToModify.isCameraBlocked;
       participantToModify.isScreenShareBlocked =
         action === LOCK_ACTION_TYPE.Screen
           ? value
@@ -58,7 +57,7 @@ export function useHandleParticipants() {
         return {
           ...part,
           isMicBlocked: value,
-          isVideoBlocked: value,
+          isCameraBlocked: value,
           isScreenShareBlocked: value,
         };
       } else {
@@ -66,8 +65,8 @@ export function useHandleParticipants() {
           ...part,
           isMicBlocked:
             action === LOCK_ACTION_TYPE.Mic ? value : part.isMicBlocked,
-          isVideoBlocked:
-            action === LOCK_ACTION_TYPE.Camera ? value : part.isVideoBlocked,
+          isCameraBlocked:
+            action === LOCK_ACTION_TYPE.Camera ? value : part.isCameraBlocked,
           isScreenShareBlocked:
             action === LOCK_ACTION_TYPE.Screen
               ? value

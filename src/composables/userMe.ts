@@ -10,11 +10,17 @@ export interface User {
   isVideoActivated: boolean;
   roleId: number;
   isMicBlocked: boolean;
-  isVideoBlocked: boolean;
+  isCameraBlocked: boolean;
   isScreenShareBlocked: boolean;
   stream?: MediaStream;
   fractalUserId: string;
   denied: number;
+  existVideo?: boolean;
+  urlOfVideo?: string;
+  videoInstance?: HTMLMediaElement & { playerId: string };
+  currentTime?: number;
+  isPlayingVideo?: boolean;
+  isRecording: boolean;
 }
 
 export interface UpdatedUserfields {
@@ -27,6 +33,12 @@ export interface UpdatedUserfields {
   isVideoActivated?: boolean;
   stream?: MediaStream;
   fractalUserId?: string;
+  existVideo?: boolean;
+  urlOfVideo?: string;
+  videoInstance?: HTMLMediaElement & { playerId: string };
+  currentTime?: number;
+  isPlayingVideo?: boolean;
+  isRecording?: boolean;
 }
 
 // blocked: some functionalities blocked (mic, screen, camera)
@@ -59,15 +71,15 @@ export function useUserMe() {
     userMe.isScreenSharing = value;
   };
 
-  const setMicBlock = (value: boolean) => {
+  const setLocalMicBlock = (value: boolean) => {
     userMe.isMicBlocked = value;
   };
 
-  const setVideoBlock = (value: boolean) => {
-    userMe.isVideoBlocked = value;
+  const setLocalVideoBlock = (value: boolean) => {
+    userMe.isCameraBlocked = value;
   };
 
-  const setScreenShareBlock = (value: boolean) => {
+  const setLocalScreenShareBlock = (value: boolean) => {
     userMe.isScreenShareBlocked = value;
   };
 
@@ -95,9 +107,9 @@ export function useUserMe() {
     setScreenState,
     setVideoActivatedState,
     updateUserMe,
-    setMicBlock,
-    setVideoBlock,
-    setScreenShareBlock,
+    setLocalMicBlock,
+    setLocalVideoBlock,
+    setLocalScreenShareBlock,
     setDenied,
   };
 }

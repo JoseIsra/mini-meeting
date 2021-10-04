@@ -52,7 +52,7 @@
     </div>
     <div
       class="a-userVideo__box"
-      v-for="participant in admittedParticipants"
+      v-for="participant in admittedParticipants.slice(-9)"
       :key="participant.id"
       :class="{ fade: participant.id == fullScreenObject.id }"
     >

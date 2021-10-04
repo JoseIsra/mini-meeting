@@ -102,7 +102,6 @@ export default defineComponent({
     const { roomState } = useRoom();
 
     const { screenMinimized, updateScreenState } = useScreen();
-
     const hideMenuBar = _.debounce(() => {
       showMenuBar.value = false;
     }, 6000);

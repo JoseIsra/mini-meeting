@@ -300,15 +300,14 @@ export default defineComponent({
     };
 
     const toggleCamera = () => {
-      //userMe.isCameraOn = !userMe.isCameraOn;
       props.toggleLocalCamera?.();
 
       setCameraState(!userMe.isCameraOn);
 
-      if (!userMe.isScreenSharing && !userMe.isCameraOn)
-        setVideoActivatedState(false);
-      if (userMe.isScreenSharing || userMe.isCameraOn)
-        setVideoActivatedState(true);
+      // if (!userMe.isScreenSharing && !userMe.isCameraOn)
+      //   setVideoActivatedState(false);
+      // if (userMe.isScreenSharing || userMe.isCameraOn)
+      //   setVideoActivatedState(true);
     };
 
     const toggleMIC = () => {
@@ -344,9 +343,8 @@ export default defineComponent({
       //userMe.isScreenShared = !userMe.isScreenShared;
 
       setScreenState(!userMe.isScreenSharing);
-      //console.log('PROCESO DE PROYECCIÓN DE PANTALLA');
       if (!userMe.isCameraOn) setVideoActivatedState(false);
-      if (userMe.isCameraOn) setVideoActivatedState(true);
+      // if (userMe.isCameraOn) setVideoActivatedState(true);
     };
 
     const toggleConnectionModal = () => {
@@ -395,13 +393,13 @@ export default defineComponent({
         return true;
       }
 
-      if (
-        action.id === '2' &&
-        action.onState === 'videocam' &&
-        userMe.isScreenSharing
-      ) {
-        return true;
-      }
+      // if (
+      //   action.id === '2' &&
+      //   action.onState === 'videocam' &&
+      //   userMe.isScreenSharing
+      // ) {
+      //   return true;
+      // }
 
       if (action.onState === 'videocam' && roomState.isCameraBlocked) {
         return true;
@@ -411,9 +409,9 @@ export default defineComponent({
         return true;
       }
 
-      if (action.onState === 'monitor' && userMe.isCameraOn) {
-        return true;
-      }
+      // if (action.onState === 'monitor' && userMe.isCameraOn) {
+      //   return true;
+      // }
     };
 
     const openResponsiveMenuOfFunctions = () => {

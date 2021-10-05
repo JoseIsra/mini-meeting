@@ -35,6 +35,7 @@ import { useInitWebRTC } from '@/composables/antMedia';
 import { useAuthState } from '@/composables/auth';
 import { useRoom } from '@/composables/room';
 import { useActions } from '@/composables/actions';
+import { useToogleFunctions } from '@/composables';
 
 export default defineComponent({
   name: 'FuTCooperate',
@@ -47,14 +48,11 @@ export default defineComponent({
       createInstance,
       turnOffLocalCamera,
       resetDesktop,
-      switchDesktopCaptureWithCamera,
       switchDesktopCapture,
-      switchVideoCameraCapture,
       turnOnLocalCamera,
       unmuteLocalMic,
       muteLocalMic,
       sendNotificationEvent,
-      justTurnOnLocalCamera,
     } = useInitWebRTC();
 
     const {
@@ -63,7 +61,7 @@ export default defineComponent({
       setVideoActivatedState,
       // setMicState,
       setCameraState,
-      // setScreenState,
+      setScreenState,
     } = useUserMe();
 
     const { setRoom } = useRoom();
@@ -127,6 +125,8 @@ export default defineComponent({
       (route.query.isMicOn as string) == 'micro' ||
       false;
 
+    const { setIDButtonSelected } = useToogleFunctions();
+
     if (isCameraOn) {
       setVideoActivatedState(true);
       setCameraState(true);
@@ -149,7 +149,7 @@ export default defineComponent({
       isRecording: false,
     });
 
-    setMicIconState(isMicLocked || isMicOn);
+    setMicIconState(isMicLocked ? false : isMicOn);
     // setCameraIconState(!isCameraLocked);
     // setScreenShareIconState(!isScreenShareLocked);
 
@@ -203,45 +203,60 @@ export default defineComponent({
 
     const toggleDesktopCapture = () => {
       if (userMe.isScreenSharing) {
+        //si estoy compartiendo -> apago todo
         setScreenShareIconState(false);
+        setVideoActivatedState(false);
         resetDesktop();
         sendNotificationEvent('SCREEN_SHARING_OFF', streamId);
-      }
-      if (userMe.isCameraOn && !userMe.isScreenSharing) {
-        turnOffLocalCamera(streamId);
-        switchDesktopCaptureWithCamera(streamId);
-      } else if (!userMe.isCameraOn && !userMe.isScreenSharing) {
-        setScreenShareIconState(true);
-        switchDesktopCapture(streamId);
-        setVideoActivatedState(true);
-        sendNotificationEvent('SCREEN_SHARING_ON', streamId);
-      } else if (userMe.isCameraOn && userMe.isScreenSharing) {
-        switchVideoCameraCapture(streamId);
-      }
-
-      if (!userMe.isCameraOn && userMe.isScreenSharing) {
-        turnOffLocalCamera(streamId);
       } else {
-        justTurnOnLocalCamera(streamId);
-      }
-    };
-
-    const toggleLocalCamera = () => {
-      if (userMe.isCameraOn) {
-        if (userMe.isScreenSharing) {
-          switchDesktopCapture(streamId);
-        } else {
+        if (userMe.isCameraOn) {
+          //apagar camara y prender captura
           setCameraIconState(false);
           turnOffLocalCamera(streamId);
           sendNotificationEvent('CAM_TURNED_OFF', streamId);
         }
-      } else {
-        if (userMe.isScreenSharing) {
-          switchDesktopCaptureWithCamera(streamId);
-        } else {
-          turnOnLocalCamera(streamId);
-        }
+        setScreenShareIconState(true);
+        switchDesktopCapture(streamId);
+        setVideoActivatedState(true);
+        sendNotificationEvent('SCREEN_SHARING_ON', streamId);
+      }
+      // if (userMe.isCameraOn && !userMe.isScreenSharing) {
+      //   turnOffLocalCamera(streamId);
+      //   switchDesktopCaptureWithCamera(streamId);
+      // } else if (!userMe.isCameraOn && !userMe.isScreenSharing) {
+      //   setScreenShareIconState(true);
+      //   switchDesktopCapture(streamId);
+      //   setVideoActivatedState(true);
+      //   sendNotificationEvent('SCREEN_SHARING_ON', streamId);
+      // }
 
+      // if (!userMe.isCameraOn && userMe.isScreenSharing) {
+      //   turnOffLocalCamera(streamId);
+      // } else {
+      //   justTurnOnLocalCamera(streamId);
+      // }
+    };
+
+    const toggleLocalCamera = () => {
+      if (userMe.isCameraOn) {
+        //si camara está on --> apago mi camara
+        setCameraIconState(false);
+        turnOffLocalCamera(streamId);
+        setVideoActivatedState(false);
+        sendNotificationEvent('CAM_TURNED_OFF', streamId);
+      } else {
+        //si camara no está on y el usuario estaba compartiendo pantalla
+        //-> apagar pantalla y abrir camara
+        if (userMe.isScreenSharing) {
+          //switchDesktopCaptureWithCamera(streamId);
+          setScreenState(false);
+          setIDButtonSelected('');
+          resetDesktop();
+          sendNotificationEvent('SCREEN_SHARING_OFF', userMe.id);
+        }
+        setVideoActivatedState(true);
+
+        turnOnLocalCamera(streamId);
         setCameraIconState(true);
         sendNotificationEvent('CAM_TURNED_ON', streamId);
       }

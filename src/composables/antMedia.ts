@@ -37,8 +37,12 @@ const {
 const { deleteParticipantById, participants, addParticipants } =
   useHandleParticipants();
 const { setUserMessage, deleteLoadingMessage } = useHandleMessage();
-const { addHandNotificationInfo, removeHandNotification, setFullScreen } =
-  useToogleFunctions();
+const {
+  addHandNotificationInfo,
+  removeHandNotification,
+  setFullScreen,
+  setIDButtonSelected,
+} = useToogleFunctions();
 
 const roomTimerId = ref<ReturnType<typeof setInterval> | null>(null);
 const isDataChannelOpen = ref(false);
@@ -318,10 +322,9 @@ export function useInitWebRTC() {
         } else if (info == 'screen_share_stopped') {
           console.log('screen share stopped');
           setScreenState(false);
-          if (!userMe.isCameraOn) {
-            userMe.isVideoActivated = false;
-            webRTCInstance.value.turnOffLocalCamera?.(streamId);
-          }
+          setVideoActivatedState(false);
+          setIDButtonSelected('');
+          webRTCInstance.value.turnOffLocalCamera?.(streamId);
           webRTCInstance.value.resetDesktop?.();
           sendNotificationEvent('SCREEN_SHARING_OFF', streamId);
         } else if (info == 'ScreenShareStarted') {

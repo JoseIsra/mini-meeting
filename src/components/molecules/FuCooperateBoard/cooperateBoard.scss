@@ -1,3 +1,13 @@
 .o-cooperate-board {
-  border: 1px solid blue;
+  // border: 1px solid blue;
+
+  position: absolute;
+
+  top: 225px;
+
+  box-shadow: 2px 2px 10px 4px rgba(0, 0, 0, 0.5);
+}
+
+#board {
+  background-color: white;
 }

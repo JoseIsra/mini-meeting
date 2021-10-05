@@ -29,6 +29,9 @@
     <fu-hand-notification
       v-show="functionsOnMenuBar.handNotificationInfo.length > 0"
     />
+
+    <fu-board v-show="showBoard" />
+
     <fu-full-screen v-if="isFullScreen" />
   </section>
 </template>
@@ -40,6 +43,7 @@ import FuCooperateHeader from 'molecules/FuCooperateHeader';
 import FuCooperateUserVideo from 'atoms/FuCooperateUserVideo';
 import FuCooperateSideBar from 'molecules/FuCooperateSideBar';
 import FuHandNotification from 'atoms/FuHandNotification';
+import FuBoard from '@/components/molecules/FuCooperateBoard';
 import FuFullScreen from 'molecules/FuFullScreen';
 import _ from 'lodash';
 import { useSidebarToogle, useToogleFunctions } from '@/composables';
@@ -68,12 +72,14 @@ export default defineComponent({
     FuHandNotification,
     FuFullScreen,
     FuSharedStream,
+    FuBoard,
   },
   setup(props, { emit }) {
     onMounted(() => {
       emit('mounted');
     });
 
+    const showBoard = ref<boolean>(true);
     let showMenuBar = ref<boolean>(false);
     let { isSidebarRender, setSidebarState } = useSidebarToogle();
     const {
@@ -114,6 +120,7 @@ export default defineComponent({
       screenMinimized,
       updateScreenState,
       ...toRefs(roomState),
+      showBoard,
     };
   },
 });

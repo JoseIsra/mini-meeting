@@ -16,10 +16,11 @@
   "dependencies": {
     "@quasar/extras": "^1.0.0",
     "@types/crypto-js": "^4.0.2",
+    "@types/fabric": "^4.5.3",
     "@types/lodash": "^4.14.172",
     "@types/video.js": "^7.3.27",
-    "core-js": "^3.6.5",
     "crypto-js": "^4.1.1",
+    "fabric": "^4.6.0",
     "lodash": "^4.17.21",
     "moment": "^2.29.1",
     "nanoid": "^3.1.25",

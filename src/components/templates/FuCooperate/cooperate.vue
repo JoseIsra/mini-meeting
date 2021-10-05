@@ -153,12 +153,14 @@ export default defineComponent({
       setCameraState(true);
       setCameraIconState(true);
     }
+
     setUserMe({
       id: streamId,
       name: streamName,
       avatar,
       roleId: roleId,
       isMicOn: isMicOn ? true : isMicLocked,
+      // isMicOn: !isMicLocked,
       isCameraOn,
       isScreenSharing: false,
       isVideoActivated: isCameraOn,
@@ -177,6 +179,8 @@ export default defineComponent({
     });
 
     setMicIconState(isMicLocked || isMicOn);
+    // setMicIconState(!isMicLocked);
+
     // setCameraIconState(!isCameraLocked);
     // setScreenShareIconState(!isScreenShareLocked);
 

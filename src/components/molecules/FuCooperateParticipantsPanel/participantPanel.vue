@@ -2,8 +2,16 @@
   <div class="m-participant-panel">
     <div class="m-participant-panel__title">Solicitudes de Ingreso</div>
 
+    <h5
+      class="m-participant-panel__title"
+      v-if="!waitingParticipants.length > 0"
+    >
+      Sin Solicitudes de ingreso
+    </h5>
+
     <div
       class="m-participant-panel__list"
+      v-else
       v-for="participant in waitingParticipants"
       :key="participant.id"
     >

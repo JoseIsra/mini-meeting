@@ -13,7 +13,9 @@
 
     <div class="o-lobby__info">
       <div class="o-lobby__info__wrapper">
-        <div class="o-lobby__title">
+        <div class="o-lobby__title">Sala Privada</div>
+
+        <div class="o-lobby__subtitle">
           {{ lobbyMessage }}
         </div>
 

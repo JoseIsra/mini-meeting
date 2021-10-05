@@ -1,12 +1,26 @@
 <template>
   <div class="m-participant-panel">
-    <p>PARTICIPANT PANEL</p>
+    <div class="m-participant-panel__title">Solicitudes de Ingreso</div>
 
-    <h5 v-if="!waitingParticipants.length > 0">Sin Solicitudes de ingreso</h5>
+    <h5
+      class="m-participant-panel__title"
+      v-if="!waitingParticipants.length > 0"
+    >
+      Sin Solicitudes de ingreso
+    </h5>
 
-    <p v-else v-for="participant in waitingParticipants" :key="participant.id">
-      <fu-participant-request :participant="participant" />
-    </p>
+    <div
+      class="m-participant-panel__list"
+      v-else
+      v-for="participant in waitingParticipants"
+      :key="participant.id"
+    >
+      <fu-participant-request
+        v-for="index in 8"
+        :key="index"
+        :participant="participant"
+      />
+    </div>
   </div>
 </template>
 

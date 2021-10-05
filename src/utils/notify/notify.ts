@@ -30,12 +30,12 @@ export const notifyWithAction = (name: string, id: string): void => {
   Notify.create({
     position: 'bottom',
     message: `${name} ha solicititado unirse`,
-    color: 'blue',
+    color: 'primary',
     timeout: 5000,
     actions: [
       {
         label: 'Denegar',
-        color: 'white',
+        color: 'grey',
         handler: () => {
           sendData(userMe.id, {
             id: '',
@@ -49,7 +49,7 @@ export const notifyWithAction = (name: string, id: string): void => {
       },
       {
         label: 'Permitir',
-        color: 'black',
+        color: 'white',
         handler: () => {
           sendData(userMe.id, {
             id: '',

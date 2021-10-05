@@ -4,23 +4,27 @@
       {{ participant.name }}
     </div>
     <div class="a-participantRequest__actions">
+      <!-- label="Admitir" -->
       <q-btn
-        style="padding: 8px"
-        icon="fas fa-check"
+        style="padding: 8px; margin-right: 8px"
+        icon-right="fas fa-check"
         color="green"
         text-color="white"
         rounded
         dense
         @click="admitParticipant"
+        size="10px"
       />
+      <!-- label="Denegar" -->
       <q-btn
         style="padding: 8px"
-        icon="fas fa-trash"
+        icon-right="fas fa-times-circle"
         color="red"
         text-color="white"
         rounded
         dense
         @click="denyParticipant"
+        size="10px"
       />
     </div>
   </div>

@@ -36,9 +36,7 @@
       transition-show="flip-down"
       transition-hide="flip-up"
     >
-      <q-card>
-        <fu-cooperate-participants-panel />
-      </q-card>
+      <fu-cooperate-participants-panel />
     </q-dialog>
   </section>
 </template>

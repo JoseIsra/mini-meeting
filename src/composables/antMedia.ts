@@ -602,7 +602,7 @@ export function useInitWebRTC() {
             //Recieving info from another user if is for me
             if (remoteUserInfoParsed.to === userMe.id) {
               console.log('I am receiving info from another user', objParsed);
-
+              console.log('USER_INFO 🚀', remoteUserInfoParsed.userInfo);
               webRTCInstance.value.sendData?.(
                 userMe.id,
                 JSON.stringify({
@@ -653,6 +653,7 @@ export function useInitWebRTC() {
             //Recieving info from another user if is for me
             if (remoteUserInfoParsed.to === userMe.id) {
               console.log('I am receiving info from another user', objParsed);
+              console.log('USER_FINISH🚀', remoteUserInfoParsed.userInfo);
               const user = participants.value.find(
                 (participant) =>
                   participant.id === remoteUserInfoParsed.userInfo.id

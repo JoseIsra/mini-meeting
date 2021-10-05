@@ -69,7 +69,14 @@ export default defineComponent({
       justTurnOnLocalCamera,
     } = useInitWebRTC();
 
-    const { userMe, setUserMe, setVideoActivatedState } = useUserMe();
+    const {
+      userMe,
+      setUserMe,
+      setVideoActivatedState,
+      // setMicState,
+      setCameraState,
+      // setScreenState,
+    } = useUserMe();
 
     const { roomState, setRoom } = useRoom();
 
@@ -106,7 +113,10 @@ export default defineComponent({
     const roleId =
       window.xprops?.roleId || parseInt(route.query.roleId as string) || 0;
 
-    const privacy = (route.query.privacy as string) === '1' || false;
+    const privacy =
+      window.xprops?.privacy ||
+      (route.query.privacy as string) === '1' ||
+      false;
 
     const isMicLocked =
       window.xprops?.isMicLocked ||
@@ -128,15 +138,30 @@ export default defineComponent({
       (route.query.fractalUserId as string) ||
       '';
 
+    const isCameraOn =
+      window?.xprops?.isCameraOn ||
+      (route.query.isCameraOn as string) === 'camera' ||
+      false;
+
+    const isMicOn =
+      window?.xprops?.isMicOn ||
+      (route.query.isMicOn as string) == 'micro' ||
+      false;
+
+    if (isCameraOn) {
+      setVideoActivatedState(true);
+      setCameraState(true);
+      setCameraIconState(true);
+    }
     setUserMe({
       id: streamId,
       name: streamName,
       avatar,
       roleId: roleId,
-      isMicOn: !isMicLocked,
-      isCameraOn: false,
+      isMicOn: isMicOn ? true : isMicLocked,
+      isCameraOn,
       isScreenSharing: false,
-      isVideoActivated: false,
+      isVideoActivated: isCameraOn,
       isMicBlocked: roleId === 1 ? isMicLocked : false,
       isCameraBlocked: roleId === 1 ? isCameraLocked : false,
       isScreenShareBlocked: roleId === 1 ? isScreenShareLocked : false,
@@ -151,7 +176,7 @@ export default defineComponent({
       isRecording: false,
     });
 
-    setMicIconState(!isMicLocked);
+    setMicIconState(isMicLocked || isMicOn);
     // setCameraIconState(!isCameraLocked);
     // setScreenShareIconState(!isScreenShareLocked);
 

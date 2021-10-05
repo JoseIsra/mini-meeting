@@ -176,7 +176,6 @@ export class WebRTCAdaptor {
 
     if (this.isScreenshared) {
       console.log('activa screenshared');
-
       this.navigatorUserMedia({ video: true, audio: false }, (cameraStream) => {
         /* this.cameraVideo = null; */
         this.totalCanvas = document.createElement('canvas');
@@ -572,7 +571,7 @@ export class WebRTCAdaptor {
               // Redirect Default Stream Camera
               if (this.localStream == null) {
                 var mediaConstraints = {
-                  video: true,
+                  video: false, //cambio de prueba here
                   audio: true,
                 };
 
@@ -1110,6 +1109,7 @@ export class WebRTCAdaptor {
     //stop the track because in some android devices need to close the current camera stream
     var videoTrack = this.localStream.getVideoTracks()[0];
     if (videoTrack) {
+      console.log('VIDEOTRACK TRUE 🚀');
       videoTrack.stop();
     } else {
       console.warn('There is no video track in local stream');
@@ -1118,17 +1118,19 @@ export class WebRTCAdaptor {
     this.publishMode = 'camera';
 
     if (typeof deviceId != 'undefined') {
-      if (this.mediaConstraints.video !== true)
+      if (this.mediaConstraints.video !== true) {
         this.mediaConstraints.video.deviceId = { exact: deviceId };
-      else this.mediaConstraints.video = { deviceId: { exact: deviceId } };
+      } else {
+        this.mediaConstraints.video = { deviceId: { exact: deviceId } };
+      }
     }
-    this.setVideoCameraSource(
-      streamId,
-      this.mediaConstraints,
-      null,
-      true,
-      deviceId
-    );
+    // this.setVideoCameraSource(
+    //   streamId,
+    //   { audio: true, video: false },
+    //   null,
+    //   true,
+    //   deviceId
+    // );
   }
 
   switchDesktopCaptureWithCamera(streamId) {
@@ -1481,7 +1483,7 @@ export class WebRTCAdaptor {
       this.iceCandidateList[streamId] = new Array();
       if (!this.playStreamId.includes(streamId)) {
         if (this.localStream != null) {
-          this.remotePeerConnection[streamId].addStream(this.localStream);          
+          this.remotePeerConnection[streamId].addStream(this.localStream);
         }
       }
       this.remotePeerConnection[streamId].onicecandidate = (event) => {

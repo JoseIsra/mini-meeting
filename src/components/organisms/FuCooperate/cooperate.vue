@@ -27,7 +27,9 @@
     </transition>
     <fu-cooperate-user-video v-show="!screenMinimized" />
     <fu-hand-notification
-      v-show="functionsOnMenuBar.handNotificationInfo.length > 0"
+      v-show="
+        functionsOnMenuBar.handNotificationInfo.length > 0 && !screenMinimized
+      "
     />
     <fu-full-screen v-if="isFullScreen" />
   </section>

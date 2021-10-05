@@ -54,7 +54,6 @@
 import { defineComponent, ref, computed } from 'vue';
 import { useToogleFunctions } from '@/composables';
 import _ from 'lodash';
-import { useUserMe } from '@/composables/userMe';
 
 export default defineComponent({
   name: 'FuFullScreenUser',
@@ -62,7 +61,6 @@ export default defineComponent({
     const { fullScreenObject, setFullScreen, clearFullScreenObject } =
       useToogleFunctions();
     let showMinimizeMessage = ref(false);
-    const { userMe } = useUserMe();
 
     const exitFullScreen = () => {
       setFullScreen('none');
@@ -82,7 +80,7 @@ export default defineComponent({
     };
 
     const shareScreen = computed(() => {
-      return userMe.isScreenSharing;
+      return fullScreenObject.isScreenSharing;
     });
 
     return {

@@ -1,5 +1,5 @@
 <template>
-  <section class="m-video">
+  <section :class="['m-video', { miniMode: watchMinimized }]">
     <q-btn
       :style="[simpleMortal ? { visibility: 'hidden' } : '']"
       icon="play_arrow"
@@ -10,7 +10,7 @@
     <video
       :class="{ 'vjs-tech': simpleMortal }"
       ref="videoPlayer"
-      class="video-js vjs-default-skin"
+      class="video-js vjs-16-9"
     ></video>
   </section>
 </template>
@@ -22,6 +22,7 @@ import {
   onMounted,
   onBeforeUnmount,
   reactive,
+  computed,
 } from 'vue';
 import { useExternalVideo } from '@/composables/external-video';
 import videojs from 'video.js';
@@ -30,6 +31,7 @@ import 'videojs-youtube/dist/Youtube.min.js';
 import 'video.js/dist/video-js.css';
 import { useInitWebRTC } from '@/composables/antMedia';
 import { useUserMe } from '@/composables/userMe';
+import { useScreen } from '@/composables/screen';
 
 export default defineComponent({
   name: 'FuExternalVideo',
@@ -44,18 +46,17 @@ export default defineComponent({
     const showPlayButton = ref(false);
     const canManipulateVideo = ref(userMe.roleId === 0 || userMe.roleId === 2);
     const simpleMortal = ref(userMe.roleId == 1);
+    const { screenMinimized } = useScreen();
     const optionsForPlayer = reactive<videojs.PlayerOptions>({
-      controls: canManipulateVideo.value,
+      controls: canManipulateVideo.value || screenMinimized.value,
       autoplay: true,
       bigPlayButton: false,
-      responsive: true,
+      fluid: true,
       controlBar: {
         progressControl: {
           seekBar: true,
         },
       },
-      width: 800,
-      height: 350,
       techOrder: ['youtube'],
       sources: [
         {
@@ -133,6 +134,10 @@ export default defineComponent({
       });
     };
 
+    const watchMinimized = computed(() => {
+      return screenMinimized.value;
+    });
+
     return {
       externalVideo,
       videoPlayer,
@@ -141,6 +146,7 @@ export default defineComponent({
       showPlayButton,
       userMe,
       simpleMortal,
+      watchMinimized,
     };
   },
 });

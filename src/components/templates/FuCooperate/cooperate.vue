@@ -1,6 +1,9 @@
 <template>
   <div class="t-cooperate">
-    <div class="t-cooperate__page" v-if="existRoom">
+    <div
+      class="t-cooperate__page"
+      v-if="existRoom && isLoadingOrError === false"
+    >
       <fu-lobby v-if="roomState.privacy" />
 
       <fu-cooperate
@@ -38,7 +41,7 @@ import FuLobby from 'organisms/FuLobby';
 import { useRoute } from 'vue-router';
 import { useUserMe } from '@/composables/userMe';
 import FuTLoading from 'organisms/FuLoading';
-import { REASON_TO_LEAVE_ROOM } from '@/utils/enums';
+import { PERMISSION_STATUS, REASON_TO_LEAVE_ROOM } from '@/utils/enums';
 import { useInitWebRTC } from '@/composables/antMedia';
 import { useAuthState } from '@/composables/auth';
 import { useRoom } from '@/composables/room';
@@ -66,14 +69,7 @@ export default defineComponent({
       justTurnOnLocalCamera,
     } = useInitWebRTC();
 
-    const {
-      userMe,
-      setUserMe,
-      setVideoActivatedState,
-      // setMicState,
-      // setCameraState,
-      // setScreenState,
-    } = useUserMe();
+    const { userMe, setUserMe, setVideoActivatedState } = useUserMe();
 
     const { roomState, setRoom } = useRoom();
 
@@ -83,7 +79,7 @@ export default defineComponent({
       authState,
       setLoadingOrErrorMessage,
       setExistRoom,
-      setIsLoadingOrError,
+      // setIsLoadingOrError,
     } = useAuthState();
 
     const { setMicIconState, setCameraIconState, setScreenShareIconState } =
@@ -145,7 +141,12 @@ export default defineComponent({
       isCameraBlocked: roleId === 1 ? isCameraLocked : false,
       isScreenShareBlocked: roleId === 1 ? isScreenShareLocked : false,
       fractalUserId,
-      denied: roleId === 1 ? (privacy ? 0 : 2) : 2,
+      denied:
+        roleId === 1
+          ? privacy
+            ? PERMISSION_STATUS.asked
+            : PERMISSION_STATUS.admitted
+          : PERMISSION_STATUS.admitted,
       existVideo: false,
       isRecording: false,
     });
@@ -158,11 +159,10 @@ export default defineComponent({
       id: roomId,
       sharingLink,
       classroomId,
-      privacy,
+      privacy: roleId === 1 ? privacy : false,
       isMicBlocked: roleId === 1 ? isMicLocked : false,
       isCameraBlocked: roleId === 1 ? isCameraLocked : false,
       isScreenShareBlocked: roleId === 1 ? isScreenShareLocked : false,
-      waitList: [],
     });
 
     if (isMicLocked) {
@@ -307,8 +307,7 @@ export default defineComponent({
         if (status === 200) {
           setExistRoom(true);
           // To review
-          setIsLoadingOrError(false);
-          // Initialize room?
+          // setIsLoadingOrError(false);
           createInstance(
             roomId,
             streamId,

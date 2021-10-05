@@ -85,9 +85,6 @@ export function useHandleParticipants() {
   );
 
   const updateParticipantDenied = (id: string, state: number) => {
-    console.log(id);
-    console.log(state);
-
     participants.value.filter((p) => p.id === id)[0].denied = state;
   };
 

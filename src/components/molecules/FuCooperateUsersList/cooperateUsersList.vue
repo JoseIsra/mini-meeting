@@ -4,7 +4,7 @@
       <label class="m-list__title__text">Lista de Usuarios</label>
       <small>En línea ({{ admittedParticipants.length + 1 }})</small>
       <q-btn
-        v-show="canLimitActions"
+        v-show="isAdmin"
         :label="
           waitingParticipants.length > 0
             ? `En espera (${waitingParticipants.length})`
@@ -19,7 +19,7 @@
       ></q-btn>
     </header>
     <main class="m-list__content">
-      <div class="m-list__content__actions" v-show="canLimitActions">
+      <div class="m-list__content__actions" v-show="isAdmin">
         <span>
           {{
             isEveryoneActionsBlocked ? 'Limitar acciones ' : 'Liberar acciones'
@@ -203,7 +203,7 @@
           </q-btn>
         </div>
 
-        <div class="m-list__content__userBox__actions" v-show="canLimitActions">
+        <div class="m-list__content__userBox__actions" v-show="isAdmin">
           <!-- <q-btn
             :icon="
               hasActionsBlocked(participant)
@@ -303,7 +303,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, computed, ref } from 'vue';
+import { defineComponent, computed } from 'vue';
 import { useHandleParticipants } from '@/composables/participants';
 import { User, useUserMe } from '@/composables/userMe';
 import { useInitWebRTC } from '@/composables/antMedia';
@@ -317,20 +317,15 @@ export default defineComponent({
   name: 'FuCooperateUsersList',
   setup() {
     const {
-      participants,
       setParticipantActions,
       setEveryParticipantActions,
       waitingParticipants,
       admittedParticipants,
     } = useHandleParticipants();
 
-    console.log(participants);
-
     const { toggleParticipantPanel } = useSidebarToogle();
 
-    const { userMe } = useUserMe();
-
-    const canLimitActions = ref(userMe.roleId === 0 || userMe.roleId === 2);
+    const { userMe, isAdmin } = useUserMe();
 
     const { sendData } = useInitWebRTC();
 
@@ -603,7 +598,8 @@ export default defineComponent({
       isScreenShareBlocked,
       handleParticipantActions,
       LOCK_ACTION_TYPE,
-      canLimitActions,
+
+      isAdmin,
       activeFullScreen,
       isFullScreen,
       fullScreenObject,

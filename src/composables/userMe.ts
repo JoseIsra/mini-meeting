@@ -1,4 +1,4 @@
-import { reactive } from 'vue';
+import { reactive, computed } from 'vue';
 
 export interface User {
   id: string;
@@ -97,6 +97,8 @@ export function useUserMe() {
 
   const setDenied = (state: number) => (userMe.denied = state);
 
+  const isAdmin = computed(() => userMe.roleId === 0 || userMe.roleId === 2);
+
   return {
     userMe,
     setUserMe,
@@ -111,5 +113,6 @@ export function useUserMe() {
     setLocalVideoBlock,
     setLocalScreenShareBlock,
     setDenied,
+    isAdmin
   };
 }

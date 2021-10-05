@@ -11,38 +11,13 @@
       />
     </div>
 
-    <div class="o-lobby__media">
-      <div class="o-lobby__media__screen"></div>
-      <div class="o-lobby__media__actions">
-        <q-btn icon="mic" />
-        <q-btn icon="videocam" />
-        <q-btn icon="monitor" />
-        <q-btn icon="settings" />
-      </div>
-    </div>
     <div class="o-lobby__info">
       <div class="o-lobby__info__wrapper">
-        <div class="o-lobby__title">Room Name</div>
-        <div class="o-lobby__label">
+        <div class="o-lobby__title">
           {{ lobbyMessage }}
         </div>
 
-        <q-btn
-          v-if="userMe.denied === 0"
-          label="Solicitar unirse"
-          rounded
-          color="blue"
-          text-color="white"
-          style="
-            text-transform: capitalize;
-            margin-top: 40px;
-            padding: 5px 25px;
-          "
-          @click="askPermission"
-        />
-
         <q-circular-progress
-          v-else
           indeterminate
           size="40px"
           :thickness="0.4"
@@ -53,19 +28,7 @@
           class="q-ma-md"
         />
 
-        <q-btn
-          v-if="userMe.roleId === 0"
-          label="Unirse"
-          rounded
-          color="blue"
-          text-color="white"
-          style="
-            text-transform: capitalize;
-            margin-top: 40px;
-            padding: 5px 25px;
-          "
-          @click="enterAsAdmin"
-        />
+        <!-- <q-btn icon="fas fa-check" color="green" @click="askPermission" /> -->
       </div>
     </div>
   </div>
@@ -73,46 +36,31 @@
 
 <script lang="ts">
 import { defineComponent, computed } from 'vue';
-import { useInitWebRTC } from '@/composables/antMedia';
+// import { useInitWebRTC } from '@/composables/antMedia';
 import { useUserMe } from '@/composables/userMe';
 import { PERMISSION_STATUS } from '@/utils/enums';
-import { nanoid } from 'nanoid';
-import { useRoom } from '@/composables/room';
+// import { nanoid } from 'nanoid';
 
 export default defineComponent({
   name: 'FuLobby',
   setup() {
-    const { userMe, setDenied } = useUserMe();
-    const { setPrivacy } = useRoom();
-    const { sendData } = useInitWebRTC();
+    const { userMe } = useUserMe();
+    // const { sendData } = useInitWebRTC();
 
     const lobbyMessage = computed(() => {
-      if (userMe.denied === PERMISSION_STATUS.notAsked) {
+      if (userMe.denied === PERMISSION_STATUS.asked) {
         return 'Aguarda a que un moderador te otorgue permiso para entrar a la sala';
-      } else if (userMe.denied === PERMISSION_STATUS.asked) {
-        return 'Esperando que un moderador te permita ingresar';
+      } else if (userMe.denied === PERMISSION_STATUS.admitted) {
+        return 'Se te ha permitido ingresar';
       } else {
         return 'No se te ha permitido ingresar en la reunion';
       }
     });
 
-    const askPermission = () => {
-      sendData(userMe.id, {
-        id: nanoid(),
-        eventType: 'ASK_PERMISSION',
-        participantId: userMe.id,
-        participantName: userMe.name,
-      });
-      setDenied(PERMISSION_STATUS.asked);
-    };
-
-    const enterAsAdmin = () => setPrivacy(false);
-
     return {
-      askPermission,
-      enterAsAdmin,
       lobbyMessage,
       userMe,
+      PERMISSION_STATUS,
     };
   },
 });

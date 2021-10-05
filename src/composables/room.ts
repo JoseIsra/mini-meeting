@@ -9,7 +9,6 @@ export interface Room {
   isCameraBlocked: boolean;
   isScreenShareBlocked: boolean;
   privacy: boolean;
-  waitList: Array<participantOnWait>;
 }
 
 export interface participantOnWait {
@@ -29,13 +28,6 @@ export function useRoom() {
 
   const setPrivacy = (state: boolean) => (roomState.privacy = state);
 
-  const newParticipantOnWait = (participant: participantOnWait) =>
-    roomState.waitList.push(participant);
-
-  const removeParticipantOnWait = (participant: participantOnWait) =>
-    (roomState.waitList = roomState.waitList.filter(
-      (p) => p.id !== participant.id
-    ));
   const setRoomMicState = (state: boolean) => (roomState.isMicBlocked = state);
 
   const setRoomCameraState = (state: boolean) =>
@@ -49,8 +41,6 @@ export function useRoom() {
     setRoom,
     setRecorded,
     setPrivacy,
-    newParticipantOnWait,
-    removeParticipantOnWait,
     setRoomMicState,
     setRoomCameraState,
     setRoomScreenShareState,

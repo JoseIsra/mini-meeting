@@ -11,7 +11,7 @@
         text-color="white"
         rounded
         dense
-        @click="admitParticipant(participant)"
+        @click="admitParticipant"
       />
       <q-btn
         style="padding: 8px"
@@ -20,7 +20,7 @@
         text-color="white"
         rounded
         dense
-        @click="denyParticipant(participant)"
+        @click="denyParticipant"
       />
     </div>
   </div>
@@ -49,8 +49,8 @@ export default defineComponent({
 
     const { sendData } = useInitWebRTC();
 
-    const admitParticipant = (participant: Participant) => {
-      console.log('Admitir participante: ', participant.name);
+    const admitParticipant = () => {
+      console.log('Admitir participante: ', props.participant.id);
 
       sendData(userMe.id, {
         id: '',
@@ -65,8 +65,8 @@ export default defineComponent({
       );
     };
 
-    const denyParticipant = (participant: Participant) => {
-      console.log('Denegar participante: ', participant.name);
+    const denyParticipant = () => {
+      console.log('Denegar participante: ', props.participant.id);
 
       sendData(userMe.id, {
         id: '',

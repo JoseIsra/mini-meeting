@@ -21,12 +21,10 @@ const {
   setScreenState,
   setVideoActivatedState,
   updateUserMe,
-  // setMicBlock,
-  // setVideoBlock,
-  // setScreenShareBlock,
   setMicState,
   setCameraState,
   setDenied,
+  isAdmin,
 } = useUserMe();
 
 const { setIsLoadingOrError, setLoadingOrErrorMessage, setExistRoom } =
@@ -36,7 +34,6 @@ const {
   setRoomMicState,
   setRoomCameraState,
   setRoomScreenShareState,
-  newParticipantOnWait,
   setPrivacy,
 } = useRoom();
 
@@ -110,13 +107,6 @@ interface ObjBlockEveryoneAction {
   eventType: string;
   action: number;
   value: boolean;
-}
-
-interface ObjAskPermission {
-  id: string;
-  participantId: string;
-  participantName: string;
-  eventType: string;
 }
 
 interface ObjAnswerPermission {
@@ -646,6 +636,13 @@ export function useInitWebRTC() {
                   remoteUserInfoParsed.userInfo.fractalUserId;
                 user.denied = remoteUserInfoParsed.userInfo.denied;
                 user.isRecording = remoteUserInfoParsed.userInfo.isRecording;
+
+                if (isAdmin.value) {
+                  notifyWithAction(
+                    remoteUserInfoParsed.userInfo.name,
+                    remoteUserInfoParsed.userInfo.id
+                  );
+                }
               }
             }
           } else if (eventType === 'USER_INFO_FINISH') {
@@ -820,31 +817,14 @@ export function useInitWebRTC() {
             }
 
             // setUserActions(lockData.action, lockData.value);
-          } else if (eventType === 'ASK_PERMISSION') {
-            const isAdmin = userMe.roleId !== 1;
-
-            if (isAdmin) {
-              const { participantId, participantName } = JSON.parse(
-                obj.data
-              ) as ObjAskPermission;
-
-              // Create notification on admin with participant name and add to participantWaitingList of room
-
-              notifyWithAction(participantName, participantId);
-
-              updateParticipantDenied(participantId, PERMISSION_STATUS.asked);
-
-              newParticipantOnWait({
-                id: participantId,
-                name: participantName,
-              });
-            }
           } else if (eventType === 'ANSWER_PERMISSION') {
             const { participantId, value } = JSON.parse(
               obj.data
             ) as ObjAnswerPermission;
 
             if (userMe.id === participantId) {
+              console.log('Respuesta para mi');
+
               if (value) {
                 setPrivacy(false);
                 setDenied(PERMISSION_STATUS.admitted);
@@ -852,6 +832,8 @@ export function useInitWebRTC() {
                 setDenied(PERMISSION_STATUS.denied);
               }
             } else {
+              console.log('Respuesta para un participante: ', participantId);
+
               updateParticipantDenied(
                 participantId,
                 value ? PERMISSION_STATUS.admitted : PERMISSION_STATUS.denied

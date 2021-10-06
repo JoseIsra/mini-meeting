@@ -27,13 +27,13 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, watch } from 'vue';
+import { defineComponent, ref } from 'vue';
 import { useInitMerge } from '@/composables/antMediaMerge';
 import { useInitWebRTC } from '@/composables/antMedia';
 import { useUserMe } from '@/composables/userMe';
 import { useRoom } from '@/composables/room';
 import { warningMessage, successMessage } from '@/utils/notify';
-import { useHandleParticipants } from '@/composables/participants';
+// import { useHandleParticipants } from '@/composables/participants';
 
 export default defineComponent({
   name: 'FuMRecording',
@@ -42,15 +42,14 @@ export default defineComponent({
     const recordTime = ref('00:00:00');
     const secondsElapsed = ref(0);
     const isRecording = ref<boolean>(false);
-    const { recordingStream, stopRecordingStream, refreshMerge } =
-      useInitMerge();
+    const { recordingStream, stopRecordingStream } = useInitMerge();
     const { sendNotificationEvent } = useInitWebRTC();
-    const { participants } = useHandleParticipants();
+    // const { participants } = useHandleParticipants();
     const { userMe, updateUserMe } = useUserMe();
     const { roomState } = useRoom();
     const isLoading = ref(false);
 
-    const watchParticipants = ref<() => void>();
+    // const watchParticipants = ref<() => void>();
 
     const mergedName = ref('');
 
@@ -65,6 +64,7 @@ export default defineComponent({
     const startRecording = () => {
       updateUserMe({ isRecording: true });
 
+      window.xprops?.setIsBeingRecorded?.(true);
       /* watchParticipants.value = watch(
         () => participants.value,
         (actualParticipants, prevParticipants) => {
@@ -100,7 +100,7 @@ export default defineComponent({
 
     const stopRecording = () => {
       /* watchParticipants.value?.(); */
-
+      updateUserMe({ isRecording: false });
       warningMessage('Grabación terminada');
       isRecording.value = false;
       recordTime.value = '00:00:00';
@@ -111,6 +111,7 @@ export default defineComponent({
       window.xprops?.handleStopRecording?.(
         `https://f002.backblazeb2.com/file/MainPublic/classrooms/${roomState.classroomId}/cooperate/streams/${mergedName.value}.m3u8`
       );
+      window.xprops?.setIsBeingRecorded?.(false);
       sendNotificationEvent('RECORDING_STOPPED', userMe.id);
     };
 
@@ -124,6 +125,7 @@ export default defineComponent({
       isLoading,
       roomState,
       canRecording,
+      userMe,
     };
   },
 });

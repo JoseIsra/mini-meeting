@@ -160,6 +160,7 @@ export default defineComponent({
       isMicBlocked: roleId === 1 ? isMicLocked : false,
       isCameraBlocked: roleId === 1 ? isCameraLocked : false,
       isScreenShareBlocked: roleId === 1 ? isScreenShareLocked : false,
+      isBeingRecorded: false,
     });
 
     if (isMicLocked) {

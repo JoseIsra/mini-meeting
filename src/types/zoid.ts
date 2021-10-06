@@ -15,6 +15,7 @@ export interface ZoidProps {
   isScreenShareLocked?: boolean;
   classroomId?: string;
   isMicOn?: boolean;
+  isBeingRecorded?: boolean;
   handleLeaveCall?: (
     arg: number,
     remainingParticipantsFractalUserIds?: string[]
@@ -24,4 +25,5 @@ export interface ZoidProps {
   toggleLockAction?: (lockAction: lockAction) => void;
   fractalUserId?: string;
   logJoined?: () => void;
+  setIsBeingRecorded?: (value: boolean) => void;
 }

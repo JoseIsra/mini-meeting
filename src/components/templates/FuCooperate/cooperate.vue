@@ -71,8 +71,7 @@ export default defineComponent({
     const { authState, setLoadingOrErrorMessage, setExistRoom } =
       useAuthState();
 
-    const { setMicIconState, setCameraIconState, setScreenShareIconState } =
-      useActions();
+    const { setMicIconState, setCameraIconState } = useActions();
 
     //Datos del usuario
     const streamId =
@@ -204,20 +203,21 @@ export default defineComponent({
     const toggleDesktopCapture = () => {
       if (userMe.isScreenSharing) {
         //si estoy compartiendo -> apago todo
-        setScreenShareIconState(false);
         setVideoActivatedState(false);
+        setScreenState(false);
         resetDesktop();
         sendNotificationEvent('SCREEN_SHARING_OFF', streamId);
       } else {
         if (userMe.isCameraOn) {
           //apagar camara y prender captura
           setCameraIconState(false);
+          setCameraState(false);
           turnOffLocalCamera(streamId);
           sendNotificationEvent('CAM_TURNED_OFF', streamId);
         }
-        setScreenShareIconState(true);
         switchDesktopCapture(streamId);
         setVideoActivatedState(true);
+        setScreenState(true);
         sendNotificationEvent('SCREEN_SHARING_ON', streamId);
       }
       // if (userMe.isCameraOn && !userMe.isScreenSharing) {
@@ -243,6 +243,7 @@ export default defineComponent({
         setCameraIconState(false);
         turnOffLocalCamera(streamId);
         setVideoActivatedState(false);
+        setCameraState(false);
         sendNotificationEvent('CAM_TURNED_OFF', streamId);
       } else {
         //si camara no está on y el usuario estaba compartiendo pantalla
@@ -255,9 +256,9 @@ export default defineComponent({
           sendNotificationEvent('SCREEN_SHARING_OFF', userMe.id);
         }
         setVideoActivatedState(true);
-
-        turnOnLocalCamera(streamId);
         setCameraIconState(true);
+        setCameraState(true);
+        turnOnLocalCamera(streamId);
         sendNotificationEvent('CAM_TURNED_ON', streamId);
       }
     };

@@ -15,6 +15,7 @@ export interface ZoidProps {
   isScreenShareLocked?: boolean;
   classroomId?: string;
   isMicOn?: boolean;
+  privacy?: boolean;
   handleLeaveCall?: (
     arg: number,
     remainingParticipantsFractalUserIds?: string[]

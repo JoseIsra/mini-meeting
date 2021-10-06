@@ -2,10 +2,24 @@
   <section class="m-list">
     <header class="m-list__title">
       <label class="m-list__title__text">Lista de Usuarios</label>
-      <small>En línea ({{ participants.length + 1 }})</small>
+      <small>En línea ({{ admittedParticipants.length + 1 }})</small>
+      <q-btn
+        v-show="isAdmin"
+        :label="
+          waitingParticipants.length > 0
+            ? `En espera (${waitingParticipants.length})`
+            : 'Sin solicitudes'
+        "
+        :color="waitingParticipants.length > 0 ? 'green' : 'grey'"
+        text-color="white"
+        icon="fa fa-clock"
+        style="margin: 16px 0; text-transform: capitalize"
+        @click="toggleParticipantPanel"
+        :disable="!waitingParticipants.length > 0"
+      ></q-btn>
     </header>
     <main class="m-list__content">
-      <div class="m-list__content__actions" v-show="canLimitActions">
+      <div class="m-list__content__actions" v-show="isAdmin">
         <span>
           {{
             isEveryoneActionsBlocked ? 'Limitar acciones ' : 'Liberar acciones'
@@ -83,7 +97,7 @@
           :icon="isEveryoneActionsBlocked ? 'fas fa-lock' : 'fas fa-lock-open'"
           @click="handleEveryoneActions(LOCK_ACTION_TYPE.All)"
           size="10px"
-          :disable="!participants.length > 0"
+          :disable="!admittedParticipants.length > 0"
         >
           <q-tooltip
             class="bg-grey-10"
@@ -145,7 +159,7 @@
       </div>
       <div
         class="m-list__content__userBox"
-        v-for="participant in participants"
+        v-for="participant in admittedParticipants"
         :key="participant.id"
       >
         <div class="m-list__content__userBox__user">
@@ -189,7 +203,7 @@
           </q-btn>
         </div>
 
-        <div class="m-list__content__userBox__actions" v-show="canLimitActions">
+        <div class="m-list__content__userBox__actions" v-show="isAdmin">
           <!-- <q-btn
             :icon="
               hasActionsBlocked(participant)
@@ -289,32 +303,39 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, computed, ref } from 'vue';
+import { defineComponent, computed } from 'vue';
 import { useHandleParticipants } from '@/composables/participants';
 import { User, useUserMe } from '@/composables/userMe';
 import { useInitWebRTC } from '@/composables/antMedia';
 import { Participant } from '@/types';
 import { LOCK_ACTION_TYPE } from '@/utils/enums';
 import { nanoid } from 'nanoid';
+import { useSidebarToogle } from '@/composables';
 import { useToogleFunctions } from '@/composables';
 
 export default defineComponent({
   name: 'FuCooperateUsersList',
   setup() {
-    const { participants, setParticipantActions, setEveryParticipantActions } =
-      useHandleParticipants();
+    const {
+      setParticipantActions,
+      setEveryParticipantActions,
+      waitingParticipants,
+      admittedParticipants,
+    } = useHandleParticipants();
 
-    const { userMe } = useUserMe();
+    const { toggleParticipantPanel } = useSidebarToogle();
 
-    const canLimitActions = ref(userMe.roleId === 0 || userMe.roleId === 2);
+    const { userMe, isAdmin } = useUserMe();
 
     const { sendData } = useInitWebRTC();
+
     const {
       setFullScreen,
       setFullScreenObject,
       isFullScreen,
       fullScreenObject,
     } = useToogleFunctions();
+
     const listenFullScreen = computed(() => {
       if (fullScreenObject.id) return fullScreenObject;
       return '';
@@ -322,21 +343,21 @@ export default defineComponent({
 
     const isEveryoneMicBlocked = computed(
       () =>
-        !participants.value.some(
+        !admittedParticipants.value.some(
           (participant) => participant?.isMicBlocked === false
         )
     );
 
     const isEveryoneVideoBlocked = computed(
       () =>
-        !participants.value.some(
+        !admittedParticipants.value.some(
           (participant) => participant?.isCameraBlocked === false
         )
     );
 
     const isEveryoneScreenShareBlocked = computed(
       () =>
-        !participants.value.some(
+        !admittedParticipants.value.some(
           (participant) => participant?.isScreenShareBlocked === false
         )
     );
@@ -349,7 +370,7 @@ export default defineComponent({
     );
 
     const hasActionsBlocked = (participant: Participant) => {
-      const participantActions = participants.value.find(
+      const participantActions = admittedParticipants.value.find(
         (part) => part.id === participant.id
       );
 
@@ -361,15 +382,15 @@ export default defineComponent({
     };
 
     const isMicBlocked = (participant: Participant) =>
-      participants.value.find((part) => part.id === participant.id)
+      admittedParticipants.value.find((part) => part.id === participant.id)
         ?.isMicBlocked === true;
 
     const isVideoBlocked = (participant: Participant) =>
-      participants.value.find((part) => part.id === participant.id)
+      admittedParticipants.value.find((part) => part.id === participant.id)
         ?.isCameraBlocked === true;
 
     const isScreenShareBlocked = (participant: Participant) =>
-      participants.value.find((part) => part.id === participant.id)
+      admittedParticipants.value.find((part) => part.id === participant.id)
         ?.isScreenShareBlocked === true;
 
     const handleParticipantActions = (
@@ -562,7 +583,9 @@ export default defineComponent({
     };
 
     return {
-      participants,
+      waitingParticipants,
+      admittedParticipants,
+      toggleParticipantPanel,
       hasActionsBlocked,
       handleEveryoneActions,
       userMe,
@@ -575,7 +598,8 @@ export default defineComponent({
       isScreenShareBlocked,
       handleParticipantActions,
       LOCK_ACTION_TYPE,
-      canLimitActions,
+
+      isAdmin,
       activeFullScreen,
       isFullScreen,
       fullScreenObject,

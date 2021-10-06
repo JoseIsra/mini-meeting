@@ -32,7 +32,7 @@
     </div>
     <video
       v-show="fullScreenObject.isVideoActivated"
-      class="m-fuser__stream"
+      :class="['m-fuser__stream', shareScreen ? '--fillMode' : '--coverMode']"
       autoplay
       @mousemove="toggleMinimizeMessage"
       muted
@@ -51,7 +51,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
+import { defineComponent, ref, computed } from 'vue';
 import { useToogleFunctions } from '@/composables';
 import _ from 'lodash';
 
@@ -61,6 +61,7 @@ export default defineComponent({
     const { fullScreenObject, setFullScreen, clearFullScreenObject } =
       useToogleFunctions();
     let showMinimizeMessage = ref(false);
+
     const exitFullScreen = () => {
       setFullScreen('none');
       clearFullScreenObject();
@@ -78,11 +79,16 @@ export default defineComponent({
       }
     };
 
+    const shareScreen = computed(() => {
+      return fullScreenObject.isScreenSharing;
+    });
+
     return {
       fullScreenObject,
       exitFullScreen,
       toggleMinimizeMessage,
       showMinimizeMessage,
+      shareScreen,
     };
   },
 });

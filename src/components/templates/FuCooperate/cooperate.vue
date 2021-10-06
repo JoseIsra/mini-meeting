@@ -1,17 +1,26 @@
 <template>
   <div class="t-cooperate">
-    <fu-cooperate
-      :toggleLocalCamera="toggleLocalCamera"
-      :toggleLocalMic="toggleLocalMic"
-      :toggleDesktopCapture="toggleDesktopCapture"
-      v-if="existRoom"
-      @mounted="fuCooperateMountedHandler"
-    />
+    <div
+      class="t-cooperate__page"
+      v-if="existRoom && isLoadingOrError === false"
+    >
+      <fu-lobby v-if="roomState.privacy" />
+
+      <fu-cooperate
+        v-else
+        :toggleLocalCamera="toggleLocalCamera"
+        :toggleLocalMic="toggleLocalMic"
+        :toggleDesktopCapture="toggleDesktopCapture"
+        @mounted="fuCooperateMountedHandler"
+      />
+    </div>
+
     <fu-t-loading
       v-if="isLoadingOrError"
       :loadingMessage="loadingOrErrorMessage"
       @handleLeaveCall="handleZoidLeaveCall"
     />
+
     <!-- TODO: Move This (Prev of recording) -->
     <video
       v-show="false"
@@ -27,10 +36,12 @@
 <script lang="ts">
 import { defineComponent, toRefs, onMounted } from 'vue';
 import FuCooperate from 'organisms/FuCooperate';
+import FuLobby from 'organisms/FuLobby';
+
 import { useRoute } from 'vue-router';
 import { useUserMe } from '@/composables/userMe';
 import FuTLoading from 'organisms/FuLoading';
-import { REASON_TO_LEAVE_ROOM } from '@/utils/enums';
+import { PERMISSION_STATUS, REASON_TO_LEAVE_ROOM } from '@/utils/enums';
 import { useInitWebRTC } from '@/composables/antMedia';
 import { useAuthState } from '@/composables/auth';
 import { useRoom } from '@/composables/room';
@@ -42,6 +53,7 @@ export default defineComponent({
   components: {
     FuCooperate,
     FuTLoading,
+    FuLobby,
   },
   setup() {
     const {
@@ -64,12 +76,16 @@ export default defineComponent({
       setScreenState,
     } = useUserMe();
 
-    const { setRoom } = useRoom();
+    const { roomState, setRoom } = useRoom();
 
     const route = useRoute();
 
-    const { authState, setLoadingOrErrorMessage, setExistRoom } =
-      useAuthState();
+    const {
+      authState,
+      setLoadingOrErrorMessage,
+      setExistRoom,
+      // setIsLoadingOrError,
+    } = useAuthState();
 
     const { setMicIconState, setCameraIconState } = useActions();
 
@@ -93,6 +109,11 @@ export default defineComponent({
 
     const roleId =
       window.xprops?.roleId || parseInt(route.query.roleId as string) || 0;
+
+    const privacy =
+      window.xprops?.privacy ||
+      (route.query.privacy as string) === '1' ||
+      false;
 
     const isMicLocked =
       window.xprops?.isMicLocked ||
@@ -131,12 +152,14 @@ export default defineComponent({
       setCameraState(true);
       setCameraIconState(true);
     }
+
     setUserMe({
       id: streamId,
       name: streamName,
       avatar,
       roleId: roleId,
       isMicOn: isMicOn ? true : isMicLocked,
+      // isMicOn: !isMicLocked,
       isCameraOn,
       isScreenSharing: false,
       isVideoActivated: isCameraOn,
@@ -144,6 +167,12 @@ export default defineComponent({
       isCameraBlocked: roleId === 1 ? isCameraLocked : false,
       isScreenShareBlocked: roleId === 1 ? isScreenShareLocked : false,
       fractalUserId,
+      denied:
+        roleId === 1
+          ? privacy
+            ? PERMISSION_STATUS.asked
+            : PERMISSION_STATUS.admitted
+          : PERMISSION_STATUS.admitted,
       existVideo: false,
       isRecording: false,
     });
@@ -156,6 +185,7 @@ export default defineComponent({
       id: roomId,
       sharingLink,
       classroomId,
+      privacy: roleId === 1 ? privacy : false,
       isMicBlocked: roleId === 1 ? isMicLocked : false,
       isCameraBlocked: roleId === 1 ? isCameraLocked : false,
       isScreenShareBlocked: roleId === 1 ? isScreenShareLocked : false,
@@ -171,7 +201,6 @@ export default defineComponent({
     if (isCameraLocked) {
       setVideoActivatedState(!isCameraLocked);
       sendNotificationEvent('CAM_TURNED_OFF', userMe.id);
-
       // if (roleId === 1) {
       //   setCameraState(!isCameraLocked);
       // }
@@ -180,7 +209,6 @@ export default defineComponent({
     if (isScreenShareLocked) {
       setVideoActivatedState(!isScreenShareLocked);
       sendNotificationEvent('SCREEN_SHARING_OFF', userMe.id);
-
       // if (roleId === 1) {
       //   setScreenState(!isScreenShareLocked);
       // }
@@ -321,6 +349,17 @@ export default defineComponent({
         const { status } = await checkRoom(roomId);
         if (status === 200) {
           setExistRoom(true);
+          // To review
+          // setIsLoadingOrError(false);
+          createInstance(
+            roomId,
+            streamId,
+            streamName,
+            publishToken,
+            playToken,
+            subscriberId,
+            subscriberCode
+          );
         } else if (status === 404) {
           setLoadingOrErrorMessage('Cooperate not found');
         } else {
@@ -332,17 +371,16 @@ export default defineComponent({
     });
 
     //TODO: Dont dissapear loading until the host accept the user. Needed to implement logic for that (dont publish neither play streams)
-
     const fuCooperateMountedHandler = () => {
-      createInstance(
-        roomId,
-        streamId,
-        streamName,
-        publishToken,
-        playToken,
-        subscriberId,
-        subscriberCode
-      );
+      // createInstance(
+      //   roomId,
+      //   streamId,
+      //   streamName,
+      //   publishToken,
+      //   playToken,
+      //   subscriberId,
+      //   subscriberCode
+      // );
       window.xprops?.logJoined?.();
     };
 
@@ -365,6 +403,7 @@ export default defineComponent({
       toggleDesktopCapture,
       handleZoidLeaveCall,
       ...toRefs(authState),
+      roomState,
     };
   },
 });

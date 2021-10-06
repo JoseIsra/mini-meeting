@@ -1,5 +1,5 @@
 <template>
-  <section class="a-hand" v-if="!screenMinimized">
+  <section class="a-hand">
     <div
       class="a-hand__content"
       v-for="notification in functionsOnMenuBar.handNotificationInfo"

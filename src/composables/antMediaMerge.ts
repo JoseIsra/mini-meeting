@@ -3,9 +3,9 @@ import { WebRTCAdaptor } from '@/utils/webrtc/webrtc_adaptor';
 import { useUserMe } from '@/composables/userMe';
 import { objWebRTC, Participant } from '@/types/index';
 import { StreamMerger } from '@/utils/webrtc/stream_merger';
-import { useHandleParticipants } from '@/composables/participants';
+// import { useHandleParticipants } from '@/composables/participants';
 
-const { participants } = useHandleParticipants();
+// const { participants } = useHandleParticipants();
 
 const { userMe } = useUserMe();
 

@@ -64,9 +64,15 @@
   &__stream {
     width: 100%;
     height: 100%;
-    object-fit: cover;
     min-height: 100px;
   }
+  .--fillMode {
+    object-fit: fill;
+  }
+  .--coverMode {
+    object-fit: cover;
+  }
+
   &__quitBtn {
     position: absolute;
     top: 50%;

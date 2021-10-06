@@ -1,6 +1,6 @@
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { Participant } from '@/types';
-import { LOCK_ACTION_TYPE } from '@/utils/enums';
+import { LOCK_ACTION_TYPE, PERMISSION_STATUS } from '@/utils/enums';
 import _ from 'lodash';
 
 const participants = ref<Participant[]>([]);
@@ -65,7 +65,7 @@ export function useHandleParticipants() {
           ...part,
           isMicBlocked:
             action === LOCK_ACTION_TYPE.Mic ? value : part.isMicBlocked,
-            isCameraBlocked:
+          isCameraBlocked:
             action === LOCK_ACTION_TYPE.Camera ? value : part.isCameraBlocked,
           isScreenShareBlocked:
             action === LOCK_ACTION_TYPE.Screen
@@ -76,6 +76,18 @@ export function useHandleParticipants() {
     });
   };
 
+  const admittedParticipants = computed(() =>
+    participants.value.filter((p) => p.denied === PERMISSION_STATUS.admitted)
+  );
+
+  const waitingParticipants = computed(() =>
+    participants.value.filter((p) => p.denied === PERMISSION_STATUS.asked)
+  );
+
+  const updateParticipantDenied = (id: string, state: number) => {
+    participants.value.filter((p) => p.id === id)[0].denied = state;
+  };
+
   return {
     deleteAllParticipants,
     addParticipants,
@@ -83,5 +95,8 @@ export function useHandleParticipants() {
     participants,
     setParticipantActions,
     setEveryParticipantActions,
+    admittedParticipants,
+    waitingParticipants,
+    updateParticipantDenied,
   };
 }

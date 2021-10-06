@@ -45,9 +45,12 @@ const {
 } = useHandleParticipants();
 
 const { setUserMessage, deleteLoadingMessage } = useHandleMessage();
-
-const { addHandNotificationInfo, removeHandNotification, setFullScreen } =
-  useToogleFunctions();
+const {
+  addHandNotificationInfo,
+  removeHandNotification,
+  setFullScreen,
+  setIDButtonSelected,
+} = useToogleFunctions();
 
 const roomTimerId = ref<ReturnType<typeof setInterval> | null>(null);
 
@@ -940,13 +943,16 @@ export function useInitWebRTC() {
         } else if (error.indexOf('data_channel_error') != -1) {
           errorMessage = 'There was a error during data channel communication';
         } else if (error.indexOf('ScreenSharePermissionDenied') != -1) {
-          errorMessage = 'You are not allowed to access screen share';
-          console.log('hola diosito soy yo de nuevo 🥲');
-          //screen_share_checkbox.checked = false;
-          setScreenState(false);
-          setVideoActivatedState(false);
-          webRTCInstance.value.turnOffLocalCamera?.(streamId);
+          setIDButtonSelected('');
+          if (!userMe.isCameraOn) {
+            userMe.isVideoActivated = false;
+            userMe.isScreenSharing = false;
+            webRTCInstance.value.turnOffLocalCamera?.(userMe.id);
+          }
           webRTCInstance.value.resetDesktop?.();
+          sendNotificationEvent('SCREEN_SHARING_OFF', userMe.id);
+          errorMessage = 'You are not allowed to access screen share';
+          //screen_share_checkbox.checked = false;
         } else if (error.indexOf('AbortError') !== -1) {
           setExistRoom(false);
           setLoadingOrErrorMessage(

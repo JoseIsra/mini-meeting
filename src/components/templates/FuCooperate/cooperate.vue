@@ -241,6 +241,7 @@ export default defineComponent({
         turnOffLocalCamera(streamId);
         switchDesktopCaptureWithCamera(streamId);
       } else if (!userMe.isCameraOn && !userMe.isScreenSharing) {
+        console.log('INIT SHARING');
         setScreenShareIconState(true);
         switchDesktopCapture(streamId);
         setVideoActivatedState(true);

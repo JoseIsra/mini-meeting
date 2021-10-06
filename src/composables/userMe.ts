@@ -1,4 +1,4 @@
-import { reactive } from 'vue';
+import { reactive, computed } from 'vue';
 
 export interface User {
   id: string;
@@ -14,6 +14,7 @@ export interface User {
   isScreenShareBlocked: boolean;
   stream?: MediaStream;
   fractalUserId: string;
+  denied: number;
   existVideo?: boolean;
   urlOfVideo?: string;
   videoInstance?: HTMLMediaElement & { playerId: string };
@@ -94,6 +95,10 @@ export function useUserMe() {
     Object.assign(pinnedUserStream, value);
   };
 
+  const setDenied = (state: number) => (userMe.denied = state);
+
+  const isAdmin = computed(() => userMe.roleId === 0 || userMe.roleId === 2);
+
   return {
     userMe,
     setUserMe,
@@ -107,5 +112,7 @@ export function useUserMe() {
     setLocalMicBlock,
     setLocalVideoBlock,
     setLocalScreenShareBlock,
+    setDenied,
+    isAdmin
   };
 }

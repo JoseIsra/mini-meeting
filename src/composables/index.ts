@@ -53,6 +53,8 @@ const perifericsState = {
 };
 
 const isSidebarRender = ref<boolean>(false);
+const showParticipantPanel = ref<boolean>(false);
+
 const functionsOnMenuBar = reactive<FunctionState>(functionState);
 const perifericsControl = reactive<PerifericsState>(perifericsState);
 const isFullScreen = ref<boolean>(false);
@@ -169,8 +171,14 @@ export function useSidebarToogle() {
   const setSidebarState = (value: boolean) => {
     isSidebarRender.value = value;
   };
+
+  const toggleParticipantPanel = () =>
+    (showParticipantPanel.value = !showParticipantPanel.value);
+
   return {
     isSidebarRender,
     setSidebarState,
+    showParticipantPanel,
+    toggleParticipantPanel,
   };
 }

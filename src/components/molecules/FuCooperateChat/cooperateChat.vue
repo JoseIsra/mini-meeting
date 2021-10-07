@@ -2,7 +2,23 @@
   <section class="m-chat">
     <header class="m-chat__title">
       <label class="m-chat__title__text">
-        <q-icon name="wechat" color="white" size="25px" />
+        <q-icon
+          v-if="$q.screen.gt.sm"
+          name="wechat"
+          color="white"
+          size="25px"
+        />
+        <q-btn
+          v-else
+          flat
+          round
+          size="15px"
+          icon="chevron_left"
+          color="white"
+          dense
+          class="m-chat__closeChat"
+          @click="closeChat"
+        />
         Chat público
       </label>
       <q-btn

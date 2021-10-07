@@ -16,6 +16,7 @@ export interface ZoidProps {
   classroomId?: string;
   isMicOn?: boolean;
   isBeingRecorded?: boolean;
+  privacy?: boolean;
   handleLeaveCall?: (
     arg: number,
     remainingParticipantsFractalUserIds?: string[]
@@ -25,5 +26,5 @@ export interface ZoidProps {
   toggleLockAction?: (lockAction: lockAction) => void;
   fractalUserId?: string;
   logJoined?: () => void;
-  setIsBeingRecorded?: (value: boolean) => void;
+  handleStartRecording: () => void;
 }

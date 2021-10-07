@@ -8,6 +8,12 @@ export interface Room {
   isMicBlocked: boolean;
   isCameraBlocked: boolean;
   isScreenShareBlocked: boolean;
+  privacy: boolean;
+}
+
+export interface participantOnWait {
+  id: string;
+  name: string;
 }
 
 const roomState = reactive<Room>({} as Room);
@@ -19,6 +25,8 @@ export function useRoom() {
   const setRecorded = (state: boolean) => {
     Object.assign(roomState, { ...roomState, isBeingRecorded: state });
   };
+
+  const setPrivacy = (state: boolean) => (roomState.privacy = state);
 
   const setRoomMicState = (state: boolean) => (roomState.isMicBlocked = state);
 
@@ -32,6 +40,7 @@ export function useRoom() {
     roomState,
     setRoom,
     setRecorded,
+    setPrivacy,
     setRoomMicState,
     setRoomCameraState,
     setRoomScreenShareState,

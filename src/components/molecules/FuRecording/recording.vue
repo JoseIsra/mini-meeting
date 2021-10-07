@@ -64,7 +64,7 @@ export default defineComponent({
     const startRecording = () => {
       updateUserMe({ isRecording: true });
 
-      window.xprops?.setIsBeingRecorded?.(true);
+      window.xprops?.handleStartRecording();
       /* watchParticipants.value = watch(
         () => participants.value,
         (actualParticipants, prevParticipants) => {
@@ -111,7 +111,7 @@ export default defineComponent({
       window.xprops?.handleStopRecording?.(
         `https://f002.backblazeb2.com/file/MainPublic/classrooms/${roomState.classroomId}/cooperate/streams/${mergedName.value}.m3u8`
       );
-      window.xprops?.setIsBeingRecorded?.(false);
+
       sendNotificationEvent('RECORDING_STOPPED', userMe.id);
     };
 

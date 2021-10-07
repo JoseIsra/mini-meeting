@@ -25,6 +25,27 @@
   &__icon {
     color: rgba(255, 255, 255, 0.6) !important;
     margin: 0 0.3rem;
+
+    &__topin {
+      position: absolute;
+
+      border-radius: 50%;
+      padding: 2;
+
+      width: 25px;
+      height: 25px;
+
+      top: 0;
+      right: -7.5px;
+
+      font-size: 12px;
+
+      background-color: green;
+      color: white;
+
+      z-index: 50;
+    }
+
     &__tooltip {
       font-size: 0.65rem;
     }

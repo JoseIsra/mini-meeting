@@ -32,7 +32,11 @@
     </div>
     <video
       v-show="fullScreenObject.isVideoActivated"
-      :class="['m-fuser__stream', shareScreen ? '--fillMode' : '--coverMode']"
+      :class="[
+        'm-fuser__stream',
+        orientationClass,
+        { '--coverMode': hasCameraActivated },
+      ]"
       autoplay
       @mousemove="toggleMinimizeMessage"
       muted
@@ -51,7 +55,13 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed } from 'vue';
+import {
+  defineComponent,
+  ref,
+  computed,
+  onMounted,
+  onBeforeUnmount,
+} from 'vue';
 import { useToogleFunctions } from '@/composables';
 import _ from 'lodash';
 
@@ -61,7 +71,7 @@ export default defineComponent({
     const { fullScreenObject, setFullScreen, clearFullScreenObject } =
       useToogleFunctions();
     let showMinimizeMessage = ref(false);
-
+    let orientationClass = ref('');
     const exitFullScreen = () => {
       setFullScreen('none');
       clearFullScreenObject();
@@ -79,16 +89,41 @@ export default defineComponent({
       }
     };
 
-    const shareScreen = computed(() => {
-      return fullScreenObject.isScreenSharing;
+    const hasCameraActivated = computed(() => {
+      return fullScreenObject.isCameraOn;
     });
 
+    onMounted(() => {
+      window.addEventListener('orientationchange', handleOrientationChange);
+    });
+    onBeforeUnmount(() => {
+      window.removeEventListener('orientationchange', handleOrientationChange);
+    });
+
+    const handleOrientationChange = () => {
+      const orientation = window.screen.orientation.type;
+      if (
+        orientation == 'landscape-primary' &&
+        fullScreenObject.isScreenSharing
+      ) {
+        console.log('VIVE SIN MOUNTED?');
+        orientationClass.value = 'landscapeMode';
+      } else if (
+        orientation == 'portrait-primary' &&
+        fullScreenObject.isScreenSharing
+      ) {
+        orientationClass.value = 'portraitMode';
+      }
+    };
+
     return {
+      handleOrientationChange,
       fullScreenObject,
       exitFullScreen,
       toggleMinimizeMessage,
       showMinimizeMessage,
-      shareScreen,
+      hasCameraActivated,
+      orientationClass,
     };
   },
 });

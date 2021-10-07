@@ -52,7 +52,7 @@
     </div>
     <div
       class="a-userVideo__box"
-      v-for="participant in participants.slice(-9)"
+      v-for="participant in admittedParticipants.slice(-9)"
       :key="participant.id"
       :class="{ fade: participant.id == fullScreenObject.id }"
     >
@@ -132,7 +132,9 @@ export default defineComponent({
   name: 'FuCooperateUserVideo',
   setup() {
     const users = ref<UserStream[]>(userStreams);
-    const { participants } = useHandleParticipants();
+    const { participants, admittedParticipants } = useHandleParticipants();
+    console.log(participants);
+
     const {
       setFullScreen,
       setFullScreenObject,
@@ -156,7 +158,8 @@ export default defineComponent({
       users,
       userMe,
       goFullScreen,
-      participants,
+      // participants,
+      admittedParticipants,
       streamIdPinned,
       fullScreenObject,
     };

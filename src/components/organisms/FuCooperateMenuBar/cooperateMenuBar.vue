@@ -60,6 +60,13 @@
                 }
           "
         >
+          <div
+            class="a-menuBar__icon__topin"
+            v-if="icon.id === '3' && waitingParticipants.length > 0"
+          >
+            <!-- <q-icon name="fas fa-clock" /> -->
+            {{ waitingParticipants.length }}
+          </div>
           <q-tooltip class="bg-grey-10" v-if="icon.behaviour == 'NORMAL'">
             <label
               class="a-menuBar__icon__tooltip"
@@ -180,6 +187,7 @@ import { useInitWebRTC } from '@/composables/antMedia';
 import { useScreen } from '@/composables/screen';
 import { useActions } from '@/composables/actions';
 import { useRoom } from '@/composables/room';
+import { useHandleParticipants } from '@/composables/participants';
 
 export default defineComponent({
   name: 'FuCooperateMenuBar',
@@ -204,6 +212,8 @@ export default defineComponent({
     const { periferics, functions, options } = useActions();
 
     const { roomState } = useRoom();
+
+    const { waitingParticipants } = useHandleParticipants();
 
     let openNetworkConfig = ref(false);
     const objectPeriferics = reactive<Periferics>({
@@ -442,6 +452,7 @@ export default defineComponent({
       handNotificationActive,
       openResponsiveMenuOfFunctions,
       canSeeActionsMenu,
+      waitingParticipants,
     };
   },
 });

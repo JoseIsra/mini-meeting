@@ -16,12 +16,13 @@
       align-items: center;
       &:hover {
         color: #dcddde;
-        background-color: rgba(79, 84, 92, 0.16);
+        background-color: rgba(126, 130, 136, 0.16);
       }
 
       &__description {
         cursor: pointer;
         margin: 0 8px;
+        font-size: 0.58rem;
       }
     }
   }

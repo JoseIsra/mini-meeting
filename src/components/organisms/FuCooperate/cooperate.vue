@@ -27,12 +27,22 @@
     </transition>
     <fu-cooperate-user-video v-show="!screenMinimized" />
     <fu-hand-notification
-      v-show="functionsOnMenuBar.handNotificationInfo.length > 0"
+      v-show="
+        functionsOnMenuBar.handNotificationInfo.length > 0 && !screenMinimized
+      "
     />
 
     <fu-board v-show="showBoard" />
 
     <fu-full-screen v-if="isFullScreen" />
+
+    <q-dialog
+      v-model="showParticipantPanel"
+      transition-show="flip-down"
+      transition-hide="flip-up"
+    >
+      <fu-cooperate-participants-panel />
+    </q-dialog>
   </section>
 </template>
 //TODO: OBJETO DE USUARIO GLOBAL
@@ -45,6 +55,7 @@ import FuCooperateSideBar from 'molecules/FuCooperateSideBar';
 import FuHandNotification from 'atoms/FuHandNotification';
 import FuBoard from '@/components/molecules/FuCooperateBoard';
 import FuFullScreen from 'molecules/FuFullScreen';
+import FuCooperateParticipantsPanel from '@/components/molecules/FuCooperateParticipantsPanel';
 import _ from 'lodash';
 import { useSidebarToogle, useToogleFunctions } from '@/composables';
 import { useScreen } from '@/composables/screen';
@@ -73,6 +84,7 @@ export default defineComponent({
     FuFullScreen,
     FuSharedStream,
     FuBoard,
+    FuCooperateParticipantsPanel,
   },
   setup(props, { emit }) {
     onMounted(() => {
@@ -81,7 +93,10 @@ export default defineComponent({
 
     const showBoard = ref<boolean>(true);
     let showMenuBar = ref<boolean>(false);
-    let { isSidebarRender, setSidebarState } = useSidebarToogle();
+
+    let { isSidebarRender, setSidebarState, showParticipantPanel } =
+      useSidebarToogle();
+
     const {
       functionsOnMenuBar,
       isFullScreen,
@@ -89,7 +104,9 @@ export default defineComponent({
       openOptionsMenu,
       openFunctionResponsiveMenu,
     } = useToogleFunctions();
+
     const { roomState } = useRoom();
+
     const { screenMinimized, updateScreenState } = useScreen();
     const hideMenuBar = _.debounce(() => {
       showMenuBar.value = false;
@@ -102,6 +119,7 @@ export default defineComponent({
         hideMenuBar();
       }
     };
+
     const closePanels = () => {
       setSidebarState(false);
       openOptionsMenu(false);
@@ -121,6 +139,7 @@ export default defineComponent({
       updateScreenState,
       ...toRefs(roomState),
       showBoard,
+      showParticipantPanel,
     };
   },
 });

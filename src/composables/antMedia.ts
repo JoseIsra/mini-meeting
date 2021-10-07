@@ -8,6 +8,8 @@ import { useHandleParticipants } from '@/composables/participants';
 import { Message, useHandleMessage } from '@/composables/chat';
 import { useToogleFunctions } from '@/composables';
 import { useRoom } from '@/composables/room';
+import { PERMISSION_STATUS } from '@/utils/enums';
+import { notifyWithAction } from '@/utils/notify';
 import { useExternalVideo } from './external-video';
 import videojs from 'video.js';
 import { useActions } from '@/composables/actions';
@@ -19,11 +21,10 @@ const {
   setScreenState,
   setVideoActivatedState,
   updateUserMe,
-  // setMicBlock,
-  // setVideoBlock,
-  // setScreenShareBlock,
   setMicState,
   setCameraState,
+  setDenied,
+  isAdmin,
 } = useUserMe();
 
 const { setIsLoadingOrError, setLoadingOrErrorMessage, setExistRoom } =
@@ -33,18 +34,36 @@ const {
   setRoomMicState,
   setRoomCameraState,
   setRoomScreenShareState,
+  setPrivacy,
 } = useRoom();
-const { deleteParticipantById, participants, addParticipants } =
-  useHandleParticipants();
+
+const {
+  deleteParticipantById,
+  participants,
+  addParticipants,
+  updateParticipantDenied,
+} = useHandleParticipants();
+
 const { setUserMessage, deleteLoadingMessage } = useHandleMessage();
-const { addHandNotificationInfo, removeHandNotification, setFullScreen } =
-  useToogleFunctions();
+const {
+  addHandNotificationInfo,
+  removeHandNotification,
+  setFullScreen,
+  setIDButtonSelected,
+} = useToogleFunctions();
 
 const roomTimerId = ref<ReturnType<typeof setInterval> | null>(null);
+
 const isDataChannelOpen = ref(false);
+
 const { updateExternalVideoState, videoPlayerTest, externalVideo } =
   useExternalVideo();
+
+const { setMicIconState, setCameraIconState, setScreenShareIconState } =
+  useActions();
+
 const remotePlayer = ref<videojs.Player>({} as videojs.Player);
+
 interface ObjInfoRequested {
   to: string;
   from: string;
@@ -93,13 +112,17 @@ interface ObjBlockEveryoneAction {
   value: boolean;
 }
 
+interface ObjAnswerPermission {
+  id: string;
+  participantId: string;
+  eventType: string;
+  value: boolean;
+}
+
 export function useInitWebRTC() {
   const joinRoom = (roomId: string, streamId: string) => {
     webRTCInstance.value.joinRoom?.(roomId, streamId, 'legacy');
   };
-
-  const { setMicIconState, setCameraIconState, setScreenShareIconState } =
-    useActions();
 
   const publish = (
     streamId: string,
@@ -302,6 +325,10 @@ export function useInitWebRTC() {
               };
             } else {
               const isMerge = obj.streamId.split('-')[0] === 'm';
+
+              console.log('Agregando participante');
+              console.log('Id?: ', obj.streamId);
+              console.log('stream?: ', obj.stream);
 
               // objStreams.value.push(obj);
               if (!isMerge)
@@ -610,7 +637,15 @@ export function useInitWebRTC() {
                   remoteUserInfoParsed.userInfo.isScreenShareBlocked;
                 user.fractalUserId =
                   remoteUserInfoParsed.userInfo.fractalUserId;
+                user.denied = remoteUserInfoParsed.userInfo.denied;
                 user.isRecording = remoteUserInfoParsed.userInfo.isRecording;
+
+                if (isAdmin.value) {
+                  notifyWithAction(
+                    remoteUserInfoParsed.userInfo.name,
+                    remoteUserInfoParsed.userInfo.id
+                  );
+                }
               }
             }
           } else if (eventType === 'USER_INFO_FINISH') {
@@ -645,6 +680,7 @@ export function useInitWebRTC() {
                   remoteUserInfoParsed.userInfo.isScreenShareBlocked;
                 user.fractalUserId =
                   remoteUserInfoParsed.userInfo.fractalUserId;
+                user.denied = remoteUserInfoParsed.userInfo.denied;
                 user.isRecording = remoteUserInfoParsed.userInfo.isRecording;
                 if (remoteUserInfoParsed.userInfo.existVideo) {
                   initRemotePlayerInstance(remoteUserInfoParsed.userInfo);
@@ -785,6 +821,28 @@ export function useInitWebRTC() {
             }
 
             // setUserActions(lockData.action, lockData.value);
+          } else if (eventType === 'ANSWER_PERMISSION') {
+            const { participantId, value } = JSON.parse(
+              obj.data
+            ) as ObjAnswerPermission;
+
+            if (userMe.id === participantId) {
+              console.log('Respuesta para mi');
+
+              if (value) {
+                setPrivacy(false);
+                setDenied(PERMISSION_STATUS.admitted);
+              } else {
+                setDenied(PERMISSION_STATUS.denied);
+              }
+            } else {
+              console.log('Respuesta para un participante: ', participantId);
+
+              updateParticipantDenied(
+                participantId,
+                value ? PERMISSION_STATUS.admitted : PERMISSION_STATUS.denied
+              );
+            }
           } else if (eventType === 'SHARE_EXTERNAL_VIDEO') {
             const externalVideoObject = JSON.parse(
               obj.data
@@ -885,13 +943,16 @@ export function useInitWebRTC() {
         } else if (error.indexOf('data_channel_error') != -1) {
           errorMessage = 'There was a error during data channel communication';
         } else if (error.indexOf('ScreenSharePermissionDenied') != -1) {
-          errorMessage = 'You are not allowed to access screen share';
-          console.log('hola diosito soy yo de nuevo 🥲');
-          //screen_share_checkbox.checked = false;
-          setScreenState(false);
-          setVideoActivatedState(false);
-          webRTCInstance.value.turnOffLocalCamera?.(streamId);
+          setIDButtonSelected('');
+          if (!userMe.isCameraOn) {
+            userMe.isVideoActivated = false;
+            userMe.isScreenSharing = false;
+            webRTCInstance.value.turnOffLocalCamera?.(userMe.id);
+          }
           webRTCInstance.value.resetDesktop?.();
+          sendNotificationEvent('SCREEN_SHARING_OFF', userMe.id);
+          errorMessage = 'You are not allowed to access screen share';
+          //screen_share_checkbox.checked = false;
         } else if (error.indexOf('AbortError') !== -1) {
           setExistRoom(false);
           setLoadingOrErrorMessage(

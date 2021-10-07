@@ -345,10 +345,9 @@ export function useInitWebRTC() {
         } else if (info == 'screen_share_stopped') {
           console.log('screen share stopped');
           setScreenState(false);
-          if (!userMe.isCameraOn) {
-            userMe.isVideoActivated = false;
-            webRTCInstance.value.turnOffLocalCamera?.(streamId);
-          }
+          setVideoActivatedState(false);
+          setIDButtonSelected('');
+          webRTCInstance.value.turnOffLocalCamera?.(streamId);
           webRTCInstance.value.resetDesktop?.();
           sendNotificationEvent('SCREEN_SHARING_OFF', streamId);
         } else if (info == 'ScreenShareStarted') {

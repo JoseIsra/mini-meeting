@@ -148,9 +148,11 @@ export default defineComponent({
       (route.query.isMicOn as string) == 'micro' ||
       false;
 
-    const bgUrl = window?.xprops?.bgUrl || (route.query.bgUrl as string);
+    const bgUrl =
+      window?.xprops?.bgUrl ||
+      'https://encrypted.fractalup.com/file/MainPublic/fractalup_assets/landing/main.png';
 
-    console.log(bgUrl);
+    // 'https://pbs.twimg.com/media/FBFhpU_X0AMOGqn?format=jpg&name=large'
 
     if (isCameraOn) {
       setVideoActivatedState(true);

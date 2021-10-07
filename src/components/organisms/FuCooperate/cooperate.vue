@@ -3,6 +3,12 @@
     class="o-cooperate"
     @mousemove="toogleMenuBar"
     @click.self="closePanels"
+    :style="`
+      background: url('${bgUrl}') #36393f;
+      background-size: 70vw;
+      background-position: 62% center;
+      background-repeat: no-repeat;
+    `"
   >
     <q-icon
       name="fas fa-expand-alt"

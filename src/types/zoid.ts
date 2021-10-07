@@ -16,6 +16,7 @@ export interface ZoidProps {
   classroomId?: string;
   isMicOn?: boolean;
   privacy?: boolean;
+  bgUrl?: string;
   handleLeaveCall?: (
     arg: number,
     remainingParticipantsFractalUserIds?: string[]

@@ -148,6 +148,10 @@ export default defineComponent({
       (route.query.isMicOn as string) == 'micro' ||
       false;
 
+    const bgUrl = window?.xprops?.bgUrl || (route.query.bgUrl as string);
+
+    console.log(bgUrl);
+
     if (isCameraOn) {
       setVideoActivatedState(true);
       setCameraState(true);
@@ -192,6 +196,7 @@ export default defineComponent({
       isMicBlocked: roleId === 1 ? isMicLocked : false,
       isCameraBlocked: roleId === 1 ? isCameraLocked : false,
       isScreenShareBlocked: roleId === 1 ? isScreenShareLocked : false,
+      bgUrl: bgUrl,
     });
 
     if (isMicLocked) {

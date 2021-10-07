@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-return */
 <template>
   <div class="o-cooperate-board">
     <canvas id="board" width="750" height="500"></canvas>
@@ -12,7 +11,7 @@
   </div>
 </template>
 
-<script lang="ts">
+<script>
 import { defineComponent, ref, onMounted } from 'vue';
 // import { FabricCanvas } from '@/types/fabric';
 import { fabric } from 'fabric';
@@ -22,27 +21,29 @@ export default defineComponent({
   setup() {
     const drawingMode = ref(false);
 
-    const canvasref = ref<HTMLCanvasElement | null>(null);
-    const context = ref<CanvasRenderingContext2D | null>(null);
+    // const canvasref = ref<HTMLCanvasElement | null>(null);
+    // const context = ref<CanvasRenderingContext2D | null>(null);
+
+    const canvas = ref(null);
+    // const context = ref(null);
 
     onMounted(() => {
-      // context.value = canvasref.value?.getContext('2d') ?? null;
+      // const canvas = new fabric.Canvas('board');
 
-      const canvas = new fabric.Canvas('board');
+      canvas.value = new fabric.Canvas('board');
 
-      // canvasref.value = new fabric.Canvas('board');
+      // context.value = canvasref.value.getContext('2d');
 
-      canvasref.value?.addEventListener(
-        'object:added',
-        (value) => {
-          console.log(value);
-        },
-        false
-      );
+      // canvasref.value.addEventListener(
+      //   'object:added',
+      //   (value) => {
+      //     console.log(value);
+      //   },
+      //   false
+      // );
 
-      context.value = canvas.getContext('2d');
-
-      console.log(context.value);
+      // context.value = canvas.getContext('2d');
+      // console.log(context.value);
 
       // canvasRef.value.setDimensions({width: 750, height:  500});
       // canvasRef.value?.backgroundColor  = '#fff';
@@ -60,17 +61,20 @@ export default defineComponent({
 
       // canvasref.value.add();
 
-      canvas.add(rect);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+      canvas.value.add(rect);
 
-      canvas.on('object:added', (options: unknown) => {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+      canvas.value.on('object:added', (options) => {
         console.log('Added: ', options);
       });
 
-      canvas.on('object:removed', (options: unknown) => {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+      canvas.value.on('object:removed', (options) => {
         console.log('Removed: ', options);
       });
 
-      canvas.isDrawingMode = true;
+      canvas.value.isDrawingMode = true;
       // canvasref.value.isDrawingMode = true;
 
       console.log(rect);
@@ -78,13 +82,15 @@ export default defineComponent({
 
     const toggleDrawingMode = () => {
       drawingMode.value = !drawingMode.value;
-      // canvasref.value.isDrawingMode = drawingMode.value;
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      canvas.value.isDrawingMode = drawingMode.value;
     };
 
     const clearBoard = () => {
       console.log('Limpiar pizarra');
       // const canvas = document.getElementById('whiteboard');
-      // canvas.clear();
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+      canvas.value.clear();
     };
 
     return {

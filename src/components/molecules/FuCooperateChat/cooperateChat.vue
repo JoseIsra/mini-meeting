@@ -184,6 +184,7 @@ import { useHandleMessage } from '@/composables/chat';
 import { useUserMe } from '@/composables/userMe';
 import { nanoid } from 'nanoid';
 import { useSidebarToogle, useToogleFunctions } from '@/composables';
+import { useRoom } from '@/composables/room';
 
 import { useInitWebRTC } from '@/composables/antMedia';
 import { simplifyExtension } from '@/utils/file';
@@ -216,6 +217,7 @@ export default defineComponent({
       useHandleMessage();
     let { setSidebarState } = useSidebarToogle();
     const { setIDButtonSelected } = useToogleFunctions();
+    const { roomState } = useRoom();
     const { sendData } = useInitWebRTC();
     const { userMe } = useUserMe();
     let userName = ref(window?.xprops?.streamId || route.query.streamName);
@@ -279,7 +281,7 @@ export default defineComponent({
         addTextMessage('empty', new Date(), 'empty'); // activa loader message
         uploadFileToBackblaze({
           file: new File([fileInformation], encodeURIComponent(fileName)),
-          path: 'classroom/1/cooperate/chat',
+          path: `classroom/${roomState.id}/cooperate/chat`,
           b2Info,
           retries: 10,
         })

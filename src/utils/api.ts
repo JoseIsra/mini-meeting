@@ -11,7 +11,7 @@ interface Data {
 }
 export async function fetchApi(data: string) {
   try {
-    const response = await fetch('https://lxp.fractaluptest.xyz/api/graphiql', {
+    const response = await fetch('https://lxp.fractaluptest.xyz/api', {
       method: 'post',
       body: data,
       headers: {

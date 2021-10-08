@@ -42,8 +42,7 @@ export default defineComponent({
     const recordTime = ref('00:00:00');
     const secondsElapsed = ref(0);
     const isRecording = ref<boolean>(false);
-    const { recordingStream, stopRecordingStream } =
-      useInitMerge();
+    const { recordingStream, stopRecordingStream } = useInitMerge();
     const { sendNotificationEvent } = useInitWebRTC();
     // const { participants } = useHandleParticipants();
     const { userMe, updateUserMe } = useUserMe();
@@ -65,6 +64,7 @@ export default defineComponent({
     const startRecording = () => {
       updateUserMe({ isRecording: true });
 
+      window.xprops?.handleStartRecording?.();
       /* watchParticipants.value = watch(
         () => participants.value,
         (actualParticipants, prevParticipants) => {
@@ -100,7 +100,7 @@ export default defineComponent({
 
     const stopRecording = () => {
       /* watchParticipants.value?.(); */
-
+      updateUserMe({ isRecording: false });
       warningMessage('Grabación terminada');
       isRecording.value = false;
       recordTime.value = '00:00:00';
@@ -111,6 +111,7 @@ export default defineComponent({
       window.xprops?.handleStopRecording?.(
         `https://f002.backblazeb2.com/file/MainPublic/classrooms/${roomState.classroomId}/cooperate/streams/${mergedName.value}.m3u8`
       );
+
       sendNotificationEvent('RECORDING_STOPPED', userMe.id);
     };
 
@@ -124,6 +125,7 @@ export default defineComponent({
       isLoading,
       roomState,
       canRecording,
+      userMe,
     };
   },
 });

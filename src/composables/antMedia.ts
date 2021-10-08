@@ -391,7 +391,8 @@ export function useInitWebRTC() {
         } else if (info == 'streamInformation') {
           streamInformation(obj, roomId, playToken);
         } else if (info == 'roomInformation') {
-          /* participants.value.forEach((previousParticipant) => {
+          /* participants.value.forEach((previousParticip
+            ant) => {
             obj.streams.forEach((actualParticipant) => {
               if (previousParticipant.id !== actualParticipant) {
                 removeRemoteVideo(previousParticipant.id);
@@ -653,6 +654,9 @@ export function useInitWebRTC() {
               obj.data
             ) as ObjRemoteUserInfo;
             //Recieving info from another user if is for me
+            if (remoteUserInfoParsed.userInfo.isRecording) {
+              setRecorded(true);
+            }
             if (remoteUserInfoParsed.to === userMe.id) {
               console.log('I am receiving info from another user', objParsed);
               console.log('USER_FINISH🚀', remoteUserInfoParsed.userInfo);
@@ -681,6 +685,7 @@ export function useInitWebRTC() {
                   remoteUserInfoParsed.userInfo.fractalUserId;
                 user.denied = remoteUserInfoParsed.userInfo.denied;
                 user.isRecording = remoteUserInfoParsed.userInfo.isRecording;
+
                 if (remoteUserInfoParsed.userInfo.existVideo) {
                   initRemotePlayerInstance(remoteUserInfoParsed.userInfo);
                 }

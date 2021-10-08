@@ -145,6 +145,7 @@ export default defineComponent({
       (route.query.isMicOn as string) == 'micro' ||
       false;
 
+    const isBeingRecorded = window?.xprops?.isBeingRecorded;
     const { setIDButtonSelected } = useToogleFunctions();
 
     if (isCameraOn) {
@@ -189,6 +190,7 @@ export default defineComponent({
       isMicBlocked: roleId === 1 ? isMicLocked : false,
       isCameraBlocked: roleId === 1 ? isCameraLocked : false,
       isScreenShareBlocked: roleId === 1 ? isScreenShareLocked : false,
+      isBeingRecorded,
     });
 
     if (isMicLocked) {

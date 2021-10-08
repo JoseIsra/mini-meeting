@@ -43,13 +43,13 @@
       playsinline
       :srcObject.prop="fullScreenObject.stream"
     ></video>
-    <q-btn
+    <q-btn      
       flat
       label="Minimizar pantalla"
       class="m-fuser__quitBtn"
       icon="fullscreen_exit"
       @click="exitFullScreen"
-      v-show="showMinimizeMessage && fullScreenObject.isVideoActivated"
+      v-show="showMinimizeMessage && fullScreenObject.isVideoActivated && !screenMinimized"
     />
   </section>
 </template>
@@ -63,6 +63,7 @@ import {
   onBeforeUnmount,
 } from 'vue';
 import { useToogleFunctions } from '@/composables';
+import {useScreen } from '@/composables/screen';
 import _ from 'lodash';
 
 export default defineComponent({
@@ -70,12 +71,13 @@ export default defineComponent({
   setup() {
     const { fullScreenObject, setFullScreen, clearFullScreenObject } =
       useToogleFunctions();
+    const { screenMinimized } = useScreen();
     let showMinimizeMessage = ref(false);
     let orientationClass = ref('');
     const exitFullScreen = () => {
       setFullScreen('none');
       clearFullScreenObject();
-    };
+    };    
 
     const hideMinimizeMessage = _.debounce(() => {
       showMinimizeMessage.value = false;
@@ -124,6 +126,7 @@ export default defineComponent({
       showMinimizeMessage,
       hasCameraActivated,
       orientationClass,
+      screenMinimized
     };
   },
 });

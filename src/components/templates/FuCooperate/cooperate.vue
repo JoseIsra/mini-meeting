@@ -111,7 +111,7 @@ export default defineComponent({
       window.xprops?.roleId || parseInt(route.query.roleId as string) || 0;
 
     const privacy =
-      window.xprops?.privacy ||
+      window.xprops?.roomRestriction ||
       (route.query.privacy as string) === '1' ||
       false;
 

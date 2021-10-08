@@ -16,7 +16,7 @@ export interface ZoidProps {
   classroomId?: string;
   isMicOn?: boolean;
   isBeingRecorded?: boolean;
-  privacy?: boolean;
+  roomRestriction?: boolean;
   handleLeaveCall?: (
     arg: number,
     remainingParticipantsFractalUserIds?: string[]

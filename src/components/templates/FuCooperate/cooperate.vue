@@ -148,7 +148,7 @@ export default defineComponent({
       (route.query.isMicOn as string) == 'micro' ||
       false;
 
-    const isBeingRecorded = window.xprops.isBeingRecorded;
+    const isBeingRecorded = window?.xprops?.isBeingRecorded;
 
     if (isCameraOn) {
       setVideoActivatedState(true);

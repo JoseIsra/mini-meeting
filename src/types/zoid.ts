@@ -26,5 +26,5 @@ export interface ZoidProps {
   toggleLockAction?: (lockAction: lockAction) => void;
   fractalUserId?: string;
   logJoined?: () => void;
-  handleStartRecording: () => void;
+  handleStartRecording?: () => void;
 }

@@ -64,7 +64,7 @@ export default defineComponent({
     const startRecording = () => {
       updateUserMe({ isRecording: true });
 
-      window.xprops?.handleStartRecording();
+      window.xprops?.handleStartRecording?.();
       /* watchParticipants.value = watch(
         () => participants.value,
         (actualParticipants, prevParticipants) => {

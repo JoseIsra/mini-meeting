@@ -43,13 +43,17 @@
       playsinline
       :srcObject.prop="fullScreenObject.stream"
     ></video>
-    <q-btn      
+    <q-btn
       flat
       label="Minimizar pantalla"
       class="m-fuser__quitBtn"
       icon="fullscreen_exit"
       @click="exitFullScreen"
-      v-show="showMinimizeMessage && fullScreenObject.isVideoActivated && !screenMinimized"
+      v-show="
+        showMinimizeMessage &&
+        fullScreenObject.isVideoActivated &&
+        !screenMinimized
+      "
     />
   </section>
 </template>
@@ -63,7 +67,7 @@ import {
   onBeforeUnmount,
 } from 'vue';
 import { useToogleFunctions } from '@/composables';
-import {useScreen } from '@/composables/screen';
+import { useScreen } from '@/composables/screen';
 import _ from 'lodash';
 
 export default defineComponent({
@@ -77,7 +81,7 @@ export default defineComponent({
     const exitFullScreen = () => {
       setFullScreen('none');
       clearFullScreenObject();
-    };    
+    };
 
     const hideMinimizeMessage = _.debounce(() => {
       showMinimizeMessage.value = false;
@@ -108,7 +112,6 @@ export default defineComponent({
         orientation == 'landscape-primary' &&
         fullScreenObject.isScreenSharing
       ) {
-        console.log('VIVE SIN MOUNTED?');
         orientationClass.value = 'landscapeMode';
       } else if (
         orientation == 'portrait-primary' &&
@@ -126,7 +129,7 @@ export default defineComponent({
       showMinimizeMessage,
       hasCameraActivated,
       orientationClass,
-      screenMinimized
+      screenMinimized,
     };
   },
 });

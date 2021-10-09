@@ -1,5 +1,6 @@
 <template>
   <section class="m-fuser">
+    {{ prueba }}
     <div v-show="!fullScreenObject.isVideoActivated" class="m-fuser__avatar">
       <figure class="m-fuser__avatar__imageBox">
         <img
@@ -43,13 +44,17 @@
       playsinline
       :srcObject.prop="fullScreenObject.stream"
     ></video>
-    <q-btn      
+    <q-btn
       flat
       label="Minimizar pantalla"
       class="m-fuser__quitBtn"
       icon="fullscreen_exit"
       @click="exitFullScreen"
-      v-show="showMinimizeMessage && fullScreenObject.isVideoActivated && !screenMinimized"
+      v-show="
+        showMinimizeMessage &&
+        fullScreenObject.isVideoActivated &&
+        !screenMinimized
+      "
     />
   </section>
 </template>
@@ -63,21 +68,29 @@ import {
   onBeforeUnmount,
 } from 'vue';
 import { useToogleFunctions } from '@/composables';
-import {useScreen } from '@/composables/screen';
+import { useScreen } from '@/composables/screen';
 import _ from 'lodash';
+import { User, useUserMe } from '@/composables/userMe';
 
 export default defineComponent({
   name: 'FuFullScreenUser',
   setup() {
-    const { fullScreenObject, setFullScreen, clearFullScreenObject } =
-      useToogleFunctions();
+    const {
+      fullScreenObject,
+      setFullScreen,
+      clearFullScreenObject,
+      fullScreenObject2,
+    } = useToogleFunctions();
     const { screenMinimized } = useScreen();
+    const { userMe } = useUserMe();
     let showMinimizeMessage = ref(false);
     let orientationClass = ref('');
+    let prueba = ref({} as User);
+
     const exitFullScreen = () => {
       setFullScreen('none');
       clearFullScreenObject();
-    };    
+    };
 
     const hideMinimizeMessage = _.debounce(() => {
       showMinimizeMessage.value = false;
@@ -94,6 +107,12 @@ export default defineComponent({
     const hasCameraActivated = computed(() => {
       return fullScreenObject.isCameraOn;
     });
+
+    const holymoly = () => {
+      if (userMe.id == fullScreenObject.id) {
+        prueba.value = userMe;
+      }
+    };
 
     onMounted(() => {
       window.addEventListener('orientationchange', handleOrientationChange);
@@ -126,7 +145,10 @@ export default defineComponent({
       showMinimizeMessage,
       hasCameraActivated,
       orientationClass,
-      screenMinimized
+      screenMinimized,
+      fullScreenObject2,
+      prueba,
+      holymoly,
     };
   },
 });

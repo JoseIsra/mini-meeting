@@ -60,6 +60,7 @@ const perifericsControl = reactive<PerifericsState>(perifericsState);
 const isFullScreen = ref<boolean>(false);
 const fullScreenMode = ref('');
 const fullScreenObject = reactive<User>({} as User);
+let fullScreenObject2 = reactive<User>({} as User);
 export function useToogleFunctions() {
   const setShowChat = (value: boolean) => {
     functionsOnMenuBar.renderChat = value;
@@ -91,7 +92,7 @@ export function useToogleFunctions() {
   };
 
   const setFullScreenObject = (value: User) => {
-    Object.assign(fullScreenObject, value);
+    fullScreenObject2 = Object.assign(fullScreenObject, value);
   };
   const clearFullScreenObject = () => {
     Object.keys(fullScreenObject).forEach((key) => {
@@ -134,6 +135,7 @@ export function useToogleFunctions() {
     setFullScreenObject,
     fullScreenObject,
     clearFullScreenObject,
+    fullScreenObject2,
   };
 }
 

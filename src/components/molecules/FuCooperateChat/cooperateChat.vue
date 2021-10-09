@@ -209,15 +209,15 @@ export default defineComponent({
   setup() {
     const route = useRoute();
     let showChatMenu = ref<boolean>(false);
+    const { roomState } = useRoom();
     const backBlazePathFile =
-      'https://encrypted.fractalup.com/file/MainPublic/classroom/1/cooperate/chat';
+      `https://encrypted.fractalup.com/file/MainPublic/classrooms/${roomState.classroomId}/cooperate/chat`;
     const messageContainer = ref<MessageContainer>({} as MessageContainer);
     let userInput = ref<string>('');
     const { userMessages, setUserMessage, deleteLoadingMessage } =
       useHandleMessage();
     let { setSidebarState } = useSidebarToogle();
     const { setIDButtonSelected } = useToogleFunctions();
-    const { roomState } = useRoom();
     const { sendData } = useInitWebRTC();
     const { userMe } = useUserMe();
     let userName = ref(window?.xprops?.streamId || route.query.streamName);
@@ -263,25 +263,30 @@ export default defineComponent({
       const fileNameToBackblaze = `${new Date().getTime()}.${fileExtension}`;
       fileInformation = renameFile(fileInformation, fileNameToBackblaze);
       reader.onload = async function () {
-        const myQuery = `
+        /* const myQuery = `
           query ChapterUpload {
             chapterUpload(classroomId:1) {
               authorizationToken
               uploadUrl
             }
           }
-        `;
-        const apiObject = JSON.stringify({ query: myQuery });
-        const apiResponse = await fetchApi(apiObject);
+        `; */
+        //const apiObject = JSON.stringify({ query: myQuery });
+        //const apiResponse = await fetchApi(apiObject);
+
+        const B2Info =  await window.xprops?.getB2Info?.();
+        const uploadUrl = B2Info?.uploadUrl;
+        const authorizationToken = B2Info?.authorizationToken;
+        console.log(B2Info, '🚀🚀🚀🚀🚀')
 
         const b2Info = {
-          uploadUrl: apiResponse?.chapterUpload.uploadUrl,
-          authorizationToken: apiResponse?.chapterUpload.authorizationToken,
+          uploadUrl: uploadUrl,
+          authorizationToken: authorizationToken,
         };
         addTextMessage('empty', new Date(), 'empty'); // activa loader message
         uploadFileToBackblaze({
           file: new File([fileInformation], encodeURIComponent(fileName)),
-          path: `classroom/${roomState.id}/cooperate/chat`,
+          path: `classrooms/${roomState.classroomId}/cooperate/chat`,
           b2Info,
           retries: 10,
         })

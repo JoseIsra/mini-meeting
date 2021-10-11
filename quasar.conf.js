@@ -100,7 +100,7 @@ module.exports = configure(function (ctx) {
         ),
         key: fs.readFileSync(`${ospath.homedir()}/web-certs/localhost-key.pem`),
       },
-      port: 8080,
+      port: 8081,
       open: true, // opens browser window automatically
     },
 

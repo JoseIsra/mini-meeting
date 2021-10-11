@@ -4,7 +4,10 @@
       class="t-cooperate__page"
       v-if="existRoom && isLoadingOrError === false"
     >
-      <fu-lobby v-if="roomState.privacy" />
+      <fu-lobby
+        v-if="roomState.privacy"
+        @handleLeaveCall="handleZoidLeaveCall"
+      />
 
       <fu-cooperate
         v-else

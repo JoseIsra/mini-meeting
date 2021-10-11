@@ -123,17 +123,19 @@
               :src="userMe.avatar"
               alt="avatar-logo"
             />
-            <q-icon
-              :name="userMe.isMicOn ? 'mic' : 'mic_off'"
-              class="m-list__content__userBox__avatar__mic"
-              :color="userMe.isMicOn ? 'white' : 'red'"
-              size="18px"
-            />
-            <q-icon
-              class="m-list__content__userBox__avatar__cam"
-              :name="userMe.isCameraOn ? 'videocam' : 'videocam_off'"
-              :color="userMe.isCameraOn ? 'white' : 'red'"
-            />
+            <div class="m-list__content__userBox__avatar__icons">
+              <q-icon
+                :name="userMe.isMicOn ? 'mic' : 'mic_off'"
+                class="m-list__content__userBox__avatar__mic"
+                :color="userMe.isMicOn ? 'white' : 'red'"
+                size="18px"
+              />
+              <q-icon
+                class="m-list__content__userBox__avatar__cam"
+                :name="userMe.isCameraOn ? 'videocam' : 'videocam_off'"
+                :color="userMe.isCameraOn ? 'white' : 'red'"
+              />
+            </div>
           </aside>
           <label>{{ userMe.name }}</label>
           <q-btn
@@ -169,17 +171,19 @@
               :src="participant.avatar"
               alt="avatar-logo"
             />
-            <q-icon
-              class="m-list__content__userBox__avatar__mic"
-              :name="participant.isMicOn ? 'mic' : 'mic_off'"
-              :color="participant.isMicOn ? 'white' : 'red'"
-              size="18px"
-            />
-            <q-icon
-              class="m-list__content__userBox__avatar__cam"
-              :name="participant.isCameraOn ? 'videocam' : 'videocam_off'"
-              :color="participant.isCameraOn ? 'white' : 'red'"
-            />
+            <div class="m-list__content__userBox__avatar__icons">
+              <q-icon
+                class="m-list__content__userBox__avatar__mic"
+                :name="participant.isMicOn ? 'mic' : 'mic_off'"
+                :color="participant.isMicOn ? 'white' : 'red'"
+                size="18px"
+              />
+              <q-icon
+                class="m-list__content__userBox__avatar__cam"
+                :name="participant.isCameraOn ? 'videocam' : 'videocam_off'"
+                :color="participant.isCameraOn ? 'white' : 'red'"
+              />
+            </div>
           </aside>
           <label>{{ participant.name }}</label>
           <q-btn

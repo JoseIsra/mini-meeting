@@ -138,26 +138,21 @@
             </div>
           </aside>
           <label>{{ userMe.name }}</label>
-          <q-btn
-            class="m-list__content__userBox__pinBtn"
-            flat
-            rounded
-            dense
-            :icon="
-              listenFullScreen.id == userMe.id
-                ? 'location_disabled'
-                : 'gps_fixed'
-            "
-            @click="activeFullScreen(userMe)"
-          >
-            <q-tooltip class="bg-grey-10">
-              <label v-if="listenFullScreen.id == userMe.id"
-                >Estás fijado
-              </label>
-              <label v-else>Fijarte a ti mismo</label>
-            </q-tooltip>
-          </q-btn>
         </div>
+        <q-btn
+          class="m-list__content__userBox__pinBtn"
+          dense
+          flat
+          :icon="
+            listenFullScreen.id == userMe.id ? 'location_disabled' : 'gps_fixed'
+          "
+          @click="activeFullScreen(userMe)"
+        >
+          <q-tooltip class="bg-grey-10">
+            <label v-if="listenFullScreen.id == userMe.id">Estás fijado </label>
+            <label v-else>Fijarte a ti mismo</label>
+          </q-tooltip>
+        </q-btn>
       </div>
       <div
         class="m-list__content__userBox"
@@ -186,7 +181,7 @@
             </div>
           </aside>
           <label>{{ participant.name }}</label>
-          <q-btn
+          <!-- <q-btn
             class="m-list__content__userBox__pinBtn"
             flat
             rounded
@@ -204,7 +199,7 @@
               >
               <label v-else> Fijar usuario</label>
             </q-tooltip>
-          </q-btn>
+          </q-btn> -->
         </div>
 
         <div
@@ -322,22 +317,6 @@
                   </q-btn>
 
                   <q-btn
-                    icon="fas fa-sign-out-alt"
-                    @click="handleKickParticipant(participant)"
-                  >
-                    <q-tooltip
-                      class="bg-grey-10"
-                      anchor="top middle"
-                      self="bottom middle"
-                      :offset="[50, 10]"
-                      transition-show="scale"
-                      transition-hide="scale"
-                    >
-                      <label>Quitar participante</label>
-                    </q-tooltip>
-                  </q-btn>
-
-                  <q-btn
                     :icon="
                       listenFullScreen.id == participant.id
                         ? 'location_disabled'
@@ -357,6 +336,24 @@
                         Usuario fijado</label
                       >
                       <label v-else> Fijar usuario</label>
+                    </q-tooltip>
+                  </q-btn>
+
+                  <q-btn
+                    icon="fas fa-sign-out-alt"
+                    @click="handleKickParticipant(participant)"
+                    color="red"
+                    text-color="white"
+                  >
+                    <q-tooltip
+                      class="bg-grey-10"
+                      anchor="top middle"
+                      self="bottom middle"
+                      :offset="[50, 10]"
+                      transition-show="scale"
+                      transition-hide="scale"
+                    >
+                      <label>Quitar participante</label>
                     </q-tooltip>
                   </q-btn>
                 </div>
@@ -652,7 +649,7 @@ export default defineComponent({
     };
 
     const handleKickParticipant = (participant: Participant) => {
-      console.log('Kick Participant: ', participant.name);
+      console.log('Quitar participante: ', participant.id);
 
       sendData(userMe.id, { eventType: 'KICK', to: participant.id });
     };

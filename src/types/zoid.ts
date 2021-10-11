@@ -22,6 +22,7 @@ export interface ZoidProps {
   isMicOn?: boolean;
   isBeingRecorded?: boolean;
   roomRestriction?: boolean;
+  isHost?: boolean;
   handleLeaveCall?: (
     arg: number,
     remainingParticipantsFractalUserIds?: string[]

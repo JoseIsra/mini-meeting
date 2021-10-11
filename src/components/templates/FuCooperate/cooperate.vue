@@ -145,6 +145,10 @@ export default defineComponent({
       (route.query.isMicOn as string) == 'micro' ||
       false;
 
+    const isHost =
+      window?.xprops?.isHost ||
+      (JSON.parse((route.query.isHost as string) || 'false') as boolean);
+
     const isBeingRecorded = window?.xprops?.isBeingRecorded;
     const { setIDButtonSelected } = useToogleFunctions();
 
@@ -176,6 +180,7 @@ export default defineComponent({
           : PERMISSION_STATUS.admitted,
       existVideo: false,
       isRecording: false,
+      isHost,
     });
 
     setMicIconState(isMicLocked ? false : isMicOn);

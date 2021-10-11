@@ -251,7 +251,7 @@ export default defineComponent({
     const { userMe, setMicState, setVideoActivatedState } = useUserMe();
 
     let handNotificationActive = ref(false);
-    const canSeeActionsMenu = ref(userMe.roleId === 0 || userMe.roleId === 2);
+    const canSeeActionsMenu = ref(userMe.roleId === 0);
     const activeHandBadge = ref(false);
 
     //**********************++FUNCIONES ********************** */

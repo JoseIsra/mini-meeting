@@ -44,7 +44,7 @@ export default defineComponent({
     const videoPlayer = ref({} as HTMLMediaElement & { playerId: string });
     const player = ref<videojs.Player>({} as videojs.Player);
     const showPlayButton = ref(false);
-    const canManipulateVideo = ref(userMe.roleId === 0 || userMe.roleId === 2);
+    const canManipulateVideo = ref(userMe.roleId === 0);
     const simpleMortal = ref(userMe.roleId == 1);
     const { screenMinimized } = useScreen();
     const optionsForPlayer = reactive<videojs.PlayerOptions>({

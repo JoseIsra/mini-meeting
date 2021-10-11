@@ -115,7 +115,7 @@ export default defineComponent({
       sendNotificationEvent('RECORDING_STOPPED', userMe.id);
     };
 
-    const canRecording = ref(userMe.roleId === 0 || userMe.roleId === 2);
+    const canRecording = ref(userMe.roleId === 0);
 
     return {
       isRecording,

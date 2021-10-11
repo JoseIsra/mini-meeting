@@ -4,7 +4,7 @@
       <label class="m-list__title__text">Lista de Usuarios</label>
       <small>En línea ({{ admittedParticipants.length + 1 }})</small>
       <q-btn
-        v-show="isAdmin"
+        v-show="userMe.roleId === 0"
         :label="
           waitingParticipants.length > 0
             ? `En espera (${waitingParticipants.length})`
@@ -19,7 +19,7 @@
       ></q-btn>
     </header>
     <main class="m-list__content">
-      <div class="m-list__content__actions" v-show="isAdmin">
+      <div class="m-list__content__actions" v-show="userMe.roleId === 0">
         <span>
           {{
             isEveryoneActionsBlocked ? 'Limitar acciones ' : 'Liberar acciones'
@@ -203,7 +203,10 @@
           </q-btn>
         </div>
 
-        <div class="m-list__content__userBox__actions" v-show="isAdmin">
+        <div
+          class="m-list__content__userBox__actions"
+          v-show="userMe.roleId === 0"
+        >
           <!-- <q-btn
             :icon="
               hasActionsBlocked(participant)
@@ -325,7 +328,7 @@ export default defineComponent({
 
     const { toggleParticipantPanel } = useSidebarToogle();
 
-    const { userMe, isAdmin } = useUserMe();
+    const { userMe } = useUserMe();
 
     const { sendData } = useInitWebRTC();
 
@@ -598,8 +601,6 @@ export default defineComponent({
       isScreenShareBlocked,
       handleParticipantActions,
       LOCK_ACTION_TYPE,
-
-      isAdmin,
       activeFullScreen,
       isFullScreen,
       fullScreenObject,

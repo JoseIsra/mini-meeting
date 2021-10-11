@@ -32,7 +32,11 @@
     </div>
     <video
       v-show="fullScreenObject.isVideoActivated"
-      :class="['m-fuser__stream', shareScreen ? '--fillMode' : '--coverMode']"
+      :class="[
+        'm-fuser__stream',
+        orientationClass,
+        { '--coverMode': hasCameraActivated },
+      ]"
       autoplay
       @mousemove="toggleMinimizeMessage"
       muted
@@ -45,14 +49,25 @@
       class="m-fuser__quitBtn"
       icon="fullscreen_exit"
       @click="exitFullScreen"
-      v-show="showMinimizeMessage && fullScreenObject.isVideoActivated"
+      v-show="
+        showMinimizeMessage &&
+        fullScreenObject.isVideoActivated &&
+        !screenMinimized
+      "
     />
   </section>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed } from 'vue';
+import {
+  defineComponent,
+  ref,
+  computed,
+  onMounted,
+  onBeforeUnmount,
+} from 'vue';
 import { useToogleFunctions } from '@/composables';
+import { useScreen } from '@/composables/screen';
 import _ from 'lodash';
 
 export default defineComponent({
@@ -60,8 +75,9 @@ export default defineComponent({
   setup() {
     const { fullScreenObject, setFullScreen, clearFullScreenObject } =
       useToogleFunctions();
+    const { screenMinimized } = useScreen();
     let showMinimizeMessage = ref(false);
-
+    let orientationClass = ref('');
     const exitFullScreen = () => {
       setFullScreen('none');
       clearFullScreenObject();
@@ -79,16 +95,41 @@ export default defineComponent({
       }
     };
 
-    const shareScreen = computed(() => {
-      return fullScreenObject.isScreenSharing;
+    const hasCameraActivated = computed(() => {
+      return fullScreenObject.isCameraOn;
     });
 
+    onMounted(() => {
+      window.addEventListener('orientationchange', handleOrientationChange);
+    });
+    onBeforeUnmount(() => {
+      window.removeEventListener('orientationchange', handleOrientationChange);
+    });
+
+    const handleOrientationChange = () => {
+      const orientation = window.screen.orientation.type;
+      if (
+        orientation == 'landscape-primary' &&
+        fullScreenObject.isScreenSharing
+      ) {
+        orientationClass.value = 'landscapeMode';
+      } else if (
+        orientation == 'portrait-primary' &&
+        fullScreenObject.isScreenSharing
+      ) {
+        orientationClass.value = 'portraitMode';
+      }
+    };
+
     return {
+      handleOrientationChange,
       fullScreenObject,
       exitFullScreen,
       toggleMinimizeMessage,
       showMinimizeMessage,
-      shareScreen,
+      hasCameraActivated,
+      orientationClass,
+      screenMinimized,
     };
   },
 });

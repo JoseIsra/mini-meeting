@@ -1,5 +1,10 @@
 import { lockAction } from './index';
 
+interface B2Info {
+  uploadUrl: string;
+  authorizationToken: string;
+}
+
 export interface ZoidProps {
   streamId?: string;
   roomId: string;
@@ -17,6 +22,8 @@ export interface ZoidProps {
   isMicOn?: boolean;
   privacy?: boolean;
   bgUrl?: string;
+  isBeingRecorded?: boolean;
+  roomRestriction?: boolean;
   handleLeaveCall?: (
     arg: number,
     remainingParticipantsFractalUserIds?: string[]
@@ -26,4 +33,6 @@ export interface ZoidProps {
   toggleLockAction?: (lockAction: lockAction) => void;
   fractalUserId?: string;
   logJoined?: () => void;
+  handleStartRecording?: () => void;
+  getB2Info?: () => Promise<B2Info>;
 }

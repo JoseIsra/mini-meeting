@@ -31,7 +31,13 @@
     <transition :name="$q.screen.lt.sm ? 'dragged' : 'slide'">
       <fu-cooperate-side-bar v-show="isSidebarRender" />
     </transition>
-    <fu-cooperate-user-video v-show="!screenMinimized" />
+    <fu-cooperate-user-video
+      v-show="
+        $q.screen.lt.md && !screenMinimized
+          ? showUsersVideoList
+          : !screenMinimized
+      "
+    />
     <fu-hand-notification
       v-show="
         functionsOnMenuBar.handNotificationInfo.length > 0 && !screenMinimized
@@ -93,6 +99,7 @@ export default defineComponent({
     });
 
     let showMenuBar = ref<boolean>(false);
+    let showUsersVideoList = ref<boolean>(false);
 
     let { isSidebarRender, setSidebarState, showParticipantPanel } =
       useSidebarToogle();
@@ -110,11 +117,13 @@ export default defineComponent({
     const { screenMinimized, updateScreenState } = useScreen();
     const hideMenuBar = _.debounce(() => {
       showMenuBar.value = false;
+      showUsersVideoList.value = false;
     }, 6000);
 
     const toogleMenuBar = () => {
       if (!showMenuBar.value) {
         showMenuBar.value = true;
+        showUsersVideoList.value = true;
       } else {
         hideMenuBar();
       }
@@ -139,6 +148,7 @@ export default defineComponent({
       updateScreenState,
       ...toRefs(roomState),
       showParticipantPanel,
+      showUsersVideoList,
     };
   },
 });

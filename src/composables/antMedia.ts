@@ -351,10 +351,9 @@ export function useInitWebRTC() {
         } else if (info == 'screen_share_stopped') {
           console.log('screen share stopped');
           setScreenState(false);
-          if (!userMe.isCameraOn) {
-            userMe.isVideoActivated = false;
-            webRTCInstance.value.turnOffLocalCamera?.(streamId);
-          }
+          setVideoActivatedState(false);
+          setIDButtonSelected('');
+          webRTCInstance.value.turnOffLocalCamera?.(streamId);
           webRTCInstance.value.resetDesktop?.();
           sendNotificationEvent('SCREEN_SHARING_OFF', streamId);
         } else if (info == 'ScreenShareStarted') {
@@ -398,7 +397,8 @@ export function useInitWebRTC() {
         } else if (info == 'streamInformation') {
           streamInformation(obj, roomId, playToken);
         } else if (info == 'roomInformation') {
-          /* participants.value.forEach((previousParticipant) => {
+          /* participants.value.forEach((previousParticip
+            ant) => {
             obj.streams.forEach((actualParticipant) => {
               if (previousParticipant.id !== actualParticipant) {
                 removeRemoteVideo(previousParticipant.id);
@@ -660,6 +660,9 @@ export function useInitWebRTC() {
               obj.data
             ) as ObjRemoteUserInfo;
             //Recieving info from another user if is for me
+            if (remoteUserInfoParsed.userInfo.isRecording) {
+              setRecorded(true);
+            }
             if (remoteUserInfoParsed.to === userMe.id) {
               console.log('I am receiving info from another user', objParsed);
               console.log('USER_FINISH🚀', remoteUserInfoParsed.userInfo);
@@ -688,6 +691,7 @@ export function useInitWebRTC() {
                   remoteUserInfoParsed.userInfo.fractalUserId;
                 user.denied = remoteUserInfoParsed.userInfo.denied;
                 user.isRecording = remoteUserInfoParsed.userInfo.isRecording;
+
                 if (remoteUserInfoParsed.userInfo.existVideo) {
                   initRemotePlayerInstance(remoteUserInfoParsed.userInfo);
                 }

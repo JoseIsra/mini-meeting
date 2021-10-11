@@ -269,6 +269,7 @@ export default defineComponent({
           uploadUrl: uploadUrl,
           authorizationToken: authorizationToken,
         };
+
         addTextMessage('empty', new Date(), 'empty'); // activa loader message
         uploadFileToBackblaze({
           file: new File([fileInformation], encodeURIComponent(fileName)),

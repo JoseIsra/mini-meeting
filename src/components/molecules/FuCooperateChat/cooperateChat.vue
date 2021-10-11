@@ -192,7 +192,6 @@ import FuCooperateMenu from 'molecules/FuCooperateMenu';
 import { renameFile } from '@/utils/file';
 import backblazeService from '@/services/backblaze';
 const { uploadFileToBackblaze } = backblazeService;
-import { fetchApi } from '@/utils/api';
 import { warningMessage } from '@/utils/notify';
 
 interface HTMLInputEvent extends Event {
@@ -210,8 +209,7 @@ export default defineComponent({
     const route = useRoute();
     let showChatMenu = ref<boolean>(false);
     const { roomState } = useRoom();
-    const backBlazePathFile =
-      `https://encrypted.fractalup.com/file/MainPublic/classrooms/${roomState.classroomId}/cooperate/chat`;
+    const backBlazePathFile = `https://encrypted.fractalup.com/file/MainPublic/classrooms/${roomState.classroomId}/cooperate/chat`;
     const messageContainer = ref<MessageContainer>({} as MessageContainer);
     let userInput = ref<string>('');
     const { userMessages, setUserMessage, deleteLoadingMessage } =
@@ -274,10 +272,10 @@ export default defineComponent({
         //const apiObject = JSON.stringify({ query: myQuery });
         //const apiResponse = await fetchApi(apiObject);
 
-        const B2Info =  await window.xprops?.getB2Info?.();
+        const B2Info = await window.xprops?.getB2Info?.();
         const uploadUrl = B2Info?.uploadUrl;
         const authorizationToken = B2Info?.authorizationToken;
-        console.log(B2Info, '🚀🚀🚀🚀🚀')
+        console.log(B2Info, '🚀🚀🚀🚀🚀');
 
         const b2Info = {
           uploadUrl: uploadUrl,

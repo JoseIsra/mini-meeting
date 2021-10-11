@@ -40,6 +40,9 @@ import FuRetransmissionContent from 'molecules/FuRetransmissionContent';
 import { useToogleFunctions } from '@/composables';
 import FuExternalVideoModal from 'molecules/FuExternalVideoModal';
 import { useExternalVideo } from '@/composables/external-video';
+import { useInitWebRTC } from '@/composables/antMedia';
+import { useUserMe } from '@/composables/userMe';
+import videojs from 'video.js';
 
 export default defineComponent({
   name: 'FuMenuContentActions',
@@ -52,7 +55,10 @@ export default defineComponent({
     const actions = ref<Options[]>(menuActions);
     const filterContent = ref('');
     let modal = ref(false);
-    const { externalVideo, updateExternalVideoState } = useExternalVideo();
+    const { externalVideo, updateExternalVideoState, setVideoInstance } =
+      useExternalVideo();
+    const { sendData } = useInitWebRTC();
+    const { userMe, updateUserMe } = useUserMe();
 
     const executeAction = (interaction: string) => {
       openOptionsMenu(false);
@@ -73,8 +79,24 @@ export default defineComponent({
         ...externalVideo,
         videoOnRoom: false,
         urlVideo: '',
+        isVideoPlaying: false,
+        videoCurrentTime: 0,
       });
+      setVideoInstance({} as HTMLMediaElement & { playerId: string });
+      sendData(userMe.id, {
+        remoteInstance: userMe.videoInstance,
+        eventType: 'REMOVE_EXTERNAL_VIDEO',
+      });
+      videojs(userMe.videoInstance?.playerId as string).dispose();
       setFullScreen('none');
+      updateUserMe({
+        ...userMe,
+        existVideo: false,
+        urlOfVideo: '',
+        videoInstance: {} as HTMLMediaElement & { playerId: string },
+        currentTime: 0,
+        isPlayingVideo: false,
+      });
     };
 
     return {

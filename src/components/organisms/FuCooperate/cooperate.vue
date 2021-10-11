@@ -6,7 +6,7 @@
     :style="`
       background: url('${bgUrl}') #36393f;
       background-size: 70vw;
-      background-position: 62% center;
+      background-position: 50% center;
       background-repeat: no-repeat;
     `"
   >

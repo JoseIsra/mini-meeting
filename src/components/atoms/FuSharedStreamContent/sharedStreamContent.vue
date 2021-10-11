@@ -105,6 +105,10 @@
             </q-btn>
           </div>
         </div>
+
+        <div class="m-shared__admin__backgroundImage">
+          <fu-image-picker />
+        </div>
       </div>
     </main>
   </section>
@@ -112,6 +116,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, computed, watch } from 'vue';
+import FuImagePicker from '@/components/atoms/FuImagePicker';
 import { useUserMe } from '@/composables/userMe';
 import { lockAction } from '@/types/index';
 import { LOCK_ACTION_TYPE } from '@/utils/enums';
@@ -125,6 +130,9 @@ export default defineComponent({
     unCopyText: {
       type: Boolean,
     },
+  },
+  components: {
+    FuImagePicker,
   },
   setup(props, { emit }) {
     let sharedLinkOnInput = ref(props.sharedLink);

@@ -152,10 +152,6 @@ export default defineComponent({
       window?.xprops?.isHost ||
       (JSON.parse((route.query.isHost as string) || 'false') as boolean);
 
-    const bgUrl =
-      window?.xprops?.bgUrl ||
-      'https://encrypted.fractalup.com/file/MainPublic/fractalup_assets/landing/main.png';
-
     const isBeingRecorded = window?.xprops?.isBeingRecorded;
     const { setIDButtonSelected } = useToogleFunctions();
 
@@ -202,7 +198,8 @@ export default defineComponent({
       isMicBlocked: roleId === 1 ? isMicLocked : false,
       isCameraBlocked: roleId === 1 ? isCameraLocked : false,
       isScreenShareBlocked: roleId === 1 ? isScreenShareLocked : false,
-      bgUrl: bgUrl,
+      bgUrl:
+        'https://encrypted.fractalup.com/file/MainPublic/fractalup_assets/landing/main.png',
       isBeingRecorded,
     });
 

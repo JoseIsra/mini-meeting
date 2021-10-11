@@ -697,6 +697,12 @@ export function useInitWebRTC() {
                 REASON_TO_LEAVE_ROOM.KICKED_BY_MODERATOR_CLOSE_ROOM
               );
             }
+
+            if (kickedEvent.to === userMe.id) {
+              window.xprops?.handleLeaveCall?.(
+                REASON_TO_LEAVE_ROOM.KICKED_BY_MODERATOR
+              );
+            }
           } else if (eventType === 'SET_PARTICIPANT_ACTION') {
             const { action, value, participantId } = JSON.parse(
               obj.data

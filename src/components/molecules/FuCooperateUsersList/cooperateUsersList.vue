@@ -236,58 +236,133 @@
             </q-tooltip>
           </q-btn> -->
 
-          <q-btn
-            :icon="isMicBlocked(participant) ? 'mic_off' : 'mic'"
-            @click="handleParticipantActions(participant, LOCK_ACTION_TYPE.Mic)"
-          >
-            <q-tooltip
-              class="bg-grey-10"
-              anchor="top middle"
-              self="bottom middle"
-              :offset="[50, 10]"
-              transition-show="scale"
-              transition-hide="scale"
-            >
-              <label class="">{{
-                isMicBlocked(participant)
-                  ? 'Desbloquear Microfono'
-                  : 'Bloquear Microfono'
-              }}</label>
-            </q-tooltip>
-          </q-btn>
+          <q-btn color="grey-9" icon="fas fa-ellipsis-h">
+            <q-menu :offset="[70, 10]">
+              <q-list style="min-width: 100px">
+                <div class="m-list__content__userBox__actions">
+                  <q-btn
+                    :icon="isMicBlocked(participant) ? 'mic_off' : 'mic'"
+                    @click="
+                      handleParticipantActions(
+                        participant,
+                        LOCK_ACTION_TYPE.Mic
+                      )
+                    "
+                  >
+                    <q-tooltip
+                      class="bg-grey-10"
+                      anchor="top middle"
+                      self="bottom middle"
+                      :offset="[50, 10]"
+                      transition-show="scale"
+                      transition-hide="scale"
+                    >
+                      <label class="">{{
+                        isMicBlocked(participant)
+                          ? 'Desbloquear Microfono'
+                          : 'Bloquear Microfono'
+                      }}</label>
+                    </q-tooltip>
+                  </q-btn>
 
-          <q-btn
-            :icon="isVideoBlocked(participant) ? 'videocam_off' : 'videocam'"
-            @click="
-              handleParticipantActions(participant, LOCK_ACTION_TYPE.Camera)
-            "
-          >
-            <q-tooltip
-              class="bg-grey-10"
-              anchor="top middle"
-              self="bottom middle"
-              :offset="[50, 10]"
-              transition-show="scale"
-              transition-hide="scale"
-            >
-              <label class="">{{
-                isVideoBlocked(participant)
-                  ? 'Desbloquear Camara'
-                  : 'Bloquear Camara'
-              }}</label>
-            </q-tooltip>
-          </q-btn>
+                  <q-btn
+                    :icon="
+                      isVideoBlocked(participant) ? 'videocam_off' : 'videocam'
+                    "
+                    @click="
+                      handleParticipantActions(
+                        participant,
+                        LOCK_ACTION_TYPE.Camera
+                      )
+                    "
+                  >
+                    <q-tooltip
+                      class="bg-grey-10"
+                      anchor="top middle"
+                      self="bottom middle"
+                      :offset="[50, 10]"
+                      transition-show="scale"
+                      transition-hide="scale"
+                    >
+                      <label class="">{{
+                        isVideoBlocked(participant)
+                          ? 'Desbloquear Camara'
+                          : 'Bloquear Camara'
+                      }}</label>
+                    </q-tooltip>
+                  </q-btn>
 
-          <q-btn
-            :icon="
-              isScreenShareBlocked(participant)
-                ? 'desktop_access_disabled'
-                : 'desktop_windows'
-            "
-            @click="
-              handleParticipantActions(participant, LOCK_ACTION_TYPE.Screen)
-            "
-          >
+                  <q-btn
+                    :icon="
+                      isScreenShareBlocked(participant)
+                        ? 'desktop_access_disabled'
+                        : 'desktop_windows'
+                    "
+                    @click="
+                      handleParticipantActions(
+                        participant,
+                        LOCK_ACTION_TYPE.Screen
+                      )
+                    "
+                  >
+                    <q-tooltip
+                      class="bg-grey-10"
+                      anchor="top middle"
+                      self="bottom middle"
+                      :offset="[50, 10]"
+                      transition-show="scale"
+                      transition-hide="scale"
+                    >
+                      <label class="">{{
+                        isScreenShareBlocked(participant)
+                          ? 'Desbloquear Compartir Pantalla'
+                          : 'Bloquear Compartir Pantalla'
+                      }}</label>
+                    </q-tooltip>
+                  </q-btn>
+
+                  <q-btn
+                    icon="fas fa-sign-out-alt"
+                    @click="handleKickParticipant(participant)"
+                  >
+                    <q-tooltip
+                      class="bg-grey-10"
+                      anchor="top middle"
+                      self="bottom middle"
+                      :offset="[50, 10]"
+                      transition-show="scale"
+                      transition-hide="scale"
+                    >
+                      <label>Quitar participante</label>
+                    </q-tooltip>
+                  </q-btn>
+
+                  <q-btn
+                    :icon="
+                      listenFullScreen.id == participant.id
+                        ? 'location_disabled'
+                        : 'gps_fixed'
+                    "
+                    @click="activeFullScreen(participant)"
+                  >
+                    <q-tooltip
+                      class="bg-grey-10"
+                      anchor="top middle"
+                      self="bottom middle"
+                      :offset="[50, 10]"
+                      transition-show="scale"
+                      transition-hide="scale"
+                    >
+                      <label v-if="listenFullScreen.id == participant.id">
+                        Usuario fijado</label
+                      >
+                      <label v-else> Fijar usuario</label>
+                    </q-tooltip>
+                  </q-btn>
+                </div>
+              </q-list>
+            </q-menu>
+
             <q-tooltip
               class="bg-grey-10"
               anchor="top middle"
@@ -296,11 +371,7 @@
               transition-show="scale"
               transition-hide="scale"
             >
-              <label class="">{{
-                isScreenShareBlocked(participant)
-                  ? 'Desbloquear Compartir Pantalla'
-                  : 'Bloquear Compartir Pantalla'
-              }}</label>
+              <label>Opciones</label>
             </q-tooltip>
           </q-btn>
         </div>
@@ -580,6 +651,12 @@ export default defineComponent({
       // }
     };
 
+    const handleKickParticipant = (participant: Participant) => {
+      console.log('Kick Participant: ', participant.name);
+
+      sendData(userMe.id, { eventType: 'KICK', to: participant.id });
+    };
+
     const activeFullScreen = (arg: User) => {
       if (isFullScreen.value) {
         setFullScreenObject(arg);
@@ -609,6 +686,7 @@ export default defineComponent({
       isFullScreen,
       fullScreenObject,
       listenFullScreen,
+      handleKickParticipant,
     };
   },
 });

@@ -39,6 +39,8 @@ export default defineComponent({
 
     watch(file, async (value) => {
       if (value) {
+        console.log('Imagen Seleccionada: ', value);
+
         // const reader = new FileReader();
         // const [leftType] = value.type.split('/');
         const fileExtension = simplifyExtension(value.type);
@@ -46,9 +48,7 @@ export default defineComponent({
         const newFile = renameFile(value, fileNameToBackblaze);
         const fileName = newFile.name;
 
-        console.log(fileName);
-
-        console.log(newFile);
+        console.log('Imagen renombrada: ', newFile);
 
         const B2Info = await window.xprops?.getB2Info?.();
         const uploadUrl = B2Info?.uploadUrl;
@@ -59,8 +59,6 @@ export default defineComponent({
           authorizationToken: authorizationToken,
         };
 
-        console.log(B2Info, '🚀🚀🚀🚀🚀');
-
         await uploadFileToBackblaze({
           file: new File([newFile], encodeURIComponent(fileName)),
           path: `classrooms/${roomState.classroomId}/cooperate/backgrounds`,
@@ -70,7 +68,7 @@ export default defineComponent({
 
         const fileRoute = `${backBlazePath}/${roomState.classroomId}/cooperate/backgrounds/${fileName}`;
 
-        console.log(fileRoute);
+        console.log('Imagen Subida: ', fileRoute);
 
         updateBgUrl(
           fileRoute ||

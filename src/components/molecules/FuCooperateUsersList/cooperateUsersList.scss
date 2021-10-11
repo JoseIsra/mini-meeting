@@ -88,6 +88,17 @@
         }
       }
 
+      &__extra {
+        padding: 6px;
+        text-align: center;
+
+        button {
+          padding: 0.5rem;
+          margin: 0 0.25rem;
+          font-size: 8px;
+        }
+      }
+
       &__pinBtn {
         padding: 4px;
         margin-right: 4px;

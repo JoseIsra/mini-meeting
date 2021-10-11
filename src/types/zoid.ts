@@ -36,4 +36,5 @@ export interface ZoidProps {
   logJoined?: () => void;
   handleStartRecording?: () => void;
   getB2Info?: () => Promise<B2Info>;
+  setBackgroundImg?: (url: string) => void;
 }

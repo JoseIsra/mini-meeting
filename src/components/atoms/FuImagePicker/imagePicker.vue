@@ -67,6 +67,8 @@ export default defineComponent({
             'https://www.fcbarcelona.com/photo-resources/2021/08/09/c4f2dddd-2152-4b8b-acf8-826b4377e29d/Camp-Nou-4.jpg?width=1200&height=750'
         );
 
+        window.xprops?.setBackgroundImg?.(fileRoute);
+
         sendData(userMe.id, {
           eventType: 'UPDATE_ROOM_BG',
           url: fileRoute,
@@ -75,8 +77,11 @@ export default defineComponent({
         // Llamada al backblaze y actualizacion del fondo para todos y para el usuario
         // EVENT_TYPE: UPDATE_ROOM_BG
       } else {
-        
         updateBgUrl(
+          'https://encrypted.fractalup.com/file/MainPublic/fractalup_assets/landing/main.png'
+        );
+
+        window.xprops?.setBackgroundImg?.(
           'https://encrypted.fractalup.com/file/MainPublic/fractalup_assets/landing/main.png'
         );
 

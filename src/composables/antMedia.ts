@@ -24,7 +24,6 @@ const {
   setMicState,
   setCameraState,
   setDenied,
-  isAdmin,
 } = useUserMe();
 
 const { setIsLoadingOrError, setLoadingOrErrorMessage, setExistRoom } =
@@ -646,7 +645,7 @@ export function useInitWebRTC() {
                 user.denied = remoteUserInfoParsed.userInfo.denied;
                 user.isRecording = remoteUserInfoParsed.userInfo.isRecording;
 
-                if (isAdmin.value) {
+                if (userMe.roleId == 0) {
                   notifyWithAction(
                     remoteUserInfoParsed.userInfo.name,
                     remoteUserInfoParsed.userInfo.id

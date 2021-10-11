@@ -19,7 +19,10 @@
           {{ lobbyMessage }}
         </div>
 
+        <q-btn v-if="userMe.denied" label="Regresar" @click="leaveCall" />
+
         <q-circular-progress
+          v-if="!userMe.denied"
           indeterminate
           size="40px"
           :thickness="0.4"
@@ -45,9 +48,10 @@ import { PERMISSION_STATUS } from '@/utils/enums';
 
 export default defineComponent({
   name: 'FuLobby',
-  setup() {
+  setup(props, { emit }) {
     const { userMe } = useUserMe();
     // const { sendData } = useInitWebRTC();
+    const leaveCall = () => emit('handleLeaveCall');
 
     const lobbyMessage = computed(() => {
       if (userMe.denied === PERMISSION_STATUS.asked) {
@@ -63,6 +67,7 @@ export default defineComponent({
       lobbyMessage,
       userMe,
       PERMISSION_STATUS,
+      leaveCall,
     };
   },
 });

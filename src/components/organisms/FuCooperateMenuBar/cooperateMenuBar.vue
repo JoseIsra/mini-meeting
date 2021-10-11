@@ -109,13 +109,12 @@
           round
           color="grey-1"
           size="12px"
-          @click="handleEspecialBehaviour('HANDUP')"
+          @click="
+            activeHandBadge = !activeHandBadge;
+            handleEspecialBehaviour('HANDUP');
+          "
         >
-          <q-badge
-            v-show="functionsOnMenuBar.handNotificationInfo.length > 0"
-            color="red"
-            rounded
-            floating
+          <q-badge v-show="activeHandBadge" color="red" rounded floating
             >x</q-badge
           >
         </q-btn>
@@ -252,7 +251,8 @@ export default defineComponent({
     const { userMe, setMicState, setVideoActivatedState } = useUserMe();
 
     let handNotificationActive = ref(false);
-    const canSeeActionsMenu = ref(userMe.roleId === 0 || userMe.roleId === 2);
+    const canSeeActionsMenu = ref(userMe.roleId === 0);
+    const activeHandBadge = ref(false);
 
     //**********************++FUNCIONES ********************** */
     const toogleChat = () => {
@@ -443,6 +443,7 @@ export default defineComponent({
       openResponsiveMenuOfFunctions,
       canSeeActionsMenu,
       waitingParticipants,
+      activeHandBadge,
     };
   },
 });

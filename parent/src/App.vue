@@ -1,7 +1,9 @@
 <template>
   <div id="app">
     <fractal-up-cooperate-instance
-      roomId="room1"
+      class="multichat"
+      :class="{ '--minimized': isMinimized }"
+      roomId="room16"
       :streamId="streamId"
       :streamName="streamName"
       :handleLeaveCall="handleLeaveCall"
@@ -14,6 +16,7 @@
       :isCameraLocked="false"
       :isScreenShareLocked="false"
       :isMicLocked="false"
+      :getB2Info="getB2Info"
       photoURL="https://encrypted.fractalup.com/file/MainPublic/classrooms/1/users/44/assets/1623873430710.png"
     />
   </div>
@@ -25,6 +28,18 @@ import FractalUpCooperate from "./zoid";
 
 const FractalUpCooperateInstance = FractalUpCooperate.driver("vue", Vue);
 
+interface B2Info {
+  uploadUrl: string;
+  AuthorizationToken: string;
+}
+
+interface getB2InfoMeth {
+  simpleUpload: B2Info;
+}
+interface getB2InfoParsed {
+  data: getB2InfoMeth;
+}
+
 export default Vue.extend({
   name: "App",
   components: {
@@ -34,6 +49,7 @@ export default Vue.extend({
     return {
       streamId: `u-nr-userId-${Date.now()}`,
       streamName: `userId-${Date.now()}`,
+      isMinimized: false,
     };
   },
   methods: {
@@ -45,6 +61,7 @@ export default Vue.extend({
     },
     toggleMinimize: function (state: boolean) {
       console.log("⭐ toggleMinimize function executed with params", state);
+      this.isMinimized = state;
     },
     handleStopRecording: function (url: string) {
       console.log("⭐ handleStopRecording function executed with params", url);
@@ -52,17 +69,61 @@ export default Vue.extend({
     toggleLockAction: function (options: Record<string, number>) {
       console.log("⭐ toggle log action with params", options);
     },
+    getB2Info: async function () {
+      const myQuery = `
+          query GetSimpleUpload($classroomId: ID!) {
+            simpleUpload(classroomId: $classroomId) {
+              uploadUrl
+              authorizationToken
+            }
+          }
+        `;
+      const apiObject = JSON.stringify({
+        query: myQuery,
+        variables: {
+          classroomId: "1",
+        },
+      });
+
+      const apiResponse = await fetch("https://lxp.fractaluptest.xyz/api", {
+        method: "post",
+        body: apiObject,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      const parsedResponse = (await apiResponse.json()) as getB2InfoParsed;
+      const B2Info = parsedResponse.data.simpleUpload;
+      return B2Info;
+    },
   },
 });
 </script>
 
 <style>
+body {
+  margin: 0;
+  padding: 0;
+}
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
+  width: 100vw;
+  height: 100vh;
+}
+.multichat {
+  width: 100vw;
+  height: 100vh;
+}
+.--minimized {
+  width: 30vw;
+  height: 30vh;
+  position: absolute;
+  bottom: 0;
+  right: 0;
 }
 </style>

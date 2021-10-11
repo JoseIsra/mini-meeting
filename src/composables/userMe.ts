@@ -1,4 +1,4 @@
-import { reactive, computed } from 'vue';
+import { reactive } from 'vue';
 
 export interface User {
   id: string;
@@ -21,6 +21,7 @@ export interface User {
   currentTime?: number;
   isPlayingVideo?: boolean;
   isRecording: boolean;
+  isHost: boolean;
 }
 
 export interface UpdatedUserfields {
@@ -39,6 +40,7 @@ export interface UpdatedUserfields {
   currentTime?: number;
   isPlayingVideo?: boolean;
   isRecording?: boolean;
+  isHost?: boolean;
 }
 
 // blocked: some functionalities blocked (mic, screen, camera)
@@ -97,8 +99,6 @@ export function useUserMe() {
 
   const setDenied = (state: number) => (userMe.denied = state);
 
-  const isAdmin = computed(() => userMe.roleId === 0 || userMe.roleId === 2);
-
   return {
     userMe,
     setUserMe,
@@ -113,6 +113,5 @@ export function useUserMe() {
     setLocalVideoBlock,
     setLocalScreenShareBlock,
     setDenied,
-    isAdmin
   };
 }

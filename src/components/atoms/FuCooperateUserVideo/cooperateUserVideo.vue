@@ -2,7 +2,7 @@
   <section class="a-userVideo">
     <div
       class="a-userVideo__box"
-      :class="{ fade: userMe.id == fullScreenObject.id }"
+      :class="{ fade: fullScreenObject.id == userMe.id }"
     >
       <div v-show="!userMe.isVideoActivated" class="a-userVideo__box__avatar">
         <figure class="a-userVideo__box__avatar__imageBox">
@@ -52,9 +52,9 @@
     </div>
     <div
       class="a-userVideo__box"
-      v-for="participant in admittedParticipants.slice(-9)"
+      v-for="participant in controlUserToRender"
       :key="participant.id"
-      :class="{ fade: participant.id == fullScreenObject.id }"
+      :class="{ fade: fullScreenObject.id == participant.id }"
     >
       <div
         v-show="!participant.isVideoActivated"
@@ -117,11 +117,12 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
+import { defineComponent, ref, computed } from 'vue';
 import { userStreams } from '@/helpers/usersVideo';
 import { useToogleFunctions } from '@/composables';
 import { User, useUserMe } from '@/composables/userMe';
 import { useHandleParticipants } from '@/composables/participants';
+import { useQuasar } from 'quasar';
 
 interface UserStream {
   id: string;
@@ -132,8 +133,7 @@ export default defineComponent({
   name: 'FuCooperateUserVideo',
   setup() {
     const users = ref<UserStream[]>(userStreams);
-    const { participants, admittedParticipants } = useHandleParticipants();
-    console.log(participants);
+    const { admittedParticipants } = useHandleParticipants();
 
     const {
       setFullScreen,
@@ -144,6 +144,7 @@ export default defineComponent({
     const { userMe } = useUserMe();
 
     const streamIdPinned = ref('');
+    const $q = useQuasar();
 
     const goFullScreen = (arg: User | string) => {
       if (isFullScreen.value) {
@@ -154,14 +155,20 @@ export default defineComponent({
       setFullScreenObject(arg as User);
     };
 
+    const controlUserToRender = computed(() => {
+      return $q.screen.lt.md
+        ? admittedParticipants.value.slice(-3)
+        : admittedParticipants.value.slice(-9);
+    });
+
     return {
       users,
       userMe,
       goFullScreen,
-      // participants,
       admittedParticipants,
       streamIdPinned,
       fullScreenObject,
+      controlUserToRender,
     };
   },
 });

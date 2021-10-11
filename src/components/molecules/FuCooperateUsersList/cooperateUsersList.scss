@@ -65,15 +65,13 @@
         width: 40px;
         height: 40px;
         margin: 0 0.8rem 0 0.5rem;
-        &__mic {
+        &__icons {
           position: absolute;
-          left: 80%;
-          top: 80%;
-        }
-        &__cam {
-          position: absolute;
-          right: 100%;
-          top: 0;
+          bottom: -10px;
+          right: -6px;
+          display: flex;
+          justify-content: center;
+          align-items: center;
         }
       }
 

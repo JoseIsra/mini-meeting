@@ -207,7 +207,7 @@ export default defineComponent({
       }
     );
 
-    const canModifyActions = ref(userMe.roleId === 0 || userMe.roleId === 2);
+    const canModifyActions = ref(userMe.roleId === 0);
 
     const handleAllActions = () => {
       if (actionsActivated.value) {

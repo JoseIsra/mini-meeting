@@ -73,9 +73,7 @@ export default defineComponent({
           eventType: 'UPDATE_ROOM_BG',
           url: fileRoute,
         });
-
-        // Llamada al backblaze y actualizacion del fondo para todos y para el usuario
-        // EVENT_TYPE: UPDATE_ROOM_BG
+        
       } else {
         updateBgUrl(
           'https://encrypted.fractalup.com/file/MainPublic/fractalup_assets/landing/main.png'

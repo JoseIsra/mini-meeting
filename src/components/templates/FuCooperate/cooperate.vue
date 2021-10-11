@@ -112,7 +112,7 @@ export default defineComponent({
 
     const privacy =
       window.xprops?.roomRestriction ||
-      (route.query.privacy as string) === '1' ||
+      (route.query.roomRestriction as string) === '1' ||
       false;
 
     const isMicLocked =

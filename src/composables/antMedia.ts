@@ -24,7 +24,6 @@ const {
   setMicState,
   setCameraState,
   setDenied,
-  isAdmin,
 } = useUserMe();
 
 const { setIsLoadingOrError, setLoadingOrErrorMessage, setExistRoom } =
@@ -664,17 +663,12 @@ export function useInitWebRTC() {
                 user.denied = remoteUserInfoParsed.userInfo.denied;
                 user.isRecording = remoteUserInfoParsed.userInfo.isRecording;
 
-                if (isAdmin.value) {
+                if (userMe.roleId == 0) {
                   notifyWithAction(
                     remoteUserInfoParsed.userInfo.name,
                     remoteUserInfoParsed.userInfo.id
                   );
                 }
-
-                // if (remoteUserInfoParsed.userInfo.existVideo) {
-                //   console.log('HAY EXTERNO BRO');
-                //   initRemotePlayerInstance(remoteUserInfoParsed.userInfo);
-                // }
               }
             }
           } else if (eventType === 'USER_INFO_FINISH') {

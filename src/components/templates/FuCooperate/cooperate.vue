@@ -4,7 +4,10 @@
       class="t-cooperate__page"
       v-if="existRoom && isLoadingOrError === false"
     >
-      <fu-lobby v-if="roomState.privacy" />
+      <fu-lobby
+        v-if="roomState.privacy"
+        @handleLeaveCall="handleZoidLeaveCall"
+      />
 
       <fu-cooperate
         v-else
@@ -112,7 +115,7 @@ export default defineComponent({
 
     const privacy =
       window.xprops?.roomRestriction ||
-      (route.query.privacy as string) === '1' ||
+      (route.query.roomRestriction as string) === '1' ||
       false;
 
     const isMicLocked =
@@ -145,6 +148,10 @@ export default defineComponent({
       (route.query.isMicOn as string) == 'micro' ||
       false;
 
+    const isHost =
+      window?.xprops?.isHost ||
+      (JSON.parse((route.query.isHost as string) || 'false') as boolean);
+
     const isBeingRecorded = window?.xprops?.isBeingRecorded;
     const { setIDButtonSelected } = useToogleFunctions();
 
@@ -176,6 +183,7 @@ export default defineComponent({
           : PERMISSION_STATUS.admitted,
       existVideo: false,
       isRecording: false,
+      isHost,
     });
 
     setMicIconState(isMicLocked ? false : isMicOn);

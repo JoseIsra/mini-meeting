@@ -4,7 +4,7 @@
       <label class="m-list__title__text">Lista de Usuarios</label>
       <small>En línea ({{ admittedParticipants.length + 1 }})</small>
       <q-btn
-        v-show="isAdmin"
+        v-show="userMe.roleId === 0"
         :label="
           waitingParticipants.length > 0
             ? `En espera (${waitingParticipants.length})`
@@ -19,7 +19,7 @@
       ></q-btn>
     </header>
     <main class="m-list__content">
-      <div class="m-list__content__actions" v-show="isAdmin">
+      <div class="m-list__content__actions" v-show="userMe.roleId === 0">
         <span>
           {{
             isEveryoneActionsBlocked ? 'Limitar acciones ' : 'Liberar acciones'
@@ -123,17 +123,19 @@
               :src="userMe.avatar"
               alt="avatar-logo"
             />
-            <q-icon
-              :name="userMe.isMicOn ? 'mic' : 'mic_off'"
-              class="m-list__content__userBox__avatar__mic"
-              :color="userMe.isMicOn ? 'white' : 'red'"
-              size="18px"
-            />
-            <q-icon
-              class="m-list__content__userBox__avatar__cam"
-              :name="userMe.isCameraOn ? 'videocam' : 'videocam_off'"
-              :color="userMe.isCameraOn ? 'white' : 'red'"
-            />
+            <div class="m-list__content__userBox__avatar__icons">
+              <q-icon
+                :name="userMe.isMicOn ? 'mic' : 'mic_off'"
+                class="m-list__content__userBox__avatar__mic"
+                :color="userMe.isMicOn ? 'white' : 'red'"
+                size="18px"
+              />
+              <q-icon
+                class="m-list__content__userBox__avatar__cam"
+                :name="userMe.isCameraOn ? 'videocam' : 'videocam_off'"
+                :color="userMe.isCameraOn ? 'white' : 'red'"
+              />
+            </div>
           </aside>
           <label>{{ userMe.name }}</label>
           <q-btn
@@ -169,17 +171,19 @@
               :src="participant.avatar"
               alt="avatar-logo"
             />
-            <q-icon
-              class="m-list__content__userBox__avatar__mic"
-              :name="participant.isMicOn ? 'mic' : 'mic_off'"
-              :color="participant.isMicOn ? 'white' : 'red'"
-              size="18px"
-            />
-            <q-icon
-              class="m-list__content__userBox__avatar__cam"
-              :name="participant.isCameraOn ? 'videocam' : 'videocam_off'"
-              :color="participant.isCameraOn ? 'white' : 'red'"
-            />
+            <div class="m-list__content__userBox__avatar__icons">
+              <q-icon
+                class="m-list__content__userBox__avatar__mic"
+                :name="participant.isMicOn ? 'mic' : 'mic_off'"
+                :color="participant.isMicOn ? 'white' : 'red'"
+                size="18px"
+              />
+              <q-icon
+                class="m-list__content__userBox__avatar__cam"
+                :name="participant.isCameraOn ? 'videocam' : 'videocam_off'"
+                :color="participant.isCameraOn ? 'white' : 'red'"
+              />
+            </div>
           </aside>
           <label>{{ participant.name }}</label>
           <q-btn
@@ -203,7 +207,10 @@
           </q-btn>
         </div>
 
-        <div class="m-list__content__userBox__actions" v-show="isAdmin">
+        <div
+          class="m-list__content__userBox__actions"
+          v-show="userMe.roleId === 0"
+        >
           <!-- <q-btn
             :icon="
               hasActionsBlocked(participant)
@@ -325,7 +332,7 @@ export default defineComponent({
 
     const { toggleParticipantPanel } = useSidebarToogle();
 
-    const { userMe, isAdmin } = useUserMe();
+    const { userMe } = useUserMe();
 
     const { sendData } = useInitWebRTC();
 
@@ -598,8 +605,6 @@ export default defineComponent({
       isScreenShareBlocked,
       handleParticipantActions,
       LOCK_ACTION_TYPE,
-
-      isAdmin,
       activeFullScreen,
       isFullScreen,
       fullScreenObject,

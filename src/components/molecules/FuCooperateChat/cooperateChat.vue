@@ -192,7 +192,6 @@ import FuCooperateMenu from 'molecules/FuCooperateMenu';
 import { renameFile } from '@/utils/file';
 import backblazeService from '@/services/backblaze';
 const { uploadFileToBackblaze } = backblazeService;
-import { fetchApi } from '@/utils/api';
 import { warningMessage } from '@/utils/notify';
 
 interface HTMLInputEvent extends Event {

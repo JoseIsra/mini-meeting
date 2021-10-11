@@ -14,6 +14,7 @@
       </div>
       <div class="m-fuser__actions">
         <q-btn
+          v-if="isAdmin"
           @click="exitFullScreen"
           round
           flat
@@ -69,18 +70,39 @@ import {
 import { useToogleFunctions } from '@/composables';
 import { useScreen } from '@/composables/screen';
 import _ from 'lodash';
+import { useRoom } from '@/composables/room';
+import { useUserMe } from '@/composables/userMe';
+import { useInitWebRTC } from '@/composables/antMedia';
 
 export default defineComponent({
   name: 'FuFullScreenUser',
   setup() {
     const { fullScreenObject, setFullScreen, clearFullScreenObject } =
       useToogleFunctions();
+
     const { screenMinimized } = useScreen();
+
+    const { updateFocus } = useRoom();
+
+    const { userMe } = useUserMe();
+
+    const isAdmin = computed(() => userMe.roleId !== 1);
+
+    const { sendData } = useInitWebRTC();
+
     let showMinimizeMessage = ref(false);
+
     let orientationClass = ref('');
+
     const exitFullScreen = () => {
+      updateFocus(null);
       setFullScreen('none');
       clearFullScreenObject();
+
+      sendData(userMe.id, {
+        eventType: 'SET_FULL_SCREEN',
+        mode: 'none',
+      });
     };
 
     const hideMinimizeMessage = _.debounce(() => {
@@ -130,6 +152,7 @@ export default defineComponent({
       hasCameraActivated,
       orientationClass,
       screenMinimized,
+      isAdmin,
     };
   },
 });

@@ -34,6 +34,7 @@ const {
   setRoomCameraState,
   setRoomScreenShareState,
   setPrivacy,
+  updateFocus,
 } = useRoom();
 
 const {
@@ -48,7 +49,10 @@ const {
   addHandNotificationInfo,
   removeHandNotification,
   setFullScreen,
+  setFullScreenObject,
+  isFullScreen,
   setIDButtonSelected,
+  clearFullScreenObject,
 } = useToogleFunctions();
 
 const roomTimerId = ref<ReturnType<typeof setInterval> | null>(null);
@@ -116,6 +120,13 @@ interface ObjAnswerPermission {
   participantId: string;
   eventType: string;
   value: boolean;
+}
+
+interface ObjSetFullScreen {
+  id: string;
+  eventType: string;
+  mode: string;
+  participant: User;
 }
 
 export function useInitWebRTC() {
@@ -878,6 +889,30 @@ export function useInitWebRTC() {
               obj.data
             ) as ExternalVideoObject;
             updateVideoTime(externalVideoInfo);
+          } else if (eventType === 'SET_FULL_SCREEN') {
+            const { participant, mode } = JSON.parse(
+              obj.data
+            ) as ObjSetFullScreen;
+
+            if (participant) {
+              console.log('Activar fijar usuario');
+
+              if (isFullScreen.value) {
+                setFullScreenObject(participant);
+                updateFocus(participant);
+                return;
+              }
+
+              updateFocus(participant);
+              setFullScreen(mode);
+              setFullScreenObject(participant);
+            } else {
+              console.log('Quitar fijar usuario');
+
+              updateFocus(null);
+              setFullScreen(mode);
+              clearFullScreenObject();
+            }
           }
         }
       },

@@ -1,3 +1,4 @@
+import { User } from '@/composables/userMe';
 import { lockAction } from './index';
 
 interface B2Info {
@@ -23,6 +24,7 @@ export interface ZoidProps {
   isBeingRecorded?: boolean;
   roomRestriction?: boolean;
   isHost?: boolean;
+  focused?: User;
   handleLeaveCall?: (
     arg: number,
     remainingParticipantsFractalUserIds?: string[]

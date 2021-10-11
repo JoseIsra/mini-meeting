@@ -276,6 +276,32 @@
                         ? 'location_disabled'
                         : 'gps_fixed'
                     "
+                    @click="activeEveryoneFullScreen(participant)"
+                    color="primary"
+                    text-color="white"
+                  >
+                    <!-- @click="listenFullScreen.id === participant.id ? activeEveryoneFullScreen(participant) : cancelEveryoneFullScreen" -->
+
+                    <q-tooltip
+                      class="bg-grey-10"
+                      anchor="bottom middle"
+                      self="top middle"
+                      transition-show="scale"
+                      transition-hide="scale"
+                    >
+                      <label v-if="listenFullScreen.id === participant.id">
+                        Usuario fijado</label
+                      >
+                      <label v-else> Fijar usuario para todos</label>
+                    </q-tooltip>
+                  </q-btn>
+
+                  <q-btn
+                    :icon="
+                      listenFullScreen.id == participant.id
+                        ? 'location_disabled'
+                        : 'gps_fixed'
+                    "
                     @click="activeFullScreen(participant)"
                   >
                     <q-tooltip
@@ -338,6 +364,7 @@ import { LOCK_ACTION_TYPE } from '@/utils/enums';
 import { nanoid } from 'nanoid';
 import { useSidebarToogle } from '@/composables';
 import { useToogleFunctions } from '@/composables';
+import { useRoom } from '@/composables/room';
 
 export default defineComponent({
   name: 'FuCooperateUsersList',
@@ -355,11 +382,14 @@ export default defineComponent({
 
     const { sendData } = useInitWebRTC();
 
+    const { roomState, updateFocus } = useRoom();
+
     const {
       setFullScreen,
       setFullScreenObject,
       isFullScreen,
       fullScreenObject,
+      clearFullScreenObject,
     } = useToogleFunctions();
 
     const listenFullScreen = computed(() => {
@@ -604,6 +634,40 @@ export default defineComponent({
       sendData(userMe.id, { eventType: 'KICK', to: participant.id });
     };
 
+    const activeEveryoneFullScreen = (arg: User) => {
+      // if (roomState.focused && isFullScreen.value) {
+      //   setFullScreenObject(arg);
+      //   updateFocus(arg);
+      //   return;
+      // }
+
+      // setFullScreen('user');
+      // setFullScreenObject(arg);
+      // updateFocus(arg);
+
+      if (isFullScreen.value) {
+        setFullScreenObject(arg);
+        updateFocus(arg);
+        return;
+      }
+
+      setFullScreen('user');
+      setFullScreenObject(arg);
+      updateFocus(arg);
+
+      sendData(userMe.id, {
+        eventType: 'SET_FULL_SCREEN',
+        participant: arg,
+        mode: 'user',
+      });
+    };
+
+    const cancelEveryoneFullScreen = () => {
+      updateFocus(null);
+      setFullScreen('none');
+      clearFullScreenObject();
+    };
+
     const activeFullScreen = (arg: User) => {
       if (isFullScreen.value) {
         setFullScreenObject(arg);
@@ -634,6 +698,9 @@ export default defineComponent({
       fullScreenObject,
       listenFullScreen,
       handleKickParticipant,
+      activeEveryoneFullScreen,
+      cancelEveryoneFullScreen,
+      roomState,
     };
   },
 });

@@ -1,5 +1,7 @@
 import { reactive } from 'vue';
 
+import { User } from '@/composables/userMe';
+
 export interface Room {
   id: string;
   isBeingRecorded?: boolean;
@@ -9,6 +11,7 @@ export interface Room {
   isCameraBlocked: boolean;
   isScreenShareBlocked: boolean;
   privacy: boolean;
+  focused: null | User;
 }
 
 export interface participantOnWait {
@@ -36,6 +39,8 @@ export function useRoom() {
   const setRoomScreenShareState = (state: boolean) =>
     (roomState.isScreenShareBlocked = state);
 
+  const updateFocus = (value: null | User) => (roomState.focused = value);
+
   return {
     roomState,
     setRoom,
@@ -44,5 +49,6 @@ export function useRoom() {
     setRoomMicState,
     setRoomCameraState,
     setRoomScreenShareState,
+    updateFocus,
   };
 }

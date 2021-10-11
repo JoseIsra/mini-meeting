@@ -152,8 +152,12 @@ export default defineComponent({
       window?.xprops?.isHost ||
       (JSON.parse((route.query.isHost as string) || 'false') as boolean);
 
+    const userFocused = window?.xprops?.focused || null;
+
     const isBeingRecorded = window?.xprops?.isBeingRecorded;
-    const { setIDButtonSelected } = useToogleFunctions();
+
+    const { setIDButtonSelected, setFullScreen, setFullScreenObject } =
+      useToogleFunctions();
 
     if (isCameraOn) {
       setVideoActivatedState(true);
@@ -199,7 +203,14 @@ export default defineComponent({
       isCameraBlocked: roleId === 1 ? isCameraLocked : false,
       isScreenShareBlocked: roleId === 1 ? isScreenShareLocked : false,
       isBeingRecorded,
+      focused: userFocused,
     });
+
+    if (userFocused) {
+      // Poner full screen y ubicar al usuario q esta en full screen
+      setFullScreen('user');
+      setFullScreenObject(userFocused);
+    }
 
     if (isMicLocked) {
       sendNotificationEvent('MIC_MUTED', streamId);

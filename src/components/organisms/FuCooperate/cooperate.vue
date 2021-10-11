@@ -3,13 +3,14 @@
     class="o-cooperate"
     @mousemove="toogleMenuBar"
     @click.self="closePanels"
-    :style="`
-      background: url('${bgUrl}') #36393f;
-      background-size: 70vw;
-      background-position: 50% center;
-      background-repeat: no-repeat;
-    `"
   >
+    <q-img
+      class="o-cooperate__background"
+      :src="bgUrl"
+      :style="bgStyle"
+      :fit="bgMaximied ? 'fill' : 'cover'"
+    />
+
     <q-icon
       name="fas fa-expand-alt"
       size="24px"
@@ -56,7 +57,7 @@
 </template>
 //TODO: OBJETO DE USUARIO GLOBAL
 <script lang="ts">
-import { defineComponent, ref, toRefs, onMounted } from 'vue';
+import { defineComponent, ref, toRefs, onMounted, computed } from 'vue';
 import FuCooperateMenuBar from 'organisms/FuCooperateMenuBar';
 import FuCooperateHeader from 'molecules/FuCooperateHeader';
 import FuCooperateUserVideo from 'atoms/FuCooperateUserVideo';
@@ -115,6 +116,13 @@ export default defineComponent({
     const { roomState } = useRoom();
 
     const { screenMinimized, updateScreenState } = useScreen();
+
+    const bgStyle = computed(() => {
+      return roomState.bgMaximixed
+        ? 'left: 0; right: 0; top: 0; bottom: 0; width: 100vw; height: 100vh'
+        : 'top: 25vh; width: 50vw; height: 50vh';
+    });
+
     const hideMenuBar = _.debounce(() => {
       showMenuBar.value = false;
       showUsersVideoList.value = false;
@@ -149,6 +157,7 @@ export default defineComponent({
       ...toRefs(roomState),
       showParticipantPanel,
       showUsersVideoList,
+      bgStyle,
     };
   },
 });

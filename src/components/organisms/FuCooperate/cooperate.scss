@@ -6,6 +6,16 @@
   flex-direction: column;
   align-items: center;
 
+  background: #36393f;
+  // background-size: 70vw;
+  // background-position: 50% center;
+  // background-repeat: no-repeat;
+
+  &__background {
+    position: absolute;
+    z-index: 0;
+  }
+
   &__expand {
     color: white;
     cursor: pointer;

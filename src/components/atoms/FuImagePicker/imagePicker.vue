@@ -39,16 +39,10 @@ export default defineComponent({
 
     watch(file, async (value) => {
       if (value) {
-        console.log('Imagen Seleccionada: ', value);
-
-        // const reader = new FileReader();
-        // const [leftType] = value.type.split('/');
         const fileExtension = simplifyExtension(value.type);
         const fileNameToBackblaze = `${new Date().getTime()}.${fileExtension}`;
         const newFile = renameFile(value, fileNameToBackblaze);
         const fileName = newFile.name;
-
-        console.log('Imagen renombrada: ', newFile);
 
         const B2Info = await window.xprops?.getB2Info?.();
         const uploadUrl = B2Info?.uploadUrl;
@@ -68,8 +62,6 @@ export default defineComponent({
 
         const fileRoute = `${backBlazePath}/${roomState.classroomId}/cooperate/backgrounds/${fileName}`;
 
-        console.log('Imagen Subida: ', fileRoute);
-
         updateBgUrl(
           fileRoute ||
             'https://www.fcbarcelona.com/photo-resources/2021/08/09/c4f2dddd-2152-4b8b-acf8-826b4377e29d/Camp-Nou-4.jpg?width=1200&height=750'
@@ -83,6 +75,7 @@ export default defineComponent({
         // Llamada al backblaze y actualizacion del fondo para todos y para el usuario
         // EVENT_TYPE: UPDATE_ROOM_BG
       } else {
+        
         updateBgUrl(
           'https://encrypted.fractalup.com/file/MainPublic/fractalup_assets/landing/main.png'
         );

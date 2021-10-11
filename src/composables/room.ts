@@ -10,6 +10,7 @@ export interface Room {
   isScreenShareBlocked: boolean;
   privacy: boolean;
   bgUrl?: string;
+  bgMaximixed: boolean;
 }
 
 export interface participantOnWait {

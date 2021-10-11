@@ -108,18 +108,23 @@
 
         <div class="m-shared__admin__backgroundImage">
           <fu-image-picker />
+
+          <q-checkbox style="justify-content: space-between; width: 100%; margin: 8px 0" v-model="bgMaximixed" label="Maximizar fondo de pantalla" dense dark left-label color="primary"/>
         </div>
+
+        
       </div>
     </main>
   </section>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed, watch } from 'vue';
+import { defineComponent, ref, computed, watch, toRefs } from 'vue';
 import FuImagePicker from '@/components/atoms/FuImagePicker';
 import { useUserMe } from '@/composables/userMe';
 import { lockAction } from '@/types/index';
 import { LOCK_ACTION_TYPE } from '@/utils/enums';
+import { useRoom } from '@/composables/room';
 
 export default defineComponent({
   name: 'FuSharedStreamContent',
@@ -138,6 +143,8 @@ export default defineComponent({
     let sharedLinkOnInput = ref(props.sharedLink);
 
     const { userMe } = useUserMe();
+
+    const { roomState } = useRoom();
 
     const isMicLocked = window.xprops?.isMicLocked || false;
 
@@ -252,6 +259,7 @@ export default defineComponent({
       cooperateScreenShareState,
       actionsActivated,
       handleAllActions,
+      ...toRefs(roomState),
     };
   },
 });

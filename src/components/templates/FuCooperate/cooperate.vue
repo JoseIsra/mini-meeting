@@ -160,12 +160,11 @@ export default defineComponent({
       (window?.xprops?.bgUrl as string) ||
       'https://encrypted.fractalup.com/file/MainPublic/fractalup_assets/landing/main.png';
 
-    const userPinnedZoid = (window?.xprops?.pinnedUser as string) || route.query.userpinned as string ||'';
+    const userPinnedZoid = (window?.xprops?.pinnedUser as string) || '';
 
     const isBeingRecorded = window?.xprops?.isBeingRecorded;
 
-    const { setIDButtonSelected, setFullScreen } =
-      useToogleFunctions();
+    const { setIDButtonSelected, setFullScreen } = useToogleFunctions();
 
     if (isCameraOn) {
       setVideoActivatedState(true);
@@ -206,11 +205,11 @@ export default defineComponent({
 
     const startDate = window.xprops?.startDate || '2020-01-11 11:23';
 
-    console.log(admittedParticipants);
-
     const userPinned = admittedParticipants.value.find(
       (part) => part.id === userPinnedZoid
     );
+
+    console.log('Id: ', userPinnedZoid);
 
     setRoom({
       id: roomId,

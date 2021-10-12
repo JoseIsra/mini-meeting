@@ -105,7 +105,7 @@ export default defineComponent({
     watch(admittedParticipants, (value) => {
       if (!gotPinnedUser.value) {
         const participant = value.find((p) => p.id === roomState.pinnedUserId);
-        setFullScreenObject((participant as User) ?? userMe);
+        setFullScreenObject(participant as User);
       }
     });
 

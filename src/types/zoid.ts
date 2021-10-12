@@ -1,4 +1,3 @@
-import { User } from '@/composables/userMe';
 import { lockAction } from './index';
 
 interface B2Info {
@@ -26,7 +25,6 @@ export interface ZoidProps {
   isBeingRecorded?: boolean;
   roomRestriction?: boolean;
   isHost?: boolean;
-  focused?: User;
   startDate?: string;
   handleLeaveCall?: (
     arg: number,
@@ -41,4 +39,6 @@ export interface ZoidProps {
   getB2Info?: () => Promise<B2Info>;
   setBackgroundImg?: (url: string) => void;
   addUserLogToState?: (fractalUserId: string, logType: number) => void;
+  setPinnedUser?: (userId: string) => void;
+  pinnedUser?: string;
 }

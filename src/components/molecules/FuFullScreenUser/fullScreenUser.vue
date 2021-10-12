@@ -86,9 +86,9 @@ export default defineComponent({
     const { userMe } = useUserMe();
 
     const canClose = computed(() => {
-      if (!roomState.focused) {
+      if (!roomState.pinnedUser) {
         return true;
-      } else if (!!roomState.focused && userMe.roleId !== 1) {
+      } else if (!!roomState.pinnedUser && userMe.roleId !== 1) {
         return true;
       } else {
         return false;
@@ -106,7 +106,7 @@ export default defineComponent({
       setFullScreen('none');
       clearFullScreenObject();
 
-      if (roomState.focused) {
+      if (roomState.pinnedUser) {
         sendData(userMe.id, {
           eventType: 'SET_FULL_SCREEN',
           mode: 'none',
@@ -138,6 +138,7 @@ export default defineComponent({
     onBeforeUnmount(() => {
       window.removeEventListener('orientationchange', handleOrientationChange);
     });
+
     const studentPinned = computed(() => {
       if (userMe.id == fullScreenObject.id) {
         return userMe;

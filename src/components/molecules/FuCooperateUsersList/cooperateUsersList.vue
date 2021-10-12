@@ -186,19 +186,62 @@
             </q-tooltip>
           </q-btn>
 
-          <q-btn
-            :icon="
-              listenFullScreen.id == userMe.id
-                ? 'location_disabled'
-                : 'gps_fixed'
-            "
-            @click="activeFullScreen(userMe)"
-          >
-            <q-tooltip class="bg-grey-10">
-              <label v-if="listenFullScreen.id == userMe.id"
-                >Estás fijado
-              </label>
-              <label v-else>Fijarte a ti mismo</label>
+          <q-btn icon="fas fa-ellipsis-h">
+            <q-menu :offset="[60, 12]">
+              <q-list>
+                <div class="m-list__content__userBox__extra">
+                  <q-btn
+                    :icon="
+                      listenFullScreen.id == userMe.id
+                        ? 'location_disabled'
+                        : 'gps_fixed'
+                    "
+                    @click="activeFullScreen(userMe)"
+                  >
+                    <q-tooltip class="bg-grey-10">
+                      <label v-if="listenFullScreen.id == userMe.id"
+                        >Estás fijado
+                      </label>
+                      <label v-else>Fijarte a ti mismo</label>
+                    </q-tooltip>
+                  </q-btn>
+
+                  <q-btn
+                    v-show="userMe.roleId === 0"
+                    :icon="
+                      listenFullScreen.id == userMe.id
+                        ? 'location_disabled'
+                        : 'gps_fixed'
+                    "
+                    @click="handleEveryoneFocus(userMe)"
+                    color="primary"
+                    text-color="white"
+                  >
+                    <q-tooltip
+                      class="bg-grey-10"
+                      anchor="bottom middle"
+                      self="top middle"
+                      transition-show="scale"
+                      transition-hide="scale"
+                    >
+                      <label v-if="listenFullScreen.id === userMe.id">
+                        Usuario fijado</label
+                      >
+                      <label v-else> Fijarte para todos</label>
+                    </q-tooltip>
+                  </q-btn>
+                </div>
+              </q-list>
+            </q-menu>
+
+            <q-tooltip
+              class="bg-grey-10"
+              anchor="bottom middle"
+              self="top middle"
+              transition-show="scale"
+              transition-hide="scale"
+            >
+              <label>Opciones</label>
             </q-tooltip>
           </q-btn>
         </div>
@@ -684,12 +727,11 @@ export default defineComponent({
     };
 
     const handleKickParticipant = (participant: Participant) => {
-      console.log('Quitar participante: ', participant.id);
       sendData(userMe.id, { eventType: 'KICK', to: participant.id });
     };
 
     const handleEveryoneFocus = (arg: User) => {
-      if (roomState.focused) {
+      if (roomState.pinnedUser) {
         // Hay un focus general
         updateFocus(null);
         setFullScreen('none');

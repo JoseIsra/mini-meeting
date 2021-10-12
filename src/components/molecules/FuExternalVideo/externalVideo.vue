@@ -8,6 +8,8 @@
       @click="handlePlaying"
     />
     <video
+      autoplay
+      id="specialId"
       :class="{ 'vjs-tech': simpleMortal }"
       ref="videoPlayer"
       class="video-js vjs-16-9"
@@ -16,14 +18,7 @@
 </template>
 
 <script lang="ts">
-import {
-  defineComponent,
-  ref,
-  onMounted,
-  onBeforeUnmount,
-  reactive,
-  computed,
-} from 'vue';
+import { defineComponent, ref, onMounted, reactive, computed } from 'vue';
 import { useExternalVideo } from '@/composables/external-video';
 import videojs from 'video.js';
 import 'video.js/dist/video.min.js';
@@ -57,7 +52,7 @@ export default defineComponent({
           seekBar: true,
         },
       },
-      techOrder: ['youtube'],
+      techOrder: ['youtube', 'html5'],
       sources: [
         {
           type: 'video/youtube',
@@ -89,7 +84,6 @@ export default defineComponent({
               currentTime: player.value.currentTime(),
             });
           });
-
           player.value.controlBar.on('mouseup', () => {
             setTimeout(() => {
               sendData(userMe.id, {
@@ -101,12 +95,6 @@ export default defineComponent({
           });
         }
       );
-    });
-
-    onBeforeUnmount(() => {
-      if (player.value) {
-        player.value.dispose();
-      }
     });
 
     const handlePlaying = () => {

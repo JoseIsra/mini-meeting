@@ -61,8 +61,12 @@ const roomTimerId = ref<ReturnType<typeof setInterval> | null>(null);
 
 const isDataChannelOpen = ref(false);
 
-const { updateExternalVideoState, videoPlayerTest, externalVideo } =
-  useExternalVideo();
+const {
+  updateExternalVideoState,
+  videoPlayerTest,
+  externalVideo,
+  setVideoInstance,
+} = useExternalVideo();
 
 const { setMicIconState, setCameraIconState, setScreenShareIconState } =
   useActions();
@@ -137,7 +141,7 @@ interface backgroundInfo {
 }
 
 interface ObjUserLeavingMessageParsed {
-  userFractalId: string;
+  fractalUserId: string;
 }
 
 export function useInitWebRTC() {
@@ -259,6 +263,7 @@ export function useInitWebRTC() {
       });
       setTimeout(() => {
         remotePlayer.value = videojs(arg.videoInstance?.playerId as string);
+
         setTimeout(() => {
           remotePlayer.value.currentTime(arg.currentTime as number);
           if (!arg.isPlayingVideo) {
@@ -266,6 +271,25 @@ export function useInitWebRTC() {
           }
         }, 500);
       }, 1000);
+    };
+
+    const removeVideoShared = (arg: ExternalVideoObject) => {
+      remotePlayer.value = videojs((arg.remoteInstance as VideoID).playerId);
+      setVideoInstance({} as HTMLMediaElement & { playerId: string });
+      videojs((arg.remoteInstance as VideoID).playerId).dispose();
+      setFullScreen('none');
+      updateUserMe({
+        ...userMe,
+        existVideo: false,
+        urlOfVideo: '',
+        videoInstance: {} as HTMLMediaElement & { playerId: string },
+        currentTime: 0,
+        isPlayingVideo: false,
+      });
+      // setTimeout(() => {
+      //   setTimeout(() => {
+      //   }, 500);
+      // }, 1000);
     };
 
     webRTCInstance.value = new WebRTCAdaptor({
@@ -298,11 +322,11 @@ export function useInitWebRTC() {
           joinRoom(roomId, streamId);
         } else if (info == 'joinedTheRoom') {
           window.addEventListener('unload', () => {
-            leaveRoom(roomId);
             sendData(userMe.id, {
               eventType: 'USER_LEAVING',
               fractalUserId: userMe.fractalUserId,
             });
+            leaveRoom(roomId);
           });
           /* var room = obj.ATTR_ROOM_NAME; */
           console.log('joined', obj);
@@ -632,6 +656,7 @@ export function useInitWebRTC() {
                 user.fractalUserId = remoteUserInfoParsed.userInfo.fractalUserId;
 
               if (remoteUserInfoParsed.userInfo.existVideo) {
+                user.existVideo = remoteUserInfoParsed.userInfo.existVideo;
                 initRemotePlayerInstance(remoteUserInfoParsed.userInfo);
               }
 
@@ -651,17 +676,19 @@ export function useInitWebRTC() {
             ) as ObjRemoteUserInfo;
             //Recieving info from another user if is for me
 
-            webRTCInstance.value.sendData?.(
-              userMe.id,
-              JSON.stringify({
-                eventType: 'USER_INFO_FINISH',
-                from: remoteUserInfoParsed.to,
-                to: remoteUserInfoParsed.from,
-                userInfo: userMe,
-              })
-            );
-
             if (remoteUserInfoParsed.to === userMe.id) {
+              console.log('I am receiving info from another user', objParsed);
+              console.log('USER_INFO 🚀', remoteUserInfoParsed.userInfo);
+
+              webRTCInstance.value.sendData?.(
+                userMe.id,
+                JSON.stringify({
+                  eventType: 'USER_INFO_FINISH',
+                  from: remoteUserInfoParsed.to,
+                  to: remoteUserInfoParsed.from,
+                  userInfo: userMe,
+                })
+              );
               const user = participants.value.find(
                 (participant) =>
                   participant.id === remoteUserInfoParsed.userInfo.id
@@ -684,7 +711,6 @@ export function useInitWebRTC() {
                   remoteUserInfoParsed.userInfo.fractalUserId;
                 user.denied = remoteUserInfoParsed.userInfo.denied;
                 user.isRecording = remoteUserInfoParsed.userInfo.isRecording;
-
                 if (userMe.roleId == 0) {
                   notifyWithAction(
                     remoteUserInfoParsed.userInfo.name,
@@ -704,6 +730,7 @@ export function useInitWebRTC() {
             if (remoteUserInfoParsed.to === userMe.id) {
               console.log('I am receiving info from another user', objParsed);
               console.log('USER_FINISH🚀', remoteUserInfoParsed.userInfo);
+
               const user = participants.value.find(
                 (participant) =>
                   participant.id === remoteUserInfoParsed.userInfo.id
@@ -730,6 +757,12 @@ export function useInitWebRTC() {
                 user.isRecording = remoteUserInfoParsed.userInfo.isRecording;
 
                 if (remoteUserInfoParsed.userInfo.existVideo) {
+                  console.log(
+                    'HAY VIDEO EN LA SALA',
+                    remoteUserInfoParsed.userInfo
+                  );
+                  user.existVideo = true;
+                  user.urlOfVideo = remoteUserInfoParsed.userInfo.urlOfVideo;
                   initRemotePlayerInstance(remoteUserInfoParsed.userInfo);
                 }
 
@@ -910,6 +943,8 @@ export function useInitWebRTC() {
               urlVideo: externalVideoObject.urlContent,
             });
             setTimeout(() => {
+              console.log('ID DEL REMOTO 🚀', videoPlayerTest.playerId);
+              // setVideoInstance(videoPlayerTest);
               remotePlayer.value = videojs(videoPlayerTest.playerId);
             }, 2000);
           } else if (eventType == 'PLAYING_VIDEO') {
@@ -951,6 +986,18 @@ export function useInitWebRTC() {
               setFullScreen(mode);
               clearFullScreenObject();
             }
+          } else if (eventType == 'REMOVE_EXTERNAL_VIDEO') {
+            const externalVideoInfo = JSON.parse(
+              obj.data
+            ) as ExternalVideoObject;
+            updateExternalVideoState({
+              ...externalVideo,
+              videoOnRoom: false,
+              urlVideo: '',
+              isVideoPlaying: false,
+              videoCurrentTime: 0,
+            });
+            removeVideoShared(externalVideoInfo);
           } else if (eventType === 'UPDATE_ROOM_BG') {
             const bgData = JSON.parse(obj.data) as backgroundInfo;
             updateBgUrl(bgData.url);
@@ -961,7 +1008,7 @@ export function useInitWebRTC() {
 
             console.log('USER LEAVING', '🚀🚀🚀');
             window.xprops?.addUserLogToState?.(
-              userLeavingMsgParsed.userFractalId,
+              userLeavingMsgParsed.fractalUserId,
               LOG_TYPE.OUT
             );
           }

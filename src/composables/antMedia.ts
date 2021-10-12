@@ -128,6 +128,8 @@ interface ObjSetFullScreen {
   eventType: string;
   mode: string;
   participant: User;
+}
+
 interface ObjUserLeavingMessageParsed {
   userFractalId: string;
 }

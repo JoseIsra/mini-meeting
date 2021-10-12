@@ -1,0 +1,1 @@
+export const backBlazePath = 'https://encrypted.fractalup.com/file/MainPublic/classrooms';

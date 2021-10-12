@@ -35,6 +35,7 @@ const {
   setRoomCameraState,
   setRoomScreenShareState,
   setPrivacy,
+  updateBgUrl,
 } = useRoom();
 
 const {
@@ -117,6 +118,11 @@ interface ObjAnswerPermission {
   participantId: string;
   eventType: string;
   value: boolean;
+}
+
+interface backgroundInfo {
+  id: string;
+  url: string;
 }
 
 interface ObjUserLeavingMessageParsed {
@@ -903,6 +909,9 @@ export function useInitWebRTC() {
               obj.data
             ) as ExternalVideoObject;
             updateVideoTime(externalVideoInfo);
+          } else if (eventType === 'UPDATE_ROOM_BG') {
+            const bgData = JSON.parse(obj.data) as backgroundInfo;
+            updateBgUrl(bgData.url);
           } else if (eventType === 'USER_LEAVING') {
             const userLeavingMsgParsed = JSON.parse(
               obj.data

@@ -20,6 +20,8 @@ export interface ZoidProps {
   isScreenShareLocked?: boolean;
   classroomId?: string;
   isMicOn?: boolean;
+  privacy?: boolean;
+  bgUrl?: string;
   isBeingRecorded?: boolean;
   roomRestriction?: boolean;
   isHost?: boolean;
@@ -35,5 +37,6 @@ export interface ZoidProps {
   logJoined?: () => void;
   handleStartRecording?: () => void;
   getB2Info?: () => Promise<B2Info>;
+  setBackgroundImg?: (url: string) => void;
   addUserLogToState?: (fractalUserId: string, logType: number) => void;
 }

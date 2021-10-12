@@ -119,36 +119,92 @@
               :src="userMe.avatar"
               alt="avatar-logo"
             />
-            <div class="m-list__content__userBox__avatar__icons">
-              <q-icon
-                :name="userMe.isMicOn ? 'mic' : 'mic_off'"
-                class="m-list__content__userBox__avatar__mic"
-                :color="userMe.isMicOn ? 'white' : 'red'"
-                size="18px"
-              />
-              <q-icon
-                class="m-list__content__userBox__avatar__cam"
-                :name="userMe.isCameraOn ? 'videocam' : 'videocam_off'"
-                :color="userMe.isCameraOn ? 'white' : 'red'"
-              />
-            </div>
           </aside>
           <label>{{ userMe.name }}</label>
         </div>
-        <q-btn
-          class="m-list__content__userBox__pinBtn"
-          dense
-          flat
-          :icon="
-            listenFullScreen.id == userMe.id ? 'location_disabled' : 'gps_fixed'
-          "
-          @click="activeFullScreen(userMe)"
-        >
-          <q-tooltip class="bg-grey-10">
-            <label v-if="listenFullScreen.id == userMe.id">Estás fijado </label>
-            <label v-else>Fijarte a ti mismo</label>
-          </q-tooltip>
-        </q-btn>
+
+        <div class="m-list__content__userBox__actions">
+          <q-btn
+            flat
+            :icon="userMe.isMicOn ? 'mic' : 'mic_off'"
+            :color="
+              userMe.isMicOn ? 'blue' : roomState.isMicBlocked ? 'red' : ''
+            "
+            text-color="white"
+          >
+            <q-tooltip class="bg-grey-10">
+              <label v-if="userMe.isMicOn"> Microfono prendido </label>
+              <label v-else-if="roomState.isMicBlocked">
+                Microfono bloqueado
+              </label>
+              <label v-else> Microfono apagado </label>
+            </q-tooltip>
+          </q-btn>
+
+          <q-btn
+            flat
+            :icon="userMe.isCameraOn ? 'videocam' : 'videocam_off'"
+            :color="
+              userMe.isCameraOn
+                ? 'blue'
+                : roomState.isCameraBlocked
+                ? 'red'
+                : ''
+            "
+            text-color="white"
+          >
+            <q-tooltip class="bg-grey-10">
+              <label v-if="userMe.isCameraOn"> Camara encendida </label>
+              <label v-else-if="roomState.isCameraBlocked">
+                Camara bloqueada
+              </label>
+              <label v-else> Camara apagada </label>
+            </q-tooltip>
+          </q-btn>
+
+          <q-btn
+            flat
+            :icon="
+              userMe.isScreenSharing
+                ? 'desktop_windows'
+                : 'desktop_access_disabled'
+            "
+            :color="
+              userMe.isScreenSharing
+                ? 'blue'
+                : roomState.isScreenShareBlocked
+                ? 'red'
+                : ''
+            "
+            text-color="white"
+          >
+            <q-tooltip class="bg-grey-10">
+              <label v-if="userMe.isScreenSharing">
+                Compartir pantalla activo
+              </label>
+              <label v-else-if="roomState.isScreenShareBlocked">
+                Compartir pantalla bloqueado
+              </label>
+              <label v-else> Compartir pantalla inactivo </label>
+            </q-tooltip>
+          </q-btn>
+
+          <q-btn
+            :icon="
+              listenFullScreen.id == userMe.id
+                ? 'location_disabled'
+                : 'gps_fixed'
+            "
+            @click="activeFullScreen(userMe)"
+          >
+            <q-tooltip class="bg-grey-10">
+              <label v-if="listenFullScreen.id == userMe.id"
+                >Estás fijado
+              </label>
+              <label v-else>Fijarte a ti mismo</label>
+            </q-tooltip>
+          </q-btn>
+        </div>
       </div>
       <div
         class="m-list__content__userBox"
@@ -162,7 +218,7 @@
               :src="participant.avatar"
               alt="avatar-logo"
             />
-            <div class="m-list__content__userBox__avatar__icons">
+            <!-- <div class="m-list__content__userBox__avatar__icons">
               <q-icon
                 class="m-list__content__userBox__avatar__mic"
                 :name="participant.isMicOn ? 'mic' : 'mic_off'"
@@ -174,28 +230,9 @@
                 :name="participant.isCameraOn ? 'videocam' : 'videocam_off'"
                 :color="participant.isCameraOn ? 'white' : 'red'"
               />
-            </div>
+            </div> -->
           </aside>
           <label>{{ participant.name }}</label>
-          <!-- <q-btn
-            class="m-list__content__userBox__pinBtn"
-            flat
-            rounded
-            :icon="
-              listenFullScreen.id == participant.id
-                ? 'location_disabled'
-                : 'gps_fixed'
-            "
-            dense
-            @click="activeFullScreen(participant)"
-          >
-            <q-tooltip class="bg-grey-10">
-              <label v-if="listenFullScreen.id == participant.id">
-                Usuario fijado</label
-              >
-              <label v-else> Fijar usuario</label>
-            </q-tooltip>
-          </q-btn> -->
         </div>
 
         <div
@@ -203,7 +240,14 @@
           v-show="userMe.roleId === 0"
         >
           <q-btn
-            :icon="isMicBlocked(participant) ? 'mic_off' : 'mic'"
+            :icon="participant.isMicOn ? 'mic' : 'mic_off'"
+            :color="
+              participant.isMicOn
+                ? 'blue'
+                : participant.isMicBlocked
+                ? 'red'
+                : ''
+            "
             @click="handleParticipantActions(participant, LOCK_ACTION_TYPE.Mic)"
           >
             <q-tooltip
@@ -213,8 +257,8 @@
               transition-show="scale"
               transition-hide="scale"
             >
-              <label class="">{{
-                isMicBlocked(participant)
+              <label>{{
+                participant.isMicBlocked
                   ? 'Desbloquear Microfono'
                   : 'Bloquear Microfono'
               }}</label>
@@ -222,7 +266,14 @@
           </q-btn>
 
           <q-btn
-            :icon="isVideoBlocked(participant) ? 'videocam_off' : 'videocam'"
+            :icon="participant.isCameraOn ? 'videocam' : 'videocam_off'"
+            :color="
+              participant.isCameraOn
+                ? 'blue'
+                : participant.isCameraBlocked
+                ? 'red'
+                : ''
+            "
             @click="
               handleParticipantActions(participant, LOCK_ACTION_TYPE.Camera)
             "
@@ -235,7 +286,7 @@
               transition-hide="scale"
             >
               <label class="">{{
-                isVideoBlocked(participant)
+                participant.isCameraBlocked
                   ? 'Desbloquear Camara'
                   : 'Bloquear Camara'
               }}</label>
@@ -244,9 +295,16 @@
 
           <q-btn
             :icon="
-              isScreenShareBlocked(participant)
-                ? 'desktop_access_disabled'
-                : 'desktop_windows'
+              participant.isScreenSharing
+                ? 'desktop_windows'
+                : 'desktop_access_disabled'
+            "
+            :color="
+              participant.isScreenSharing
+                ? 'blue'
+                : participant.isScreenShareBlocked
+                ? 'red'
+                : ''
             "
             @click="
               handleParticipantActions(participant, LOCK_ACTION_TYPE.Screen)
@@ -260,12 +318,13 @@
               transition-hide="scale"
             >
               <label class="">{{
-                isScreenShareBlocked(participant)
+                participant.isScreenShareBlocked
                   ? 'Desbloquear Compartir Pantalla'
                   : 'Bloquear Compartir Pantalla'
               }}</label>
             </q-tooltip>
           </q-btn>
+
           <q-btn icon="fas fa-ellipsis-h">
             <q-menu :offset="[60, 12]">
               <q-list>

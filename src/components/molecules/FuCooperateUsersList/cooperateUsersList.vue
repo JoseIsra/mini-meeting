@@ -120,12 +120,11 @@
               alt="avatar-logo"
             />
           </aside>
-          <label>{{ userMe.name }}</label>
+          <label>{{ userMe.name }} (Tú)</label>
         </div>
 
         <div class="m-list__content__userBox__actions">
           <q-btn
-            flat
             :icon="userMe.isMicOn ? 'mic' : 'mic_off'"
             :color="
               userMe.isMicOn ? 'blue' : roomState.isMicBlocked ? 'red' : ''
@@ -142,7 +141,6 @@
           </q-btn>
 
           <q-btn
-            flat
             :icon="userMe.isCameraOn ? 'videocam' : 'videocam_off'"
             :color="
               userMe.isCameraOn
@@ -163,7 +161,6 @@
           </q-btn>
 
           <q-btn
-            flat
             :icon="
               userMe.isScreenSharing
                 ? 'desktop_windows'

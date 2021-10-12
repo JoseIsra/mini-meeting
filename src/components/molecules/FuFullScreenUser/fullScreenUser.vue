@@ -1,16 +1,14 @@
 <template>
   <section class="m-fuser">
-    <div v-show="!fullScreenObject.isVideoActivated" class="m-fuser__avatar">
+    <div v-show="!studentPinned.isVideoActivated" class="m-fuser__avatar">
       <figure class="m-fuser__avatar__imageBox">
         <img
           class="m-fuser__avatar__imageBox__image"
-          :src="fullScreenObject.avatar"
+          :src="studentPinned.avatar"
         />
       </figure>
       <div class="m-fuser__info">
-        <label class="m-fuser__info__userName">{{
-          fullScreenObject.name
-        }}</label>
+        <label class="m-fuser__info__userName">{{ studentPinned.name }}</label>
       </div>
       <div class="m-fuser__actions">
         <q-btn
@@ -31,7 +29,7 @@
       </div>
     </div>
     <video
-      v-show="fullScreenObject.isVideoActivated"
+      v-show="studentPinned.isVideoActivated"
       :class="[
         'm-fuser__stream',
         orientationClass,
@@ -41,7 +39,7 @@
       @mousemove="toggleMinimizeMessage"
       muted
       playsinline
-      :srcObject.prop="fullScreenObject.stream"
+      :srcObject.prop="studentPinned.stream"
     ></video>
     <q-btn
       flat
@@ -51,7 +49,7 @@
       @click="exitFullScreen"
       v-show="
         showMinimizeMessage &&
-        fullScreenObject.isVideoActivated &&
+        studentPinned.isVideoActivated &&
         !screenMinimized
       "
     />
@@ -69,6 +67,8 @@ import {
 import { useToogleFunctions } from '@/composables';
 import { useScreen } from '@/composables/screen';
 import _ from 'lodash';
+import { useUserMe } from '@/composables/userMe';
+import { useHandleParticipants } from '@/composables/participants';
 
 export default defineComponent({
   name: 'FuFullScreenUser',
@@ -78,11 +78,13 @@ export default defineComponent({
     const { screenMinimized } = useScreen();
     let showMinimizeMessage = ref(false);
     let orientationClass = ref('');
+    const { userMe } = useUserMe();
+    const { admittedParticipants } = useHandleParticipants();
+
     const exitFullScreen = () => {
       setFullScreen('none');
       clearFullScreenObject();
     };
-
     const hideMinimizeMessage = _.debounce(() => {
       showMinimizeMessage.value = false;
     }, 4000);
@@ -102,10 +104,19 @@ export default defineComponent({
     onMounted(() => {
       window.addEventListener('orientationchange', handleOrientationChange);
     });
+
     onBeforeUnmount(() => {
       window.removeEventListener('orientationchange', handleOrientationChange);
     });
-
+    const studentPinned = computed(() => {
+      if (userMe.id == fullScreenObject.id) {
+        return userMe;
+      } else {
+        return admittedParticipants.value.find(
+          (participant) => participant.id == fullScreenObject.id
+        );
+      }
+    });
     const handleOrientationChange = () => {
       const orientation = window.screen.orientation.type;
       if (
@@ -130,6 +141,7 @@ export default defineComponent({
       hasCameraActivated,
       orientationClass,
       screenMinimized,
+      studentPinned,
     };
   },
 });

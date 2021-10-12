@@ -90,4 +90,14 @@
     border-radius: 10px;
     font-weight: bolder;
   }
+
+  &__loading {
+    width: 400px;
+    height: 250px;
+    background-color: rgba(0, 0, 0, 0.4);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
 }

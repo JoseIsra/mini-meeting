@@ -160,11 +160,11 @@ export default defineComponent({
       (window?.xprops?.bgUrl as string) ||
       'https://encrypted.fractalup.com/file/MainPublic/fractalup_assets/landing/main.png';
 
-    const userPinnedZoid = (window?.xprops?.pinnedUser as string) || '';
+    const userPinnedZoid = (window?.xprops?.pinnedUser as string) || route.query.userpinned as string ||'';
 
     const isBeingRecorded = window?.xprops?.isBeingRecorded;
 
-    const { setIDButtonSelected, setFullScreen, setFullScreenObject } =
+    const { setIDButtonSelected, setFullScreen } =
       useToogleFunctions();
 
     if (isCameraOn) {
@@ -224,12 +224,13 @@ export default defineComponent({
       bgMaximixed: false,
       isBeingRecorded,
       pinnedUser: (userPinned as User) ?? null,
+      pinnedUserId: userPinnedZoid,
       startDate,
     });
 
     if (userPinnedZoid) {
       setFullScreen('user');
-      setFullScreenObject(userPinned as User);
+      // setFullScreenObject(userPinned as User);
     }
 
     if (isMicLocked) {

@@ -47,6 +47,7 @@ const {
 } = useHandleParticipants();
 
 const { setUserMessage, deleteLoadingMessage } = useHandleMessage();
+
 const {
   addHandNotificationInfo,
   removeHandNotification,

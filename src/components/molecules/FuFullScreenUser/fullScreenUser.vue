@@ -1,59 +1,67 @@
 <template>
   <section class="m-fuser">
-    <div v-show="!studentPinned.isVideoActivated" class="m-fuser__avatar">
-      <figure class="m-fuser__avatar__imageBox">
-        <img
-          class="m-fuser__avatar__imageBox__image"
-          :src="studentPinned.avatar"
-        />
-      </figure>
-      <div class="m-fuser__info">
-        <label class="m-fuser__info__userName">{{ studentPinned.name }}</label>
-      </div>
-      <div class="m-fuser__actions">
-        <q-btn
-          v-if="canClose"
-          @click="exitFullScreen"
-          round
-          flat
-          icon="fullscreen_exit"
-          color="white"
-        >
-          <q-tooltip
-            class="bg-grey-10"
-            transition-show="scale"
-            transition-hide="scale"
+    <div class="m-fuser__content" v-if="gotPinnedUser">
+      <div v-show="!studentPinned.isVideoActivated" class="m-fuser__avatar">
+        <figure class="m-fuser__avatar__imageBox">
+          <img
+            class="m-fuser__avatar__imageBox__image"
+            :src="studentPinned.avatar"
+          />
+        </figure>
+        <div class="m-fuser__info">
+          <label class="m-fuser__info__userName">{{
+            studentPinned.name
+          }}</label>
+        </div>
+        <div class="m-fuser__actions">
+          <q-btn
+            v-if="canClose"
+            @click="exitFullScreen"
+            round
+            flat
+            icon="fullscreen_exit"
+            color="white"
           >
-            <label class="m-fuser__actions__message"> Minimizar </label>
-          </q-tooltip>
-        </q-btn>
+            <q-tooltip
+              class="bg-grey-10"
+              transition-show="scale"
+              transition-hide="scale"
+            >
+              <label class="m-fuser__actions__message"> Minimizar </label>
+            </q-tooltip>
+          </q-btn>
+        </div>
       </div>
+      <video
+        v-show="studentPinned.isVideoActivated"
+        :class="[
+          'm-fuser__stream',
+          orientationClass,
+          { '--coverMode': hasCameraActivated },
+        ]"
+        autoplay
+        @mousemove="toggleMinimizeMessage"
+        muted
+        playsinline
+        :srcObject.prop="studentPinned.stream"
+      ></video>
+      <q-btn
+        flat
+        label="Minimizar pantalla"
+        class="m-fuser__quitBtn"
+        icon="fullscreen_exit"
+        @click="exitFullScreen"
+        v-show="
+          showMinimizeMessage &&
+          studentPinned.isVideoActivated &&
+          !screenMinimized
+        "
+      />
     </div>
-    <video
-      v-show="studentPinned.isVideoActivated"
-      :class="[
-        'm-fuser__stream',
-        orientationClass,
-        { '--coverMode': hasCameraActivated },
-      ]"
-      autoplay
-      @mousemove="toggleMinimizeMessage"
-      muted
-      playsinline
-      :srcObject.prop="studentPinned.stream"
-    ></video>
-    <q-btn
-      flat
-      label="Minimizar pantalla"
-      class="m-fuser__quitBtn"
-      icon="fullscreen_exit"
-      @click="exitFullScreen"
-      v-show="
-        showMinimizeMessage &&
-        studentPinned.isVideoActivated &&
-        !screenMinimized
-      "
-    />
+
+    <div class="m-fuser__loading" v-else>
+      <q-spinner color="primary" size="10em" />
+    </div>
   </section>
 </template>
 
@@ -64,26 +72,42 @@ import {
   computed,
   onMounted,
   onBeforeUnmount,
+  watch,
 } from 'vue';
 import { useToogleFunctions } from '@/composables';
 import { useScreen } from '@/composables/screen';
 import _ from 'lodash';
 import { useRoom } from '@/composables/room';
-import { useUserMe } from '@/composables/userMe';
+import { User, useUserMe } from '@/composables/userMe';
 import { useInitWebRTC } from '@/composables/antMedia';
 import { useHandleParticipants } from '@/composables/participants';
 
 export default defineComponent({
   name: 'FuFullScreenUser',
   setup() {
-    const { fullScreenObject, setFullScreen, clearFullScreenObject } =
-      useToogleFunctions();
+    const {
+      fullScreenObject,
+      setFullScreen,
+      clearFullScreenObject,
+      setFullScreenObject,
+    } = useToogleFunctions();
 
     const { screenMinimized } = useScreen();
 
     const { updateFocus, roomState } = useRoom();
 
     const { userMe } = useUserMe();
+
+    const { admittedParticipants } = useHandleParticipants();
+
+    const gotPinnedUser = computed(() => !!fullScreenObject.id);
+
+    watch(admittedParticipants, (value) => {
+      if (!gotPinnedUser.value) {
+        const participant = value.find((p) => p.id === roomState.pinnedUserId);
+        setFullScreenObject((participant as User) ?? userMe);
+      }
+    });
 
     const canClose = computed(() => {
       if (!roomState.pinnedUser) {
@@ -100,7 +124,6 @@ export default defineComponent({
     let showMinimizeMessage = ref(false);
 
     let orientationClass = ref('');
-    const { admittedParticipants } = useHandleParticipants();
 
     const exitFullScreen = () => {
       setFullScreen('none');
@@ -115,9 +138,9 @@ export default defineComponent({
         updateFocus(null);
 
         window.xprops?.setPinnedUser?.('');
-        
       }
     };
+
     const hideMinimizeMessage = _.debounce(() => {
       showMinimizeMessage.value = false;
     }, 4000);
@@ -151,6 +174,7 @@ export default defineComponent({
         );
       }
     });
+
     const handleOrientationChange = () => {
       const orientation = window.screen.orientation.type;
       if (
@@ -177,6 +201,7 @@ export default defineComponent({
       screenMinimized,
       canClose,
       studentPinned,
+      gotPinnedUser,
     };
   },
 });

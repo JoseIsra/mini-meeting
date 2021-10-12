@@ -15,6 +15,7 @@ export interface Room {
   bgMaximixed: boolean;
   startDate: string;
   pinnedUser: null | User;
+  pinnedUserId?: string;
 }
 
 export interface participantOnWait {

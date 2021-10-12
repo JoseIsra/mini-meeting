@@ -8,6 +8,7 @@
       @click="handlePlaying"
     />
     <video
+      autoplay
       id="specialId"
       :class="{ 'vjs-tech': simpleMortal }"
       ref="videoPlayer"
@@ -51,7 +52,7 @@ export default defineComponent({
           seekBar: true,
         },
       },
-      techOrder: ['youtube'],
+      techOrder: ['youtube', 'html5'],
       sources: [
         {
           type: 'video/youtube',

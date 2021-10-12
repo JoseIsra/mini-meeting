@@ -2,7 +2,7 @@
   <section class="a-userVideo">
     <div
       class="a-userVideo__box"
-      :class="{ fade: userMe.id == fullScreenObject.id }"
+      :class="{ fade: fullScreenObject.id == userMe.id }"
     >
       <div v-show="!userMe.isVideoActivated" class="a-userVideo__box__avatar">
         <figure class="a-userVideo__box__avatar__imageBox">
@@ -54,7 +54,7 @@
       class="a-userVideo__box"
       v-for="participant in controlUserToRender"
       :key="participant.id"
-      :class="{ fade: participant.id == fullScreenObject.id }"
+      :class="{ fade: fullScreenObject.id == participant.id }"
     >
       <div
         v-show="!participant.isVideoActivated"
@@ -133,8 +133,7 @@ export default defineComponent({
   name: 'FuCooperateUserVideo',
   setup() {
     const users = ref<UserStream[]>(userStreams);
-    const { participants, admittedParticipants } = useHandleParticipants();
-    console.log(participants);
+    const { admittedParticipants } = useHandleParticipants();
 
     const {
       setFullScreen,
@@ -166,7 +165,6 @@ export default defineComponent({
       users,
       userMe,
       goFullScreen,
-      // participants,
       admittedParticipants,
       streamIdPinned,
       fullScreenObject,

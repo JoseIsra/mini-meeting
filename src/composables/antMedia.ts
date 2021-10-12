@@ -130,7 +130,7 @@ interface backgroundInfo {
 }
 
 interface ObjUserLeavingMessageParsed {
-  userFractalId: string;
+  fractalUserId: string;
 }
 
 export function useInitWebRTC() {
@@ -311,11 +311,11 @@ export function useInitWebRTC() {
           joinRoom(roomId, streamId);
         } else if (info == 'joinedTheRoom') {
           window.addEventListener('unload', () => {
-            leaveRoom(roomId);
             sendData(userMe.id, {
               eventType: 'USER_LEAVING',
               fractalUserId: userMe.fractalUserId,
             });
+            leaveRoom(roomId);
           });
           /* var room = obj.ATTR_ROOM_NAME; */
           console.log('joined', obj);
@@ -640,19 +640,15 @@ export function useInitWebRTC() {
                 remoteUserInfoParsed.userInfo.isCameraBlocked;
               user.isScreenShareBlocked =
                 remoteUserInfoParsed.userInfo.isScreenShareBlocked;
-              user.fractalUserId = remoteUserInfoParsed.userInfo.fractalUserId;
-              user.denied = remoteUserInfoParsed.userInfo.denied;
-              user.isRecording = remoteUserInfoParsed.userInfo.isRecording;
+                user.denied = remoteUserInfoParsed.userInfo.denied;
+                user.isRecording = remoteUserInfoParsed.userInfo.isRecording;
+                user.fractalUserId = remoteUserInfoParsed.userInfo.fractalUserId;
 
               if (remoteUserInfoParsed.userInfo.existVideo) {
                 user.existVideo = remoteUserInfoParsed.userInfo.existVideo;
                 initRemotePlayerInstance(remoteUserInfoParsed.userInfo);
               }
 
-              window.xprops?.addUserLogToState?.(
-                user.fractalUserId,
-                LOG_TYPE.IN
-              );
             } */
 
             console.log('my info have been sent');
@@ -682,7 +678,6 @@ export function useInitWebRTC() {
                   userInfo: userMe,
                 })
               );
-
               const user = participants.value.find(
                 (participant) =>
                   participant.id === remoteUserInfoParsed.userInfo.id
@@ -759,6 +754,11 @@ export function useInitWebRTC() {
                   user.urlOfVideo = remoteUserInfoParsed.userInfo.urlOfVideo;
                   initRemotePlayerInstance(remoteUserInfoParsed.userInfo);
                 }
+
+                window.xprops?.addUserLogToState?.(
+                  user.fractalUserId,
+                  LOG_TYPE.IN
+                );
               }
             }
           } else if (eventType === 'KICK') {
@@ -967,7 +967,7 @@ export function useInitWebRTC() {
 
             console.log('USER LEAVING', '🚀🚀🚀');
             window.xprops?.addUserLogToState?.(
-              userLeavingMsgParsed.userFractalId,
+              userLeavingMsgParsed.fractalUserId,
               LOG_TYPE.OUT
             );
           }

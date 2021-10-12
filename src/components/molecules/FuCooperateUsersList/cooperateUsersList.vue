@@ -174,6 +174,7 @@
                 : ''
             "
             text-color="white"
+            @click="dummylog"
           >
             <q-tooltip class="bg-grey-10">
               <label v-if="userMe.isScreenSharing">
@@ -733,6 +734,15 @@ export default defineComponent({
       setFullScreenObject(arg);
     };
 
+    const dummylog = () => {
+      console.log(roomState);
+      console.log(roomState.focused);
+      console.log(!roomState.focused);
+      console.log(!!roomState.focused);
+      
+    }
+    
+
     return {
       waitingParticipants,
       admittedParticipants,
@@ -757,6 +767,7 @@ export default defineComponent({
       activeEveryoneFullScreen,
       cancelEveryoneFullScreen,
       roomState,
+      dummylog
     };
   },
 });

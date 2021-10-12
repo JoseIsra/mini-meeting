@@ -14,7 +14,7 @@
       </div>
       <div class="m-fuser__actions">
         <q-btn
-          v-if="isAdmin"
+          v-if="canClose"
           @click="exitFullScreen"
           round
           flat
@@ -82,11 +82,19 @@ export default defineComponent({
 
     const { screenMinimized } = useScreen();
 
-    const { updateFocus } = useRoom();
+    const { updateFocus, roomState } = useRoom();
 
     const { userMe } = useUserMe();
 
-    const isAdmin = computed(() => userMe.roleId !== 1);
+    const canClose = computed(() => {
+      if (!roomState.focused) {
+        return true;
+      } else if (!!roomState.focused && userMe.roleId !== 1) {
+        return true;
+      } else {
+        return false;
+      }
+    });
 
     const { sendData } = useInitWebRTC();
 
@@ -95,14 +103,17 @@ export default defineComponent({
     let orientationClass = ref('');
 
     const exitFullScreen = () => {
-      updateFocus(null);
       setFullScreen('none');
       clearFullScreenObject();
 
-      sendData(userMe.id, {
-        eventType: 'SET_FULL_SCREEN',
-        mode: 'none',
-      });
+      if (roomState.focused) {
+        sendData(userMe.id, {
+          eventType: 'SET_FULL_SCREEN',
+          mode: 'none',
+        });
+      }
+
+      updateFocus(null);
     };
 
     const hideMinimizeMessage = _.debounce(() => {
@@ -152,7 +163,7 @@ export default defineComponent({
       hasCameraActivated,
       orientationClass,
       screenMinimized,
-      isAdmin,
+      canClose,
     };
   },
 });

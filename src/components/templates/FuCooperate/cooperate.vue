@@ -50,6 +50,7 @@ import { useAuthState } from '@/composables/auth';
 import { useRoom } from '@/composables/room';
 import { useActions } from '@/composables/actions';
 import { useToogleFunctions } from '@/composables';
+import moment from 'moment';
 
 export default defineComponent({
   name: 'FuTCooperate',
@@ -161,11 +162,13 @@ export default defineComponent({
       setCameraIconState(true);
     }
 
+    console.log(roleId, '🚀');
+
     setUserMe({
       id: streamId,
       name: streamName,
       avatar,
-      roleId: roleId,
+      roleId,
       isMicOn: isMicOn ? true : isMicLocked,
       // isMicOn: !isMicLocked,
       isCameraOn,
@@ -190,6 +193,8 @@ export default defineComponent({
     // setCameraIconState(!isCameraLocked);
     // setScreenShareIconState(!isScreenShareLocked);
 
+    const startDate = window.xprops?.startDate || '2020-01-11 11:23';
+
     setRoom({
       id: roomId,
       sharingLink,
@@ -199,6 +204,7 @@ export default defineComponent({
       isCameraBlocked: roleId === 1 ? isCameraLocked : false,
       isScreenShareBlocked: roleId === 1 ? isScreenShareLocked : false,
       isBeingRecorded,
+      startDate,
     });
 
     if (isMicLocked) {
@@ -358,22 +364,31 @@ export default defineComponent({
       if (roomId) {
         const { status } = await checkRoom(roomId);
         if (status === 200) {
-          setExistRoom(true);
+          const nowTime = moment().format('YYYY-MM-DD HH:mm');
+          const haveStarted = moment(nowTime).isSameOrAfter(
+            roomState.startDate
+          );
+          if (haveStarted) {
+            setExistRoom(true);
+            createInstance(
+              roomId,
+              streamId,
+              streamName,
+              publishToken,
+              playToken,
+              subscriberId,
+              subscriberCode
+            );
+          } else {
+            setLoadingOrErrorMessage('This room have not started!');
+          }
+
           // To review
           // setIsLoadingOrError(false);
-          createInstance(
-            roomId,
-            streamId,
-            streamName,
-            publishToken,
-            playToken,
-            subscriberId,
-            subscriberCode
-          );
         } else if (status === 404) {
-          setLoadingOrErrorMessage('Cooperate not found');
+          setLoadingOrErrorMessage('Room not found!');
         } else {
-          setLoadingOrErrorMessage('Not Allowed');
+          setLoadingOrErrorMessage('Not Allowed!');
         }
       } else {
         setLoadingOrErrorMessage('Please, provide a room id');

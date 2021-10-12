@@ -23,6 +23,7 @@ export interface ZoidProps {
   isBeingRecorded?: boolean;
   roomRestriction?: boolean;
   isHost?: boolean;
+  startDate?: string;
   handleLeaveCall?: (
     arg: number,
     remainingParticipantsFractalUserIds?: string[]
@@ -34,4 +35,5 @@ export interface ZoidProps {
   logJoined?: () => void;
   handleStartRecording?: () => void;
   getB2Info?: () => Promise<B2Info>;
+  addUserLogToState?: (fractalUserId: string, logType: number) => void;
 }

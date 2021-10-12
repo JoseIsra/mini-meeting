@@ -741,13 +741,15 @@ export default defineComponent({
           eventType: 'SET_FULL_SCREEN',
           mode: 'none',
         });
+
+        window.xprops?.setPinnedUser?.('');
       } else {
         // No hay focus general
-        if (isFullScreen.value) {
-          setFullScreenObject(arg);
-          updateFocus(arg);
-          return;
-        }
+        // if (isFullScreen.value) {
+        //   setFullScreenObject(arg);
+        //   updateFocus(arg);
+        //   return;
+        // }
 
         setFullScreen('user');
         setFullScreenObject(arg);
@@ -758,6 +760,8 @@ export default defineComponent({
           participant: arg,
           mode: 'user',
         });
+
+        window.xprops?.setPinnedUser?.(arg.id);
       }
 
       // setFullScreen('user');

@@ -113,6 +113,9 @@ export default defineComponent({
         });
 
         updateFocus(null);
+
+        window.xprops?.setPinnedUser?.('');
+        
       }
     };
     const hideMinimizeMessage = _.debounce(() => {

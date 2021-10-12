@@ -39,4 +39,6 @@ export interface ZoidProps {
   getB2Info?: () => Promise<B2Info>;
   setBackgroundImg?: (url: string) => void;
   addUserLogToState?: (fractalUserId: string, logType: number) => void;
+  setPinnedUser?: (userId: string) => void;
+  pinnedUser?: string;
 }

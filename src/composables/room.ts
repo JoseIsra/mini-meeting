@@ -12,6 +12,7 @@ export interface Room {
   isScreenShareBlocked: boolean;
   privacy: boolean;
   focused: null | User;
+  startDate: string;
 }
 
 export interface participantOnWait {

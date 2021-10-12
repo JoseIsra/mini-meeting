@@ -13,6 +13,7 @@ import { notifyWithAction } from '@/utils/notify';
 import { useExternalVideo } from './external-video';
 import videojs from 'video.js';
 import { useActions } from '@/composables/actions';
+import { LOG_TYPE } from '@/utils/enums/zoid';
 
 const webRTCInstance = ref<WebRTCAdaptor>({} as WebRTCAdaptor);
 
@@ -127,6 +128,8 @@ interface ObjSetFullScreen {
   eventType: string;
   mode: string;
   participant: User;
+interface ObjUserLeavingMessageParsed {
+  userFractalId: string;
 }
 
 export function useInitWebRTC() {
@@ -288,6 +291,10 @@ export function useInitWebRTC() {
         } else if (info == 'joinedTheRoom') {
           window.addEventListener('unload', () => {
             leaveRoom(roomId);
+            sendData(userMe.id, {
+              eventType: 'USER_LEAVING',
+              fractalUserId: userMe.fractalUserId,
+            });
           });
           /* var room = obj.ATTR_ROOM_NAME; */
           console.log('joined', obj);
@@ -468,9 +475,10 @@ export function useInitWebRTC() {
             webRTCInstance.value.sendData?.(
               userMe.id,
               JSON.stringify({
-                eventType: 'USER_INFO_REQUEST',
+                eventType: 'REQUEST_USER_IN_ROOM_INFO',
                 from: userMe.id,
                 to: obj,
+                userInfo: userMe,
               })
             );
           }
@@ -562,8 +570,8 @@ export function useInitWebRTC() {
             addHandNotificationInfo(objParsed);
           } else if (eventType === 'NOHAND') {
             removeHandNotification(objParsed.streamId);
-          } else if (eventType === 'USER_INFO_REQUEST') {
-            const infoRequestParsed = JSON.parse(obj.data) as ObjInfoRequested;
+          } else if (eventType === 'REQUEST_USER_IN_ROOM_INFO') {
+            const infoRequestParsed = JSON.parse(obj.data) as ObjRemoteUserInfo;
             console.log(
               '⭐ my info',
               infoRequestParsed.to,
@@ -575,7 +583,7 @@ export function useInitWebRTC() {
                 webRTCInstance.value.sendData?.(
                   userMe.id,
                   JSON.stringify({
-                    eventType: 'USER_INFO',
+                    eventType: 'REQUEST_USER_ENTERING_INFO',
                     from: infoRequestParsed.to,
                     to: infoRequestParsed.from,
                     userInfo: userMe,
@@ -587,28 +595,48 @@ export function useInitWebRTC() {
                 );
               }
             }
-            console.log('my info have been sent');
-            /* console.log(eventType, objParsed, userMe.id);
-            webRTCAdaptor.value.sendData?.(
-              userMe.id,
-              JSON.stringify({ eventType: 'USER_INFO', ...userMe })
-            ); */
-            /*  */
-            /*  */
-            /*  */
-            /* try {
-              webRTCAdaptor.value.sendData?.(
-                userMe.id,
-                JSON.stringify({ eventType: 'USER_INFO', ...userMe })
+
+            const remoteUserInfoParsed = JSON.parse(
+              obj.data
+            ) as ObjRemoteUserInfo;
+
+            const user = participants.value.find(
+              (participant) =>
+                participant.id === remoteUserInfoParsed.userInfo.id
+            );
+            //user = { avatar : remoteUserInfoParsed.userInfo.avatar ,...user}
+            if (user) {
+              console.log('Usuario encontrado: ', user);
+
+              user.avatar = remoteUserInfoParsed.userInfo.avatar;
+              user.name = remoteUserInfoParsed.userInfo.name;
+              user.isCameraOn = remoteUserInfoParsed.userInfo.isCameraOn;
+              user.isMicOn = remoteUserInfoParsed.userInfo.isMicOn;
+              user.isScreenSharing =
+                remoteUserInfoParsed.userInfo.isScreenSharing;
+              user.isVideoActivated =
+                remoteUserInfoParsed.userInfo.isVideoActivated;
+              user.isMicBlocked = remoteUserInfoParsed.userInfo.isMicBlocked;
+              user.isCameraBlocked =
+                remoteUserInfoParsed.userInfo.isCameraBlocked;
+              user.isScreenShareBlocked =
+                remoteUserInfoParsed.userInfo.isScreenShareBlocked;
+              user.fractalUserId = remoteUserInfoParsed.userInfo.fractalUserId;
+              user.denied = remoteUserInfoParsed.userInfo.denied;
+              user.isRecording = remoteUserInfoParsed.userInfo.isRecording;
+
+              if (remoteUserInfoParsed.userInfo.existVideo) {
+                initRemotePlayerInstance(remoteUserInfoParsed.userInfo);
+              }
+
+              window.xprops?.addUserLogToState?.(
+                user.fractalUserId,
+                LOG_TYPE.IN
               );
-            } catch (e) {
-              console.log(e);
-            } */
-            //console.log(objParsed, 'Recibe info del usuario 🇧🇼🇧🇼🇧🇼🇧🇼');
-            //console.log(obj);
-            //test.value.push(obj);
-          } else if (eventType === 'USER_INFO') {
-            //console.log(eventType, objParsed);
+            }
+
+            console.log('my info have been sent');
+          } else if (eventType === 'REQUEST_USER_ENTERING_INFO') {
             const remoteUserInfoParsed = JSON.parse(
               obj.data
             ) as ObjRemoteUserInfo;
@@ -616,21 +644,11 @@ export function useInitWebRTC() {
             if (remoteUserInfoParsed.to === userMe.id) {
               console.log('I am receiving info from another user', objParsed);
               console.log('USER_INFO 🚀', remoteUserInfoParsed.userInfo);
-              webRTCInstance.value.sendData?.(
-                userMe.id,
-                JSON.stringify({
-                  eventType: 'USER_INFO_FINISH',
-                  from: remoteUserInfoParsed.to,
-                  to: remoteUserInfoParsed.from,
-                  userInfo: userMe,
-                })
-              );
 
               const user = participants.value.find(
                 (participant) =>
                   participant.id === remoteUserInfoParsed.userInfo.id
               );
-              //user = { avatar : remoteUserInfoParsed.userInfo.avatar ,...user}
               if (user) {
                 user.avatar = remoteUserInfoParsed.userInfo.avatar;
                 user.name = remoteUserInfoParsed.userInfo.name;
@@ -659,11 +677,10 @@ export function useInitWebRTC() {
               }
             }
           } else if (eventType === 'USER_INFO_FINISH') {
-            //console.log(eventType, objParsed);
-            const remoteUserInfoParsed = JSON.parse(
+            /* const remoteUserInfoParsed = JSON.parse(
               obj.data
             ) as ObjRemoteUserInfo;
-            //Recieving info from another user if is for me
+
             if (remoteUserInfoParsed.userInfo.isRecording) {
               setRecorded(true);
             }
@@ -674,7 +691,6 @@ export function useInitWebRTC() {
                 (participant) =>
                   participant.id === remoteUserInfoParsed.userInfo.id
               );
-              //user = { avatar : remoteUserInfoParsed.userInfo.avatar ,...user}
               if (user) {
                 console.log('Usuario encontrado: ', user);
 
@@ -700,7 +716,7 @@ export function useInitWebRTC() {
                   initRemotePlayerInstance(remoteUserInfoParsed.userInfo);
                 }
               }
-            }
+            } */
           } else if (eventType === 'KICK') {
             const kickedEvent = JSON.parse(obj.data) as ObjKickedEvent;
             if (kickedEvent.to === 'all') {
@@ -913,6 +929,16 @@ export function useInitWebRTC() {
               setFullScreen(mode);
               clearFullScreenObject();
             }
+          } else if (eventType === 'USER_LEAVING') {
+            const userLeavingMsgParsed = JSON.parse(
+              obj.data
+            ) as ObjUserLeavingMessageParsed;
+
+            console.log('USER LEAVING', '🚀🚀🚀');
+            window.xprops?.addUserLogToState?.(
+              userLeavingMsgParsed.userFractalId,
+              LOG_TYPE.OUT
+            );
           }
         }
       },

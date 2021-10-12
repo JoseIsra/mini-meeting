@@ -11,6 +11,7 @@ export interface Room {
   privacy: boolean;
   bgUrl?: string;
   bgMaximixed: boolean;
+  startDate: string;
 }
 
 export interface participantOnWait {

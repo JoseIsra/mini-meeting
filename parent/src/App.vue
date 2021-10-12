@@ -17,7 +17,11 @@
       :isScreenShareLocked="false"
       :isMicLocked="false"
       :getB2Info="getB2Info"
+      :roleId="0"
       photoURL="https://encrypted.fractalup.com/file/MainPublic/classrooms/1/users/44/assets/1623873430710.png"
+      backgroundImg=""
+      setBackgroundImg=""
+      :addUserLogToState="addUserLogToState"
     />
   </div>
 </template>
@@ -96,6 +100,9 @@ export default Vue.extend({
       const parsedResponse = (await apiResponse.json()) as getB2InfoParsed;
       const B2Info = parsedResponse.data.simpleUpload;
       return B2Info;
+    },
+    addUserLogToState: function (fractalUserId: string, logType: number) {
+      console.log(fractalUserId, logType);
     },
   },
 });

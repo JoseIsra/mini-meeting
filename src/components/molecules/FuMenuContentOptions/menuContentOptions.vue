@@ -115,7 +115,9 @@ export default defineComponent({
 
     const canEndCall = ref(userMe.roleId === 0);
 
-    const canLeaveCall = ref(userMe.roleId === 0 || userMe.roleId === 1);
+    const canLeaveCall = ref(
+      (userMe.roleId === 0 || userMe.roleId === 1) && !userMe.isHost
+    );
 
     return {
       options,

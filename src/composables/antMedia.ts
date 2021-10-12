@@ -126,7 +126,7 @@ interface backgroundInfo {
 }
 
 interface ObjUserLeavingMessageParsed {
-  userFractalId: string;
+  fractalUserId: string;
 }
 
 export function useInitWebRTC() {
@@ -287,11 +287,11 @@ export function useInitWebRTC() {
           joinRoom(roomId, streamId);
         } else if (info == 'joinedTheRoom') {
           window.addEventListener('unload', () => {
-            leaveRoom(roomId);
             sendData(userMe.id, {
               eventType: 'USER_LEAVING',
               fractalUserId: userMe.fractalUserId,
             });
+            leaveRoom(roomId);
           });
           /* var room = obj.ATTR_ROOM_NAME; */
           console.log('joined', obj);
@@ -640,17 +640,16 @@ export function useInitWebRTC() {
             ) as ObjRemoteUserInfo;
             //Recieving info from another user if is for me
 
-            webRTCInstance.value.sendData?.(
-              userMe.id,
-              JSON.stringify({
-                eventType: 'USER_INFO_FINISH',
-                from: remoteUserInfoParsed.to,
-                to: remoteUserInfoParsed.from,
-                userInfo: userMe,
-              })
-            );
-
             if (remoteUserInfoParsed.to === userMe.id) {
+              webRTCInstance.value.sendData?.(
+                userMe.id,
+                JSON.stringify({
+                  eventType: 'USER_INFO_FINISH',
+                  from: remoteUserInfoParsed.to,
+                  to: remoteUserInfoParsed.from,
+                  userInfo: userMe,
+                })
+              );
               const user = participants.value.find(
                 (participant) =>
                   participant.id === remoteUserInfoParsed.userInfo.id
@@ -920,7 +919,7 @@ export function useInitWebRTC() {
 
             console.log('USER LEAVING', '🚀🚀🚀');
             window.xprops?.addUserLogToState?.(
-              userLeavingMsgParsed.userFractalId,
+              userLeavingMsgParsed.fractalUserId,
               LOG_TYPE.OUT
             );
           }

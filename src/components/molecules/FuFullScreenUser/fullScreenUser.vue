@@ -111,9 +111,9 @@ export default defineComponent({
           eventType: 'SET_FULL_SCREEN',
           mode: 'none',
         });
-      }
 
-      updateFocus(null);
+        updateFocus(null);
+      }
     };
     const hideMinimizeMessage = _.debounce(() => {
       showMinimizeMessage.value = false;

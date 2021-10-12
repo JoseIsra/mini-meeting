@@ -333,12 +333,10 @@
                         ? 'location_disabled'
                         : 'gps_fixed'
                     "
-                    @click="activeEveryoneFullScreen(participant)"
+                    @click="handleEveryoneFocus(participant)"
                     color="primary"
                     text-color="white"
                   >
-                    <!-- @click="listenFullScreen.id === participant.id ? activeEveryoneFullScreen(participant) : cancelEveryoneFullScreen" -->
-
                     <q-tooltip
                       class="bg-grey-10"
                       anchor="bottom middle"
@@ -691,32 +689,39 @@ export default defineComponent({
       sendData(userMe.id, { eventType: 'KICK', to: participant.id });
     };
 
-    const activeEveryoneFullScreen = (arg: User) => {
-      // if (roomState.focused && isFullScreen.value) {
-      //   setFullScreenObject(arg);
-      //   updateFocus(arg);
-      //   return;
-      // }
+    const handleEveryoneFocus = (arg: User) => {
+      if (roomState.focused) {
+        // Hay un focus general
+        updateFocus(null);
+        setFullScreen('none');
+        clearFullScreenObject();
+
+        sendData(userMe.id, {
+          eventType: 'SET_FULL_SCREEN',
+          mode: 'none',
+        });
+      } else {
+        // No hay focus general
+        if (isFullScreen.value) {
+          setFullScreenObject(arg);
+          updateFocus(arg);
+          return;
+        }
+
+        setFullScreen('user');
+        setFullScreenObject(arg);
+        updateFocus(arg);
+
+        sendData(userMe.id, {
+          eventType: 'SET_FULL_SCREEN',
+          participant: arg,
+          mode: 'user',
+        });
+      }
 
       // setFullScreen('user');
       // setFullScreenObject(arg);
       // updateFocus(arg);
-
-      if (isFullScreen.value) {
-        setFullScreenObject(arg);
-        updateFocus(arg);
-        return;
-      }
-
-      setFullScreen('user');
-      setFullScreenObject(arg);
-      updateFocus(arg);
-
-      sendData(userMe.id, {
-        eventType: 'SET_FULL_SCREEN',
-        participant: arg,
-        mode: 'user',
-      });
     };
 
     const cancelEveryoneFullScreen = () => {
@@ -739,9 +744,7 @@ export default defineComponent({
       console.log(roomState.focused);
       console.log(!roomState.focused);
       console.log(!!roomState.focused);
-      
-    }
-    
+    };
 
     return {
       waitingParticipants,
@@ -764,10 +767,10 @@ export default defineComponent({
       fullScreenObject,
       listenFullScreen,
       handleKickParticipant,
-      activeEveryoneFullScreen,
+      handleEveryoneFocus,
       cancelEveryoneFullScreen,
       roomState,
-      dummylog
+      dummylog,
     };
   },
 });

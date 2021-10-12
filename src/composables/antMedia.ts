@@ -35,6 +35,7 @@ const {
   setRoomCameraState,
   setRoomScreenShareState,
   setPrivacy,
+  updateFocus,
   updateBgUrl,
 } = useRoom();
 
@@ -46,11 +47,15 @@ const {
 } = useHandleParticipants();
 
 const { setUserMessage, deleteLoadingMessage } = useHandleMessage();
+
 const {
   addHandNotificationInfo,
   removeHandNotification,
   setFullScreen,
+  setFullScreenObject,
+  isFullScreen,
   setIDButtonSelected,
+  clearFullScreenObject,
 } = useToogleFunctions();
 
 const roomTimerId = ref<ReturnType<typeof setInterval> | null>(null);
@@ -122,6 +127,13 @@ interface ObjAnswerPermission {
   participantId: string;
   eventType: string;
   value: boolean;
+}
+
+interface ObjSetFullScreen {
+  id: string;
+  eventType: string;
+  mode: string;
+  participant: User;
 }
 
 interface backgroundInfo {
@@ -768,6 +780,12 @@ export function useInitWebRTC() {
                 REASON_TO_LEAVE_ROOM.KICKED_BY_MODERATOR_CLOSE_ROOM
               );
             }
+
+            if (kickedEvent.to === userMe.id) {
+              window.xprops?.handleLeaveCall?.(
+                REASON_TO_LEAVE_ROOM.KICKED_BY_MODERATOR
+              );
+            }
           } else if (eventType === 'SET_PARTICIPANT_ACTION') {
             const { action, value, participantId } = JSON.parse(
               obj.data
@@ -945,6 +963,30 @@ export function useInitWebRTC() {
               obj.data
             ) as ExternalVideoObject;
             updateVideoTime(externalVideoInfo);
+          } else if (eventType === 'SET_FULL_SCREEN') {
+            const { participant, mode } = JSON.parse(
+              obj.data
+            ) as ObjSetFullScreen;
+
+            if (participant) {
+              console.log('Activar fijar usuario');
+
+              if (isFullScreen.value) {
+                setFullScreenObject(participant);
+                updateFocus(participant);
+                return;
+              }
+
+              updateFocus(participant);
+              setFullScreen(mode);
+              setFullScreenObject(participant);
+            } else {
+              console.log('Quitar fijar usuario');
+
+              updateFocus(null);
+              setFullScreen(mode);
+              clearFullScreenObject();
+            }
           } else if (eventType == 'REMOVE_EXTERNAL_VIDEO') {
             const externalVideoInfo = JSON.parse(
               obj.data

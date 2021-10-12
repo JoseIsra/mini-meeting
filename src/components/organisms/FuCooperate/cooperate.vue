@@ -8,7 +8,7 @@
       class="o-cooperate__background"
       :src="bgUrl"
       :style="bgStyle"
-      :fit="bgMaximied ? 'fill' : 'cover'"
+      :fit="bgMaximixed ? 'fill' : 'cover'"
     />
 
     <q-icon
@@ -44,6 +44,7 @@
         functionsOnMenuBar.handNotificationInfo.length > 0 && !screenMinimized
       "
     />
+    
     <fu-full-screen v-if="isFullScreen" />
 
     <q-dialog

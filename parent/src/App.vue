@@ -24,6 +24,8 @@
       setBackgroundImg=""
       :addUserLogToState="addUserLogToState"
       fractalUserId="34i2jkd23"
+      :setPinnedUser="setPinnedUser"
+      :pinnedUser="pinnedUser"
     />
   </div>
 </template>
@@ -56,6 +58,7 @@ export default Vue.extend({
       streamId: `u-nr-userId-${Date.now()}`,
       streamName: `userId-${Date.now()}`,
       isMinimized: false,
+      pinnedUser: localStorage.pinnedUser,
     };
   },
   methods: {
@@ -106,6 +109,10 @@ export default Vue.extend({
     addUserLogToState: function (fractalUserId: string, logType: number) {
       console.log(fractalUserId, logType);
     },
+    setPinnedUser: function (userId: string) {
+      console.log('setPinnedUser')
+      window.localStorage.pinnedUser = userId;
+    }    
   },
 });
 </script>

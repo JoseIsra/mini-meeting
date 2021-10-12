@@ -598,7 +598,7 @@ export function useInitWebRTC() {
                 webRTCInstance.value.sendData?.(
                   userMe.id,
                   JSON.stringify({
-                    eventType: 'REQUEST_USER_ENTERING_INFO',
+                    eventType: 'SEND_USER_IN_ROOM_INFO',
                     from: infoRequestParsed.to,
                     to: infoRequestParsed.from,
                     userInfo: userMe,
@@ -656,7 +656,7 @@ export function useInitWebRTC() {
             }
 
             console.log('my info have been sent');
-          } else if (eventType === 'REQUEST_USER_ENTERING_INFO') {
+          } else if (eventType === 'SEND_USER_IN_ROOM_INFO') {
             const remoteUserInfoParsed = JSON.parse(
               obj.data
             ) as ObjRemoteUserInfo;

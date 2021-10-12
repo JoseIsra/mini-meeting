@@ -616,18 +616,14 @@ export function useInitWebRTC() {
                 remoteUserInfoParsed.userInfo.isCameraBlocked;
               user.isScreenShareBlocked =
                 remoteUserInfoParsed.userInfo.isScreenShareBlocked;
-              user.fractalUserId = remoteUserInfoParsed.userInfo.fractalUserId;
-              user.denied = remoteUserInfoParsed.userInfo.denied;
-              user.isRecording = remoteUserInfoParsed.userInfo.isRecording;
+                user.denied = remoteUserInfoParsed.userInfo.denied;
+                user.isRecording = remoteUserInfoParsed.userInfo.isRecording;
+                user.fractalUserId = remoteUserInfoParsed.userInfo.fractalUserId;
 
               if (remoteUserInfoParsed.userInfo.existVideo) {
                 initRemotePlayerInstance(remoteUserInfoParsed.userInfo);
               }
 
-              window.xprops?.addUserLogToState?.(
-                user.fractalUserId,
-                LOG_TYPE.IN
-              );
             } */
 
             console.log('my info have been sent');
@@ -725,6 +721,11 @@ export function useInitWebRTC() {
                 if (remoteUserInfoParsed.userInfo.existVideo) {
                   initRemotePlayerInstance(remoteUserInfoParsed.userInfo);
                 }
+
+                window.xprops?.addUserLogToState?.(
+                  user.fractalUserId,
+                  LOG_TYPE.IN
+                );
               }
             }
           } else if (eventType === 'KICK') {

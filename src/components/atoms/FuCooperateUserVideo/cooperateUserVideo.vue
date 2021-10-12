@@ -1,5 +1,5 @@
 <template>
-  <section class="a-userVideo">
+  <section class="a-userVideo" :style="styleOnMobile">
     <div
       class="a-userVideo__box"
       :class="{ fade: fullScreenObject.id == userMe.id }"
@@ -157,8 +157,14 @@ export default defineComponent({
 
     const controlUserToRender = computed(() => {
       return $q.screen.lt.md
-        ? admittedParticipants.value.slice(-3)
+        ? admittedParticipants.value.slice(-1)
         : admittedParticipants.value.slice(-9);
+    });
+
+    const styleOnMobile = computed(() => {
+      return admittedParticipants.value.length > 5
+        ? { 'justify-content': 'center' }
+        : '';
     });
 
     return {
@@ -169,6 +175,7 @@ export default defineComponent({
       streamIdPinned,
       fullScreenObject,
       controlUserToRender,
+      styleOnMobile,
     };
   },
 });

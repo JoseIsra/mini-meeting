@@ -9,6 +9,7 @@ export interface Room {
   isCameraBlocked: boolean;
   isScreenShareBlocked: boolean;
   privacy: boolean;
+  startDate: string;
 }
 
 export interface participantOnWait {

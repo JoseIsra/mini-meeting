@@ -35,6 +35,7 @@ const {
   setRoomCameraState,
   setRoomScreenShareState,
   setPrivacy,
+  updateBgUrl,
 } = useRoom();
 
 const {
@@ -121,6 +122,11 @@ interface ObjAnswerPermission {
   participantId: string;
   eventType: string;
   value: boolean;
+}
+
+interface backgroundInfo {
+  id: string;
+  url: string;
 }
 
 interface ObjUserLeavingMessageParsed {
@@ -481,7 +487,7 @@ export function useInitWebRTC() {
 
           if (user !== userMe.id) {
             console.info(
-              '⭐ i am sending a petition requesting data to user',
+              '⭐ SENDING A REQUEST FOR PEOPLE IN THE HOUSE',
               obj,
               'from:',
               userMe.id
@@ -490,10 +496,9 @@ export function useInitWebRTC() {
             webRTCInstance.value.sendData?.(
               userMe.id,
               JSON.stringify({
-                eventType: 'REQUEST_USER_IN_ROOM_INFO',
+                eventType: 'USER_INFO_REQUEST',
                 from: userMe.id,
                 to: obj,
-                userInfo: userMe,
               })
             );
           }
@@ -585,20 +590,22 @@ export function useInitWebRTC() {
             addHandNotificationInfo(objParsed);
           } else if (eventType === 'NOHAND') {
             removeHandNotification(objParsed.streamId);
-          } else if (eventType === 'REQUEST_USER_IN_ROOM_INFO') {
+          } else if (eventType === 'USER_INFO_REQUEST') {
             const infoRequestParsed = JSON.parse(obj.data) as ObjRemoteUserInfo;
-            console.log(
-              '⭐ my info',
-              infoRequestParsed.to,
-              'is requested from:',
-              infoRequestParsed.from
+
+            console.info(
+              '⭐ RECEIVING A REQUEST OF MY INFO',
+              obj,
+              'from:',
+              userMe.id
             );
+
             if (infoRequestParsed.to === userMe.id) {
               try {
                 webRTCInstance.value.sendData?.(
                   userMe.id,
                   JSON.stringify({
-                    eventType: 'SEND_USER_IN_ROOM_INFO',
+                    eventType: 'USER_INFO',
                     from: infoRequestParsed.to,
                     to: infoRequestParsed.from,
                     userInfo: userMe,
@@ -611,22 +618,15 @@ export function useInitWebRTC() {
               }
             }
 
-            const remoteUserInfoParsed = JSON.parse(
+            /* const remoteUserInfoParsed = JSON.parse(
               obj.data
-            ) as ObjRemoteUserInfo;
+            ) as ObjRemoteUserInfo; */
 
-            if (remoteUserInfoParsed.userInfo.isRecording) {
-              setRecorded(true);
-            }
-
-            const user = participants.value.find(
+            /* const user = participants.value.find(
               (participant) =>
                 participant.id === remoteUserInfoParsed.userInfo.id
             );
-            //user = { avatar : remoteUserInfoParsed.userInfo.avatar ,...user}
             if (user) {
-              console.log('Usuario encontrado: ', user);
-
               user.avatar = remoteUserInfoParsed.userInfo.avatar;
               user.name = remoteUserInfoParsed.userInfo.name;
               user.isCameraOn = remoteUserInfoParsed.userInfo.isCameraOn;
@@ -653,18 +653,33 @@ export function useInitWebRTC() {
                 user.fractalUserId,
                 LOG_TYPE.IN
               );
-            }
+            } */
 
             console.log('my info have been sent');
-          } else if (eventType === 'SEND_USER_IN_ROOM_INFO') {
+          } else if (eventType === 'USER_INFO') {
+            console.info(
+              '⭐ I am recieving info of user in room and i am setting it in my local state',
+              obj,
+              'from:',
+              userMe.id
+            );
+
             const remoteUserInfoParsed = JSON.parse(
               obj.data
             ) as ObjRemoteUserInfo;
             //Recieving info from another user if is for me
-            if (remoteUserInfoParsed.to === userMe.id) {
-              console.log('I am receiving info from another user', objParsed);
-              console.log('USER_INFO 🚀', remoteUserInfoParsed.userInfo);
 
+            webRTCInstance.value.sendData?.(
+              userMe.id,
+              JSON.stringify({
+                eventType: 'USER_INFO_FINISH',
+                from: remoteUserInfoParsed.to,
+                to: remoteUserInfoParsed.from,
+                userInfo: userMe,
+              })
+            );
+
+            if (remoteUserInfoParsed.to === userMe.id) {
               const user = participants.value.find(
                 (participant) =>
                   participant.id === remoteUserInfoParsed.userInfo.id
@@ -687,7 +702,6 @@ export function useInitWebRTC() {
                   remoteUserInfoParsed.userInfo.fractalUserId;
                 user.denied = remoteUserInfoParsed.userInfo.denied;
                 user.isRecording = remoteUserInfoParsed.userInfo.isRecording;
-
                 if (userMe.roleId == 0) {
                   notifyWithAction(
                     remoteUserInfoParsed.userInfo.name,
@@ -697,7 +711,7 @@ export function useInitWebRTC() {
               }
             }
           } else if (eventType === 'USER_INFO_FINISH') {
-            /* const remoteUserInfoParsed = JSON.parse(
+            const remoteUserInfoParsed = JSON.parse(
               obj.data
             ) as ObjRemoteUserInfo;
 
@@ -733,11 +747,16 @@ export function useInitWebRTC() {
                 user.isRecording = remoteUserInfoParsed.userInfo.isRecording;
 
                 if (remoteUserInfoParsed.userInfo.existVideo) {
-                  user.existVideo = remoteUserInfoParsed.userInfo.existVideo;
+                  console.log(
+                    'HAY VIDEO EN LA SALA',
+                    remoteUserInfoParsed.userInfo
+                  );
+                  user.existVideo = true;
+                  user.urlOfVideo = remoteUserInfoParsed.userInfo.urlOfVideo;
                   initRemotePlayerInstance(remoteUserInfoParsed.userInfo);
                 }
               }
-            } */
+            }
           } else if (eventType === 'KICK') {
             const kickedEvent = JSON.parse(obj.data) as ObjKickedEvent;
             if (kickedEvent.to === 'all') {
@@ -934,6 +953,9 @@ export function useInitWebRTC() {
               videoCurrentTime: 0,
             });
             removeVideoShared(externalVideoInfo);
+          } else if (eventType === 'UPDATE_ROOM_BG') {
+            const bgData = JSON.parse(obj.data) as backgroundInfo;
+            updateBgUrl(bgData.url);
           } else if (eventType === 'USER_LEAVING') {
             const userLeavingMsgParsed = JSON.parse(
               obj.data

@@ -9,6 +9,8 @@ export interface Room {
   isCameraBlocked: boolean;
   isScreenShareBlocked: boolean;
   privacy: boolean;
+  bgUrl?: string;
+  bgMaximixed: boolean;
   startDate: string;
 }
 
@@ -37,6 +39,8 @@ export function useRoom() {
   const setRoomScreenShareState = (state: boolean) =>
     (roomState.isScreenShareBlocked = state);
 
+  const updateBgUrl = (url: string) => (roomState.bgUrl = url);
+
   return {
     roomState,
     setRoom,
@@ -45,5 +49,6 @@ export function useRoom() {
     setRoomMicState,
     setRoomCameraState,
     setRoomScreenShareState,
+    updateBgUrl,
   };
 }

@@ -3,13 +3,19 @@
     class="o-cooperate"
     @mousemove="toogleMenuBar"
     @click.self="closePanels"
+    :style="`
+      background: url('${bgUrl}') #36393f;
+      background-size: ${bgMaximixed ? 100 : 50}vw;
+      background-position: 50% center;
+      background-repeat: no-repeat;
+    `"
   >
-    <q-img
+    <!-- <q-img
       class="o-cooperate__background"
       :src="bgUrl"
       :style="bgStyle"
       :fit="bgMaximixed ? 'fill' : 'cover'"
-    />
+    /> -->
 
     <q-icon
       name="fas fa-expand-alt"
@@ -44,7 +50,7 @@
         functionsOnMenuBar.handNotificationInfo.length > 0 && !screenMinimized
       "
     />
-    
+
     <fu-full-screen v-if="isFullScreen" />
 
     <q-dialog
@@ -58,7 +64,7 @@
 </template>
 //TODO: OBJETO DE USUARIO GLOBAL
 <script lang="ts">
-import { defineComponent, ref, toRefs, onMounted, computed } from 'vue';
+import { defineComponent, ref, toRefs, onMounted } from 'vue';
 import FuCooperateMenuBar from 'organisms/FuCooperateMenuBar';
 import FuCooperateHeader from 'molecules/FuCooperateHeader';
 import FuCooperateUserVideo from 'atoms/FuCooperateUserVideo';
@@ -118,11 +124,12 @@ export default defineComponent({
 
     const { screenMinimized, updateScreenState } = useScreen();
 
-    const bgStyle = computed(() => {
-      return roomState.bgMaximixed
-        ? 'left: 0; right: 0; top: 0; bottom: 0; width: 100vw; height: 100vh'
-        : 'top: 25vh; width: 50vw; height: 50vh';
-    });
+    // Dynamig-bg update (to delete)
+    // const bgStyle = computed(() => {
+    //   return roomState.bgMaximixed
+    //     ? 'left: 0; right: 0; top: 0; bottom: 0; width: 100vw; height: 100vh'
+    //     : 'top: 25vh; width: 50vw; height: 50vh';
+    // });
 
     const hideMenuBar = _.debounce(() => {
       showMenuBar.value = false;
@@ -158,7 +165,7 @@ export default defineComponent({
       ...toRefs(roomState),
       showParticipantPanel,
       showUsersVideoList,
-      bgStyle,
+      // bgStyle,
     };
   },
 });

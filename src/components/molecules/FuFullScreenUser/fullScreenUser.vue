@@ -176,7 +176,7 @@ export default defineComponent({
     };
 
     const hasCameraActivated = computed(() => {
-      return fullScreenObject.isCameraOn;
+      return studentPinned?.value?.isCameraOn;
     });
 
     onMounted(() => {

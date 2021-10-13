@@ -40,3 +40,7 @@
   width: 100% !important;
   height: auto !important;
 }
+
+.video-js.vjs-has-started .vjs-poster {
+  display: none;
+}

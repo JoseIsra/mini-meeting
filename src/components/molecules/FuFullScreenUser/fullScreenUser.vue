@@ -116,13 +116,15 @@ export default defineComponent({
     const { admittedParticipants } = useHandleParticipants();
     const { sendData } = useInitWebRTC();
 
-    const gotPinnedUser = computed(
-      // () => fullScreenObject.id && roomState.pinnedUser?.id
-      () => !!fullScreenObject.id
-    );
+    const gotPinnedUser = computed(() => !!fullScreenObject.id);
 
-    console.log('Hay usuario pinnado?: ', gotPinnedUser);
-    console.log(fullScreenObject);
+    watch(admittedParticipants, (value) => {
+      if (!gotPinnedUser.value) {
+        const participant = value.find((p) => p.id === roomState.pinnedUserId);
+        setFullScreenObject(participant as User);
+        updateFocus(participant as User);
+      }
+    });
 
     const canClose = computed(() => {
       if (!roomState.pinnedUser) {
@@ -138,26 +140,18 @@ export default defineComponent({
       setFullScreen('none', false);
       clearFullScreenObject();
 
-      if (roomState.pinnedUser) {
+      if (userMe.roleId === 0 && roomState.pinnedUser) {
+        console.log('Admin fullScreen task');
+
         sendData(userMe.id, {
           eventType: 'SET_FULL_SCREEN',
           mode: 'none',
         });
 
         updateFocus(null);
-
-        if (userMe.roleId === 0) {
-          window.xprops?.setPinnedUser?.('');
-        }
+        window.xprops?.setPinnedUser?.('');
       }
     };
-
-    watch(admittedParticipants, (value) => {
-      if (!gotPinnedUser.value) {
-        const participant = value.find((p) => p.id === roomState.pinnedUserId);
-        setFullScreenObject(participant as User);
-      }
-    });
 
     let showMinimizeMessage = ref(false);
 

@@ -994,15 +994,14 @@ export function useInitWebRTC() {
                 updateFocus(participant);
                 return;
               }
-
-              updateFocus(participant);
               setFullScreen(mode, true);
               setFullScreenObject(participant);
+              updateFocus(participant);
             } else {
               console.log('Quitar fijar usuario');
-              updateFocus(null);
               setFullScreen(mode, false);
               clearFullScreenObject();
+              updateFocus(null);
             }
           } else if (eventType == 'REMOVE_EXTERNAL_VIDEO') {
             const externalVideoInfo = JSON.parse(
@@ -1020,7 +1019,7 @@ export function useInitWebRTC() {
             const bgData = JSON.parse(obj.data) as backgroundInfo;
             updateBgUrl(bgData.url);
           } else if (eventType === 'UPDATE_ROOM_SIZE') {
-            const bgData = JSON.parse(obj.data) as backgroundSize;           
+            const bgData = JSON.parse(obj.data) as backgroundSize;
             updateBgSize(bgData.maximized);
           } else if (eventType === 'USER_LEAVING') {
             const userLeavingMsgParsed = JSON.parse(

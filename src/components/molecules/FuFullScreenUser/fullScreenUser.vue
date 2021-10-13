@@ -1,6 +1,6 @@
 <template>
   <section class="m-fuser">
-    <div class="m-fuser__content" v-if="gotPinnedUser">
+    <template class="m-fuser__content" v-if="gotPinnedUser">
       <div v-show="!studentPinned.isVideoActivated" class="m-fuser__avatar">
         <figure class="m-fuser__avatar__imageBox">
           <img
@@ -57,7 +57,7 @@
           !screenMinimized
         "
       />
-    </div>
+    </template>
 
     <div class="m-fuser__loading" v-else>
       <q-spinner color="primary" size="10em" />

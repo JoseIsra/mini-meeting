@@ -37,6 +37,7 @@ const {
   setPrivacy,
   updateFocus,
   updateBgUrl,
+  roomState,
 } = useRoom();
 
 const {
@@ -1011,7 +1012,21 @@ export function useInitWebRTC() {
               obj.data
             ) as ObjUserLeavingMessageParsed;
 
-            console.log('USER LEAVING', '🚀🚀🚀');
+            // If user is pinned should aware all other users...
+            
+            console.log('USER LEAVING', '🚀🚀🚀');            
+
+            if (roomState.pinnedUser?.id === userLeavingMsgParsed.fractalUserId) {
+              sendData(userMe.id, {
+                eventType: 'SET_FULL_SCREEN',
+                mode: 'none',
+              });
+
+              updateFocus(null);
+
+              window.xprops?.setPinnedUser?.('');
+            }
+
             window.xprops?.addUserLogToState?.(
               userLeavingMsgParsed.fractalUserId,
               LOG_TYPE.OUT

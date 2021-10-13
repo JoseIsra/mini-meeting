@@ -63,7 +63,7 @@
       <q-spinner color="primary" size="10em" />
 
       <q-btn
-      class="m-fuser__loading__exit"
+        class="m-fuser__loading__exit"
         @click="exitFullScreen"
         round
         flat
@@ -149,24 +149,15 @@ export default defineComponent({
 
         updateFocus(null);
 
-        if (userMe.roleId !== 1) {
+        if (userMe.roleId === 0) {
           window.xprops?.setPinnedUser?.('');
         }
       }
     };
     watch(admittedParticipants, (value) => {
-      console.log('Nueva lista de participantes');
-
       if (!gotPinnedUser.value) {
-        console.log('Buscando usuario pinneado');
-
         const participant = value.find((p) => p.id === roomState.pinnedUserId);
         setFullScreenObject(participant as User);
-        if (participant) {
-          console.log('Encontro participante');
-        } else {
-          console.log('No Encontro participante');
-        }
       }
     });
 

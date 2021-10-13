@@ -6,7 +6,7 @@
   padding: 5px;
   display: flex;
   align-items: center;
-  justify-content: center;
+  // justify-content: center;
   gap: 1.5%;
   z-index: 3;
   &__box {
@@ -57,8 +57,7 @@
         bottom: 10px;
         &__userName {
           color: #fffffe;
-          font-size: 12px;
-
+          font-size: clamp(0.7rem, 2.5vw, 0.8rem);
           cursor: default;
           overflow: hidden;
           white-space: nowrap;

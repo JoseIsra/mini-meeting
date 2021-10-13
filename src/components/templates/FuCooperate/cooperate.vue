@@ -172,8 +172,6 @@ export default defineComponent({
       setCameraIconState(true);
     }
 
-    console.log(roleId, '🚀');
-
     setUserMe({
       id: streamId,
       name: streamName,
@@ -393,7 +391,7 @@ export default defineComponent({
           const haveStarted = moment(nowTime).isSameOrAfter(
             roomState.startDate
           );
-          if (haveStarted) {
+          if (haveStarted || roleId === 0) {
             setExistRoom(true);
             createInstance(
               roomId,

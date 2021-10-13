@@ -37,6 +37,7 @@ const {
   setPrivacy,
   updateFocus,
   updateBgUrl,
+  updateBgSize,
   roomState,
 } = useRoom();
 
@@ -140,6 +141,10 @@ interface ObjSetFullScreen {
 interface backgroundInfo {
   id: string;
   url: string;
+}
+
+interface backgroundSize {
+  maximized: boolean;
 }
 
 interface ObjUserLeavingMessageParsed {
@@ -258,7 +263,7 @@ export function useInitWebRTC() {
     };
 
     const initRemotePlayerInstance = (arg: User) => {
-      setFullScreen('video');
+      setFullScreen('video', true);
       updateExternalVideoState({
         ...externalVideo,
         urlVideo: arg.urlOfVideo,
@@ -279,7 +284,7 @@ export function useInitWebRTC() {
       remotePlayer.value = videojs((arg.remoteInstance as VideoID).playerId);
       setVideoInstance({} as HTMLMediaElement & { playerId: string });
       videojs((arg.remoteInstance as VideoID).playerId).dispose();
-      setFullScreen('none');
+      setFullScreen('none', false);
       updateUserMe({
         ...userMe,
         existVideo: false,
@@ -328,6 +333,14 @@ export function useInitWebRTC() {
               eventType: 'USER_LEAVING',
               fractalUserId: userMe.fractalUserId,
             });
+
+            if (roomState.pinnedUser?.id === userMe.id) {
+              sendData(userMe.id, {
+                eventType: 'SET_FULL_SCREEN',
+                mode: 'none',
+              });
+            }
+
             leaveRoom(roomId);
           });
           /* var room = obj.ATTR_ROOM_NAME; */
@@ -376,10 +389,6 @@ export function useInitWebRTC() {
               };
             } else {
               const isMerge = obj.streamId.split('-')[0] === 'm';
-
-              console.log('Agregando participante');
-              console.log('Id?: ', obj.streamId);
-              console.log('stream?: ', obj.stream);
 
               // objStreams.value.push(obj);
               if (!isMerge)
@@ -716,8 +725,13 @@ export function useInitWebRTC() {
 
                 if (
                   userMe.roleId === 0 &&
-                  remoteUserInfoParsed.userInfo.denied === 0
+                  remoteUserInfoParsed.userInfo.denied === 0 &&
+                  roomState.privacy
                 ) {
+                  console.log(
+                    'Sala privada, solicitud de ingreso y eres admin'
+                  );
+
                   notifyWithAction(
                     remoteUserInfoParsed.userInfo.name,
                     remoteUserInfoParsed.userInfo.id
@@ -944,7 +958,7 @@ export function useInitWebRTC() {
             const externalVideoObject = JSON.parse(
               obj.data
             ) as ExternalVideoObject;
-            setFullScreen('video');
+            setFullScreen('video', true);
             updateExternalVideoState({
               urlVideo: externalVideoObject.urlContent,
             });
@@ -973,9 +987,8 @@ export function useInitWebRTC() {
               obj.data
             ) as ObjSetFullScreen;
 
-            if (participant) {
+            if (participant && mode === 'user') {
               console.log('Activar fijar usuario');
-
               if (isFullScreen.value) {
                 setFullScreenObject(participant);
                 updateFocus(participant);
@@ -983,13 +996,12 @@ export function useInitWebRTC() {
               }
 
               updateFocus(participant);
-              setFullScreen(mode);
+              setFullScreen(mode, true);
               setFullScreenObject(participant);
             } else {
               console.log('Quitar fijar usuario');
-
               updateFocus(null);
-              setFullScreen(mode);
+              setFullScreen(mode, false);
               clearFullScreenObject();
             }
           } else if (eventType == 'REMOVE_EXTERNAL_VIDEO') {
@@ -1007,24 +1019,22 @@ export function useInitWebRTC() {
           } else if (eventType === 'UPDATE_ROOM_BG') {
             const bgData = JSON.parse(obj.data) as backgroundInfo;
             updateBgUrl(bgData.url);
+          } else if (eventType === 'UPDATE_ROOM_SIZE') {
+            const bgData = JSON.parse(obj.data) as backgroundSize;           
+            updateBgSize(bgData.maximized);
           } else if (eventType === 'USER_LEAVING') {
             const userLeavingMsgParsed = JSON.parse(
               obj.data
             ) as ObjUserLeavingMessageParsed;
 
-            // If user is pinned should aware all other users...
-            
-            console.log('USER LEAVING', '🚀🚀🚀');            
+            console.log('USER LEAVING', '🚀🚀🚀');
 
-            if (roomState.pinnedUser?.id === userLeavingMsgParsed.fractalUserId) {
-              sendData(userMe.id, {
-                eventType: 'SET_FULL_SCREEN',
-                mode: 'none',
-              });
-
-              updateFocus(null);
-
+            if (
+              roomState.pinnedUser?.fractalUserId ===
+              userLeavingMsgParsed.fractalUserId
+            ) {
               window.xprops?.setPinnedUser?.('');
+              console.log('Se fue el pinneado');
             }
 
             window.xprops?.addUserLogToState?.(

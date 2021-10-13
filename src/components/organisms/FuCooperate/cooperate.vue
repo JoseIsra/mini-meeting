@@ -6,9 +6,9 @@
   >
     <q-img
       class="o-cooperate__background"
-      :src="bgUrl"
+      :src="bgInfo.url"
       :style="bgStyle"
-      :fit="bgMaximixed ? 'fill' : 'cover'"
+      :fit="bgInfo.maximized ? 'fill' : 'cover'"
     />
 
     <q-icon
@@ -44,7 +44,7 @@
         functionsOnMenuBar.handNotificationInfo.length > 0 && !screenMinimized
       "
     />
-    
+
     <fu-full-screen v-if="isFullScreen" />
 
     <q-dialog
@@ -119,7 +119,7 @@ export default defineComponent({
     const { screenMinimized, updateScreenState } = useScreen();
 
     const bgStyle = computed(() => {
-      return roomState.bgMaximixed
+      return roomState.bgInfo.maximized
         ? 'left: 0; right: 0; top: 0; bottom: 0; width: 100vw; height: 100vh'
         : 'top: 25vh; width: 50vw; height: 50vh';
     });

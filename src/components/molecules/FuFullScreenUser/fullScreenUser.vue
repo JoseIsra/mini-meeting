@@ -1,6 +1,6 @@
 <template>
   <section class="m-fuser">
-    <template class="m-fuser__content" v-if="gotPinnedUser">
+    <template v-if="gotPinnedUser">
       <div v-show="!studentPinned.isVideoActivated" class="m-fuser__avatar">
         <figure class="m-fuser__avatar__imageBox">
           <img
@@ -110,16 +110,19 @@ export default defineComponent({
       clearFullScreenObject,
       setFullScreenObject,
     } = useToogleFunctions();
-
     const { screenMinimized } = useScreen();
-
     const { updateFocus, roomState } = useRoom();
-
     const { userMe } = useUserMe();
-
     const { admittedParticipants } = useHandleParticipants();
+    const { sendData } = useInitWebRTC();
 
-    const gotPinnedUser = computed(() => !!fullScreenObject.id);
+    const gotPinnedUser = computed(
+      // () => fullScreenObject.id && roomState.pinnedUser?.id
+      () => !!fullScreenObject.id
+    );
+
+    console.log('Hay usuario pinnado?: ', gotPinnedUser);
+    console.log(fullScreenObject);
 
     const canClose = computed(() => {
       if (!roomState.pinnedUser) {
@@ -131,14 +134,8 @@ export default defineComponent({
       }
     });
 
-    const { sendData } = useInitWebRTC();
-
-    let showMinimizeMessage = ref(false);
-
-    let orientationClass = ref('');
-
     const exitFullScreen = () => {
-      setFullScreen('none');
+      setFullScreen('none', false);
       clearFullScreenObject();
 
       if (roomState.pinnedUser) {
@@ -154,12 +151,17 @@ export default defineComponent({
         }
       }
     };
+
     watch(admittedParticipants, (value) => {
       if (!gotPinnedUser.value) {
         const participant = value.find((p) => p.id === roomState.pinnedUserId);
         setFullScreenObject(participant as User);
       }
     });
+
+    let showMinimizeMessage = ref(false);
+
+    let orientationClass = ref('');
 
     const hideMinimizeMessage = _.debounce(() => {
       showMinimizeMessage.value = false;

@@ -42,7 +42,7 @@ import FuCooperate from 'organisms/FuCooperate';
 import FuLobby from 'organisms/FuLobby';
 
 import { useRoute } from 'vue-router';
-import { User, useUserMe } from '@/composables/userMe';
+import { useUserMe } from '@/composables/userMe';
 import FuTLoading from 'organisms/FuLoading';
 import { PERMISSION_STATUS, REASON_TO_LEAVE_ROOM } from '@/utils/enums';
 import { useInitWebRTC } from '@/composables/antMedia';
@@ -51,7 +51,7 @@ import { useRoom } from '@/composables/room';
 import { useActions } from '@/composables/actions';
 import { useToogleFunctions } from '@/composables';
 import moment from 'moment';
-import { useHandleParticipants } from '@/composables/participants';
+import { bgInfo } from '@/types/zoid';
 
 export default defineComponent({
   name: 'FuTCooperate',
@@ -80,8 +80,6 @@ export default defineComponent({
       setCameraState,
       setScreenState,
     } = useUserMe();
-
-    const { admittedParticipants } = useHandleParticipants();
 
     const { roomState, setRoom } = useRoom();
 
@@ -156,9 +154,10 @@ export default defineComponent({
       window?.xprops?.isHost ||
       (JSON.parse((route.query.isHost as string) || 'false') as boolean);
 
-    const bgUrl =
-      (window?.xprops?.bgUrl as string) ||
-      'https://encrypted.fractalup.com/file/MainPublic/fractalup_assets/landing/main.png';
+    const bgInfo = window?.xprops?.bgInfo as bgInfo || {
+      url: 'https://encrypted.fractalup.com/file/MainPublic/fractalup_assets/landing/main.png',
+      maximized: false,
+    };
 
     const userPinnedZoid = (window?.xprops?.pinnedUser as string) || '';
 
@@ -203,12 +202,6 @@ export default defineComponent({
 
     const startDate = window.xprops?.startDate || '2020-01-11 11:23';
 
-    const userPinned = admittedParticipants.value.find(
-      (part) => part.id === userPinnedZoid
-    );
-
-    console.log('Id: ', userPinnedZoid);
-
     setRoom({
       id: roomId,
       sharingLink,
@@ -217,17 +210,15 @@ export default defineComponent({
       isMicBlocked: roleId === 1 ? isMicLocked : false,
       isCameraBlocked: roleId === 1 ? isCameraLocked : false,
       isScreenShareBlocked: roleId === 1 ? isScreenShareLocked : false,
-      bgUrl: bgUrl,
-      bgMaximixed: false,
+      bgInfo: bgInfo,
       isBeingRecorded,
-      pinnedUser: (userPinned as User) ?? null,
+      pinnedUser: null,
       pinnedUserId: userPinnedZoid,
       startDate,
     });
 
     if (userPinnedZoid) {
-      setFullScreen('user');
-      // setFullScreenObject(userPinned as User);
+      setFullScreen('user', true);
     }
 
     if (isMicLocked) {

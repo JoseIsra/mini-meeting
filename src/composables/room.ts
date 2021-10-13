@@ -1,6 +1,7 @@
 import { reactive } from 'vue';
 
 import { User } from '@/composables/userMe';
+import { bgInfo } from '@/types/zoid';
 
 export interface Room {
   id: string;
@@ -11,11 +12,12 @@ export interface Room {
   isCameraBlocked: boolean;
   isScreenShareBlocked: boolean;
   privacy: boolean;
-  bgUrl?: string;
-  bgMaximixed: boolean;
+  // bgUrl?: string;
+  // bgMaximixed: boolean;
   startDate: string;
   pinnedUser: null | User;
   pinnedUserId?: string;
+  bgInfo: bgInfo;
 }
 
 export interface participantOnWait {
@@ -44,7 +46,10 @@ export function useRoom() {
     (roomState.isScreenShareBlocked = state);
 
   const updateFocus = (value: null | User) => (roomState.pinnedUser = value);
-  const updateBgUrl = (url: string) => (roomState.bgUrl = url);
+
+  const updateBgUrl = (url: string) => (roomState.bgInfo.url = url);
+
+  const updateBgSize = (maximized: boolean) => roomState.bgInfo.maximized = maximized;
 
   return {
     roomState,
@@ -56,5 +61,6 @@ export function useRoom() {
     setRoomScreenShareState,
     updateFocus,
     updateBgUrl,
+    updateBgSize
   };
 }

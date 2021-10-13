@@ -141,6 +141,7 @@ export default defineComponent({
       fullScreenObject,
       isFullScreen,
     } = useToogleFunctions();
+    
     const { userMe } = useUserMe();
 
     const streamIdPinned = ref('');
@@ -151,7 +152,7 @@ export default defineComponent({
         setFullScreenObject(arg as User);
         return;
       }
-      setFullScreen('user');
+      setFullScreen('user', true);
       setFullScreenObject(arg as User);
     };
 

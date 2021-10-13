@@ -1,5 +1,5 @@
 <template>
-  <section class="m-full" v-if="isFullScreen">
+  <section class="m-full">
     <fu-full-screen-user v-if="fullScreenMode === 'user'" />
     <fu-external-video v-if="fullScreenMode === 'video'" />
   </section>

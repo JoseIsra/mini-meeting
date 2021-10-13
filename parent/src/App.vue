@@ -3,7 +3,7 @@
     <fractal-up-cooperate-instance
       class="multichat"
       :class="{ '--minimized': isMinimized }"
-      roomId="room20"
+      roomId="room16"
       :streamId="streamId"
       :streamName="streamName"
       :handleLeaveCall="handleLeaveCall"
@@ -21,11 +21,14 @@
       :roomRestriction="0"
       photoURL="https://encrypted.fractalup.com/file/MainPublic/classrooms/1/users/44/assets/1623873430710.png"
       backgroundImg=""
-      setBackgroundImg=""
+      :setBackgroundImg="setBackgroundImg"
       :addUserLogToState="addUserLogToState"
       fractalUserId="34i2jkd23"
       :setPinnedUser="setPinnedUser"
       :pinnedUser="pinnedUser"
+      :bgUrl="backgroundImg"
+      :isMicOn="false"
+      :isCameraOn="false"
     />
   </div>
 </template>
@@ -59,6 +62,7 @@ export default Vue.extend({
       streamName: `userId-${Date.now()}`,
       isMinimized: false,
       pinnedUser: localStorage.pinnedUser,
+      backgroundImg: localStorage.backgroundImg
     };
   },
   methods: {
@@ -112,7 +116,11 @@ export default Vue.extend({
     setPinnedUser: function (userId: string) {
       console.log('setPinnedUser')
       window.localStorage.pinnedUser = userId;
-    }    
+    },
+    setBackgroundImg: function (backgroundImg: string) {
+      window.localStorage.backgroundImg = backgroundImg;
+    }
+
   },
 });
 </script>

@@ -1,7 +1,7 @@
 <template>
   <section class="m-fuser">
     <template class="m-fuser__content" v-if="gotPinnedUser">
-      <div v-if="!studentPinned.isVideoActivated" class="m-fuser__avatar">
+      <div v-show="!studentPinned.isVideoActivated" class="m-fuser__avatar">
         <figure class="m-fuser__avatar__imageBox">
           <img
             class="m-fuser__avatar__imageBox__image"
@@ -33,7 +33,7 @@
         </div>
       </div>
       <video
-        v-if="studentPinned.isVideoActivated"
+        v-show="studentPinned.isVideoActivated"
         :class="[
           'm-fuser__stream',
           orientationClass,

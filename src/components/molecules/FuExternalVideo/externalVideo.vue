@@ -59,6 +59,7 @@ export default defineComponent({
           src: externalVideo.urlVideo as string,
         },
       ],
+      preload: 'metadata',
     });
     onMounted(() => {
       player.value = videojs(

@@ -84,6 +84,10 @@ export default defineComponent({
               currentTime: player.value.currentTime(),
             });
           });
+          player.value.on('ready', () => {
+            console.log('go on video go on🤭');
+            void player.value.play();
+          });
           player.value.controlBar.on('mouseup', () => {
             setTimeout(() => {
               sendData(userMe.id, {

@@ -4,6 +4,7 @@
       <li
         class="a-menu__actionList__item"
         v-for="icon in iconList"
+        v-show="!(icon.id === '1' && $q.platform.is.mobile)"
         :key="icon.id"
         @click="handleFunctionSelected(icon.interaction)"
       >

@@ -65,29 +65,42 @@
         width: 40px;
         height: 40px;
         margin: 0 0.8rem 0 0.5rem;
-        &__mic {
+        &__icons {
           position: absolute;
-          left: 80%;
-          top: 80%;
-        }
-        &__cam {
-          position: absolute;
-          right: 100%;
-          top: 0;
+          bottom: -10px;
+          right: -6px;
+          display: flex;
+          justify-content: center;
+          align-items: center;
         }
       }
 
       &__actions {
+        // border: 1px solid blue;
+        align-items: center;
+        display: flex;
+        justify-content: flex-end;
+        button {
+          font-size: 8px;
+          margin-left: 0.25rem;
+          padding: 0.5rem;
+        }
+      }
+
+      &__extra {
+        padding: 6px;
+        text-align: center;
+
         button {
           padding: 0.5rem;
-          margin-left: 0.25rem;
+          margin: 0 0.25rem;
           font-size: 8px;
         }
       }
 
       &__pinBtn {
-        position: relative;
-        left: 1rem;
+        padding: 4px;
+        margin-right: 4px;
       }
     }
   }

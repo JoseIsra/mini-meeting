@@ -4,7 +4,10 @@
       class="t-cooperate__page"
       v-if="existRoom && isLoadingOrError === false"
     >
-      <fu-lobby v-if="roomState.privacy" />
+      <fu-lobby
+        v-if="roomState.privacy"
+        @handleLeaveCall="handleZoidLeaveCall"
+      />
 
       <fu-cooperate
         v-else
@@ -39,13 +42,16 @@ import FuCooperate from 'organisms/FuCooperate';
 import FuLobby from 'organisms/FuLobby';
 
 import { useRoute } from 'vue-router';
-import { useUserMe } from '@/composables/userMe';
+import { User, useUserMe } from '@/composables/userMe';
 import FuTLoading from 'organisms/FuLoading';
 import { PERMISSION_STATUS, REASON_TO_LEAVE_ROOM } from '@/utils/enums';
 import { useInitWebRTC } from '@/composables/antMedia';
 import { useAuthState } from '@/composables/auth';
 import { useRoom } from '@/composables/room';
 import { useActions } from '@/composables/actions';
+import { useToogleFunctions } from '@/composables';
+import moment from 'moment';
+import { useHandleParticipants } from '@/composables/participants';
 
 export default defineComponent({
   name: 'FuTCooperate',
@@ -59,14 +65,11 @@ export default defineComponent({
       createInstance,
       turnOffLocalCamera,
       resetDesktop,
-      switchDesktopCaptureWithCamera,
       switchDesktopCapture,
-      switchVideoCameraCapture,
       turnOnLocalCamera,
       unmuteLocalMic,
       muteLocalMic,
       sendNotificationEvent,
-      justTurnOnLocalCamera,
     } = useInitWebRTC();
 
     const {
@@ -75,8 +78,10 @@ export default defineComponent({
       setVideoActivatedState,
       // setMicState,
       setCameraState,
-      // setScreenState,
+      setScreenState,
     } = useUserMe();
+
+    const { admittedParticipants } = useHandleParticipants();
 
     const { roomState, setRoom } = useRoom();
 
@@ -89,8 +94,7 @@ export default defineComponent({
       // setIsLoadingOrError,
     } = useAuthState();
 
-    const { setMicIconState, setCameraIconState, setScreenShareIconState } =
-      useActions();
+    const { setMicIconState, setCameraIconState } = useActions();
 
     //Datos del usuario
     const streamId =
@@ -114,8 +118,8 @@ export default defineComponent({
       window.xprops?.roleId || parseInt(route.query.roleId as string) || 0;
 
     const privacy =
-      window.xprops?.privacy ||
-      (route.query.privacy as string) === '1' ||
+      window.xprops?.roomRestriction ||
+      (route.query.roomRestriction as string) === '1' ||
       false;
 
     const isMicLocked =
@@ -148,6 +152,20 @@ export default defineComponent({
       (route.query.isMicOn as string) == 'micro' ||
       false;
 
+    const isHost =
+      window?.xprops?.isHost ||
+      (JSON.parse((route.query.isHost as string) || 'false') as boolean);
+
+    const bgUrl =
+      (window?.xprops?.bgUrl as string) ||
+      'https://encrypted.fractalup.com/file/MainPublic/fractalup_assets/landing/main.png';
+
+    const userPinnedZoid = (window?.xprops?.pinnedUser as string) || '';
+
+    const isBeingRecorded = window?.xprops?.isBeingRecorded;
+
+    const { setIDButtonSelected, setFullScreen } = useToogleFunctions();
+
     if (isCameraOn) {
       setVideoActivatedState(true);
       setCameraState(true);
@@ -158,7 +176,7 @@ export default defineComponent({
       id: streamId,
       name: streamName,
       avatar,
-      roleId: roleId,
+      roleId,
       isMicOn: isMicOn ? true : isMicLocked,
       // isMicOn: !isMicLocked,
       isCameraOn,
@@ -176,13 +194,20 @@ export default defineComponent({
           : PERMISSION_STATUS.admitted,
       existVideo: false,
       isRecording: false,
+      isHost,
     });
 
-    setMicIconState(isMicLocked || isMicOn);
-    // setMicIconState(!isMicLocked);
-
+    setMicIconState(isMicLocked ? false : isMicOn);
     // setCameraIconState(!isCameraLocked);
     // setScreenShareIconState(!isScreenShareLocked);
+
+    const startDate = window.xprops?.startDate || '2020-01-11 11:23';
+
+    const userPinned = admittedParticipants.value.find(
+      (part) => part.id === userPinnedZoid
+    );
+
+    console.log('Id: ', userPinnedZoid);
 
     setRoom({
       id: roomId,
@@ -192,7 +217,18 @@ export default defineComponent({
       isMicBlocked: roleId === 1 ? isMicLocked : false,
       isCameraBlocked: roleId === 1 ? isCameraLocked : false,
       isScreenShareBlocked: roleId === 1 ? isScreenShareLocked : false,
+      bgUrl: bgUrl,
+      bgMaximixed: false,
+      isBeingRecorded,
+      pinnedUser: (userPinned as User) ?? null,
+      pinnedUserId: userPinnedZoid,
+      startDate,
     });
+
+    if (userPinnedZoid) {
+      setFullScreen('user');
+      // setFullScreenObject(userPinned as User);
+    }
 
     if (isMicLocked) {
       sendNotificationEvent('MIC_MUTED', streamId);
@@ -233,47 +269,63 @@ export default defineComponent({
 
     const toggleDesktopCapture = () => {
       if (userMe.isScreenSharing) {
-        setScreenShareIconState(false);
+        //si estoy compartiendo -> apago todo
+        setVideoActivatedState(false);
+        setScreenState(false);
         resetDesktop();
         sendNotificationEvent('SCREEN_SHARING_OFF', streamId);
-      }
-      if (userMe.isCameraOn && !userMe.isScreenSharing) {
-        turnOffLocalCamera(streamId);
-        switchDesktopCaptureWithCamera(streamId);
-      } else if (!userMe.isCameraOn && !userMe.isScreenSharing) {
-        console.log('INIT SHARING');
-        setScreenShareIconState(true);
+      } else {
+        if (userMe.isCameraOn) {
+          //apagar camara y prender captura
+          setCameraIconState(false);
+          setCameraState(false);
+          turnOffLocalCamera(streamId);
+          sendNotificationEvent('CAM_TURNED_OFF', streamId);
+        }
         switchDesktopCapture(streamId);
         setVideoActivatedState(true);
+        setScreenState(true);
         sendNotificationEvent('SCREEN_SHARING_ON', streamId);
-      } else if (userMe.isCameraOn && userMe.isScreenSharing) {
-        switchVideoCameraCapture(streamId);
       }
+      // if (userMe.isCameraOn && !userMe.isScreenSharing) {
+      //   turnOffLocalCamera(streamId);
+      //   switchDesktopCaptureWithCamera(streamId);
+      // } else if (!userMe.isCameraOn && !userMe.isScreenSharing) {
+      //   setScreenShareIconState(true);
+      //   switchDesktopCapture(streamId);
+      //   setVideoActivatedState(true);
+      //   sendNotificationEvent('SCREEN_SHARING_ON', streamId);
+      // }
 
-      if (!userMe.isCameraOn && userMe.isScreenSharing) {
-        turnOffLocalCamera(streamId);
-      } else {
-        justTurnOnLocalCamera(streamId);
-      }
+      // if (!userMe.isCameraOn && userMe.isScreenSharing) {
+      //   turnOffLocalCamera(streamId);
+      // } else {
+      //   justTurnOnLocalCamera(streamId);
+      // }
     };
 
     const toggleLocalCamera = () => {
       if (userMe.isCameraOn) {
-        if (userMe.isScreenSharing) {
-          switchDesktopCapture(streamId);
-        } else {
-          setCameraIconState(false);
-          turnOffLocalCamera(streamId);
-          sendNotificationEvent('CAM_TURNED_OFF', streamId);
-        }
+        //si camara está on --> apago mi camara
+        setCameraIconState(false);
+        turnOffLocalCamera(streamId);
+        setVideoActivatedState(false);
+        setCameraState(false);
+        sendNotificationEvent('CAM_TURNED_OFF', streamId);
       } else {
+        //si camara no está on y el usuario estaba compartiendo pantalla
+        //-> apagar pantalla y abrir camara
         if (userMe.isScreenSharing) {
-          switchDesktopCaptureWithCamera(streamId);
-        } else {
-          turnOnLocalCamera(streamId);
+          //switchDesktopCaptureWithCamera(streamId);
+          setScreenState(false);
+          setIDButtonSelected('');
+          resetDesktop();
+          sendNotificationEvent('SCREEN_SHARING_OFF', userMe.id);
         }
-
+        setVideoActivatedState(true);
         setCameraIconState(true);
+        setCameraState(true);
+        turnOnLocalCamera(streamId);
         sendNotificationEvent('CAM_TURNED_ON', streamId);
       }
     };
@@ -335,22 +387,31 @@ export default defineComponent({
       if (roomId) {
         const { status } = await checkRoom(roomId);
         if (status === 200) {
-          setExistRoom(true);
+          const nowTime = moment().format('YYYY-MM-DD HH:mm');
+          const haveStarted = moment(nowTime).isSameOrAfter(
+            roomState.startDate
+          );
+          if (haveStarted || roleId === 0) {
+            setExistRoom(true);
+            createInstance(
+              roomId,
+              streamId,
+              streamName,
+              publishToken,
+              playToken,
+              subscriberId,
+              subscriberCode
+            );
+          } else {
+            setLoadingOrErrorMessage('This room have not started!');
+          }
+
           // To review
           // setIsLoadingOrError(false);
-          createInstance(
-            roomId,
-            streamId,
-            streamName,
-            publishToken,
-            playToken,
-            subscriberId,
-            subscriberCode
-          );
         } else if (status === 404) {
-          setLoadingOrErrorMessage('Cooperate not found');
+          setLoadingOrErrorMessage('Room not found!');
         } else {
-          setLoadingOrErrorMessage('Not Allowed');
+          setLoadingOrErrorMessage('Not Allowed!');
         }
       } else {
         setLoadingOrErrorMessage('Please, provide a room id');

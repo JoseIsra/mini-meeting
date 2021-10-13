@@ -109,13 +109,12 @@
           round
           color="grey-1"
           size="12px"
-          @click="handleEspecialBehaviour('HANDUP')"
+          @click="
+            activeHandBadge = !activeHandBadge;
+            handleEspecialBehaviour('HANDUP');
+          "
         >
-          <q-badge
-            v-show="functionsOnMenuBar.handNotificationInfo.length > 0"
-            color="red"
-            rounded
-            floating
+          <q-badge v-show="activeHandBadge" color="red" rounded floating
             >x</q-badge
           >
         </q-btn>
@@ -249,16 +248,11 @@ export default defineComponent({
 
     let { isSidebarRender, setSidebarState } = useSidebarToogle();
 
-    const {
-      userMe,
-      setCameraState,
-      setMicState,
-      setScreenState,
-      setVideoActivatedState,
-    } = useUserMe();
+    const { userMe, setMicState, setVideoActivatedState } = useUserMe();
 
     let handNotificationActive = ref(false);
-    const canSeeActionsMenu = ref(userMe.roleId === 0 || userMe.roleId === 2);
+    const canSeeActionsMenu = ref(userMe.roleId === 0);
+    const activeHandBadge = ref(false);
 
     //**********************++FUNCIONES ********************** */
     const toogleChat = () => {
@@ -310,15 +304,12 @@ export default defineComponent({
     };
 
     const toggleCamera = () => {
-      //userMe.isCameraOn = !userMe.isCameraOn;
+      // setCameraState(!userMe.isCameraOn);
       props.toggleLocalCamera?.();
-
-      setCameraState(!userMe.isCameraOn);
-
-      if (!userMe.isScreenSharing && !userMe.isCameraOn)
-        setVideoActivatedState(false);
-      if (userMe.isScreenSharing || userMe.isCameraOn)
-        setVideoActivatedState(true);
+      // if (!userMe.isScreenSharing && !userMe.isCameraOn)
+      //   setVideoActivatedState(false);
+      // if (userMe.isScreenSharing || userMe.isCameraOn)
+      //   setVideoActivatedState(true);
     };
 
     const toggleMIC = () => {
@@ -350,13 +341,12 @@ export default defineComponent({
     };
 
     const toggleDesktopScreenCapture = () => {
+      if (!userMe.isCameraOn) setVideoActivatedState(false);
       props.toggleDesktopCapture?.();
       //userMe.isScreenShared = !userMe.isScreenShared;
 
-      setScreenState(!userMe.isScreenSharing);
-      //console.log('PROCESO DE PROYECCIÓN DE PANTALLA');
-      if (!userMe.isCameraOn) setVideoActivatedState(false);
-      if (userMe.isCameraOn) setVideoActivatedState(true);
+      // setScreenState(!userMe.isScreenSharing);
+      // if (userMe.isCameraOn) setVideoActivatedState(true);
     };
 
     const toggleConnectionModal = () => {
@@ -405,13 +395,13 @@ export default defineComponent({
         return true;
       }
 
-      if (
-        action.id === '2' &&
-        action.onState === 'videocam' &&
-        userMe.isScreenSharing
-      ) {
-        return true;
-      }
+      // if (
+      //   action.id === '2' &&
+      //   action.onState === 'videocam' &&
+      //   userMe.isScreenSharing
+      // ) {
+      //   return true;
+      // }
 
       if (action.onState === 'videocam' && roomState.isCameraBlocked) {
         return true;
@@ -421,9 +411,9 @@ export default defineComponent({
         return true;
       }
 
-      if (action.onState === 'monitor' && userMe.isCameraOn) {
-        return true;
-      }
+      // if (action.onState === 'monitor' && userMe.isCameraOn) {
+      //   return true;
+      // }
     };
 
     const openResponsiveMenuOfFunctions = () => {
@@ -453,6 +443,7 @@ export default defineComponent({
       openResponsiveMenuOfFunctions,
       canSeeActionsMenu,
       waitingParticipants,
+      activeHandBadge,
     };
   },
 });

@@ -4,7 +4,7 @@
       <label class="m-list__title__text">Lista de Usuarios</label>
       <small>En línea ({{ admittedParticipants.length + 1 }})</small>
       <q-btn
-        v-show="isAdmin"
+        v-show="userMe.roleId === 0"
         :label="
           waitingParticipants.length > 0
             ? `En espera (${waitingParticipants.length})`
@@ -19,7 +19,7 @@
       ></q-btn>
     </header>
     <main class="m-list__content">
-      <div class="m-list__content__actions" v-show="isAdmin">
+      <div class="m-list__content__actions" v-show="userMe.roleId === 0">
         <span>
           {{
             isEveryoneActionsBlocked ? 'Limitar acciones ' : 'Liberar acciones'
@@ -33,9 +33,8 @@
         >
           <q-tooltip
             class="bg-grey-10"
-            anchor="top middle"
-            self="bottom middle"
-            :offset="[50, 10]"
+            anchor="bottom middle"
+            self="top middle"
             transition-show="scale"
             transition-hide="scale"
           >
@@ -54,9 +53,8 @@
         >
           <q-tooltip
             class="bg-grey-10"
-            anchor="top middle"
-            self="bottom middle"
-            :offset="[50, 10]"
+            anchor="bottom middle"
+            self="top middle"
             transition-show="scale"
             transition-hide="scale"
           >
@@ -79,9 +77,8 @@
         >
           <q-tooltip
             class="bg-grey-10"
-            anchor="top middle"
-            self="bottom middle"
-            :offset="[50, 10]"
+            anchor="bottom middle"
+            self="top middle"
             transition-show="scale"
             transition-hide="scale"
           >
@@ -101,9 +98,8 @@
         >
           <q-tooltip
             class="bg-grey-10"
-            anchor="top middle"
-            self="bottom middle"
-            :offset="[50, 10]"
+            anchor="bottom middle"
+            self="top middle"
             transition-show="scale"
             transition-hide="scale"
           >
@@ -123,36 +119,129 @@
               :src="userMe.avatar"
               alt="avatar-logo"
             />
-            <q-icon
-              :name="userMe.isMicOn ? 'mic' : 'mic_off'"
-              class="m-list__content__userBox__avatar__mic"
-              :color="userMe.isMicOn ? 'white' : 'red'"
-              size="18px"
-            />
-            <q-icon
-              class="m-list__content__userBox__avatar__cam"
-              :name="userMe.isCameraOn ? 'videocam' : 'videocam_off'"
-              :color="userMe.isCameraOn ? 'white' : 'red'"
-            />
           </aside>
-          <label>{{ userMe.name }}</label>
+          <label>{{ userMe.name }} (Tú)</label>
+        </div>
+
+        <div class="m-list__content__userBox__actions">
           <q-btn
-            class="m-list__content__userBox__pinBtn"
-            flat
-            rounded
-            dense
-            :icon="
-              listenFullScreen.id == userMe.id
-                ? 'location_disabled'
-                : 'gps_fixed'
+            :icon="userMe.isMicOn ? 'mic' : 'mic_off'"
+            :color="
+              userMe.isMicOn ? 'blue' : roomState.isMicBlocked ? 'red' : ''
             "
-            @click="activeFullScreen(userMe)"
+            text-color="white"
           >
             <q-tooltip class="bg-grey-10">
-              <label v-if="listenFullScreen.id == userMe.id"
-                >Estás fijado
+              <label v-if="userMe.isMicOn"> Microfono prendido </label>
+              <label v-else-if="roomState.isMicBlocked">
+                Microfono bloqueado
               </label>
-              <label v-else>Fijarte a ti mismo</label>
+              <label v-else> Microfono apagado </label>
+            </q-tooltip>
+          </q-btn>
+
+          <q-btn
+            :icon="userMe.isCameraOn ? 'videocam' : 'videocam_off'"
+            :color="
+              userMe.isCameraOn
+                ? 'blue'
+                : roomState.isCameraBlocked
+                ? 'red'
+                : ''
+            "
+            text-color="white"
+          >
+            <q-tooltip class="bg-grey-10">
+              <label v-if="userMe.isCameraOn"> Camara encendida </label>
+              <label v-else-if="roomState.isCameraBlocked">
+                Camara bloqueada
+              </label>
+              <label v-else> Camara apagada </label>
+            </q-tooltip>
+          </q-btn>
+
+          <q-btn
+            :icon="
+              userMe.isScreenSharing
+                ? 'desktop_windows'
+                : 'desktop_access_disabled'
+            "
+            :color="
+              userMe.isScreenSharing
+                ? 'blue'
+                : roomState.isScreenShareBlocked
+                ? 'red'
+                : ''
+            "
+            text-color="white"
+          >
+            <q-tooltip class="bg-grey-10">
+              <label v-if="userMe.isScreenSharing">
+                Compartir pantalla activo
+              </label>
+              <label v-else-if="roomState.isScreenShareBlocked">
+                Compartir pantalla bloqueado
+              </label>
+              <label v-else> Compartir pantalla inactivo </label>
+            </q-tooltip>
+          </q-btn>
+
+          <q-btn icon="fas fa-ellipsis-h">
+            <q-menu :offset="[60, 12]">
+              <q-list>
+                <div class="m-list__content__userBox__extra">
+                  <q-btn
+                    :icon="
+                      listenFullScreen.id == userMe.id
+                        ? 'location_disabled'
+                        : 'gps_fixed'
+                    "
+                    @click="activeFullScreen(userMe)"
+                  >
+                    <q-tooltip class="bg-grey-10">
+                      <label v-if="listenFullScreen.id == userMe.id"
+                        >Estás fijado
+                      </label>
+                      <label v-else>Fijarte a ti mismo</label>
+                    </q-tooltip>
+                  </q-btn>
+
+                  <q-btn
+                    v-show="userMe.roleId === 0"
+                    :icon="
+                      listenFullScreen.id == userMe.id
+                        ? 'location_disabled'
+                        : 'gps_fixed'
+                    "
+                    @click="handleEveryoneFocus(userMe)"
+                    color="primary"
+                    text-color="white"
+                  >
+                    <q-tooltip
+                      class="bg-grey-10"
+                      anchor="bottom middle"
+                      self="top middle"
+                      transition-show="scale"
+                      transition-hide="scale"
+                    >
+                      <label v-if="listenFullScreen.id === userMe.id">
+                        Usuario fijado</label
+                      >
+                      <label v-else> Fijarte para todos</label>
+                    </q-tooltip>
+                  </q-btn>
+                </div>
+              </q-list>
+            </q-menu>
+
+            <q-tooltip
+              class="bg-grey-10"
+              anchor="bottom middle"
+              self="top middle"
+              transition-show="scale"
+              transition-hide="scale"
+            >
+              <label>Opciones</label>
             </q-tooltip>
           </q-btn>
         </div>
@@ -169,80 +258,47 @@
               :src="participant.avatar"
               alt="avatar-logo"
             />
-            <q-icon
-              class="m-list__content__userBox__avatar__mic"
-              :name="participant.isMicOn ? 'mic' : 'mic_off'"
-              :color="participant.isMicOn ? 'white' : 'red'"
-              size="18px"
-            />
-            <q-icon
-              class="m-list__content__userBox__avatar__cam"
-              :name="participant.isCameraOn ? 'videocam' : 'videocam_off'"
-              :color="participant.isCameraOn ? 'white' : 'red'"
-            />
+            <!-- <div class="m-list__content__userBox__avatar__icons">
+              <q-icon
+                class="m-list__content__userBox__avatar__mic"
+                :name="participant.isMicOn ? 'mic' : 'mic_off'"
+                :color="participant.isMicOn ? 'white' : 'red'"
+                size="18px"
+              />
+              <q-icon
+                class="m-list__content__userBox__avatar__cam"
+                :name="participant.isCameraOn ? 'videocam' : 'videocam_off'"
+                :color="participant.isCameraOn ? 'white' : 'red'"
+              />
+            </div> -->
           </aside>
           <label>{{ participant.name }}</label>
-          <q-btn
-            class="m-list__content__userBox__pinBtn"
-            flat
-            rounded
-            :icon="
-              listenFullScreen.id == participant.id
-                ? 'location_disabled'
-                : 'gps_fixed'
-            "
-            dense
-            @click="activeFullScreen(participant)"
-          >
-            <q-tooltip class="bg-grey-10">
-              <label v-if="listenFullScreen.id == participant.id">
-                Usuario fijado</label
-              >
-              <label v-else> Fijar usuario</label>
-            </q-tooltip>
-          </q-btn>
         </div>
 
-        <div class="m-list__content__userBox__actions" v-show="isAdmin">
-          <!-- <q-btn
-            :icon="
-              hasActionsBlocked(participant)
-                ? 'fas fa-lock-open'
-                : 'fas fa-lock'
-            "
-            @click="handlePartipantActions(participant)"
-            style="z-index: 100"
-          >
-            <q-tooltip
-              class="bg-grey-10"
-              anchor="top middle"
-              self="bottom middle"
-              :offset="[50, 10]"
-              transition-show="scale"
-              transition-hide="scale"
-            >
-              <label class="">{{
-                hasActionsBlocked(participant)
-                  ? 'Desbloquear acciones'
-                  : 'Bloquear acciones'
-              }}</label>
-            </q-tooltip>
-          </q-btn> -->
-
+        <div
+          class="m-list__content__userBox__actions"
+          v-show="userMe.roleId === 0"
+        >
           <q-btn
-            :icon="isMicBlocked(participant) ? 'mic_off' : 'mic'"
+            :icon="participant.isMicOn ? 'mic' : 'mic_off'"
+            :color="
+              participant.isMicOn
+                ? 'blue'
+                : participant.isMicBlocked
+                ? 'red'
+                : ''
+            "
             @click="handleParticipantActions(participant, LOCK_ACTION_TYPE.Mic)"
           >
             <q-tooltip
               class="bg-grey-10"
-              anchor="top middle"
-              self="bottom middle"
-              :offset="[50, 10]"
+              anchor="bottom middle"
+              self="top middle"
               transition-show="scale"
               transition-hide="scale"
             >
-              <label class="">{{
-                isMicBlocked(participant)
+              <label>{{
+                participant.isMicBlocked
                   ? 'Desbloquear Microfono'
                   : 'Bloquear Microfono'
               }}</label>
@@ -250,21 +306,27 @@
           </q-btn>
 
           <q-btn
-            :icon="isVideoBlocked(participant) ? 'videocam_off' : 'videocam'"
+            :icon="participant.isCameraOn ? 'videocam' : 'videocam_off'"
+            :color="
+              participant.isCameraOn
+                ? 'blue'
+                : participant.isCameraBlocked
+                ? 'red'
+                : ''
+            "
             @click="
               handleParticipantActions(participant, LOCK_ACTION_TYPE.Camera)
             "
           >
             <q-tooltip
               class="bg-grey-10"
-              anchor="top middle"
-              self="bottom middle"
-              :offset="[50, 10]"
+              anchor="bottom middle"
+              self="top middle"
               transition-show="scale"
               transition-hide="scale"
             >
               <label class="">{{
-                isVideoBlocked(participant)
+                participant.isCameraBlocked
                   ? 'Desbloquear Camara'
                   : 'Bloquear Camara'
               }}</label>
@@ -273,9 +335,16 @@
 
           <q-btn
             :icon="
-              isScreenShareBlocked(participant)
-                ? 'desktop_access_disabled'
-                : 'desktop_windows'
+              participant.isScreenSharing
+                ? 'desktop_windows'
+                : 'desktop_access_disabled'
+            "
+            :color="
+              participant.isScreenSharing
+                ? 'blue'
+                : participant.isScreenShareBlocked
+                ? 'red'
+                : ''
             "
             @click="
               handleParticipantActions(participant, LOCK_ACTION_TYPE.Screen)
@@ -283,17 +352,97 @@
           >
             <q-tooltip
               class="bg-grey-10"
-              anchor="top middle"
-              self="bottom middle"
-              :offset="[50, 10]"
+              anchor="bottom middle"
+              self="top middle"
               transition-show="scale"
               transition-hide="scale"
             >
               <label class="">{{
-                isScreenShareBlocked(participant)
+                participant.isScreenShareBlocked
                   ? 'Desbloquear Compartir Pantalla'
                   : 'Bloquear Compartir Pantalla'
               }}</label>
+            </q-tooltip>
+          </q-btn>
+
+          <q-btn icon="fas fa-ellipsis-h">
+            <q-menu :offset="[60, 12]">
+              <q-list>
+                <div class="m-list__content__userBox__extra">
+                  <q-btn
+                    :icon="
+                      listenFullScreen.id == participant.id
+                        ? 'location_disabled'
+                        : 'gps_fixed'
+                    "
+                    @click="handleEveryoneFocus(participant)"
+                    color="primary"
+                    text-color="white"
+                  >
+                    <q-tooltip
+                      class="bg-grey-10"
+                      anchor="bottom middle"
+                      self="top middle"
+                      transition-show="scale"
+                      transition-hide="scale"
+                    >
+                      <label v-if="listenFullScreen.id === participant.id">
+                        Usuario fijado</label
+                      >
+                      <label v-else> Fijar usuario para todos</label>
+                    </q-tooltip>
+                  </q-btn>
+
+                  <q-btn
+                    :icon="
+                      listenFullScreen.id == participant.id
+                        ? 'location_disabled'
+                        : 'gps_fixed'
+                    "
+                    @click="activeFullScreen(participant)"
+                  >
+                    <q-tooltip
+                      class="bg-grey-10"
+                      anchor="bottom middle"
+                      self="top middle"
+                      transition-show="scale"
+                      transition-hide="scale"
+                    >
+                      <label v-if="listenFullScreen.id == participant.id">
+                        Usuario fijado</label
+                      >
+                      <label v-else> Fijar usuario</label>
+                    </q-tooltip>
+                  </q-btn>
+
+                  <q-btn
+                    icon="fas fa-sign-out-alt"
+                    @click="handleKickParticipant(participant)"
+                    color="red"
+                    text-color="white"
+                  >
+                    <q-tooltip
+                      class="bg-grey-10"
+                      anchor="bottom middle"
+                      self="top middle"
+                      transition-show="scale"
+                      transition-hide="scale"
+                    >
+                      <label>Quitar participante</label>
+                    </q-tooltip>
+                  </q-btn>
+                </div>
+              </q-list>
+            </q-menu>
+
+            <q-tooltip
+              class="bg-grey-10"
+              anchor="bottom middle"
+              self="top middle"
+              transition-show="scale"
+              transition-hide="scale"
+            >
+              <label>Opciones</label>
             </q-tooltip>
           </q-btn>
         </div>
@@ -312,6 +461,7 @@ import { LOCK_ACTION_TYPE } from '@/utils/enums';
 import { nanoid } from 'nanoid';
 import { useSidebarToogle } from '@/composables';
 import { useToogleFunctions } from '@/composables';
+import { useRoom } from '@/composables/room';
 
 export default defineComponent({
   name: 'FuCooperateUsersList',
@@ -325,15 +475,18 @@ export default defineComponent({
 
     const { toggleParticipantPanel } = useSidebarToogle();
 
-    const { userMe, isAdmin } = useUserMe();
+    const { userMe } = useUserMe();
 
     const { sendData } = useInitWebRTC();
+
+    const { roomState, updateFocus } = useRoom();
 
     const {
       setFullScreen,
       setFullScreenObject,
       isFullScreen,
       fullScreenObject,
+      clearFullScreenObject,
     } = useToogleFunctions();
 
     const listenFullScreen = computed(() => {
@@ -573,6 +726,55 @@ export default defineComponent({
       // }
     };
 
+    const handleKickParticipant = (participant: Participant) => {
+      sendData(userMe.id, { eventType: 'KICK', to: participant.id });
+    };
+
+    const handleEveryoneFocus = (arg: User) => {
+      if (roomState.pinnedUser) {
+        // Hay un focus general
+        updateFocus(null);
+        setFullScreen('none');
+        clearFullScreenObject();
+
+        sendData(userMe.id, {
+          eventType: 'SET_FULL_SCREEN',
+          mode: 'none',
+        });
+
+        window.xprops?.setPinnedUser?.('');
+      } else {
+        // No hay focus general
+        // if (isFullScreen.value) {
+        //   setFullScreenObject(arg);
+        //   updateFocus(arg);
+        //   return;
+        // }
+
+        setFullScreen('user');
+        setFullScreenObject(arg);
+        updateFocus(arg);
+
+        sendData(userMe.id, {
+          eventType: 'SET_FULL_SCREEN',
+          participant: arg,
+          mode: 'user',
+        });
+
+        window.xprops?.setPinnedUser?.(arg.id);
+      }
+
+      // setFullScreen('user');
+      // setFullScreenObject(arg);
+      // updateFocus(arg);
+    };
+
+    const cancelEveryoneFullScreen = () => {
+      updateFocus(null);
+      setFullScreen('none');
+      clearFullScreenObject();
+    };
+
     const activeFullScreen = (arg: User) => {
       if (isFullScreen.value) {
         setFullScreenObject(arg);
@@ -598,12 +800,14 @@ export default defineComponent({
       isScreenShareBlocked,
       handleParticipantActions,
       LOCK_ACTION_TYPE,
-
-      isAdmin,
       activeFullScreen,
       isFullScreen,
       fullScreenObject,
       listenFullScreen,
+      handleKickParticipant,
+      handleEveryoneFocus,
+      cancelEveryoneFullScreen,
+      roomState,
     };
   },
 });

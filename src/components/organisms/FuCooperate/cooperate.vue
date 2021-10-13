@@ -4,6 +4,13 @@
     @mousemove="toogleMenuBar"
     @click.self="closePanels"
   >
+    <q-img
+      class="o-cooperate__background"
+      :src="bgUrl"
+      :style="bgStyle"
+      :fit="bgMaximixed ? 'fill' : 'cover'"
+    />
+
     <q-icon
       name="fas fa-expand-alt"
       size="24px"
@@ -25,7 +32,13 @@
     <transition :name="$q.screen.lt.sm ? 'dragged' : 'slide'">
       <fu-cooperate-side-bar v-show="isSidebarRender" />
     </transition>
-    <fu-cooperate-user-video v-show="!screenMinimized" />
+    <fu-cooperate-user-video
+      v-show="
+        $q.screen.lt.md && !screenMinimized
+          ? showUsersVideoList
+          : !screenMinimized
+      "
+    />
     <fu-hand-notification
       v-show="
         functionsOnMenuBar.handNotificationInfo.length > 0 && !screenMinimized
@@ -34,6 +47,7 @@
 
     <fu-board v-show="showBoard" />
 
+    
     <fu-full-screen v-if="isFullScreen" />
 
     <q-dialog
@@ -47,7 +61,7 @@
 </template>
 //TODO: OBJETO DE USUARIO GLOBAL
 <script lang="ts">
-import { defineComponent, ref, toRefs, onMounted } from 'vue';
+import { defineComponent, ref, toRefs, onMounted, computed } from 'vue';
 import FuCooperateMenuBar from 'organisms/FuCooperateMenuBar';
 import FuCooperateHeader from 'molecules/FuCooperateHeader';
 import FuCooperateUserVideo from 'atoms/FuCooperateUserVideo';
@@ -93,6 +107,7 @@ export default defineComponent({
 
     const showBoard = ref<boolean>(true);
     let showMenuBar = ref<boolean>(false);
+    let showUsersVideoList = ref<boolean>(false);
 
     let { isSidebarRender, setSidebarState, showParticipantPanel } =
       useSidebarToogle();
@@ -108,13 +123,22 @@ export default defineComponent({
     const { roomState } = useRoom();
 
     const { screenMinimized, updateScreenState } = useScreen();
+
+    const bgStyle = computed(() => {
+      return roomState.bgMaximixed
+        ? 'left: 0; right: 0; top: 0; bottom: 0; width: 100vw; height: 100vh'
+        : 'top: 25vh; width: 50vw; height: 50vh';
+    });
+
     const hideMenuBar = _.debounce(() => {
       showMenuBar.value = false;
+      showUsersVideoList.value = false;
     }, 6000);
 
     const toogleMenuBar = () => {
       if (!showMenuBar.value) {
         showMenuBar.value = true;
+        showUsersVideoList.value = true;
       } else {
         hideMenuBar();
       }
@@ -140,6 +164,8 @@ export default defineComponent({
       ...toRefs(roomState),
       showBoard,
       showParticipantPanel,
+      showUsersVideoList,
+      bgStyle,
     };
   },
 });

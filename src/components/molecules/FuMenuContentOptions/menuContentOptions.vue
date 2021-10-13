@@ -92,7 +92,10 @@ export default defineComponent({
       LEAVE: () =>
         participants.value.length > 0
           ? window.xprops?.handleLeaveCall?.(REASON_TO_LEAVE_ROOM.BY_MYSELF)
-          : window.xprops?.handleLeaveCall?.(REASON_TO_LEAVE_ROOM.I_CLOSE_ROOM, []),
+          : window.xprops?.handleLeaveCall?.(
+              REASON_TO_LEAVE_ROOM.I_CLOSE_ROOM,
+              []
+            ),
       END: () => openDeleteRoomModal(),
       ROOMDETAILS: () => openInfoRoomCard(),
     });
@@ -110,9 +113,11 @@ export default defineComponent({
       openOptionsMenu(false);
     };
 
-    const canEndCall = ref(userMe.roleId === 0 || userMe.roleId === 2);
+    const canEndCall = ref(userMe.roleId === 0);
 
-    const canLeaveCall = ref(userMe.roleId === 0 || userMe.roleId === 1);
+    const canLeaveCall = ref(
+      (userMe.roleId === 0 || userMe.roleId === 1) && !userMe.isHost
+    );
 
     return {
       options,

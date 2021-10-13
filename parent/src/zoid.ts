@@ -29,10 +29,10 @@ interface zoidCreated {
 
 const FractalUpCooperate: zoidCreated = (zoid as zoidType).create({
   tag: "fractalup-cooperate",
-  url: "https://localhost:8080",
+  url: "https://localhost:8081",
   dimensions: {
-    width: "1200px",
-    height: "600px",
+    width: "100%",
+    height: "100%",
   },
   attributes: {
     iframe: {

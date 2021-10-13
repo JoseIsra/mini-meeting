@@ -6,13 +6,21 @@
   padding: 5px;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  // justify-content: center;
+  gap: 1.5%;
   z-index: 3;
   &__box {
     position: relative;
     border-radius: 10px;
-    width: 192px;
-    height: 108px;
+
+    width: 18rem;
+    max-width: 288px;
+    //min-width: 160px;
+
+    height: 9.5rem;
+    max-height: 162px;
+    min-height: 108px;
+
     overflow: hidden;
     cursor: pointer;
     display: flex;
@@ -49,8 +57,7 @@
         bottom: 10px;
         &__userName {
           color: #fffffe;
-          font-size: 12px;
-
+          font-size: clamp(0.7rem, 2.5vw, 0.8rem);
           cursor: default;
           overflow: hidden;
           white-space: nowrap;

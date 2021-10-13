@@ -61,6 +61,25 @@
 
     <div class="m-fuser__loading" v-else>
       <q-spinner color="primary" size="10em" />
+
+      <q-btn
+      class="m-fuser__loading__exit"
+        @click="exitFullScreen"
+        round
+        flat
+        icon="fullscreen_exit"
+        color="white"
+      >
+        <q-tooltip
+          class="bg-grey-10"
+          transition-show="scale"
+          transition-hide="scale"
+        >
+          <label class="m-fuser__actions__message"> Minimizar </label>
+        </q-tooltip>
+      </q-btn>
+
+      <span> Cargando... </span>
     </div>
   </section>
 </template>
@@ -102,13 +121,6 @@ export default defineComponent({
 
     const gotPinnedUser = computed(() => !!fullScreenObject.id);
 
-    watch(admittedParticipants, (value) => {
-      if (!gotPinnedUser.value) {
-        const participant = value.find((p) => p.id === roomState.pinnedUserId);
-        setFullScreenObject(participant as User);
-      }
-    });
-
     const canClose = computed(() => {
       if (!roomState.pinnedUser) {
         return true;
@@ -137,9 +149,26 @@ export default defineComponent({
 
         updateFocus(null);
 
-        window.xprops?.setPinnedUser?.('');
+        if (userMe.roleId !== 1) {
+          window.xprops?.setPinnedUser?.('');
+        }
       }
     };
+    watch(admittedParticipants, (value) => {
+      console.log('Nueva lista de participantes');
+
+      if (!gotPinnedUser.value) {
+        console.log('Buscando usuario pinneado');
+
+        const participant = value.find((p) => p.id === roomState.pinnedUserId);
+        setFullScreenObject(participant as User);
+        if (participant) {
+          console.log('Encontro participante');
+        } else {
+          console.log('No Encontro participante');
+        }
+      }
+    });
 
     const hideMinimizeMessage = _.debounce(() => {
       showMinimizeMessage.value = false;

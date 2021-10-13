@@ -712,7 +712,11 @@ export function useInitWebRTC() {
                   remoteUserInfoParsed.userInfo.fractalUserId;
                 user.denied = remoteUserInfoParsed.userInfo.denied;
                 user.isRecording = remoteUserInfoParsed.userInfo.isRecording;
-                if (userMe.roleId == 0) {
+
+                if (
+                  userMe.roleId === 0 &&
+                  remoteUserInfoParsed.userInfo.denied === 0
+                ) {
                   notifyWithAction(
                     remoteUserInfoParsed.userInfo.name,
                     remoteUserInfoParsed.userInfo.id

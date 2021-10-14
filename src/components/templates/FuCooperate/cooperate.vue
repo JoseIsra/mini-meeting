@@ -112,7 +112,7 @@ export default defineComponent({
       window?.xprops?.classroomId || (route.query.classroomId as string) || '1';
 
     const roleId =
-      window.xprops?.roleId || parseInt(route.query.roleId as string) || 0;
+      parseInt(route.query.roleId as string) || window.xprops?.roleId || 0;
 
     const privacy =
       window.xprops?.roomRestriction ||
@@ -189,12 +189,17 @@ export default defineComponent({
       isCameraBlocked: roleId === 1 ? isCameraLocked : false,
       isScreenShareBlocked: roleId === 1 ? isScreenShareLocked : false,
       fractalUserId,
-      denied:
-        roleId === 1
-          ? privacy
-            ? PERMISSION_STATUS.asked
-            : PERMISSION_STATUS.admitted
-          : PERMISSION_STATUS.admitted,
+      denied: privacy
+        ? roleId === 1
+          ? PERMISSION_STATUS.asked
+          : PERMISSION_STATUS.admitted
+        : PERMISSION_STATUS.admitted,
+      // denied:
+      //   roleId === 1
+      //     ? privacy
+      //       ? PERMISSION_STATUS.asked
+      //       : PERMISSION_STATUS.admitted
+      //     : PERMISSION_STATUS.admitted,
       existVideo: false,
       isRecording: false,
       isHost,

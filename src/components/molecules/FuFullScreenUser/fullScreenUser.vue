@@ -199,25 +199,6 @@ export default defineComponent({
         immediate: true,
       }
     );
-    // const handleOrientationChange = () => {
-    //   orientation.value = window.screen.orientation.type;
-    //   if (
-    //     studentPinned.value?.isScreenSharing ||
-    //     studentPinned.value?.isCameraOn
-    //   ) {
-    //     console.log('i see you landscape');
-    //     buttonMinimizeSpecialStyle.value = true;
-    //     orientationClass.value = 'landscapeMode';
-    //     if (orientation.value == 'landscape-primary') {
-    //     }
-    //   } else if (
-    //     orientation.value == 'portrait-primary' &&
-    //     studentPinned.value?.isScreenSharing
-    //   ) {
-    //     orientationClass.value = 'portraitMode';
-    //     buttonMinimizeSpecialStyle.value = false;
-    //   }
-    // };
 
     return {
       fullScreenObject,

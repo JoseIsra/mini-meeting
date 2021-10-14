@@ -26,7 +26,6 @@
       fractalUserId="34i2jkd23"
       :setPinnedUser="setPinnedUser"
       :pinnedUser="pinnedUser"
-      :bgUrl="backgroundImg"
       :isMicOn="false"
       :isCameraOn="false"
     />
@@ -62,7 +61,9 @@ export default Vue.extend({
       streamName: `userId-${Date.now()}`,
       isMinimized: false,
       pinnedUser: localStorage.pinnedUser,
-      bgInfo: JSON.parse(localStorage.bgInfo),
+      bgInfo: localStorage.bgInfo
+        ? JSON.parse(localStorage.bgInfo)
+        : { url: "", maximized: false },
     };
   },
   methods: {

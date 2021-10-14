@@ -5,7 +5,7 @@ interface B2Info {
   authorizationToken: string;
 }
 
-export interface bgInfo {
+export interface BgInfo {
   url: string;
   maximized: boolean;
 }
@@ -26,7 +26,7 @@ export interface ZoidProps {
   classroomId?: string;
   isMicOn?: boolean;
   privacy?: boolean;
-  bgInfo?: bgInfo;
+  bgInfo?: BgInfo;
   isBeingRecorded?: boolean;
   roomRestriction?: boolean;
   isHost?: boolean;

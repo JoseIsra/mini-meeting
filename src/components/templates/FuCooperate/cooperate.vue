@@ -51,7 +51,6 @@ import { useRoom } from '@/composables/room';
 import { useActions } from '@/composables/actions';
 import { useToogleFunctions } from '@/composables';
 import moment from 'moment';
-import { bgInfo } from '@/types/zoid';
 
 export default defineComponent({
   name: 'FuTCooperate',
@@ -154,10 +153,16 @@ export default defineComponent({
       window?.xprops?.isHost ||
       (JSON.parse((route.query.isHost as string) || 'false') as boolean);
 
-    const bgInfo = window?.xprops?.bgInfo as bgInfo || {
+    let bgInfo = window?.xprops?.bgInfo || {
       url: 'https://encrypted.fractalup.com/file/MainPublic/fractalup_assets/landing/main.png',
       maximized: false,
     };
+    if (window?.xprops?.bgInfo?.url === '') {
+      bgInfo = {
+        url: 'https://encrypted.fractalup.com/file/MainPublic/fractalup_assets/landing/main.png',
+        maximized: false,
+      };
+    }
 
     const userPinnedZoid = (window?.xprops?.pinnedUser as string) || '';
 

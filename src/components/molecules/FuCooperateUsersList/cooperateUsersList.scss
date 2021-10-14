@@ -16,6 +16,11 @@
       font-weight: bolder;
       border-bottom: 1px solid #fffffe;
     }
+    &__btn {
+      position: absolute;
+      top: 0;
+      right: 0;
+    }
   }
   &__content {
     flex: 0.9;

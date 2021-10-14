@@ -46,7 +46,7 @@ import { useQuasar } from 'quasar';
 export default defineComponent({
   name: 'FuExternalVideo',
   setup() {
-    const orientabro = ref(false);
+    const orientationScreenAdvice = ref(false);
     const $q = useQuasar();
     let posterClass = ref(false);
     const calculateCurrentSelectedTime = ref(0);
@@ -154,10 +154,10 @@ export default defineComponent({
     const handleOrientationChange = () => {
       const orientation = window.screen.orientation.type;
       if (orientation == 'landscape-primary') {
-        orientabro.value = true;
+        orientationScreenAdvice.value = true;
         return;
       }
-      orientabro.value = false;
+      orientationScreenAdvice.value = false;
     };
 
     const watchMinimized = computed(() => {
@@ -171,7 +171,7 @@ export default defineComponent({
             '--width': '100vw',
             '--height': '40vh',
           }
-        : orientabro.value
+        : orientationScreenAdvice.value
         ? {
             '--top': '50%',
             '--width': '80vw',

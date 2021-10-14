@@ -117,7 +117,7 @@ export default defineComponent({
     const privacy =
       window.xprops?.roomRestriction ||
       (route.query.roomRestriction as string) === '1' ||
-      false;
+      true;
 
     const isMicLocked =
       window.xprops?.isMicLocked ||
@@ -189,12 +189,17 @@ export default defineComponent({
       isCameraBlocked: roleId === 1 ? isCameraLocked : false,
       isScreenShareBlocked: roleId === 1 ? isScreenShareLocked : false,
       fractalUserId,
-      denied:
-        roleId === 1
-          ? privacy
-            ? PERMISSION_STATUS.asked
-            : PERMISSION_STATUS.admitted
-          : PERMISSION_STATUS.admitted,
+      denied: privacy
+        ? roleId === 1
+          ? PERMISSION_STATUS.asked
+          : PERMISSION_STATUS.admitted
+        : PERMISSION_STATUS.admitted,
+      // denied:
+      //   roleId === 1
+      //     ? privacy
+      //       ? PERMISSION_STATUS.asked
+      //       : PERMISSION_STATUS.admitted
+      //     : PERMISSION_STATUS.admitted,
       existVideo: false,
       isRecording: false,
       isHost,

@@ -750,12 +750,8 @@ export function useInitWebRTC() {
                 if (
                   userMe.roleId === 0 &&
                   remoteUserInfoParsed.userInfo.denied === 0 &&
-                  roomState.privacy
+                  !roomState.privacy
                 ) {
-                  console.log(
-                    'Sala privada, solicitud de ingreso y eres admin'
-                  );
-
                   notifyWithAction(
                     remoteUserInfoParsed.userInfo.name,
                     remoteUserInfoParsed.userInfo.id

@@ -3,7 +3,7 @@
     <fractal-up-cooperate-instance
       class="multichat"
       :class="{ '--minimized': isMinimized }"
-      roomId="room666"
+      roomId="room16"
       :streamId="streamId"
       :streamName="streamName"
       :handleLeaveCall="handleLeaveCall"

@@ -810,6 +810,8 @@ export function useInitWebRTC() {
               obj.data
             ) as ObjBlockParticipantAction;
 
+            console.log(action, value, participantId);
+
             if (participantId !== userMe.id) {
               return;
             }

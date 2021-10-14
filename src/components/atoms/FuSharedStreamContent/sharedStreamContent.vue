@@ -45,7 +45,7 @@
         </q-btn>
       </div>
 
-      <div class="m-shared__admin" v-show="canModifyActions">
+      <div class="m-shared__admin" v-show="adminPanel">
         <div class="m-shared__admin__actions">
           <q-toggle
             class="m-shared__admin__toggle"
@@ -189,7 +189,22 @@ export default defineComponent({
               state: 0,
             } as lockAction;
 
+            // const lockAction = {
+            //   mic: 0,
+            //   camera: 0,
+            //   screen: 0,
+            // } as lockAction;
+
+            console.log('Desactivar todos');
+
+            sendData(userMe.id, {
+              eventType: 'SET_PARTICIPANT_ACTION',
+              action: LOCK_ACTION_TYPE.All,
+              value: false,
+            });
+
             window.xprops?.toggleLockAction?.(lockAction);
+            // window.xprops?.toggleLockAction?.(0, 0, 0);
           }
 
           if (!mic && !camera && !screenShare) {
@@ -198,7 +213,16 @@ export default defineComponent({
               state: 1,
             } as lockAction;
 
+            console.log('Activar todos');
+
+            sendData(userMe.id, {
+              eventType: 'SET_PARTICIPANT_ACTION',
+              action: LOCK_ACTION_TYPE.All,
+              value: true,
+            });
+
             window.xprops?.toggleLockAction?.(lockAction);
+            // window.xprops?.toggleLockAction?.(1, 1, 1);
           }
         } else {
           if (mic !== prevMic) {
@@ -207,7 +231,16 @@ export default defineComponent({
               state: Number(!mic),
             } as lockAction;
 
+            console.log('Toggle mic: ', Number(!mic));
+
+            sendData(userMe.id, {
+              eventType: 'SET_PARTICIPANT_ACTION',
+              action: LOCK_ACTION_TYPE.Mic,
+              value: mic,
+            });
+
             window.xprops?.toggleLockAction?.(lockAction);
+            // window.xprops?.toggleLockAction?.(Number(!mic), Number(!camera), Number(!screenShare));
           }
 
           if (camera !== prevCamera) {
@@ -216,7 +249,16 @@ export default defineComponent({
               state: Number(!camera),
             } as lockAction;
 
+            console.log('Toggle camera: ', Number(!mic));
+
+            sendData(userMe.id, {
+              eventType: 'SET_PARTICIPANT_ACTION',
+              action: LOCK_ACTION_TYPE.Camera,
+              value: camera,
+            });
+
             window.xprops?.toggleLockAction?.(lockAction);
+            // window.xprops?.toggleLockAction?.(Number(!mic), Number(!camera), Number(!screenShare));
           }
 
           if (screenShare !== prevScreenShare) {
@@ -225,13 +267,22 @@ export default defineComponent({
               state: Number(!screenShare),
             } as lockAction;
 
+            console.log('Toggle screenshare: ', Number(!mic));
+
+            sendData(userMe.id, {
+              eventType: 'SET_PARTICIPANT_ACTION',
+              action: LOCK_ACTION_TYPE.Screen,
+              value: screenShare,
+            });
+
             window.xprops?.toggleLockAction?.(lockAction);
+            // window.xprops?.toggleLockAction?.(Number(!mic), Number(!camera), Number(!screenShare));
           }
         }
       }
     );
 
-    const canModifyActions = ref(userMe.roleId === 0);
+    const adminPanel = ref(userMe.roleId === 0);
 
     const handleAllActions = () => {
       if (actionsActivated.value) {
@@ -274,7 +325,7 @@ export default defineComponent({
       copySharedLink,
       toolTipMessage,
       closeInfoRoomCard,
-      canModifyActions,
+      adminPanel,
       cooperateMicState,
       cooperateCameraState,
       cooperateScreenShareState,

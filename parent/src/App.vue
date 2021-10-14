@@ -13,9 +13,9 @@
       :toggleLockAction="toggleLockAction"
       sharedLink="sharedLinkTest"
       classroomId="1"
-      :isCameraLocked="false"
-      :isScreenShareLocked="false"
-      :isMicLocked="false"
+      :isCameraLocked="actions.type === 0 ? !!actions.state : actions.type === 2 ? !!actions.state : false"
+      :isScreenShareLocked="actions.type === 0 ? !!actions.state : actions.type === 3 ? !!actions.state : false"
+      :isMicLocked="actions.type === 0 ? !!actions.state : actions.type === 1 ? !!actions.state : false"
       :getB2Info="getB2Info"
       :roleId="0"
       :roomRestriction="0"
@@ -64,6 +64,9 @@ export default Vue.extend({
       bgInfo: localStorage.bgInfo
         ? JSON.parse(localStorage.bgInfo)
         : { url: "", maximized: false },
+      actions: localStorage.actions
+        ? JSON.parse(localStorage.actions)
+        : { type: 0, state: 0 },
     };
   },
   methods: {
@@ -81,7 +84,9 @@ export default Vue.extend({
       console.log("⭐ handleStopRecording function executed with params", url);
     },
     toggleLockAction: function (options: Record<string, number>) {
+      // mic, camera and screen > 0, 1, 0
       console.log("⭐ toggle log action with params", options);
+      window.localStorage.actions = JSON.stringify(options);
     },
     getB2Info: async function () {
       const myQuery = `
@@ -120,11 +125,6 @@ export default Vue.extend({
     },
     setBackgroundImg: function (url: string, maximized: boolean) {
       console.log("bgInfo");
-      console.log(JSON.stringify({ url, maximized }));
-
-      console.log(url);
-      console.log(maximized);
-
       window.localStorage.bgInfo = JSON.stringify({ url, maximized });
     },
   },

@@ -124,12 +124,18 @@ export default defineComponent({
       (route.query.mic as string) === '1' ||
       false;
 
+    console.log(isMicLocked);
+
     const isCameraLocked = window.xprops?.isCameraLocked || false;
+
+    console.log(isCameraLocked);
 
     const isScreenShareLocked =
       window.xprops?.isScreenShareLocked ||
       (route.query.screen as string) === '1' ||
       false;
+
+    console.log(isScreenShareLocked);
 
     const sharingLink =
       window?.xprops?.sharedLink || (route.query.sharedLink as string) || '';

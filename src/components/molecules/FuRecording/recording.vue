@@ -1,5 +1,5 @@
 <template>
-  <div v-show="canRecording">
+  <div v-if="canRecording">
     <q-btn
       v-if="!isRecording"
       :disable="roomState.isBeingRecorded"
@@ -23,6 +23,15 @@
       :label="$q.screen.lt.sm ? '' : `Detener Grabación ${recordTime}`"
       @click="stopRecording"
     />
+  </div>
+  <div
+    v-show="!canRecording && roomState.isBeingRecorded"
+    class="recordingContent"
+  >
+    <div class="recordingContent__icon" />
+    <div v-if="$q.screen.gt.sm" class="recordingContent__text">
+      La reunión está siendo grabada
+    </div>
   </div>
 </template>
 

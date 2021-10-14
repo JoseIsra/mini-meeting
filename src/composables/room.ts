@@ -20,6 +20,23 @@ export interface Room {
   bgInfo: BgInfo;
 }
 
+export interface UpdatedRoomFields {
+  id?: string;
+  isBeingRecorded?: boolean;
+  sharingLink?: string;
+  classroomId?: string;
+  isMicBlocked?: boolean;
+  isCameraBlocked?: boolean;
+  isScreenShareBlocked?: boolean;
+  privacy?: boolean;
+  // bgUrl?: string;
+  // bgMaximixed: boolean;
+  startDate?: string;
+  pinnedUser?: null | User;
+  pinnedUserId?: string;
+  bgInfo?: BgInfo;
+}
+
 export interface participantOnWait {
   id: string;
   name: string;
@@ -31,8 +48,10 @@ export function useRoom() {
   const setRoom = (room: Room) => {
     Object.assign(roomState, room);
   };
-  const setRecorded = (state: boolean) => {
-    Object.assign(roomState, { ...roomState, isBeingRecorded: state });
+
+  const updateRoom = (value: UpdatedRoomFields) => {
+    console.log('changing room', '🚀🚀🚀');
+    Object.assign(roomState, { ...roomState, ...value });
   };
 
   const setPrivacy = (state: boolean) => (roomState.privacy = state);
@@ -54,8 +73,8 @@ export function useRoom() {
 
   return {
     roomState,
+    updateRoom,
     setRoom,
-    setRecorded,
     setPrivacy,
     setRoomMicState,
     setRoomCameraState,

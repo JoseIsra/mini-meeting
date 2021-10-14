@@ -30,7 +30,7 @@ const {
 const { setIsLoadingOrError, setLoadingOrErrorMessage, setExistRoom } =
   useAuthState();
 const {
-  setRecorded,
+  updateRoom,
   setRoomMicState,
   setRoomCameraState,
   setRoomScreenShareState,
@@ -604,9 +604,9 @@ export function useInitWebRTC() {
                 user.isMicOn = false;
               }
             } else if (notificationType == 'RECORDING_STARTED') {
-              setRecorded(true);
+              updateRoom({ isBeingRecorded: true });
             } else if (notificationType == 'RECORDING_STOPPED') {
-              setRecorded(false);
+              updateRoom({ isBeingRecorded: false });
             }
           } else if (eventType === 'HAND') {
             addHandNotificationInfo(objParsed);
@@ -744,9 +744,6 @@ export function useInitWebRTC() {
               obj.data
             ) as ObjRemoteUserInfo;
 
-            if (remoteUserInfoParsed.userInfo.isRecording) {
-              setRecorded(true);
-            }
             if (remoteUserInfoParsed.to === userMe.id) {
               console.log('I am receiving info from another user', objParsed);
               console.log('USER_FINISH🚀', remoteUserInfoParsed.userInfo);

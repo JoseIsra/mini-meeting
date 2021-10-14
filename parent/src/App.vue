@@ -9,6 +9,7 @@
       :handleLeaveCall="handleLeaveCall"
       :handleEndCall="handleEndCall"
       :handleStopRecording="handleStopRecording"
+      :handleStartRecording="handleStartRecording"
       :toggleMinimize="toggleMinimize"
       :toggleLockAction="toggleLockAction"
       sharedLink="sharedLinkTest"
@@ -28,6 +29,7 @@
       :pinnedUser="pinnedUser"
       :isMicOn="false"
       :isCameraOn="false"
+      :isBeingRecorded="isBeingRecorded"
     />
   </div>
 </template>
@@ -64,6 +66,7 @@ export default Vue.extend({
       bgInfo: localStorage.bgInfo
         ? JSON.parse(localStorage.bgInfo)
         : { url: "", maximized: false },
+      isBeingRecorded: localStorage.isBeingRecorded === "true",
     };
   },
   methods: {
@@ -79,6 +82,10 @@ export default Vue.extend({
     },
     handleStopRecording: function (url: string) {
       console.log("⭐ handleStopRecording function executed with params", url);
+      window.localStorage.isBeingRecorded = false;
+    },
+    handleStartRecording: function () {
+      window.localStorage.isBeingRecorded = true;
     },
     toggleLockAction: function (options: Record<string, number>) {
       console.log("⭐ toggle log action with params", options);
@@ -119,12 +126,7 @@ export default Vue.extend({
       window.localStorage.pinnedUser = userId;
     },
     setBackgroundImg: function (url: string, maximized: boolean) {
-      console.log("bgInfo");
-      console.log(JSON.stringify({ url, maximized }));
-
-      console.log(url);
-      console.log(maximized);
-
+      console.log("setBackgroundImg");
       window.localStorage.bgInfo = JSON.stringify({ url, maximized });
     },
   },

@@ -157,7 +157,7 @@ export default defineComponent({
       url: 'https://encrypted.fractalup.com/file/MainPublic/fractalup_assets/landing/main.png',
       maximized: false,
     };
-    if (window?.xprops?.bgInfo?.url === '') {
+    if (window?.xprops?.bgInfo?.url === '' || !window?.xprops?.bgInfo?.url) {
       bgInfo = {
         url: 'https://encrypted.fractalup.com/file/MainPublic/fractalup_assets/landing/main.png',
         maximized: false,
@@ -166,7 +166,7 @@ export default defineComponent({
 
     const userPinnedZoid = (window?.xprops?.pinnedUser as string) || '';
 
-    const isBeingRecorded = window?.xprops?.isBeingRecorded;
+    const isBeingRecorded = window?.xprops?.isBeingRecorded || false;
 
     const { setIDButtonSelected, setFullScreen } = useToogleFunctions();
 
@@ -182,7 +182,6 @@ export default defineComponent({
       avatar,
       roleId,
       isMicOn: isMicOn ? true : isMicLocked,
-      // isMicOn: !isMicLocked,
       isCameraOn,
       isScreenSharing: false,
       isVideoActivated: isCameraOn,

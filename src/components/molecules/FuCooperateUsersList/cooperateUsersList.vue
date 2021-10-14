@@ -17,6 +17,16 @@
         @click="toggleParticipantPanel"
         :disable="!waitingParticipants.length > 0"
       ></q-btn>
+      <q-btn
+        v-show="$q.screen.lt.sm"
+        flat
+        round
+        icon="close"
+        size="15px"
+        dense
+        class="m-list__title__btn --close"
+        @click="closeUserListPanel"
+      />
     </header>
     <main class="m-list__content">
       <div class="m-list__content__actions" v-show="userMe.roleId === 0">
@@ -499,7 +509,7 @@ export default defineComponent({
       admittedParticipants,
     } = useHandleParticipants();
 
-    const { toggleParticipantPanel } = useSidebarToogle();
+    const { toggleParticipantPanel, setSidebarState } = useSidebarToogle();
 
     const { userMe } = useUserMe();
 
@@ -513,6 +523,7 @@ export default defineComponent({
       isFullScreen,
       fullScreenObject,
       clearFullScreenObject,
+      setIDButtonSelected,
     } = useToogleFunctions();
 
     const listenFullScreen = computed(() => {
@@ -811,6 +822,11 @@ export default defineComponent({
       setFullScreenObject(arg);
     };
 
+    const closeUserListPanel = () => {
+      setSidebarState(false);
+      setIDButtonSelected('');
+    };
+
     return {
       waitingParticipants,
       admittedParticipants,
@@ -835,6 +851,7 @@ export default defineComponent({
       handleEveryoneFocus,
       cancelEveryoneFullScreen,
       roomState,
+      closeUserListPanel,
     };
   },
 });

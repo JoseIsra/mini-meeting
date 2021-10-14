@@ -216,6 +216,7 @@ export default defineComponent({
       isScreenShareBlocked: roleId === 1 ? isScreenShareLocked : false,
       bgInfo: bgInfo,
       isBeingRecorded,
+      recordingUrl: '',
       pinnedUser: null,
       pinnedUserId: userPinnedZoid,
       startDate,

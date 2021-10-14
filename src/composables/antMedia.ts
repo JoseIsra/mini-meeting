@@ -46,6 +46,7 @@ const {
   participants,
   addParticipants,
   updateParticipantDenied,
+  admittedParticipants,
 } = useHandleParticipants();
 
 const { setUserMessage, deleteLoadingMessage } = useHandleMessage();
@@ -149,6 +150,10 @@ interface backgroundSize {
 
 interface ObjUserLeavingMessageParsed {
   fractalUserId: string;
+}
+
+interface ObjRecordingStopParsed {
+  state: Record<string, string>;
 }
 
 export function useInitWebRTC() {
@@ -339,6 +344,18 @@ export function useInitWebRTC() {
                 eventType: 'SET_FULL_SCREEN',
                 mode: 'none',
               });
+            }
+
+            if (userMe.isRecording) {
+              const idUserGoingToStopRec =
+                admittedParticipants.value.filter(
+                  (participant) => participant.roleId === 0
+                )?.[0].id || admittedParticipants.value[0].id;
+              
+              if (idUserGoingToStopRec)
+                sendNotificationEvent('RECORDING_STOPPED', userMe.id, {
+                  to: idUserGoingToStopRec,
+                });
             }
 
             leaveRoom(roomId);
@@ -607,6 +624,12 @@ export function useInitWebRTC() {
               updateRoom({ isBeingRecorded: true });
             } else if (notificationType == 'RECORDING_STOPPED') {
               updateRoom({ isBeingRecorded: false });
+              const stateParsed = JSON.parse(
+                obj.data
+              ) as ObjRecordingStopParsed;
+
+              if (stateParsed?.state?.to === userMe.id)
+                window.xprops?.handleStopRecording?.(roomState.recordingUrl);
             }
           } else if (eventType === 'HAND') {
             addHandNotificationInfo(objParsed);
@@ -722,6 +745,7 @@ export function useInitWebRTC() {
                   remoteUserInfoParsed.userInfo.fractalUserId;
                 user.denied = remoteUserInfoParsed.userInfo.denied;
                 user.isRecording = remoteUserInfoParsed.userInfo.isRecording;
+                user.roleId = remoteUserInfoParsed.userInfo.roleId;
 
                 if (
                   userMe.roleId === 0 &&
@@ -772,6 +796,7 @@ export function useInitWebRTC() {
                   remoteUserInfoParsed.userInfo.fractalUserId;
                 user.denied = remoteUserInfoParsed.userInfo.denied;
                 user.isRecording = remoteUserInfoParsed.userInfo.isRecording;
+                user.roleId = remoteUserInfoParsed.userInfo.roleId;
 
                 if (remoteUserInfoParsed.userInfo.existVideo) {
                   console.log(
@@ -1183,7 +1208,7 @@ export function useInitWebRTC() {
   const sendNotificationEvent = (
     notificationType: string,
     streamId: string,
-    state?: boolean
+    state?: boolean | Record<string, string>
   ) => {
     if (isDataChannelOpen.value) {
       const notEvent = {

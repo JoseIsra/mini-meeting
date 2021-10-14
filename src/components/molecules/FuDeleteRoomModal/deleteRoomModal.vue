@@ -37,7 +37,7 @@ export default defineComponent({
   setup() {
     const { userMe } = useUserMe();
     const { roomState } = useRoom();
-    const { sendData } = useInitWebRTC();
+    const { sendData, sendNotificationEvent } = useInitWebRTC();
     const { participants } = useHandleParticipants();
 
     const executeDeleteRoom = () => {
@@ -57,6 +57,10 @@ export default defineComponent({
             REASON_TO_LEAVE_ROOM.I_CLOSE_ROOM,
             remainingParticipantsFractalUserIds
           );
+
+          if (userMe.isRecording) {
+            sendNotificationEvent('RECORDING_STOPPED', userMe.id);
+          }
         })
         .catch((e) => console.log(e));
     };

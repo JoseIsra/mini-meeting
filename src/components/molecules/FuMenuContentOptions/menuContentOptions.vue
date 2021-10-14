@@ -71,6 +71,7 @@ import { useToogleFunctions } from '@/composables';
 import { useUserMe } from '@/composables/userMe';
 import { REASON_TO_LEAVE_ROOM } from '@/utils/enums';
 import { useHandleParticipants } from '@/composables/participants';
+import { useInitWebRTC } from '@/composables/antMedia';
 
 interface OptionsClickMethods {
   LEAVE: () => void;
@@ -87,15 +88,20 @@ export default defineComponent({
     const { participants } = useHandleParticipants();
 
     const { userMe } = useUserMe();
+    const { sendNotificationEvent } = useInitWebRTC();
 
     const optionsMethodsObject = reactive<OptionsClickMethods>({
-      LEAVE: () =>
+      LEAVE: () => {
         participants.value.length > 0
           ? window.xprops?.handleLeaveCall?.(REASON_TO_LEAVE_ROOM.BY_MYSELF)
           : window.xprops?.handleLeaveCall?.(
               REASON_TO_LEAVE_ROOM.I_CLOSE_ROOM,
               []
-            ),
+            );
+        if (userMe.isRecording) {
+          sendNotificationEvent('RECORDING_STOPPED', userMe.id);
+        }
+      },
       END: () => openDeleteRoomModal(),
       ROOMDETAILS: () => openInfoRoomCard(),
     });

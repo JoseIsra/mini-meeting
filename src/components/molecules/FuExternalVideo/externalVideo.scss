@@ -41,6 +41,6 @@
   height: auto !important;
 }
 
-.video-js.vjs-has-started .vjs-poster {
-  display: none;
+.vjs-poster {
+  display: none !important;
 }

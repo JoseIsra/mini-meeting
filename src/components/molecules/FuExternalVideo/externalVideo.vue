@@ -10,7 +10,7 @@
     <video
       autoplay
       id="specialId"
-      :class="{ 'vjs-tech': simpleMortal }"
+      :class="[{ 'vjs-poster': posterClass }, { 'vjs-tech': simpleMortal }]"
       ref="videoPlayer"
       class="video-js vjs-16-9"
     ></video>
@@ -31,6 +31,7 @@ import { useScreen } from '@/composables/screen';
 export default defineComponent({
   name: 'FuExternalVideo',
   setup() {
+    let posterClass = ref(false);
     const calculateCurrentSelectedTime = ref(0);
     const { sendData } = useInitWebRTC();
     const { userMe, updateUserMe } = useUserMe();
@@ -85,7 +86,8 @@ export default defineComponent({
             });
           });
           player.value.on('ready', () => {
-            console.log('go on video go on🤭');
+            posterClass.value = true;
+            console.log('go on video go on🤭', posterClass.value);
             void player.value.play();
           });
           player.value.controlBar.on('mouseup', () => {
@@ -139,11 +141,15 @@ export default defineComponent({
       userMe,
       simpleMortal,
       watchMinimized,
+      posterClass,
     };
   },
 });
 </script>
 
-<style scoped lang="scss">
+<style lang="scss">
+.vjs-poster {
+  display: none;
+}
 @import './externalVideo.scss';
 </style>

@@ -90,6 +90,11 @@
     border-radius: 10px;
     font-weight: bolder;
   }
+  .--cornerButton {
+    top: 25px;
+    left: 95%;
+    z-index: 10;
+  }
 
   &__loading {
     position: relative;

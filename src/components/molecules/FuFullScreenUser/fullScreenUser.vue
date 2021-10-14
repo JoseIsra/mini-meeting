@@ -47,8 +47,9 @@
       ></video>
       <q-btn
         flat
-        label="Minimizar pantalla"
+        :label="buttonMinimizeSpecialStyle ? '' : 'Minimizar pantalla'"
         class="m-fuser__quitBtn"
+        :class="{ '--cornerButton': buttonMinimizeSpecialStyle }"
         icon="fullscreen_exit"
         @click="exitFullScreen"
         v-show="
@@ -117,6 +118,7 @@ export default defineComponent({
     const { sendData } = useInitWebRTC();
 
     const gotPinnedUser = computed(() => !!fullScreenObject.id);
+    const buttonMinimizeSpecialStyle = ref(false);
 
     watch(admittedParticipants, (value) => {
       if (!gotPinnedUser.value) {
@@ -137,6 +139,7 @@ export default defineComponent({
     });
 
     const exitFullScreen = () => {
+      console.log('ESTAS TOCANDO EL NUEVO BOTÓN DE PASO BRO');
       setFullScreen('none', false);
       clearFullScreenObject();
 
@@ -193,16 +196,20 @@ export default defineComponent({
 
     const handleOrientationChange = () => {
       const orientation = window.screen.orientation.type;
-      if (
-        orientation == 'landscape-primary' &&
-        fullScreenObject.isScreenSharing
-      ) {
+      if (orientation == 'landscape-primary') {
         orientationClass.value = 'landscapeMode';
+        if (
+          studentPinned.value?.isScreenSharing ||
+          studentPinned.value?.isCameraOn
+        ) {
+          buttonMinimizeSpecialStyle.value = true;
+        }
       } else if (
         orientation == 'portrait-primary' &&
-        fullScreenObject.isScreenSharing
+        studentPinned.value?.isScreenSharing
       ) {
         orientationClass.value = 'portraitMode';
+        buttonMinimizeSpecialStyle.value = false;
       }
     };
 
@@ -218,6 +225,7 @@ export default defineComponent({
       canClose,
       studentPinned,
       gotPinnedUser,
+      buttonMinimizeSpecialStyle,
     };
   },
 });

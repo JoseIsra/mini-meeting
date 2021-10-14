@@ -183,7 +183,7 @@
             </q-tooltip>
           </q-btn>
 
-          <q-btn icon="fas fa-ellipsis-h">
+          <q-btn icon="fas fa-ellipsis-h" v-if="userMe.roleId === 0">
             <q-menu :offset="[60, 12]">
               <q-list>
                 <div class="m-list__content__userBox__extra">
@@ -241,6 +241,24 @@
               <label>Opciones</label>
             </q-tooltip>
           </q-btn>
+
+          <q-btn
+            v-else
+            :icon="
+              listenFullScreen.id == userMe.id
+                ? 'location_disabled'
+                : 'gps_fixed'
+            "
+            @click="activeFullScreen(userMe)"
+            :disable="!!roomState.pinnedUser"
+          >
+            <q-tooltip class="bg-grey-10">
+              <label v-if="listenFullScreen.id == userMe.id"
+                >Estás fijado
+              </label>
+              <label v-else>Fijarte a ti mismo</label>
+            </q-tooltip>
+          </q-btn>
         </div>
       </div>
       <div
@@ -256,9 +274,10 @@
           />
         </aside>
         <div class="m-list__content__userBox__name">{{ participant.name }}</div>
+
         <div
           class="m-list__content__userBox__actions"
-          v-show="userMe.roleId === 0"
+          v-if="userMe.roleId === 0"
         >
           <q-btn
             :icon="participant.isMicOn ? 'mic' : 'mic_off'"
@@ -346,7 +365,7 @@
             </q-tooltip>
           </q-btn>
 
-          <q-btn icon="fas fa-ellipsis-h">
+          <q-btn icon="fas fa-ellipsis-h" v-if="userMe.roleId === 0">
             <q-menu :offset="[60, 12]">
               <q-list>
                 <div class="m-list__content__userBox__extra">
@@ -381,6 +400,7 @@
                         : 'gps_fixed'
                     "
                     @click="activeFullScreen(participant)"
+                    :disable="!!roomState.pinnedUser"
                   >
                     <q-tooltip
                       class="bg-grey-10"
@@ -392,7 +412,7 @@
                       <label v-if="listenFullScreen.id == participant.id">
                         Usuario fijado</label
                       >
-                      <label v-else> Fijar usuario</label>
+                      <label v-else>Fijar usuario</label>
                     </q-tooltip>
                   </q-btn>
 
@@ -424,6 +444,31 @@
               transition-hide="scale"
             >
               <label>Opciones</label>
+            </q-tooltip>
+          </q-btn>
+        </div>
+
+        <div v-else class="m-list__content__userBox__actions">
+          <q-btn
+            :icon="
+              listenFullScreen.id == participant.id
+                ? 'location_disabled'
+                : 'gps_fixed'
+            "
+            @click="activeFullScreen(participant)"
+            :disable="!!roomState.pinnedUser"
+          >
+            <q-tooltip
+              class="bg-grey-10"
+              anchor="bottom middle"
+              self="top middle"
+              transition-show="scale"
+              transition-hide="scale"
+            >
+              <label v-if="listenFullScreen.id == participant.id">
+                Usuario fijado</label
+              >
+              <label v-else>Fijar usuario</label>
             </q-tooltip>
           </q-btn>
         </div>
@@ -789,7 +834,6 @@ export default defineComponent({
       handleKickParticipant,
       handleEveryoneFocus,
       cancelEveryoneFullScreen,
-
       roomState,
     };
   },

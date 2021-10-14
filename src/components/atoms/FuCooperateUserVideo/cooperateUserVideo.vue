@@ -18,6 +18,7 @@
           <q-icon :name="userMe.isMicOn ? 'mic' : 'mic_off'" color="white" />
         </div>
       </div>
+
       <video
         :srcObject.prop="userMe.stream"
         v-show="userMe.isVideoActivated"
@@ -26,6 +27,12 @@
         muted
         playsinline
       ></video>
+
+      <div v-show="userMe.isVideoActivated">
+        <div class="a-userVideo__box__avatar__info__userName --video">
+          {{ userMe.name }}
+        </div>
+      </div>
 
       <q-btn
         flat
@@ -90,6 +97,13 @@
         playsinline
         :srcObject.prop="participant.stream"
       ></video>
+
+      <div v-show="participant.isVideoActivated">
+        <div class="a-userVideo__box__avatar__info__userName --video">
+          {{ participant.name }}
+        </div>
+      </div>
+
       <q-btn
         flat
         round

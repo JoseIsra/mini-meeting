@@ -152,7 +152,7 @@ export default defineComponent({
     const controlUserToRender = computed(() => {
       return $q.screen.lt.md
         ? admittedParticipants.value.slice(-1)
-        : admittedParticipants.value.slice(-9);
+        : admittedParticipants.value.slice(-5);
     });
 
     const styleOnMobile = computed(() => {

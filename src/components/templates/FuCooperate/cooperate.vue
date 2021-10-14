@@ -112,7 +112,7 @@ export default defineComponent({
       window?.xprops?.classroomId || (route.query.classroomId as string) || '1';
 
     const roleId =
-      parseInt(route.query.roleId as string) || window.xprops?.roleId || 0;
+      window.xprops?.roleId || parseInt(route.query.roleId as string) || 0;
 
     const privacy =
       window.xprops?.roomRestriction ||

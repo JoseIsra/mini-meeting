@@ -86,14 +86,7 @@
 </template>
 
 <script lang="ts">
-import {
-  defineComponent,
-  ref,
-  computed,
-  onMounted,
-  onBeforeUnmount,
-  watch,
-} from 'vue';
+import { defineComponent, ref, computed, watch } from 'vue';
 import { useToogleFunctions } from '@/composables';
 import { useScreen } from '@/composables/screen';
 import _ from 'lodash';
@@ -111,12 +104,11 @@ export default defineComponent({
       clearFullScreenObject,
       setFullScreenObject,
     } = useToogleFunctions();
-    const { screenMinimized } = useScreen();
+    const { screenMinimized, isLandscape } = useScreen();
     const { updateFocus, roomState } = useRoom();
     const { userMe } = useUserMe();
     const { admittedParticipants } = useHandleParticipants();
     const { sendData } = useInitWebRTC();
-
     const gotPinnedUser = computed(() => !!fullScreenObject.id);
     const buttonMinimizeSpecialStyle = ref(false);
 
@@ -139,7 +131,6 @@ export default defineComponent({
     });
 
     const exitFullScreen = () => {
-      console.log('ESTAS TOCANDO EL NUEVO BOTÓN DE PASO BRO');
       setFullScreen('none', false);
       clearFullScreenObject();
 
@@ -175,15 +166,6 @@ export default defineComponent({
     const hasCameraActivated = computed(() => {
       return studentPinned?.value?.isCameraOn;
     });
-
-    onMounted(() => {
-      window.addEventListener('orientationchange', handleOrientationChange);
-    });
-
-    onBeforeUnmount(() => {
-      window.removeEventListener('orientationchange', handleOrientationChange);
-    });
-
     const studentPinned = computed(() => {
       if (userMe.id == fullScreenObject.id) {
         return userMe;
@@ -193,28 +175,51 @@ export default defineComponent({
         );
       }
     });
-
-    const handleOrientationChange = () => {
-      const orientation = window.screen.orientation.type;
-      if (orientation == 'landscape-primary') {
-        orientationClass.value = 'landscapeMode';
-        if (
-          studentPinned.value?.isScreenSharing ||
-          studentPinned.value?.isCameraOn
-        ) {
-          buttonMinimizeSpecialStyle.value = true;
+    watch(
+      () => isLandscape.value,
+      (value) => {
+        if (value) {
+          console.log('watcher con', value);
+          if (
+            studentPinned.value?.isScreenSharing ||
+            studentPinned.value?.isCameraOn
+          ) {
+            buttonMinimizeSpecialStyle.value = true;
+            orientationClass.value = 'landscapeMode';
+          }
+        } else {
+          console.log('watcher con', value);
+          buttonMinimizeSpecialStyle.value = false;
+          if (studentPinned.value?.isScreenSharing) {
+            orientationClass.value = 'portraitMode';
+          }
         }
-      } else if (
-        orientation == 'portrait-primary' &&
-        studentPinned.value?.isScreenSharing
-      ) {
-        orientationClass.value = 'portraitMode';
-        buttonMinimizeSpecialStyle.value = false;
+      },
+      {
+        immediate: true,
       }
-    };
+    );
+    // const handleOrientationChange = () => {
+    //   orientation.value = window.screen.orientation.type;
+    //   if (
+    //     studentPinned.value?.isScreenSharing ||
+    //     studentPinned.value?.isCameraOn
+    //   ) {
+    //     console.log('i see you landscape');
+    //     buttonMinimizeSpecialStyle.value = true;
+    //     orientationClass.value = 'landscapeMode';
+    //     if (orientation.value == 'landscape-primary') {
+    //     }
+    //   } else if (
+    //     orientation.value == 'portrait-primary' &&
+    //     studentPinned.value?.isScreenSharing
+    //   ) {
+    //     orientationClass.value = 'portraitMode';
+    //     buttonMinimizeSpecialStyle.value = false;
+    //   }
+    // };
 
     return {
-      handleOrientationChange,
       fullScreenObject,
       exitFullScreen,
       toggleMinimizeMessage,

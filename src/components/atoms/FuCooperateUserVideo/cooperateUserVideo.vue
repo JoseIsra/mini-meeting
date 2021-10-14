@@ -127,6 +127,21 @@
         </q-tooltip>
       </q-btn>
     </div>
+    <!--  -->
+    <div
+      class="a-userVideo__more"
+      v-show="
+        $q.screen.lt.md
+          ? admittedParticipants.length > 1
+          : admittedParticipants.length > 5
+      "
+    >
+      +{{
+        $q.screen.lt.md
+          ? admittedParticipants.length - 1
+          : admittedParticipants.length - 5
+      }}
+    </div>
   </section>
 </template>
 

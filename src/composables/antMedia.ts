@@ -351,7 +351,7 @@ export function useInitWebRTC() {
                 admittedParticipants.value.filter(
                   (participant) => participant.roleId === 0
                 )?.[0].id || admittedParticipants.value[0].id;
-              
+
               if (idUserGoingToStopRec)
                 sendNotificationEvent('RECORDING_STOPPED', userMe.id, {
                   to: idUserGoingToStopRec,
@@ -1073,7 +1073,7 @@ export function useInitWebRTC() {
         ) {
           clearInterval(roomTimerId.value as NodeJS.Timeout);
           const errorMessage =
-            'Error al publicar stream. Por favor, recarga la página';
+            'Error al publicar stream: Parece que su conexión es lenta, Por favor, recargue la página';
           setLoadingOrErrorMessage(errorMessage);
           setExistRoom(false);
         }
@@ -1140,7 +1140,7 @@ export function useInitWebRTC() {
           }
           webRTCInstance.value.resetDesktop?.();
           sendNotificationEvent('SCREEN_SHARING_OFF', userMe.id);
-          errorMessage = 'You are not allowed to access screen share';
+          errorMessage = 'No has dado permisos para compartir tus dispositivos';
           //screen_share_checkbox.checked = false;
         } else if (error.indexOf('AbortError') !== -1) {
           setExistRoom(false);

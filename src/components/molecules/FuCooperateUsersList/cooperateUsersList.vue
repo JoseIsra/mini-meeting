@@ -112,17 +112,14 @@
         </q-btn>
       </div>
       <div class="m-list__content__userBox">
-        <div class="m-list__content__userBox__user">
-          <aside class="m-list__content__userBox__avatar">
-            <q-img
-              class="m-list__content__userBox__avatar__image"
-              :src="userMe.avatar"
-              alt="avatar-logo"
-            />
-          </aside>
-          <label>{{ userMe.name }} (Tú)</label>
-        </div>
-
+        <aside class="m-list__content__userBox__avatar">
+          <q-img
+            class="m-list__content__userBox__avatar__image"
+            :src="userMe.avatar"
+            alt="avatar-logo"
+          />
+        </aside>
+        <div class="m-list__content__userBox__name">{{ userMe.name }} (Tú)</div>
         <div class="m-list__content__userBox__actions">
           <q-btn
             :icon="userMe.isMicOn ? 'mic' : 'mic_off'"
@@ -251,30 +248,14 @@
         v-for="participant in admittedParticipants"
         :key="participant.id"
       >
-        <div class="m-list__content__userBox__user">
-          <aside class="m-list__content__userBox__avatar">
-            <q-img
-              class="m-list__content__userBox__avatar__image"
-              :src="participant.avatar"
-              alt="avatar-logo"
-            />
-            <!-- <div class="m-list__content__userBox__avatar__icons">
-              <q-icon
-                class="m-list__content__userBox__avatar__mic"
-                :name="participant.isMicOn ? 'mic' : 'mic_off'"
-                :color="participant.isMicOn ? 'white' : 'red'"
-                size="18px"
-              />
-              <q-icon
-                class="m-list__content__userBox__avatar__cam"
-                :name="participant.isCameraOn ? 'videocam' : 'videocam_off'"
-                :color="participant.isCameraOn ? 'white' : 'red'"
-              />
-            </div> -->
-          </aside>
-          <label>{{ participant.name }}</label>
-        </div>
-
+        <aside class="m-list__content__userBox__avatar">
+          <q-img
+            class="m-list__content__userBox__avatar__image"
+            :src="participant.avatar"
+            alt="avatar-logo"
+          />
+        </aside>
+        <div class="m-list__content__userBox__name">{{ participant.name }}</div>
         <div
           class="m-list__content__userBox__actions"
           v-show="userMe.roleId === 0"
@@ -734,7 +715,7 @@ export default defineComponent({
       // TODO: cuando esta activado el focus-local y activas el general el modal se oculta y no vuelve a mostrarse...
 
       // Si existe un usuario pineado globalmente se deberia quitar al hacer nuevamente click...
-      
+
       if (roomState.pinnedUser) {
         console.log('Usuario pinneado es: ', user.fractalUserId);
 
@@ -785,8 +766,6 @@ export default defineComponent({
       setFullScreenObject(arg);
     };
 
-    
-
     return {
       waitingParticipants,
       admittedParticipants,
@@ -810,7 +789,7 @@ export default defineComponent({
       handleKickParticipant,
       handleEveryoneFocus,
       cancelEveryoneFullScreen,
-      
+
       roomState,
     };
   },

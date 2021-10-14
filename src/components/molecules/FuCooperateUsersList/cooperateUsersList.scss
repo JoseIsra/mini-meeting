@@ -44,42 +44,56 @@
     }
 
     &__userBox {
-      display: flex;
+      display: grid;
+      grid-template-columns: 1fr minmax(0, 2fr) 2fr;
+      grid-template-rows: 50px;
       cursor: pointer;
-      justify-content: space-between;
+
       align-items: center;
+
+      justify-items: center;
       width: 100%;
-      padding: 12px;
+
       margin: 0.5rem 0;
       &:hover {
         background-color: rgba(79, 84, 92, 0.16);
       }
 
-      &__user {
-        display: flex;
-        align-items: center;
-      }
-
       &__avatar {
         position: relative;
-        width: 40px;
-        height: 40px;
+
+        border-radius: 10px;
+        overflow: hidden;
+        width: 60%;
+        min-width: 50px;
+        height: 100%;
         margin: 0 0.8rem 0 0.5rem;
-        &__icons {
-          position: absolute;
-          bottom: -10px;
-          right: -6px;
-          display: flex;
-          justify-content: center;
-          align-items: center;
+
+        height: 100%;
+        &__image {
+          height: 100%;
         }
       }
 
+      &__name {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        justify-self: left;
+        align-self: center;
+
+        width: 100%;
+      }
+
       &__actions {
-        // border: 1px solid blue;
+        height: 100%;
+        width: 100%;
+
+        justify-self: left;
+
         align-items: center;
         display: flex;
-        justify-content: flex-end;
+        justify-content: center;
         button {
           font-size: 8px;
           margin-left: 0.25rem;

@@ -10,7 +10,11 @@
     <video
       autoplay
       id="specialId"
-      :class="[{ 'vjs-poster': posterClass }, { 'vjs-tech': simpleMortal }]"
+      :class="[
+        { 'vjs-poster': posterClass },
+        { 'vjs-youtube': posterClass },
+        { 'vjs-tech': simpleMortal },
+      ]"
       ref="videoPlayer"
       class="video-js vjs-16-9"
     ></video>
@@ -60,7 +64,6 @@ export default defineComponent({
           src: externalVideo.urlVideo as string,
         },
       ],
-      preload: 'metadata',
     });
     onMounted(() => {
       player.value = videojs(
@@ -149,8 +152,8 @@ export default defineComponent({
 </script>
 
 <style lang="scss">
-.vjs-poster {
-  display: none;
+.vjs-youtube .vjs-poster {
+  display: none !important;
 }
 @import './externalVideo.scss';
 </style>

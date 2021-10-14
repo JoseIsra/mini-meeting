@@ -53,7 +53,7 @@ export default defineComponent({
           videoOnRoom: true,
           urlVideo: inputURL.value,
         });
-        setFullScreen('video');
+        setFullScreen('video', true);
         sendData(userMe.id, URLData);
         emit('hide-modal');
         return;

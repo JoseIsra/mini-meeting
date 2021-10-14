@@ -191,22 +191,6 @@
               <q-list>
                 <div class="m-list__content__userBox__extra">
                   <q-btn
-                    :icon="
-                      listenFullScreen.id == userMe.id
-                        ? 'location_disabled'
-                        : 'gps_fixed'
-                    "
-                    @click="activeFullScreen(userMe)"
-                  >
-                    <q-tooltip class="bg-grey-10">
-                      <label v-if="listenFullScreen.id == userMe.id"
-                        >Estás fijado
-                      </label>
-                      <label v-else>Fijarte a ti mismo</label>
-                    </q-tooltip>
-                  </q-btn>
-
-                  <q-btn
                     v-show="userMe.roleId === 0"
                     :icon="
                       listenFullScreen.id == userMe.id
@@ -228,6 +212,22 @@
                         Usuario fijado</label
                       >
                       <label v-else> Fijarte para todos</label>
+                    </q-tooltip>
+                  </q-btn>
+
+                  <q-btn
+                    :icon="
+                      listenFullScreen.id == userMe.id
+                        ? 'location_disabled'
+                        : 'gps_fixed'
+                    "
+                    @click="activeFullScreen(userMe)"
+                  >
+                    <q-tooltip class="bg-grey-10">
+                      <label v-if="listenFullScreen.id == userMe.id"
+                        >Estás fijado
+                      </label>
+                      <label v-else>Fijarte a ti mismo</label>
                     </q-tooltip>
                   </q-btn>
                 </div>
@@ -730,11 +730,16 @@ export default defineComponent({
       sendData(userMe.id, { eventType: 'KICK', to: participant.id });
     };
 
-    const handleEveryoneFocus = (arg: User) => {
+    const handleEveryoneFocus = (user: User) => {
+      // TODO: cuando esta activado el focus-local y activas el general el modal se oculta y no vuelve a mostrarse...
+
+      // Si existe un usuario pineado globalmente se deberia quitar al hacer nuevamente click...
+      
       if (roomState.pinnedUser) {
-        // Hay un focus general
+        console.log('Usuario pinneado es: ', user.fractalUserId);
+
         updateFocus(null);
-        setFullScreen('none');
+        setFullScreen('none', false);
         clearFullScreenObject();
 
         sendData(userMe.id, {
@@ -744,35 +749,31 @@ export default defineComponent({
 
         window.xprops?.setPinnedUser?.('');
       } else {
-        // No hay focus general
-        // if (isFullScreen.value) {
-        //   setFullScreenObject(arg);
-        //   updateFocus(arg);
-        //   return;
-        // }
-
-        setFullScreen('user');
-        setFullScreenObject(arg);
-        updateFocus(arg);
+        setFullScreen('user', true);
+        setFullScreenObject(user);
+        updateFocus(user);
 
         sendData(userMe.id, {
           eventType: 'SET_FULL_SCREEN',
-          participant: arg,
+          participant: user,
           mode: 'user',
         });
 
-        window.xprops?.setPinnedUser?.(arg.id);
+        window.xprops?.setPinnedUser?.(user.id);
       }
-
-      // setFullScreen('user');
-      // setFullScreenObject(arg);
-      // updateFocus(arg);
     };
 
     const cancelEveryoneFullScreen = () => {
       updateFocus(null);
-      setFullScreen('none');
+      setFullScreen('none', false);
       clearFullScreenObject();
+
+      sendData(userMe.id, {
+        eventType: 'SET_FULL_SCREEN',
+        mode: 'none',
+      });
+
+      window.xprops?.setPinnedUser?.('');
     };
 
     const activeFullScreen = (arg: User) => {
@@ -780,9 +781,11 @@ export default defineComponent({
         setFullScreenObject(arg);
         return;
       }
-      setFullScreen('user');
+      setFullScreen('user', true);
       setFullScreenObject(arg);
     };
+
+    
 
     return {
       waitingParticipants,
@@ -807,6 +810,7 @@ export default defineComponent({
       handleKickParticipant,
       handleEveryoneFocus,
       cancelEveryoneFullScreen,
+      
       roomState,
     };
   },

@@ -7,17 +7,18 @@ import { StreamMerger } from '@/utils/webrtc/stream_merger';
 
 // const { participants } = useHandleParticipants();
 
-const { userMe } = useUserMe();
-
-const existMyOwnStream = ref<boolean>(false);
-
-const webRTCRecordingInstance = ref<WebRTCAdaptor>({} as WebRTCAdaptor);
-const mergerInstance = ref<StreamMerger>({} as StreamMerger);
-
-const xindex = ref(0);
-const yindex = ref(0);
-
 export function useInitMerge() {
+  const { userMe } = useUserMe();
+
+  const existMyOwnStream = ref<boolean>(false);
+
+  const webRTCRecordingInstance = ref<WebRTCAdaptor | null>(
+    {} as WebRTCAdaptor
+  );
+  const mergerInstance = ref<StreamMerger>({} as StreamMerger);
+
+  const xindex = ref(0);
+  const yindex = ref(0);
   const publishRecording = (
     streamId: string,
     token?: string,
@@ -25,7 +26,7 @@ export function useInitMerge() {
     subscriberCode?: string,
     streamName?: string
   ) => {
-    webRTCRecordingInstance.value.publish?.(
+    webRTCRecordingInstance.value?.publish?.(
       streamId,
       token,
       subscriberId,
@@ -35,7 +36,7 @@ export function useInitMerge() {
   };
 
   const joinRoomRecording = (roomId: string, streamId: string) => {
-    webRTCRecordingInstance.value.joinRoom?.(roomId, streamId, 'legacy');
+    webRTCRecordingInstance.value?.joinRoom?.(roomId, streamId, 'legacy');
   };
 
   const refreshMerge = (
@@ -98,15 +99,18 @@ export function useInitMerge() {
 
       const result = mergerInstance.value.getResult() as MediaStream;
 
-      webRTCRecordingInstance.value.gotStream(result);
+      webRTCRecordingInstance.value?.gotStream(result);
 
       publishRecording(streamId, undefined, undefined, undefined, streamName);
     }, delayInMilliseconds);
   };
 
   const stopRecordingStream = (streamId: string) => {
-    webRTCRecordingInstance.value.stop(streamId);
+    webRTCRecordingInstance.value?.stop(streamId);
     mergerInstance.value.stop();
+    webRTCRecordingInstance.value = null;
+    existMyOwnStream.value = false;
+    mergerInstance.value = {} as StreamMerger;
   };
 
   const recordingStream = (
@@ -153,14 +157,14 @@ export function useInitMerge() {
             mergeStreams(streamId, streamName);
 
             window.addEventListener('unload', () => {
-              webRTCRecordingInstance.value.leaveFromRoom?.(roomId);
+              webRTCRecordingInstance.value?.leaveFromRoom?.(roomId);
             });
 
             obj.streams.forEach(function (item) {
               console.log(item);
 
               if (userMe.id === item)
-                webRTCRecordingInstance.value.play?.(
+                webRTCRecordingInstance.value?.play?.(
                   item,
                   '',
                   roomId,

@@ -109,10 +109,16 @@
         <div class="m-shared__admin__backgroundImage">
           <fu-image-picker />
 
-          <q-checkbox style="justify-content: space-between; width: 100%; margin: 8px 0" v-model="bgMaximixed" label="Maximizar fondo de pantalla" dense dark left-label color="primary"/>
+          <q-checkbox
+            style="justify-content: space-between; width: 100%; margin: 8px 0"
+            v-model="bgInfo.maximized"
+            label="Maximizar fondo de pantalla"
+            dense
+            dark
+            left-label
+            color="primary"
+          />
         </div>
-
-        
       </div>
     </main>
   </section>
@@ -125,6 +131,7 @@ import { useUserMe } from '@/composables/userMe';
 import { lockAction } from '@/types/index';
 import { LOCK_ACTION_TYPE } from '@/utils/enums';
 import { useRoom } from '@/composables/room';
+import { useInitWebRTC } from '@/composables/antMedia';
 
 export default defineComponent({
   name: 'FuSharedStreamContent',
@@ -145,6 +152,8 @@ export default defineComponent({
     const { userMe } = useUserMe();
 
     const { roomState } = useRoom();
+
+    const { sendData } = useInitWebRTC();
 
     const isMicLocked = window.xprops?.isMicLocked || false;
 
@@ -247,6 +256,18 @@ export default defineComponent({
     const closeInfoRoomCard = () => {
       emit('close-room-info-card');
     };
+
+    watch(roomState, (value) => {
+      sendData(userMe.id, {
+        eventType: 'UPDATE_ROOM_SIZE',
+        maximized: value.bgInfo.maximized,
+      });
+
+      window.xprops?.setBackgroundInfo?.(
+        roomState.bgInfo.url,
+        value.bgInfo.maximized
+      );
+    });
 
     return {
       sharedLinkOnInput,

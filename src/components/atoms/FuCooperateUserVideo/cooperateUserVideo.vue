@@ -118,21 +118,14 @@
 
 <script lang="ts">
 import { defineComponent, ref, computed } from 'vue';
-import { userStreams } from '@/helpers/usersVideo';
 import { useToogleFunctions } from '@/composables';
 import { User, useUserMe } from '@/composables/userMe';
 import { useHandleParticipants } from '@/composables/participants';
 import { useQuasar } from 'quasar';
 
-interface UserStream {
-  id: string;
-  name: string;
-}
-
 export default defineComponent({
   name: 'FuCooperateUserVideo',
   setup() {
-    const users = ref<UserStream[]>(userStreams);
     const { admittedParticipants } = useHandleParticipants();
 
     const {
@@ -141,6 +134,7 @@ export default defineComponent({
       fullScreenObject,
       isFullScreen,
     } = useToogleFunctions();
+
     const { userMe } = useUserMe();
 
     const streamIdPinned = ref('');
@@ -151,7 +145,7 @@ export default defineComponent({
         setFullScreenObject(arg as User);
         return;
       }
-      setFullScreen('user');
+      setFullScreen('user', true);
       setFullScreenObject(arg as User);
     };
 
@@ -168,7 +162,6 @@ export default defineComponent({
     });
 
     return {
-      users,
       userMe,
       goFullScreen,
       admittedParticipants,

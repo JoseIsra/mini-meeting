@@ -4,17 +4,17 @@
     @mousemove="toogleMenuBar"
     @click.self="closePanels"
     :style="`
-      background: url('${bgUrl}') #36393f;
-      background-size: ${bgMaximixed ? 100 : 50}vw;
+      background: url('${bgInfo.url}') #36393f;
+      background-size: ${bgInfo.maximized ? 100 : 50}vw;
       background-position: 50% center;
       background-repeat: no-repeat;
     `"
   >
     <!-- <q-img
       class="o-cooperate__background"
-      :src="bgUrl"
+      :src="bgInfo.url"
       :style="bgStyle"
-      :fit="bgMaximixed ? 'fill' : 'cover'"
+      :fit="bgInfo.maximized ? 'fill' : 'cover'"
     /> -->
 
     <q-icon

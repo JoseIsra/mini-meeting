@@ -72,7 +72,7 @@ export default defineComponent({
           url: fileRoute,
         });
 
-        window.xprops?.setBackgroundImg?.(fileRoute);
+        window.xprops?.setBackgroundInfo?.(fileRoute, roomState.bgInfo.maximized);
       } else {
         updateBgUrl(
           'https://encrypted.fractalup.com/file/MainPublic/fractalup_assets/landing/main.png'
@@ -83,8 +83,9 @@ export default defineComponent({
           url: 'https://encrypted.fractalup.com/file/MainPublic/fractalup_assets/landing/main.png',
         });
 
-        window.xprops?.setBackgroundImg?.(
-          'https://encrypted.fractalup.com/file/MainPublic/fractalup_assets/landing/main.png'
+        window.xprops?.setBackgroundInfo?.(
+          'https://encrypted.fractalup.com/file/MainPublic/fractalup_assets/landing/main.png',
+          roomState.bgInfo.maximized
         );
       }
     });

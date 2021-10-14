@@ -20,13 +20,12 @@
       :roleId="0"
       :roomRestriction="0"
       photoURL="https://encrypted.fractalup.com/file/MainPublic/classrooms/1/users/44/assets/1623873430710.png"
-      backgroundImg=""
-      :setBackgroundImg="setBackgroundImg"
+      :bgInfo="bgInfo"
+      :setBackgroundInfo="setBackgroundImg"
       :addUserLogToState="addUserLogToState"
       fractalUserId="34i2jkd23"
       :setPinnedUser="setPinnedUser"
       :pinnedUser="pinnedUser"
-      :bgUrl="backgroundImg"
       :isMicOn="false"
       :isCameraOn="false"
     />
@@ -62,7 +61,9 @@ export default Vue.extend({
       streamName: `userId-${Date.now()}`,
       isMinimized: false,
       pinnedUser: localStorage.pinnedUser,
-      backgroundImg: localStorage.backgroundImg
+      bgInfo: localStorage.bgInfo
+        ? JSON.parse(localStorage.bgInfo)
+        : { url: "", maximized: false },
     };
   },
   methods: {
@@ -114,13 +115,18 @@ export default Vue.extend({
       console.log(fractalUserId, logType);
     },
     setPinnedUser: function (userId: string) {
-      console.log('setPinnedUser')
+      console.log("setPinnedUser");
       window.localStorage.pinnedUser = userId;
     },
-    setBackgroundImg: function (backgroundImg: string) {
-      window.localStorage.backgroundImg = backgroundImg;
-    }
+    setBackgroundImg: function (url: string, maximized: boolean) {
+      console.log("bgInfo");
+      console.log(JSON.stringify({ url, maximized }));
 
+      console.log(url);
+      console.log(maximized);
+
+      window.localStorage.bgInfo = JSON.stringify({ url, maximized });
+    },
   },
 });
 </script>

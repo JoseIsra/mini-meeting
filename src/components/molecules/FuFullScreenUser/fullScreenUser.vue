@@ -1,6 +1,6 @@
 <template>
   <section class="m-fuser">
-    <template class="m-fuser__content" v-if="gotPinnedUser">
+    <template v-if="gotPinnedUser">
       <div v-show="!studentPinned.isVideoActivated" class="m-fuser__avatar">
         <figure class="m-fuser__avatar__imageBox">
           <img
@@ -61,6 +61,25 @@
 
     <div class="m-fuser__loading" v-else>
       <q-spinner color="primary" size="10em" />
+
+      <q-btn
+        class="m-fuser__loading__exit"
+        @click="exitFullScreen"
+        round
+        flat
+        icon="fullscreen_exit"
+        color="white"
+      >
+        <q-tooltip
+          class="bg-grey-10"
+          transition-show="scale"
+          transition-hide="scale"
+        >
+          <label class="m-fuser__actions__message"> Minimizar </label>
+        </q-tooltip>
+      </q-btn>
+
+      <span> Cargando... </span>
     </div>
   </section>
 </template>
@@ -91,14 +110,11 @@ export default defineComponent({
       clearFullScreenObject,
       setFullScreenObject,
     } = useToogleFunctions();
-
     const { screenMinimized } = useScreen();
-
     const { updateFocus, roomState } = useRoom();
-
     const { userMe } = useUserMe();
-
     const { admittedParticipants } = useHandleParticipants();
+    const { sendData } = useInitWebRTC();
 
     const gotPinnedUser = computed(() => !!fullScreenObject.id);
 
@@ -106,6 +122,7 @@ export default defineComponent({
       if (!gotPinnedUser.value) {
         const participant = value.find((p) => p.id === roomState.pinnedUserId);
         setFullScreenObject(participant as User);
+        updateFocus(participant as User);
       }
     });
 
@@ -119,27 +136,26 @@ export default defineComponent({
       }
     });
 
-    const { sendData } = useInitWebRTC();
-
-    let showMinimizeMessage = ref(false);
-
-    let orientationClass = ref('');
-
     const exitFullScreen = () => {
-      setFullScreen('none');
+      setFullScreen('none', false);
       clearFullScreenObject();
 
-      if (roomState.pinnedUser) {
+      if (userMe.roleId === 0 && roomState.pinnedUser) {
+        console.log('Admin fullScreen task');
+
         sendData(userMe.id, {
           eventType: 'SET_FULL_SCREEN',
           mode: 'none',
         });
 
         updateFocus(null);
-
         window.xprops?.setPinnedUser?.('');
       }
     };
+
+    let showMinimizeMessage = ref(false);
+
+    let orientationClass = ref('');
 
     const hideMinimizeMessage = _.debounce(() => {
       showMinimizeMessage.value = false;

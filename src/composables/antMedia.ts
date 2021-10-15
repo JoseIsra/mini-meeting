@@ -34,7 +34,7 @@ const {
   setRoomMicState,
   setRoomCameraState,
   setRoomScreenShareState,
-  setPrivacy,
+  setroomRestriction,
   updateFocus,
   updateBgUrl,
   updateBgSize,
@@ -750,7 +750,7 @@ export function useInitWebRTC() {
                 if (
                   userMe.roleId === 0 &&
                   remoteUserInfoParsed.userInfo.denied === 0 &&
-                  !roomState.privacy
+                  !roomState.roomRestriction
                 ) {
                   notifyWithAction(
                     remoteUserInfoParsed.userInfo.name,
@@ -959,7 +959,7 @@ export function useInitWebRTC() {
               console.log('Respuesta para mi');
 
               if (value) {
-                setPrivacy(false);
+                setroomRestriction(0);
                 setDenied(PERMISSION_STATUS.admitted);
               } else {
                 setDenied(PERMISSION_STATUS.denied);

@@ -29,7 +29,7 @@ const notify =
 export const notifyWithAction = (name: string, id: string): void => {
   Notify.create({
     position: 'bottom',
-    message: `${name} ha solicititado unirse`,
+    message: `${name} ha solicitado unirse`,
     color: 'primary',
     timeout: 5000,
     actions: [

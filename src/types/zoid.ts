@@ -25,10 +25,9 @@ export interface ZoidProps {
   isScreenShareLocked?: boolean;
   classroomId?: string;
   isMicOn?: boolean;
-  privacy?: boolean;
   bgInfo?: BgInfo;
   isBeingRecorded?: boolean;
-  roomRestriction?: boolean;
+  roomRestriction?: number;
   isHost?: boolean;
   startDate?: string;
   handleLeaveCall?: (

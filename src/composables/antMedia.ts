@@ -47,6 +47,8 @@ const {
   addParticipants,
   updateParticipantDenied,
   admittedParticipants,
+  setParticipantActions,
+  setEveryParticipantActions,
 } = useHandleParticipants();
 
 const { setUserMessage, deleteLoadingMessage } = useHandleMessage();
@@ -827,8 +829,9 @@ export function useInitWebRTC() {
             const { action, value, participantId } = JSON.parse(
               obj.data
             ) as ObjBlockParticipantAction;
-
+            
             if (participantId !== userMe.id) {
+              setParticipantActions(participantId, action, value);
               return;
             }
 
@@ -892,8 +895,6 @@ export function useInitWebRTC() {
               obj.data
             ) as ObjBlockEveryoneAction;
 
-            console.log(action, value);
-
             if (action === LOCK_ACTION_TYPE.All) {
               // setMicBlock(value);
               setRoomMicState(value);
@@ -901,6 +902,8 @@ export function useInitWebRTC() {
               setRoomCameraState(value);
               // setScreenShareBlock(value);
               setRoomScreenShareState(value);
+
+              setEveryParticipantActions(LOCK_ACTION_TYPE.All, value);
 
               if (value) {
                 setMicState(!value);
@@ -921,15 +924,22 @@ export function useInitWebRTC() {
               // setMicBlock(value);
               setRoomMicState(value);
 
+              setEveryParticipantActions(LOCK_ACTION_TYPE.Mic, value);
+
+              console.log(participants);
+
               if (value) {
                 setMicIconState(!value);
                 setMicState(!value);
                 muteLocalMic();
                 sendNotificationEvent('MIC_MUTED', userMe.id);
+                // Bloquear micro de todos los participantes
               }
             } else if (action === LOCK_ACTION_TYPE.Camera) {
               // setVideoBlock(value);
               setRoomCameraState(value);
+
+              setEveryParticipantActions(LOCK_ACTION_TYPE.Camera, value);
 
               if (value) {
                 setCameraIconState(!value);
@@ -937,10 +947,13 @@ export function useInitWebRTC() {
                 setVideoActivatedState(!value);
                 turnOffLocalCamera(userMe.id);
                 sendNotificationEvent('CAM_TURNED_OFF', userMe.id);
+                // Bloquear camara de todos los participantes
               }
             } else if (action === LOCK_ACTION_TYPE.Screen) {
               // setScreenShareBlock(value);
               setRoomScreenShareState(value);
+
+              setEveryParticipantActions(LOCK_ACTION_TYPE.Screen, value);
 
               if (value) {
                 setScreenShareIconState(!value);

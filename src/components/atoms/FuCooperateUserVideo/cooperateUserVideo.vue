@@ -142,6 +142,19 @@
           : admittedParticipants.length - 5
       }}
     </div>
+    <div
+      v-for="(participant, index) in $q.screen.lt.md
+        ? admittedParticipants.slice(0, -1)
+        : admittedParticipants.slice(0, -5)"
+      :key="index"
+    >
+      <video
+        :srcObject.prop="participant.stream"
+        :style="{ display: 'none' }"
+        autoplay
+        playsinline
+      />
+    </div>
   </section>
 </template>
 

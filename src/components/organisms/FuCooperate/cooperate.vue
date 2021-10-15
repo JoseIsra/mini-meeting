@@ -10,6 +10,9 @@
       background-repeat: no-repeat;
     `"
   >
+    {{ !screenMinimized && $q.screen.lt.md }}
+    <br />
+    {{ $q.screen.lt.sm }}
     <!-- <q-img
       class="o-cooperate__background"
       :src="bgInfo.url"
@@ -40,9 +43,7 @@
     </transition>
     <fu-cooperate-user-video
       v-show="
-        $q.screen.lt.md && !screenMinimized
-          ? showUsersVideoList
-          : !screenMinimized
+        $q.screen.lt.md && !screenMinimized ? showUsersVideoList : controlHide
       "
     />
     <fu-hand-notification
@@ -152,6 +153,12 @@ export default defineComponent({
       setIDButtonSelected('');
     };
 
+    const controlHide = () => {
+      showMenuBar.value = false;
+      showUsersVideoList.value = false;
+      return false;
+    };
+
     return {
       toogleMenuBar,
       showMenuBar,
@@ -165,7 +172,7 @@ export default defineComponent({
       ...toRefs(roomState),
       showParticipantPanel,
       showUsersVideoList,
-      // bgStyle,
+      controlHide,
     };
   },
 });

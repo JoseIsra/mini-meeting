@@ -17,6 +17,16 @@
         @click="toggleParticipantPanel"
         :disable="!waitingParticipants.length > 0"
       ></q-btn>
+      <q-btn
+        v-show="$q.screen.lt.sm"
+        flat
+        round
+        icon="close"
+        size="15px"
+        dense
+        class="m-list__title__btn --close"
+        @click="closeUserListPanel"
+      />
     </header>
     <main class="m-list__content">
       <div class="m-list__content__actions" v-show="userMe.roleId === 0">
@@ -122,6 +132,10 @@
         <div class="m-list__content__userBox__name">{{ userMe.name }} (Tú)</div>
         <div class="m-list__content__userBox__actions">
           <q-btn
+            :class="[
+              'm-list__content__userBox__actions__button',
+              { '--noActionable': userMe.roleId === 1 },
+            ]"
             :icon="userMe.isMicOn ? 'mic' : 'mic_off'"
             :color="
               userMe.isMicOn ? 'blue' : roomState.isMicBlocked ? 'red' : ''
@@ -138,6 +152,10 @@
           </q-btn>
 
           <q-btn
+            :class="[
+              'm-list__content__userBox__actions__button',
+              { '--noActionable': userMe.roleId === 1 },
+            ]"
             :icon="userMe.isCameraOn ? 'videocam' : 'videocam_off'"
             :color="
               userMe.isCameraOn
@@ -158,6 +176,10 @@
           </q-btn>
 
           <q-btn
+            :class="[
+              'm-list__content__userBox__actions__button',
+              { '--noActionable': userMe.roleId === 1 },
+            ]"
             :icon="
               userMe.isScreenSharing
                 ? 'desktop_windows'
@@ -183,7 +205,7 @@
             </q-tooltip>
           </q-btn>
 
-          <q-btn icon="fas fa-ellipsis-h">
+          <q-btn icon="fas fa-ellipsis-h" v-if="userMe.roleId === 0">
             <q-menu :offset="[60, 12]">
               <q-list>
                 <div class="m-list__content__userBox__extra">
@@ -241,6 +263,24 @@
               <label>Opciones</label>
             </q-tooltip>
           </q-btn>
+
+          <q-btn
+            v-else
+            :icon="
+              listenFullScreen.id == userMe.id
+                ? 'location_disabled'
+                : 'gps_fixed'
+            "
+            @click="activeFullScreen(userMe)"
+            :disable="!!roomState.pinnedUser"
+          >
+            <q-tooltip class="bg-grey-10">
+              <label v-if="listenFullScreen.id == userMe.id"
+                >Estás fijado
+              </label>
+              <label v-else>Fijarte a ti mismo</label>
+            </q-tooltip>
+          </q-btn>
         </div>
       </div>
       <div
@@ -256,9 +296,10 @@
           />
         </aside>
         <div class="m-list__content__userBox__name">{{ participant.name }}</div>
+
         <div
           class="m-list__content__userBox__actions"
-          v-show="userMe.roleId === 0"
+          v-if="userMe.roleId === 0"
         >
           <q-btn
             :icon="participant.isMicOn ? 'mic' : 'mic_off'"
@@ -346,7 +387,7 @@
             </q-tooltip>
           </q-btn>
 
-          <q-btn icon="fas fa-ellipsis-h">
+          <q-btn icon="fas fa-ellipsis-h" v-if="userMe.roleId === 0">
             <q-menu :offset="[60, 12]">
               <q-list>
                 <div class="m-list__content__userBox__extra">
@@ -381,6 +422,7 @@
                         : 'gps_fixed'
                     "
                     @click="activeFullScreen(participant)"
+                    :disable="!!roomState.pinnedUser"
                   >
                     <q-tooltip
                       class="bg-grey-10"
@@ -392,7 +434,7 @@
                       <label v-if="listenFullScreen.id == participant.id">
                         Usuario fijado</label
                       >
-                      <label v-else> Fijar usuario</label>
+                      <label v-else>Fijar usuario</label>
                     </q-tooltip>
                   </q-btn>
 
@@ -427,6 +469,119 @@
             </q-tooltip>
           </q-btn>
         </div>
+
+        <div v-else class="m-list__content__userBox__actions">
+          <q-btn
+            :class="[
+              'm-list__content__userBox__actions__button',
+              { '--noActionable': userMe.roleId === 1 },
+            ]"
+            :icon="participant.isMicOn ? 'mic' : 'mic_off'"
+            :color="
+              participant.isMicOn
+                ? 'blue'
+                : participant.isMicBlocked
+                ? 'red'
+                : ''
+            "
+          >
+            <q-tooltip
+              class="bg-grey-10"
+              anchor="bottom middle"
+              self="top middle"
+              transition-show="scale"
+              transition-hide="scale"
+            >
+              <label>{{
+                participant.isMicOn
+                  ? 'Micrófono encendido'
+                  : 'Micrófono apagado'
+              }}</label>
+            </q-tooltip>
+          </q-btn>
+
+          <q-btn
+            :class="[
+              'm-list__content__userBox__actions__button',
+              { '--noActionable': userMe.roleId === 1 },
+            ]"
+            :icon="participant.isCameraOn ? 'videocam' : 'videocam_off'"
+            :color="
+              participant.isCameraOn
+                ? 'blue'
+                : participant.isCameraBlocked
+                ? 'red'
+                : ''
+            "
+          >
+            <q-tooltip
+              class="bg-grey-10"
+              anchor="bottom middle"
+              self="top middle"
+              transition-show="scale"
+              transition-hide="scale"
+            >
+              <label class="">{{
+                participant.isCameraOn ? 'Cámara encendida' : 'Cámara apagada'
+              }}</label>
+            </q-tooltip>
+          </q-btn>
+
+          <q-btn
+            :class="[
+              'm-list__content__userBox__actions__button',
+              { '--noActionable': userMe.roleId === 1 },
+            ]"
+            :icon="
+              participant.isScreenSharing
+                ? 'desktop_windows'
+                : 'desktop_access_disabled'
+            "
+            :color="
+              participant.isScreenSharing
+                ? 'blue'
+                : participant.isScreenShareBlocked
+                ? 'red'
+                : ''
+            "
+          >
+            <q-tooltip
+              class="bg-grey-10"
+              anchor="bottom middle"
+              self="top middle"
+              transition-show="scale"
+              transition-hide="scale"
+            >
+              <label class="">{{
+                participant.isScreenSharing
+                  ? 'Compartir pantalla activo'
+                  : 'Compartir pantalla inactivo'
+              }}</label>
+            </q-tooltip>
+          </q-btn>
+          <q-btn
+            :icon="
+              listenFullScreen.id == participant.id
+                ? 'location_disabled'
+                : 'gps_fixed'
+            "
+            @click="activeFullScreen(participant)"
+            :disable="!!roomState.pinnedUser"
+          >
+            <q-tooltip
+              class="bg-grey-10"
+              anchor="bottom middle"
+              self="top middle"
+              transition-show="scale"
+              transition-hide="scale"
+            >
+              <label v-if="listenFullScreen.id == participant.id">
+                Usuario fijado</label
+              >
+              <label v-else>Fijar usuario</label>
+            </q-tooltip>
+          </q-btn>
+        </div>
       </div>
     </main>
   </section>
@@ -454,7 +609,7 @@ export default defineComponent({
       admittedParticipants,
     } = useHandleParticipants();
 
-    const { toggleParticipantPanel } = useSidebarToogle();
+    const { toggleParticipantPanel, setSidebarState } = useSidebarToogle();
 
     const { userMe } = useUserMe();
 
@@ -468,6 +623,7 @@ export default defineComponent({
       isFullScreen,
       fullScreenObject,
       clearFullScreenObject,
+      setIDButtonSelected,
     } = useToogleFunctions();
 
     const listenFullScreen = computed(() => {
@@ -766,6 +922,11 @@ export default defineComponent({
       setFullScreenObject(arg);
     };
 
+    const closeUserListPanel = () => {
+      setSidebarState(false);
+      setIDButtonSelected('');
+    };
+
     return {
       waitingParticipants,
       admittedParticipants,
@@ -789,8 +950,8 @@ export default defineComponent({
       handleKickParticipant,
       handleEveryoneFocus,
       cancelEveryoneFullScreen,
-
       roomState,
+      closeUserListPanel,
     };
   },
 });

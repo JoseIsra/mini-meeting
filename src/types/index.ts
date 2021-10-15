@@ -26,6 +26,7 @@ export interface Participant {
   currentTime?: number;
   isPlayingVideo?: boolean;
   isRecording?: boolean;
+  roleId?: number;
 }
 
 export type Scalars = {

@@ -1,5 +1,5 @@
 <template>
-  <div v-show="canRecording">
+  <div v-if="canRecording">
     <q-btn
       v-if="!isRecording"
       :disable="roomState.isBeingRecorded"
@@ -24,6 +24,15 @@
       @click="stopRecording"
     />
   </div>
+  <div
+    v-show="!canRecording && roomState.isBeingRecorded"
+    class="recordingContent"
+  >
+    <div class="recordingContent__icon" />
+    <div v-if="$q.screen.gt.sm" class="recordingContent__text">
+      La reunión está siendo grabada
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
@@ -46,7 +55,9 @@ export default defineComponent({
     const { sendNotificationEvent } = useInitWebRTC();
     // const { participants } = useHandleParticipants();
     const { userMe, updateUserMe } = useUserMe();
-    const { roomState } = useRoom();
+
+    const { roomState, updateRoom } = useRoom();
+    /* const { admittedParticipants } = useHandleParticipants(); */
     const isLoading = ref(false);
 
     // const watchParticipants = ref<() => void>();
@@ -94,6 +105,9 @@ export default defineComponent({
           successMessage('Grabando la sesión');
           interval.value = setInterval(oneSecondElapsed, 1000);
           isRecording.value = true;
+          updateRoom({
+            recordingUrl: `https://f002.backblazeb2.com/file/MainPublic/classrooms/${roomState.classroomId}/cooperate/streams/${mergedName.value}.m3u8`,
+          });
         })
         .catch((e) => console.log(e));
     };
@@ -108,9 +122,8 @@ export default defineComponent({
       /* stopMerge(); */
       stopRecordingStream(mergedName.value);
       secondsElapsed.value = 0;
-      window.xprops?.handleStopRecording?.(
-        `https://f002.backblazeb2.com/file/MainPublic/classrooms/${roomState.classroomId}/cooperate/streams/${mergedName.value}.m3u8`
-      );
+
+      window.xprops?.handleStopRecording?.(roomState.recordingUrl);
 
       sendNotificationEvent('RECORDING_STOPPED', userMe.id);
     };

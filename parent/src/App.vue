@@ -9,6 +9,7 @@
       :handleLeaveCall="handleLeaveCall"
       :handleEndCall="handleEndCall"
       :handleStopRecording="handleStopRecording"
+      :handleStartRecording="handleStartRecording"
       :toggleMinimize="toggleMinimize"
       :toggleLockAction="toggleLockAction"
       sharedLink="sharedLinkTest"
@@ -28,6 +29,7 @@
       :pinnedUser="pinnedUser"
       :isMicOn="false"
       :isCameraOn="false"
+      :isBeingRecorded="isBeingRecorded"
     />
   </div>
 </template>
@@ -67,6 +69,7 @@ export default Vue.extend({
       actions: localStorage.actions
         ? JSON.parse(localStorage.actions)
         : { type: 0, state: 0 },
+      isBeingRecorded: localStorage.isBeingRecorded === "true",
     };
   },
   methods: {
@@ -82,6 +85,10 @@ export default Vue.extend({
     },
     handleStopRecording: function (url: string) {
       console.log("⭐ handleStopRecording function executed with params", url);
+      window.localStorage.isBeingRecorded = false;
+    },
+    handleStartRecording: function () {
+      window.localStorage.isBeingRecorded = true;
     },
     toggleLockAction: function (options: Record<string, number>) {
       // mic, camera and screen > 0, 1, 0
@@ -124,7 +131,7 @@ export default Vue.extend({
       window.localStorage.pinnedUser = userId;
     },
     setBackgroundImg: function (url: string, maximized: boolean) {
-      console.log("bgInfo");
+      console.log("setBackgroundImg");
       window.localStorage.bgInfo = JSON.stringify({ url, maximized });
     },
   },

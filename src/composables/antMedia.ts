@@ -30,11 +30,11 @@ const {
 const { setIsLoadingOrError, setLoadingOrErrorMessage, setExistRoom } =
   useAuthState();
 const {
-  setRecorded,
+  updateRoom,
   setRoomMicState,
   setRoomCameraState,
   setRoomScreenShareState,
-  setPrivacy,
+  setroomRestriction,
   updateFocus,
   updateBgUrl,
   updateBgSize,
@@ -46,6 +46,7 @@ const {
   participants,
   addParticipants,
   updateParticipantDenied,
+  admittedParticipants,
 } = useHandleParticipants();
 
 const { setUserMessage, deleteLoadingMessage } = useHandleMessage();
@@ -149,6 +150,10 @@ interface backgroundSize {
 
 interface ObjUserLeavingMessageParsed {
   fractalUserId: string;
+}
+
+interface ObjRecordingStopParsed {
+  state: Record<string, string>;
 }
 
 export function useInitWebRTC() {
@@ -339,6 +344,18 @@ export function useInitWebRTC() {
                 eventType: 'SET_FULL_SCREEN',
                 mode: 'none',
               });
+            }
+
+            if (userMe.isRecording) {
+              const idUserGoingToStopRec =
+                admittedParticipants.value.filter(
+                  (participant) => participant.roleId === 0
+                )?.[0].id || admittedParticipants.value[0].id;
+
+              if (idUserGoingToStopRec)
+                sendNotificationEvent('RECORDING_STOPPED', userMe.id, {
+                  to: idUserGoingToStopRec,
+                });
             }
 
             leaveRoom(roomId);
@@ -604,9 +621,15 @@ export function useInitWebRTC() {
                 user.isMicOn = false;
               }
             } else if (notificationType == 'RECORDING_STARTED') {
-              setRecorded(true);
+              updateRoom({ isBeingRecorded: true });
             } else if (notificationType == 'RECORDING_STOPPED') {
-              setRecorded(false);
+              updateRoom({ isBeingRecorded: false });
+              const stateParsed = JSON.parse(
+                obj.data
+              ) as ObjRecordingStopParsed;
+
+              if (stateParsed?.state?.to === userMe.id)
+                window.xprops?.handleStopRecording?.(roomState.recordingUrl);
             }
           } else if (eventType === 'HAND') {
             addHandNotificationInfo(objParsed);
@@ -722,16 +745,13 @@ export function useInitWebRTC() {
                   remoteUserInfoParsed.userInfo.fractalUserId;
                 user.denied = remoteUserInfoParsed.userInfo.denied;
                 user.isRecording = remoteUserInfoParsed.userInfo.isRecording;
+                user.roleId = remoteUserInfoParsed.userInfo.roleId;
 
                 if (
                   userMe.roleId === 0 &&
                   remoteUserInfoParsed.userInfo.denied === 0 &&
-                  roomState.privacy
+                  !roomState.roomRestriction
                 ) {
-                  console.log(
-                    'Sala privada, solicitud de ingreso y eres admin'
-                  );
-
                   notifyWithAction(
                     remoteUserInfoParsed.userInfo.name,
                     remoteUserInfoParsed.userInfo.id
@@ -744,9 +764,6 @@ export function useInitWebRTC() {
               obj.data
             ) as ObjRemoteUserInfo;
 
-            if (remoteUserInfoParsed.userInfo.isRecording) {
-              setRecorded(true);
-            }
             if (remoteUserInfoParsed.to === userMe.id) {
               console.log('I am receiving info from another user', objParsed);
               console.log('USER_FINISH🚀', remoteUserInfoParsed.userInfo);
@@ -775,6 +792,7 @@ export function useInitWebRTC() {
                   remoteUserInfoParsed.userInfo.fractalUserId;
                 user.denied = remoteUserInfoParsed.userInfo.denied;
                 user.isRecording = remoteUserInfoParsed.userInfo.isRecording;
+                user.roleId = remoteUserInfoParsed.userInfo.roleId;
 
                 if (remoteUserInfoParsed.userInfo.existVideo) {
                   console.log(
@@ -943,7 +961,7 @@ export function useInitWebRTC() {
               console.log('Respuesta para mi');
 
               if (value) {
-                setPrivacy(false);
+                setroomRestriction(0);
                 setDenied(PERMISSION_STATUS.admitted);
               } else {
                 setDenied(PERMISSION_STATUS.denied);
@@ -1057,7 +1075,7 @@ export function useInitWebRTC() {
         ) {
           clearInterval(roomTimerId.value as NodeJS.Timeout);
           const errorMessage =
-            'Error al publicar stream. Por favor, recarga la página';
+            'Error al publicar stream: Parece que su conexión es lenta, Por favor, recargue la página';
           setLoadingOrErrorMessage(errorMessage);
           setExistRoom(false);
         }
@@ -1124,7 +1142,7 @@ export function useInitWebRTC() {
           }
           webRTCInstance.value.resetDesktop?.();
           sendNotificationEvent('SCREEN_SHARING_OFF', userMe.id);
-          errorMessage = 'You are not allowed to access screen share';
+          errorMessage = 'No has dado permisos para compartir tus dispositivos';
           //screen_share_checkbox.checked = false;
         } else if (error.indexOf('AbortError') !== -1) {
           setExistRoom(false);
@@ -1188,7 +1206,7 @@ export function useInitWebRTC() {
   const sendNotificationEvent = (
     notificationType: string,
     streamId: string,
-    state?: boolean
+    state?: boolean | Record<string, string>
   ) => {
     if (isDataChannelOpen.value) {
       const notEvent = {

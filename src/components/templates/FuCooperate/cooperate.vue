@@ -5,7 +5,7 @@
       v-if="existRoom && isLoadingOrError === false"
     >
       <fu-lobby
-        v-if="roomState.privacy"
+        v-if="roomState.roomRestriction"
         @handleLeaveCall="handleZoidLeaveCall"
       />
 
@@ -114,10 +114,11 @@ export default defineComponent({
     const roleId =
       window.xprops?.roleId || parseInt(route.query.roleId as string) || 0;
 
-    const privacy =
-      window.xprops?.roomRestriction ||
-      (route.query.roomRestriction as string) === '1' ||
-      false;
+    let roomRestriction = window.xprops?.roomRestriction as number;
+
+    if (!roomRestriction) {
+      roomRestriction = parseInt(route.query.roomRestriction as string) || 0;
+    }
 
     const isMicLocked =
       window.xprops?.isMicLocked ||
@@ -163,7 +164,7 @@ export default defineComponent({
       url: 'https://encrypted.fractalup.com/file/MainPublic/fractalup_assets/landing/main.png',
       maximized: false,
     };
-    if (window?.xprops?.bgInfo?.url === '') {
+    if (window?.xprops?.bgInfo?.url === '' || !window?.xprops?.bgInfo?.url) {
       bgInfo = {
         url: 'https://encrypted.fractalup.com/file/MainPublic/fractalup_assets/landing/main.png',
         maximized: false,
@@ -172,7 +173,7 @@ export default defineComponent({
 
     const userPinnedZoid = (window?.xprops?.pinnedUser as string) || '';
 
-    const isBeingRecorded = window?.xprops?.isBeingRecorded;
+    const isBeingRecorded = window?.xprops?.isBeingRecorded || false;
 
     const { setIDButtonSelected, setFullScreen } = useToogleFunctions();
 
@@ -188,7 +189,6 @@ export default defineComponent({
       avatar,
       roleId,
       isMicOn: isMicOn ? true : isMicLocked,
-      // isMicOn: !isMicLocked,
       isCameraOn,
       isScreenSharing: false,
       isVideoActivated: isCameraOn,
@@ -196,12 +196,17 @@ export default defineComponent({
       isCameraBlocked: roleId === 1 ? isCameraLocked : false,
       isScreenShareBlocked: roleId === 1 ? isScreenShareLocked : false,
       fractalUserId,
-      denied:
-        roleId === 1
-          ? privacy
-            ? PERMISSION_STATUS.asked
-            : PERMISSION_STATUS.admitted
-          : PERMISSION_STATUS.admitted,
+      denied: roomRestriction
+        ? roleId === 1
+          ? PERMISSION_STATUS.asked
+          : PERMISSION_STATUS.admitted
+        : PERMISSION_STATUS.admitted,
+      // denied:
+      //   roleId === 1
+      //     ? privacy
+      //       ? PERMISSION_STATUS.asked
+      //       : PERMISSION_STATUS.admitted
+      //     : PERMISSION_STATUS.admitted,
       existVideo: false,
       isRecording: false,
       isHost,
@@ -217,12 +222,13 @@ export default defineComponent({
       id: roomId,
       sharingLink,
       classroomId,
-      privacy: roleId === 1 ? privacy : false,
+      roomRestriction: roleId === 1 ? roomRestriction : 0,
       isMicBlocked: roleId === 1 ? isMicLocked : false,
       isCameraBlocked: roleId === 1 ? isCameraLocked : false,
       isScreenShareBlocked: roleId === 1 ? isScreenShareLocked : false,
       bgInfo: bgInfo,
       isBeingRecorded,
+      recordingUrl: '',
       pinnedUser: null,
       pinnedUserId: userPinnedZoid,
       startDate,

@@ -20,7 +20,7 @@ export interface User {
   videoInstance?: HTMLMediaElement & { playerId: string };
   currentTime?: number;
   isPlayingVideo?: boolean;
-  isRecording: boolean;
+  isRecording: boolean;  
   isHost: boolean;
 }
 

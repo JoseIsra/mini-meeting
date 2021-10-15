@@ -16,6 +16,11 @@
       font-weight: bolder;
       border-bottom: 1px solid #fffffe;
     }
+    &__btn {
+      position: absolute;
+      top: 0;
+      right: 0;
+    }
   }
   &__content {
     flex: 0.9;
@@ -93,11 +98,25 @@
 
         align-items: center;
         display: flex;
-        justify-content: center;
+        justify-content: flex-end;
+
         button {
           font-size: 8px;
           margin-left: 0.25rem;
           padding: 0.5rem;
+
+          &.--noActionable {
+            cursor: default;
+            &::before {
+              box-shadow: unset;
+            }
+            &:hover {
+              ::v-deep(.q-focus-helper) {
+                background: unset;
+                opacity: 0;
+              }
+            }
+          }
         }
       }
 

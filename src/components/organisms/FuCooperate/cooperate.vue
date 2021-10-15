@@ -1,7 +1,10 @@
 <template>
   <section
     class="o-cooperate"
-    @mousemove="toogleMenuBar"
+    v-touch:tap="toogleMenuBar"
+    v-on="{
+      mousemove: !screenMinimized ? toogleMenuBar : null,
+    }"
     @click.self="closePanels"
     :style="`
       background: url('${bgInfo.url}') #36393f;
@@ -138,11 +141,13 @@ export default defineComponent({
     // });
 
     const hideMenuBar = _.debounce(() => {
+      console.log('the hide debounce activated');
       showMenuBar.value = false;
       showUsersVideoList.value = false;
     }, 6000);
 
     const toogleMenuBar = () => {
+      console.log('the toogle activated');
       if (!showMenuBar.value) {
         showMenuBar.value = true;
         showUsersVideoList.value = true;
@@ -182,7 +187,6 @@ export default defineComponent({
       ...toRefs(roomState),
       showParticipantPanel,
       showUsersVideoList,
-      // bgStyle,
     };
   },
 });

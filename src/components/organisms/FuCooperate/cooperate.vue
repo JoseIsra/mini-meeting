@@ -1,7 +1,7 @@
 <template>
   <section
     class="o-cooperate"
-    @mousemove="toogleMenuBar"
+    v-on="{ mousemove: !screenMinimized ? toogleMenuBar : null }"
     @click.self="closePanels"
     :style="`
       background: url('${bgInfo.url}') #36393f;
@@ -10,9 +10,6 @@
       background-repeat: no-repeat;
     `"
   >
-    {{ !screenMinimized && $q.screen.lt.md }}
-    <br />
-    {{ $q.screen.lt.sm }}
     <!-- <q-img
       class="o-cooperate__background"
       :src="bgInfo.url"
@@ -43,7 +40,9 @@
     </transition>
     <fu-cooperate-user-video
       v-show="
-        $q.screen.lt.md && !screenMinimized ? showUsersVideoList : controlHide
+        !screenMinimized && $q.screen.lt.md
+          ? showUsersVideoList
+          : !screenMinimized
       "
     />
     <fu-hand-notification
@@ -65,7 +64,14 @@
 </template>
 //TODO: OBJETO DE USUARIO GLOBAL
 <script lang="ts">
-import { defineComponent, ref, toRefs, onMounted, onBeforeUnmount } from 'vue';
+import {
+  defineComponent,
+  ref,
+  toRefs,
+  onMounted,
+  onBeforeUnmount,
+  watch,
+} from 'vue';
 import FuCooperateMenuBar from 'organisms/FuCooperateMenuBar';
 import FuCooperateHeader from 'molecules/FuCooperateHeader';
 import FuCooperateUserVideo from 'atoms/FuCooperateUserVideo';
@@ -143,9 +149,16 @@ export default defineComponent({
       showUsersVideoList.value = false;
     }, 6000);
 
+    watch(
+      () => screenMinimized.value,
+      (value) => {
+        if (value) {
+          hideMenuBar.cancel();
+        }
+      }
+    );
     const toogleMenuBar = () => {
       if (!showMenuBar.value) {
-        console.log('MOVIENDO MOUSE EN PANTALLA');
         showMenuBar.value = true;
         showUsersVideoList.value = true;
       } else {
@@ -160,11 +173,6 @@ export default defineComponent({
       setIDButtonSelected('');
     };
 
-    const controlHide = () => {
-      showMenuBar.value = false;
-      showUsersVideoList.value = false;
-      return false;
-    };
     const handleOrientationChange = () => {
       const orientation = window.screen.orientation.type;
       if (orientation == 'landscape-primary') {
@@ -187,7 +195,6 @@ export default defineComponent({
       ...toRefs(roomState),
       showParticipantPanel,
       showUsersVideoList,
-      controlHide,
     };
   },
 });

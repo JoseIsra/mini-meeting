@@ -3,7 +3,11 @@ import { WebRTCAdaptor } from '@/utils/webrtc/webrtc_adaptor';
 import { useUserMe, User } from '@/composables/userMe';
 import { useAuthState } from '@/composables/auth';
 import { objWebRTC } from '@/types/index';
-import { REASON_TO_LEAVE_ROOM, LOCK_ACTION_TYPE } from '@/utils/enums';
+import {
+  REASON_TO_LEAVE_ROOM,
+  LOCK_ACTION_TYPE,
+  USER_ROLE,
+} from '@/utils/enums';
 import { useHandleParticipants } from '@/composables/participants';
 import { Message, useHandleMessage } from '@/composables/chat';
 import { useToogleFunctions } from '@/composables';
@@ -551,7 +555,7 @@ export function useInitWebRTC() {
           console.log('Data Channel closed for stream id', obj);
           // isDataChannelOpen.value = false;
         } else if (info == 'data_received') {
-          console.log(obj);
+          // console.log(obj);
           const objParsed = JSON.parse(obj.data) as Message;
           const { eventType } = objParsed;
           //console.log(objParsed);
@@ -829,7 +833,7 @@ export function useInitWebRTC() {
             const { action, value, participantId } = JSON.parse(
               obj.data
             ) as ObjBlockParticipantAction;
-            
+
             if (participantId !== userMe.id) {
               setParticipantActions(participantId, action, value);
               return;
@@ -894,6 +898,10 @@ export function useInitWebRTC() {
             const { action, value } = JSON.parse(
               obj.data
             ) as ObjBlockEveryoneAction;
+
+            if (userMe.roleId === USER_ROLE.ADMINISTRATOR) {
+              return;
+            }
 
             if (action === LOCK_ACTION_TYPE.All) {
               // setMicBlock(value);

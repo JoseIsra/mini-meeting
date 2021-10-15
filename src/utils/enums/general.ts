@@ -6,6 +6,11 @@ export enum REASON_TO_LEAVE_ROOM {
   KICKED_BY_MODERATOR
 }
 
+export enum USER_ROLE {
+  ADMINISTRATOR,
+  REGULAR_PARTICIPANT
+}
+
 export enum LOCK_ACTION_TYPE {
   'All',
   'Mic',

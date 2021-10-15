@@ -234,7 +234,7 @@
                       transition-hide="scale"
                     >
                       <label v-if="listenFullScreen.id === userMe.id">
-                        Usuario fijado</label
+                       Desfijar usuario</label
                       >
                       <label v-else> Fijarte para todos</label>
                     </q-tooltip>
@@ -325,11 +325,8 @@
               transition-show="scale"
               transition-hide="scale"
             >
-              <label>{{
-                participant.isMicBlocked
-                  ? 'Desbloquear Microfono'
-                  : 'Bloquear Microfono'
-              }}</label>
+              <!-- Encedido Apagado Bloquear Desbloquear -->
+              <label>{{ participantActionsToolTip(1, participant) }}</label>
             </q-tooltip>
           </q-btn>
 
@@ -353,11 +350,7 @@
               transition-show="scale"
               transition-hide="scale"
             >
-              <label class="">{{
-                participant.isCameraBlocked
-                  ? 'Desbloquear Camara'
-                  : 'Bloquear Camara'
-              }}</label>
+              <label>{{ participantActionsToolTip(2, participant) }}</label>
             </q-tooltip>
           </q-btn>
 
@@ -385,11 +378,7 @@
               transition-show="scale"
               transition-hide="scale"
             >
-              <label class="">{{
-                participant.isScreenShareBlocked
-                  ? 'Desbloquear Compartir Pantalla'
-                  : 'Bloquear Compartir Pantalla'
-              }}</label>
+              <label>{{ participantActionsToolTip(3, participant) }}</label>
             </q-tooltip>
           </q-btn>
 
@@ -415,7 +404,7 @@
                       transition-hide="scale"
                     >
                       <label v-if="listenFullScreen.id === participant.id">
-                        Usuario fijado</label
+                         Desfijar usuario</label
                       >
                       <label v-else> Fijar usuario para todos</label>
                     </q-tooltip>
@@ -438,7 +427,7 @@
                       transition-hide="scale"
                     >
                       <label v-if="listenFullScreen.id == participant.id">
-                        Usuario fijado</label
+                         Desfijar usuario</label
                       >
                       <label v-else>Fijar usuario</label>
                     </q-tooltip>
@@ -565,6 +554,7 @@
               }}</label>
             </q-tooltip>
           </q-btn>
+
           <q-btn
             :icon="
               listenFullScreen.id == participant.id
@@ -582,7 +572,7 @@
               transition-hide="scale"
             >
               <label v-if="listenFullScreen.id == participant.id">
-                Usuario fijado</label
+                 Desfijar usuario</label
               >
               <label v-else>Fijar usuario</label>
             </q-tooltip>
@@ -599,7 +589,7 @@ import { useHandleParticipants } from '@/composables/participants';
 import { User, useUserMe } from '@/composables/userMe';
 import { useInitWebRTC } from '@/composables/antMedia';
 import { Participant } from '@/types';
-import { LOCK_ACTION_TYPE } from '@/utils/enums';
+import { LOCK_ACTION_TYPE, USER_ROLE } from '@/utils/enums';
 import { nanoid } from 'nanoid';
 import { useSidebarToogle } from '@/composables';
 import { useToogleFunctions } from '@/composables';
@@ -693,6 +683,10 @@ export default defineComponent({
       participant: Participant,
       action: number
     ) => {
+      if (participant.roleId === USER_ROLE.ADMINISTRATOR) {
+        return;
+      }
+
       const blockActions = {
         id: nanoid(),
         streamId: userMe.id,
@@ -760,6 +754,61 @@ export default defineComponent({
             eventType: 'SET_PARTICIPANT_ACTION',
             value: true,
           });
+        }
+      }
+    };
+
+    const participantActionsToolTip = (
+      action: number,
+      participant: Participant
+    ) => {
+      if (participant.roleId === USER_ROLE.REGULAR_PARTICIPANT) {
+        switch (action) {
+          case 1:
+            return participant.isMicOn
+              ? 'Microfono Encendido'
+              : participant.isMicBlocked
+              ? 'Desbloquear Microfono'
+              : 'Bloquear Microfono';
+            break;
+          case 2:
+            return participant.isCameraOn
+              ? 'Camara encendida'
+              : participant.isCameraBlocked
+              ? 'Desbloquear Camara'
+              : 'Bloquear Camara';
+            break;
+          case 3:
+            return participant.isScreenSharing
+              ? 'Compartiendo Pantalla'
+              : participant.isScreenShareBlocked
+              ? 'Desbloquear Compartir Pantalla'
+              : 'Bloquear Compartir Pantalla';
+            break;
+          default:
+            return 'Error';
+            break;
+        }
+      } else {
+        switch (action) {
+          case 1:
+            return participant.isMicOn
+              ? 'Microfono Encendido'
+              : 'Microfono Apagado';
+            break;
+          case 2:
+            return participant.isCameraOn
+              ? 'Camara Encendida'
+              : 'Camara Apagada';
+            break;
+          case 3:
+            return participant.isScreenSharing
+              ? 'Compartiendo Pantalla'
+              : 'Compartir Pantalla Apagada';
+            break;
+          default:
+            return 'Error';
+            break;
         }
       }
     };
@@ -968,6 +1017,7 @@ export default defineComponent({
       cancelEveryoneFullScreen,
       roomState,
       closeUserListPanel,
+      participantActionsToolTip,
     };
   },
 });

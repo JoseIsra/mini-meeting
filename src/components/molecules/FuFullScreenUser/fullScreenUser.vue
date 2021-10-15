@@ -55,7 +55,7 @@
         v-show="
           showMinimizeMessage &&
           studentPinned.isVideoActivated &&
-          !screenMinimized
+          !screenMinimized & minimizeOnGlobalFocusedUser
         "
       />
     </template>
@@ -166,6 +166,7 @@ export default defineComponent({
     const hasCameraActivated = computed(() => {
       return studentPinned?.value?.isCameraOn;
     });
+
     const studentPinned = computed(() => {
       if (userMe.id == fullScreenObject.id) {
         return userMe;
@@ -175,6 +176,7 @@ export default defineComponent({
         );
       }
     });
+
     watch(
       () => isLandscape.value,
       (value) => {
@@ -200,6 +202,8 @@ export default defineComponent({
       }
     );
 
+    const minimizeOnGlobalFocusedUser = computed(() => !roomState.pinnedUser);
+
     return {
       fullScreenObject,
       exitFullScreen,
@@ -212,6 +216,7 @@ export default defineComponent({
       studentPinned,
       gotPinnedUser,
       buttonMinimizeSpecialStyle,
+      minimizeOnGlobalFocusedUser,
     };
   },
 });

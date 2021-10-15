@@ -962,20 +962,22 @@ export default defineComponent({
       sendData(userMe.id, { eventType: 'KICK', to: participant.id });
     };
 
+    const cancelEveryoneFullScreen = () => {
+      updateFocus(null);
+      setFullScreen('none', false);
+      clearFullScreenObject();
+
+      sendData(userMe.id, {
+        eventType: 'SET_FULL_SCREEN',
+        mode: 'none',
+      });
+
+      window.xprops?.setPinnedUser?.('');
+    };
+
     const handleEveryoneFocus = (user: User) => {
-      if (roomState.pinnedUser) {
-        console.log('Usuario pinneado es: ', user.fractalUserId);
-
-        updateFocus(null);
-        setFullScreen('none', false);
-        clearFullScreenObject();
-
-        sendData(userMe.id, {
-          eventType: 'SET_FULL_SCREEN',
-          mode: 'none',
-        });
-
-        window.xprops?.setPinnedUser?.('');
+      if (roomState.pinnedUser === user) {
+        cancelEveryoneFullScreen();
       } else {
         setFullScreen('user', true);
         setFullScreenObject(user);
@@ -989,19 +991,6 @@ export default defineComponent({
 
         window.xprops?.setPinnedUser?.(user.id);
       }
-    };
-
-    const cancelEveryoneFullScreen = () => {
-      updateFocus(null);
-      setFullScreen('none', false);
-      clearFullScreenObject();
-
-      sendData(userMe.id, {
-        eventType: 'SET_FULL_SCREEN',
-        mode: 'none',
-      });
-
-      window.xprops?.setPinnedUser?.('');
     };
 
     const activeFullScreen = (arg: User) => {

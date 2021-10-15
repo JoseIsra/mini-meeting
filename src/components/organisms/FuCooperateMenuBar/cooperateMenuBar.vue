@@ -81,14 +81,11 @@
           <q-tooltip class="bg-grey-10" v-if="icon.behaviour == 'ESPECIAL'">
             <label
               class="a-menuBar__icon__tooltip"
-              v-if="functionsOnMenuBar.handNotificationInfo.length > 0"
+              v-if="handNotificationActive"
             >
               {{ icon.toolTipSecondMessage }}
             </label>
-            <label
-              class="a-menuBar__icon__tooltip"
-              v-if="functionsOnMenuBar.handNotificationInfo.length == 0"
-            >
+            <label v-else class="a-menuBar__icon__tooltip">
               {{ icon.toolTipMessage }}
             </label>
           </q-tooltip>

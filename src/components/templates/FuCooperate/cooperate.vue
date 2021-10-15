@@ -120,6 +120,10 @@ export default defineComponent({
       roomRestriction = parseInt(route.query.roomRestriction as string) || 0;
     }
 
+    const cameraId =
+      window.xprops?.cameraId || (route.query.cameraId as string);
+    const micId = window.xprops?.micId || (route.query.micId as string);
+
     const isMicLocked =
       window.xprops?.isMicLocked ||
       (route.query.mic as string) === '1' ||
@@ -204,6 +208,8 @@ export default defineComponent({
       existVideo: false,
       isRecording: false,
       isHost,
+      cameraId,
+      micId,
     });
 
     setMicIconState(isMicLocked ? false : isMicOn);

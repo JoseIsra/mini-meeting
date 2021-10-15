@@ -915,9 +915,11 @@ export function useInitWebRTC() {
               setRoomCameraState(value);
               setRoomScreenShareState(value);
 
-              setLocalMicBlock(value);
-              setLocalVideoBlock(value);
-              setLocalScreenShareBlock(value);
+              if (userMe.roleId === USER_ROLE.REGULAR_PARTICIPANT) {
+                setLocalMicBlock(value);
+                setLocalVideoBlock(value);
+                setLocalScreenShareBlock(value);
+              }
 
               setEveryParticipantActions(LOCK_ACTION_TYPE.All, value);
 
@@ -939,7 +941,10 @@ export function useInitWebRTC() {
             } else if (action === LOCK_ACTION_TYPE.Mic) {
               setRoomMicState(value);
               setEveryParticipantActions(LOCK_ACTION_TYPE.Mic, value);
-              setLocalMicBlock(value);
+
+              if (userMe.roleId === USER_ROLE.REGULAR_PARTICIPANT) {
+                setLocalMicBlock(value);
+              }
 
               if (value && userMe.roleId === USER_ROLE.REGULAR_PARTICIPANT) {
                 setMicIconState(!value);
@@ -950,7 +955,10 @@ export function useInitWebRTC() {
             } else if (action === LOCK_ACTION_TYPE.Camera) {
               setRoomCameraState(value);
               setEveryParticipantActions(LOCK_ACTION_TYPE.Camera, value);
-              setLocalVideoBlock(value);
+
+              if (userMe.roleId === USER_ROLE.REGULAR_PARTICIPANT) {
+                setLocalVideoBlock(value);
+              }
 
               if (value && userMe.roleId === USER_ROLE.REGULAR_PARTICIPANT) {
                 setCameraIconState(!value);
@@ -962,7 +970,10 @@ export function useInitWebRTC() {
             } else if (action === LOCK_ACTION_TYPE.Screen) {
               setRoomScreenShareState(value);
               setEveryParticipantActions(LOCK_ACTION_TYPE.Screen, value);
-              setLocalScreenShareBlock(value);
+
+              if (userMe.roleId === USER_ROLE.REGULAR_PARTICIPANT) {
+                setLocalScreenShareBlock(value);
+              }
 
               if (value && userMe.roleId === USER_ROLE.REGULAR_PARTICIPANT) {
                 setScreenShareIconState(!value);

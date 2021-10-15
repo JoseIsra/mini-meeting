@@ -9,6 +9,16 @@
   // justify-content: center;
   gap: 1.5%;
   z-index: 3;
+
+  &__more {
+    color: white;
+    padding: 5px 15px;
+    display: flex;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+  }
+
   &__box {
     position: relative;
     border-radius: 10px;

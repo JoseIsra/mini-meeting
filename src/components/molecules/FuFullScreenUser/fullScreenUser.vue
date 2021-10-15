@@ -47,8 +47,9 @@
       ></video>
       <q-btn
         flat
-        label="Minimizar pantalla"
+        :label="buttonMinimizeSpecialStyle ? '' : 'Minimizar pantalla'"
         class="m-fuser__quitBtn"
+        :class="{ '--cornerButton': buttonMinimizeSpecialStyle }"
         icon="fullscreen_exit"
         @click="exitFullScreen"
         v-show="
@@ -85,14 +86,7 @@
 </template>
 
 <script lang="ts">
-import {
-  defineComponent,
-  ref,
-  computed,
-  onMounted,
-  onBeforeUnmount,
-  watch,
-} from 'vue';
+import { defineComponent, ref, computed, watch } from 'vue';
 import { useToogleFunctions } from '@/composables';
 import { useScreen } from '@/composables/screen';
 import _ from 'lodash';
@@ -110,13 +104,13 @@ export default defineComponent({
       clearFullScreenObject,
       setFullScreenObject,
     } = useToogleFunctions();
-    const { screenMinimized } = useScreen();
+    const { screenMinimized, isLandscape } = useScreen();
     const { updateFocus, roomState } = useRoom();
     const { userMe } = useUserMe();
     const { admittedParticipants } = useHandleParticipants();
     const { sendData } = useInitWebRTC();
-
     const gotPinnedUser = computed(() => !!fullScreenObject.id);
+    const buttonMinimizeSpecialStyle = ref(false);
 
     watch(admittedParticipants, (value) => {
       if (!gotPinnedUser.value) {
@@ -172,15 +166,6 @@ export default defineComponent({
     const hasCameraActivated = computed(() => {
       return studentPinned?.value?.isCameraOn;
     });
-
-    onMounted(() => {
-      window.addEventListener('orientationchange', handleOrientationChange);
-    });
-
-    onBeforeUnmount(() => {
-      window.removeEventListener('orientationchange', handleOrientationChange);
-    });
-
     const studentPinned = computed(() => {
       if (userMe.id == fullScreenObject.id) {
         return userMe;
@@ -190,24 +175,30 @@ export default defineComponent({
         );
       }
     });
-
-    const handleOrientationChange = () => {
-      const orientation = window.screen.orientation.type;
-      if (
-        orientation == 'landscape-primary' &&
-        fullScreenObject.isScreenSharing
-      ) {
-        orientationClass.value = 'landscapeMode';
-      } else if (
-        orientation == 'portrait-primary' &&
-        fullScreenObject.isScreenSharing
-      ) {
-        orientationClass.value = 'portraitMode';
+    watch(
+      () => isLandscape.value,
+      (value) => {
+        if (value) {
+          if (
+            studentPinned.value?.isScreenSharing ||
+            studentPinned.value?.isCameraOn
+          ) {
+            buttonMinimizeSpecialStyle.value = true;
+            orientationClass.value = 'landscapeMode';
+          }
+        } else {
+          buttonMinimizeSpecialStyle.value = false;
+          if (studentPinned.value?.isScreenSharing) {
+            orientationClass.value = 'portraitMode';
+          }
+        }
+      },
+      {
+        immediate: true,
       }
-    };
+    );
 
     return {
-      handleOrientationChange,
       fullScreenObject,
       exitFullScreen,
       toggleMinimizeMessage,
@@ -218,6 +209,7 @@ export default defineComponent({
       canClose,
       studentPinned,
       gotPinnedUser,
+      buttonMinimizeSpecialStyle,
     };
   },
 });

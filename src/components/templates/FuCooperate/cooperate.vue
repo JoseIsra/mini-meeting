@@ -5,7 +5,7 @@
       v-if="existRoom && isLoadingOrError === false"
     >
       <fu-lobby
-        v-if="roomState.privacy"
+        v-if="roomState.roomRestriction"
         @handleLeaveCall="handleZoidLeaveCall"
       />
 
@@ -114,10 +114,11 @@ export default defineComponent({
     const roleId =
       window.xprops?.roleId || parseInt(route.query.roleId as string) || 0;
 
-    const privacy =
-      window.xprops?.roomRestriction ||
-      (route.query.roomRestriction as string) === '1' ||
-      true;
+    let roomRestriction = window.xprops?.roomRestriction as number;
+
+    if (!roomRestriction) {
+      roomRestriction = parseInt(route.query.roomRestriction as string) || 0;
+    }
 
     const isMicLocked =
       window.xprops?.isMicLocked ||
@@ -189,7 +190,7 @@ export default defineComponent({
       isCameraBlocked: roleId === 1 ? isCameraLocked : false,
       isScreenShareBlocked: roleId === 1 ? isScreenShareLocked : false,
       fractalUserId,
-      denied: privacy
+      denied: roomRestriction
         ? roleId === 1
           ? PERMISSION_STATUS.asked
           : PERMISSION_STATUS.admitted
@@ -215,7 +216,7 @@ export default defineComponent({
       id: roomId,
       sharingLink,
       classroomId,
-      privacy: roleId === 1 ? privacy : false,
+      roomRestriction: roleId === 1 ? roomRestriction : 0,
       isMicBlocked: roleId === 1 ? isMicLocked : false,
       isCameraBlocked: roleId === 1 ? isCameraLocked : false,
       isScreenShareBlocked: roleId === 1 ? isScreenShareLocked : false,

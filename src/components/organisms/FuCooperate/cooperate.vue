@@ -65,7 +65,7 @@
 </template>
 //TODO: OBJETO DE USUARIO GLOBAL
 <script lang="ts">
-import { defineComponent, ref, toRefs, onMounted } from 'vue';
+import { defineComponent, ref, toRefs, onMounted, onBeforeUnmount } from 'vue';
 import FuCooperateMenuBar from 'organisms/FuCooperateMenuBar';
 import FuCooperateHeader from 'molecules/FuCooperateHeader';
 import FuCooperateUserVideo from 'atoms/FuCooperateUserVideo';
@@ -105,6 +105,11 @@ export default defineComponent({
   setup(props, { emit }) {
     onMounted(() => {
       emit('mounted');
+      window.addEventListener('orientationchange', handleOrientationChange);
+    });
+
+    onBeforeUnmount(() => {
+      window.removeEventListener('orientationchange', handleOrientationChange);
     });
 
     let showMenuBar = ref<boolean>(false);
@@ -123,7 +128,8 @@ export default defineComponent({
 
     const { roomState } = useRoom();
 
-    const { screenMinimized, updateScreenState } = useScreen();
+    const { screenMinimized, updateScreenState, setScreenDeviceOrientation } =
+      useScreen();
 
     // Dynamig-bg update (to delete)
     // const bgStyle = computed(() => {
@@ -139,6 +145,7 @@ export default defineComponent({
 
     const toogleMenuBar = () => {
       if (!showMenuBar.value) {
+        console.log('MOVIENDO MOUSE EN PANTALLA');
         showMenuBar.value = true;
         showUsersVideoList.value = true;
       } else {
@@ -157,6 +164,14 @@ export default defineComponent({
       showMenuBar.value = false;
       showUsersVideoList.value = false;
       return false;
+    };
+    const handleOrientationChange = () => {
+      const orientation = window.screen.orientation.type;
+      if (orientation == 'landscape-primary') {
+        setScreenDeviceOrientation(true);
+      } else if (orientation == 'portrait-primary') {
+        setScreenDeviceOrientation(false);
+      }
     };
 
     return {

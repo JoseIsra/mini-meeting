@@ -127,6 +127,34 @@
         </q-tooltip>
       </q-btn>
     </div>
+    <!--  -->
+    <div
+      class="a-userVideo__more"
+      v-show="
+        $q.screen.lt.md
+          ? admittedParticipants.length > 1
+          : admittedParticipants.length > 5
+      "
+    >
+      +{{
+        $q.screen.lt.md
+          ? admittedParticipants.length - 1
+          : admittedParticipants.length - 5
+      }}
+    </div>
+    <div
+      v-for="(participant, index) in $q.screen.lt.md
+        ? admittedParticipants.slice(0, -1)
+        : admittedParticipants.slice(0, -5)"
+      :key="index"
+    >
+      <video
+        :srcObject.prop="participant.stream"
+        :style="{ display: 'none' }"
+        autoplay
+        playsinline
+      />
+    </div>
   </section>
 </template>
 

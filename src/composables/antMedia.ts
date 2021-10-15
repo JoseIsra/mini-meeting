@@ -28,6 +28,9 @@ const {
   updateUserMe,
   setMicState,
   setCameraState,
+  setLocalMicBlock,
+  setLocalScreenShareBlock,
+  setLocalVideoBlock,
   setDenied,
 } = useUserMe();
 
@@ -840,12 +843,13 @@ export function useInitWebRTC() {
             }
 
             if (action === LOCK_ACTION_TYPE.All) {
-              // setMicBlock(value);
               setRoomMicState(value);
-              // setVideoBlock(value);
+              setLocalMicBlock(value);
               setRoomCameraState(value);
-              // setScreenShareBlock(value);
+              setLocalVideoBlock(value);
               setRoomScreenShareState(value);
+              setLocalScreenShareBlock(value);
+              
               if (value) {
                 setMicState(!value);
                 muteLocalMic();
@@ -864,6 +868,7 @@ export function useInitWebRTC() {
             } else if (action === LOCK_ACTION_TYPE.Mic) {
               // setMicBlock(value);
               setRoomMicState(value);
+              setLocalMicBlock(value);
 
               if (value) {
                 setMicIconState(!value);
@@ -874,6 +879,7 @@ export function useInitWebRTC() {
             } else if (action === LOCK_ACTION_TYPE.Camera) {
               // setVideoBlock(value);
               setRoomCameraState(value);
+              setLocalVideoBlock(value);
 
               if (value) {
                 setCameraIconState(!value);
@@ -885,6 +891,7 @@ export function useInitWebRTC() {
             } else if (action === LOCK_ACTION_TYPE.Screen) {
               // setScreenShareBlock(value);
               setRoomScreenShareState(value);
+              setLocalScreenShareBlock(value);
 
               if (value) {
                 setScreenShareIconState(!value);
@@ -899,21 +906,18 @@ export function useInitWebRTC() {
               obj.data
             ) as ObjBlockEveryoneAction;
 
-            if (userMe.roleId === USER_ROLE.ADMINISTRATOR) {
-              return;
-            }
-
             if (action === LOCK_ACTION_TYPE.All) {
-              // setMicBlock(value);
               setRoomMicState(value);
-              // setVideoBlock(value);
               setRoomCameraState(value);
-              // setScreenShareBlock(value);
               setRoomScreenShareState(value);
+
+              setLocalMicBlock(value);
+              setLocalVideoBlock(value);
+              setLocalScreenShareBlock(value);
 
               setEveryParticipantActions(LOCK_ACTION_TYPE.All, value);
 
-              if (value) {
+              if (value && userMe.roleId === USER_ROLE.REGULAR_PARTICIPANT) {
                 setMicState(!value);
                 muteLocalMic();
                 sendNotificationEvent('MIC_MUTED', userMe.id);
@@ -929,41 +933,34 @@ export function useInitWebRTC() {
                 setScreenShareIconState(!value);
               }
             } else if (action === LOCK_ACTION_TYPE.Mic) {
-              // setMicBlock(value);
               setRoomMicState(value);
-
               setEveryParticipantActions(LOCK_ACTION_TYPE.Mic, value);
+              setLocalMicBlock(value);
 
-              console.log(participants);
-
-              if (value) {
+              if (value && userMe.roleId === USER_ROLE.REGULAR_PARTICIPANT) {
                 setMicIconState(!value);
                 setMicState(!value);
                 muteLocalMic();
                 sendNotificationEvent('MIC_MUTED', userMe.id);
-                // Bloquear micro de todos los participantes
               }
             } else if (action === LOCK_ACTION_TYPE.Camera) {
-              // setVideoBlock(value);
               setRoomCameraState(value);
-
               setEveryParticipantActions(LOCK_ACTION_TYPE.Camera, value);
+              setLocalVideoBlock(value);
 
-              if (value) {
+              if (value && userMe.roleId === USER_ROLE.REGULAR_PARTICIPANT) {
                 setCameraIconState(!value);
                 setCameraState(!value);
                 setVideoActivatedState(!value);
                 turnOffLocalCamera(userMe.id);
                 sendNotificationEvent('CAM_TURNED_OFF', userMe.id);
-                // Bloquear camara de todos los participantes
               }
             } else if (action === LOCK_ACTION_TYPE.Screen) {
-              // setScreenShareBlock(value);
               setRoomScreenShareState(value);
-
               setEveryParticipantActions(LOCK_ACTION_TYPE.Screen, value);
+              setLocalScreenShareBlock(value);
 
-              if (value) {
+              if (value && userMe.roleId === USER_ROLE.REGULAR_PARTICIPANT) {
                 setScreenShareIconState(!value);
                 setScreenState(!value);
                 setVideoActivatedState(!value);
@@ -971,8 +968,6 @@ export function useInitWebRTC() {
                 sendNotificationEvent('SCREEN_SHARING_OFF', userMe.id);
               }
             }
-
-            // setUserActions(lockData.action, lockData.value);
           } else if (eventType === 'ANSWER_PERMISSION') {
             const { participantId, value } = JSON.parse(
               obj.data
@@ -1071,10 +1066,11 @@ export function useInitWebRTC() {
 
             if (
               roomState.pinnedUser?.fractalUserId ===
-              userLeavingMsgParsed.fractalUserId
+                userLeavingMsgParsed.fractalUserId &&
+              roomState.pinnedUser?.fractalUserId === userMe.fractalUserId
             ) {
               window.xprops?.setPinnedUser?.('');
-              console.log('Se fue el pinneado');
+              console.log('Soy el pinneado y estoy saliendo');
             }
 
             window.xprops?.addUserLogToState?.(

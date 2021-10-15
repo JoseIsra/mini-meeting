@@ -144,6 +144,7 @@ export interface Functionalities {
 }
 
 export interface lockAction {
-  type: number;
-  state: number;
+  mic: number;
+  camera: number;
+  screenshare: number;
 }

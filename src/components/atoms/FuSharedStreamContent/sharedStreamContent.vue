@@ -184,20 +184,19 @@ export default defineComponent({
           camera !== prevCamera &&
           screenShare !== prevScreenShare;
 
+        const individualState = {
+          mic: Number(!mic),
+          camera: Number(!camera),
+          screenshare: Number(!screenShare),
+        } as lockAction;
+
         if (haveAllChanged) {
           if (mic && camera && screenShare) {
-            const lockAction = {
-              type: LOCK_ACTION_TYPE.All,
-              state: 0,
+            const state = {
+              mic: 0,
+              camera: 0,
+              screenshare: 0,
             } as lockAction;
-
-            // const lockAction = {
-            //   mic: 0,
-            //   camera: 0,
-            //   screen: 0,
-            // } as lockAction;
-
-            console.log('Desactivar todos');
 
             sendData(userMe.id, {
               eventType: 'SET_EVERYONE_ACTION',
@@ -205,17 +204,15 @@ export default defineComponent({
               value: false,
             });
 
-            window.xprops?.toggleLockAction?.(lockAction);
-            // window.xprops?.toggleLockAction?.(0, 0, 0);
+            window.xprops?.toggleLockAction?.(state);
           }
 
           if (!mic && !camera && !screenShare) {
-            const lockAction = {
-              type: LOCK_ACTION_TYPE.All,
-              state: 1,
+            const state = {
+              mic: 1,
+              camera: 1,
+              screenshare: 1,
             } as lockAction;
-
-            console.log('Activar todos');
 
             sendData(userMe.id, {
               eventType: 'SET_EVERYONE_ACTION',
@@ -223,16 +220,10 @@ export default defineComponent({
               value: true,
             });
 
-            window.xprops?.toggleLockAction?.(lockAction);
-            // window.xprops?.toggleLockAction?.(1, 1, 1);
+            window.xprops?.toggleLockAction?.(state);
           }
         } else {
           if (mic !== prevMic) {
-            const lockAction = {
-              type: LOCK_ACTION_TYPE.Mic,
-              state: Number(!mic),
-            } as lockAction;
-
             console.log('Toggle mic: ', Number(!mic));
 
             sendData(userMe.id, {
@@ -241,16 +232,10 @@ export default defineComponent({
               value: !mic,
             });
 
-            window.xprops?.toggleLockAction?.(lockAction);
-            // window.xprops?.toggleLockAction?.(Number(!mic), Number(!camera), Number(!screenShare));
+            window.xprops?.toggleLockAction?.(individualState);
           }
 
           if (camera !== prevCamera) {
-            const lockAction = {
-              type: LOCK_ACTION_TYPE.Camera,
-              state: Number(!camera),
-            } as lockAction;
-
             console.log('Toggle camera: ', Number(!camera));
 
             sendData(userMe.id, {
@@ -259,16 +244,10 @@ export default defineComponent({
               value: !camera,
             });
 
-            window.xprops?.toggleLockAction?.(lockAction);
-            // window.xprops?.toggleLockAction?.(Number(!mic), Number(!camera), Number(!screenShare));
+            window.xprops?.toggleLockAction?.(individualState);
           }
 
           if (screenShare !== prevScreenShare) {
-            const lockAction = {
-              type: LOCK_ACTION_TYPE.Screen,
-              state: Number(!screenShare),
-            } as lockAction;
-
             console.log('Toggle screenshare: ', Number(!screenShare));
 
             sendData(userMe.id, {
@@ -277,8 +256,7 @@ export default defineComponent({
               value: !screenShare,
             });
 
-            window.xprops?.toggleLockAction?.(lockAction);
-            // window.xprops?.toggleLockAction?.(Number(!mic), Number(!camera), Number(!screenShare));
+            window.xprops?.toggleLockAction?.(individualState);
           }
         }
       }

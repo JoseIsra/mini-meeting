@@ -36,7 +36,7 @@ export interface ZoidProps {
   ) => void;
   handleStopRecording?: (urlOfRecording: string) => void;
   toggleMinimize?: (isMinimize: boolean) => void;
-  toggleLockAction?: (lockAction: lockAction) => void;
+  toggleLockAction?: (states: lockAction) => void;
   fractalUserId?: string;
   logJoined?: () => void;
   handleStartRecording?: () => void;

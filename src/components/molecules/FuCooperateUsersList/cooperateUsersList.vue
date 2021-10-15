@@ -132,6 +132,10 @@
         <div class="m-list__content__userBox__name">{{ userMe.name }} (Tú)</div>
         <div class="m-list__content__userBox__actions">
           <q-btn
+            :class="[
+              'm-list__content__userBox__actions__button',
+              { '--noActionable': userMe.roleId === 1 },
+            ]"
             :icon="userMe.isMicOn ? 'mic' : 'mic_off'"
             :color="
               userMe.isMicOn ? 'blue' : roomState.isMicBlocked ? 'red' : ''
@@ -148,6 +152,10 @@
           </q-btn>
 
           <q-btn
+            :class="[
+              'm-list__content__userBox__actions__button',
+              { '--noActionable': userMe.roleId === 1 },
+            ]"
             :icon="userMe.isCameraOn ? 'videocam' : 'videocam_off'"
             :color="
               userMe.isCameraOn
@@ -168,6 +176,10 @@
           </q-btn>
 
           <q-btn
+            :class="[
+              'm-list__content__userBox__actions__button',
+              { '--noActionable': userMe.roleId === 1 },
+            ]"
             :icon="
               userMe.isScreenSharing
                 ? 'desktop_windows'
@@ -459,6 +471,94 @@
         </div>
 
         <div v-else class="m-list__content__userBox__actions">
+          <q-btn
+            :class="[
+              'm-list__content__userBox__actions__button',
+              { '--noActionable': userMe.roleId === 1 },
+            ]"
+            :icon="participant.isMicOn ? 'mic' : 'mic_off'"
+            :color="
+              participant.isMicOn
+                ? 'blue'
+                : participant.isMicBlocked
+                ? 'red'
+                : ''
+            "
+          >
+            <q-tooltip
+              class="bg-grey-10"
+              anchor="bottom middle"
+              self="top middle"
+              transition-show="scale"
+              transition-hide="scale"
+            >
+              <label>{{
+                participant.isMicOn
+                  ? 'Micrófono encendido'
+                  : 'Micrófono apagado'
+              }}</label>
+            </q-tooltip>
+          </q-btn>
+
+          <q-btn
+            :class="[
+              'm-list__content__userBox__actions__button',
+              { '--noActionable': userMe.roleId === 1 },
+            ]"
+            :icon="participant.isCameraOn ? 'videocam' : 'videocam_off'"
+            :color="
+              participant.isCameraOn
+                ? 'blue'
+                : participant.isCameraBlocked
+                ? 'red'
+                : ''
+            "
+          >
+            <q-tooltip
+              class="bg-grey-10"
+              anchor="bottom middle"
+              self="top middle"
+              transition-show="scale"
+              transition-hide="scale"
+            >
+              <label class="">{{
+                participant.isCameraOn ? 'Cámara encendida' : 'Cámara apagada'
+              }}</label>
+            </q-tooltip>
+          </q-btn>
+
+          <q-btn
+            :class="[
+              'm-list__content__userBox__actions__button',
+              { '--noActionable': userMe.roleId === 1 },
+            ]"
+            :icon="
+              participant.isScreenSharing
+                ? 'desktop_windows'
+                : 'desktop_access_disabled'
+            "
+            :color="
+              participant.isScreenSharing
+                ? 'blue'
+                : participant.isScreenShareBlocked
+                ? 'red'
+                : ''
+            "
+          >
+            <q-tooltip
+              class="bg-grey-10"
+              anchor="bottom middle"
+              self="top middle"
+              transition-show="scale"
+              transition-hide="scale"
+            >
+              <label class="">{{
+                participant.isScreenSharing
+                  ? 'Compartir pantalla activo'
+                  : 'Compartir pantalla inactivo'
+              }}</label>
+            </q-tooltip>
+          </q-btn>
           <q-btn
             :icon="
               listenFullScreen.id == participant.id

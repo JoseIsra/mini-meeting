@@ -976,7 +976,7 @@ export default defineComponent({
     };
 
     const handleEveryoneFocus = (user: User) => {
-      if (roomState.pinnedUser === user) {
+      if (roomState.pinnedUser?.id === user.id) {
         cancelEveryoneFullScreen();
       } else {
         setFullScreen('user', true);

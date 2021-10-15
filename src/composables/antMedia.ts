@@ -159,6 +159,7 @@ interface backgroundSize {
 
 interface ObjUserLeavingMessageParsed {
   fractalUserId: string;
+  userId: string;
 }
 
 interface ObjRecordingStopParsed {
@@ -343,9 +344,12 @@ export function useInitWebRTC() {
           joinRoom(roomId, streamId);
         } else if (info == 'joinedTheRoom') {
           window.addEventListener('unload', () => {
+            // window.xprops?.setPinnedUser?.('');
+
             sendData(userMe.id, {
               eventType: 'USER_LEAVING',
               fractalUserId: userMe.fractalUserId,
+              userId: userMe.id,
             });
 
             if (roomState.pinnedUser?.id === userMe.id) {
@@ -849,7 +853,7 @@ export function useInitWebRTC() {
               setLocalVideoBlock(value);
               setRoomScreenShareState(value);
               setLocalScreenShareBlock(value);
-              
+
               if (value) {
                 setMicState(!value);
                 muteLocalMic();
@@ -1062,15 +1066,8 @@ export function useInitWebRTC() {
               obj.data
             ) as ObjUserLeavingMessageParsed;
 
-            console.log('USER LEAVING', '🚀🚀🚀');
-
-            if (
-              roomState.pinnedUser?.fractalUserId ===
-                userLeavingMsgParsed.fractalUserId &&
-              roomState.pinnedUser?.fractalUserId === userMe.fractalUserId
-            ) {
+            if (roomState.pinnedUser?.id === userLeavingMsgParsed.userId) {
               window.xprops?.setPinnedUser?.('');
-              console.log('Soy el pinneado y estoy saliendo');
             }
 
             window.xprops?.addUserLogToState?.(

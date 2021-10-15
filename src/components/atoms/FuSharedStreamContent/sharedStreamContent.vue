@@ -46,7 +46,7 @@
       </div>
 
       <div class="m-shared__admin" v-show="adminPanel">
-        <div class="m-shared__admin__actions">
+        <!-- <div class="m-shared__admin__actions">
           <q-toggle
             class="m-shared__admin__toggle"
             v-model="cooperateMicState"
@@ -104,7 +104,7 @@
               </q-tooltip>
             </q-btn>
           </div>
-        </div>
+        </div> -->
 
         <div class="m-shared__admin__backgroundImage">
           <fu-image-picker />
@@ -128,8 +128,8 @@
 import { defineComponent, ref, computed, watch, toRefs } from 'vue';
 import FuImagePicker from '@/components/atoms/FuImagePicker';
 import { useUserMe } from '@/composables/userMe';
-import { lockAction } from '@/types/index';
-import { LOCK_ACTION_TYPE } from '@/utils/enums';
+// import { lockAction } from '@/types/index';
+// import { LOCK_ACTION_TYPE } from '@/utils/enums';
 import { useRoom } from '@/composables/room';
 import { useInitWebRTC } from '@/composables/antMedia';
 
@@ -176,91 +176,91 @@ export default defineComponent({
         cooperateCameraState.value
     );
 
-    watch(
-      [cooperateMicState, cooperateCameraState, cooperateScreenShareState],
-      ([mic, camera, screenShare], [prevMic, prevCamera, prevScreenShare]) => {
-        const haveAllChanged =
-          prevMic !== mic &&
-          camera !== prevCamera &&
-          screenShare !== prevScreenShare;
+    // watch(
+    //   [cooperateMicState, cooperateCameraState, cooperateScreenShareState],
+    //   ([mic, camera, screenShare], [prevMic, prevCamera, prevScreenShare]) => {
+    //     const haveAllChanged =
+    //       prevMic !== mic &&
+    //       camera !== prevCamera &&
+    //       screenShare !== prevScreenShare;
 
-        const individualState = {
-          mic: Number(!mic),
-          camera: Number(!camera),
-          screenshare: Number(!screenShare),
-        } as lockAction;
+    //     const individualState = {
+    //       mic: Number(!mic),
+    //       camera: Number(!camera),
+    //       screenshare: Number(!screenShare),
+    //     } as lockAction;
 
-        if (haveAllChanged) {
-          if (mic && camera && screenShare) {
-            const state = {
-              mic: 0,
-              camera: 0,
-              screenshare: 0,
-            } as lockAction;
+    //     if (haveAllChanged) {
+    //       if (mic && camera && screenShare) {
+    //         const state = {
+    //           mic: 0,
+    //           camera: 0,
+    //           screenshare: 0,
+    //         } as lockAction;
 
-            sendData(userMe.id, {
-              eventType: 'SET_EVERYONE_ACTION',
-              action: LOCK_ACTION_TYPE.All,
-              value: false,
-            });
+    //         sendData(userMe.id, {
+    //           eventType: 'SET_EVERYONE_ACTION',
+    //           action: LOCK_ACTION_TYPE.All,
+    //           value: false,
+    //         });
 
-            window.xprops?.toggleLockAction?.(state);
-          }
+    //         window.xprops?.toggleLockAction?.(state);
+    //       }
 
-          if (!mic && !camera && !screenShare) {
-            const state = {
-              mic: 1,
-              camera: 1,
-              screenshare: 1,
-            } as lockAction;
+    //       if (!mic && !camera && !screenShare) {
+    //         const state = {
+    //           mic: 1,
+    //           camera: 1,
+    //           screenshare: 1,
+    //         } as lockAction;
 
-            sendData(userMe.id, {
-              eventType: 'SET_EVERYONE_ACTION',
-              action: LOCK_ACTION_TYPE.All,
-              value: true,
-            });
+    //         sendData(userMe.id, {
+    //           eventType: 'SET_EVERYONE_ACTION',
+    //           action: LOCK_ACTION_TYPE.All,
+    //           value: true,
+    //         });
 
-            window.xprops?.toggleLockAction?.(state);
-          }
-        } else {
-          if (mic !== prevMic) {
-            console.log('Toggle mic: ', Number(!mic));
+    //         window.xprops?.toggleLockAction?.(state);
+    //       }
+    //     } else {
+    //       if (mic !== prevMic) {
+    //         console.log('Toggle mic: ', Number(!mic));
 
-            sendData(userMe.id, {
-              eventType: 'SET_EVERYONE_ACTION',
-              action: LOCK_ACTION_TYPE.Mic,
-              value: !mic,
-            });
+    //         sendData(userMe.id, {
+    //           eventType: 'SET_EVERYONE_ACTION',
+    //           action: LOCK_ACTION_TYPE.Mic,
+    //           value: !mic,
+    //         });
 
-            window.xprops?.toggleLockAction?.(individualState);
-          }
+    //         window.xprops?.toggleLockAction?.(individualState);
+    //       }
 
-          if (camera !== prevCamera) {
-            console.log('Toggle camera: ', Number(!camera));
+    //       if (camera !== prevCamera) {
+    //         console.log('Toggle camera: ', Number(!camera));
 
-            sendData(userMe.id, {
-              eventType: 'SET_EVERYONE_ACTION',
-              action: LOCK_ACTION_TYPE.Camera,
-              value: !camera,
-            });
+    //         sendData(userMe.id, {
+    //           eventType: 'SET_EVERYONE_ACTION',
+    //           action: LOCK_ACTION_TYPE.Camera,
+    //           value: !camera,
+    //         });
 
-            window.xprops?.toggleLockAction?.(individualState);
-          }
+    //         window.xprops?.toggleLockAction?.(individualState);
+    //       }
 
-          if (screenShare !== prevScreenShare) {
-            console.log('Toggle screenshare: ', Number(!screenShare));
+    //       if (screenShare !== prevScreenShare) {
+    //         console.log('Toggle screenshare: ', Number(!screenShare));
 
-            sendData(userMe.id, {
-              eventType: 'SET_EVERYONE_ACTION',
-              action: LOCK_ACTION_TYPE.Screen,
-              value: !screenShare,
-            });
+    //         sendData(userMe.id, {
+    //           eventType: 'SET_EVERYONE_ACTION',
+    //           action: LOCK_ACTION_TYPE.Screen,
+    //           value: !screenShare,
+    //         });
 
-            window.xprops?.toggleLockAction?.(individualState);
-          }
-        }
-      }
-    );
+    //         window.xprops?.toggleLockAction?.(individualState);
+    //       }
+    //     }
+    //   }
+    // );
 
     const adminPanel = ref(userMe.roleId === 0);
 

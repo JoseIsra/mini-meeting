@@ -111,7 +111,7 @@
 
           <q-checkbox
             style="justify-content: space-between; width: 100%; margin: 8px 0"
-            v-model="bgInfo.maximized"
+            v-model="localMaximized"
             label="Maximizar fondo de pantalla"
             dense
             dark
@@ -151,7 +151,9 @@ export default defineComponent({
 
     const { userMe } = useUserMe();
 
-    const { roomState } = useRoom();
+    const { roomState, updateBgSize } = useRoom();
+
+    const localMaximized = ref(roomState.bgInfo.maximized);
 
     const { sendData } = useInitWebRTC();
 
@@ -198,7 +200,7 @@ export default defineComponent({
             console.log('Desactivar todos');
 
             sendData(userMe.id, {
-              eventType: 'SET_PARTICIPANT_ACTION',
+              eventType: 'SET_EVERYONE_ACTION',
               action: LOCK_ACTION_TYPE.All,
               value: false,
             });
@@ -216,7 +218,7 @@ export default defineComponent({
             console.log('Activar todos');
 
             sendData(userMe.id, {
-              eventType: 'SET_PARTICIPANT_ACTION',
+              eventType: 'SET_EVERYONE_ACTION',
               action: LOCK_ACTION_TYPE.All,
               value: true,
             });
@@ -234,9 +236,9 @@ export default defineComponent({
             console.log('Toggle mic: ', Number(!mic));
 
             sendData(userMe.id, {
-              eventType: 'SET_PARTICIPANT_ACTION',
+              eventType: 'SET_EVERYONE_ACTION',
               action: LOCK_ACTION_TYPE.Mic,
-              value: mic,
+              value: !mic,
             });
 
             window.xprops?.toggleLockAction?.(lockAction);
@@ -249,12 +251,12 @@ export default defineComponent({
               state: Number(!camera),
             } as lockAction;
 
-            console.log('Toggle camera: ', Number(!mic));
+            console.log('Toggle camera: ', Number(!camera));
 
             sendData(userMe.id, {
-              eventType: 'SET_PARTICIPANT_ACTION',
+              eventType: 'SET_EVERYONE_ACTION',
               action: LOCK_ACTION_TYPE.Camera,
-              value: camera,
+              value: !camera,
             });
 
             window.xprops?.toggleLockAction?.(lockAction);
@@ -267,12 +269,12 @@ export default defineComponent({
               state: Number(!screenShare),
             } as lockAction;
 
-            console.log('Toggle screenshare: ', Number(!mic));
+            console.log('Toggle screenshare: ', Number(!screenShare));
 
             sendData(userMe.id, {
-              eventType: 'SET_PARTICIPANT_ACTION',
+              eventType: 'SET_EVERYONE_ACTION',
               action: LOCK_ACTION_TYPE.Screen,
-              value: screenShare,
+              value: !screenShare,
             });
 
             window.xprops?.toggleLockAction?.(lockAction);
@@ -308,16 +310,15 @@ export default defineComponent({
       emit('close-room-info-card');
     };
 
-    watch(roomState, (value) => {
+    watch(localMaximized, (value) => {
       sendData(userMe.id, {
         eventType: 'UPDATE_ROOM_SIZE',
-        maximized: value.bgInfo.maximized,
+        maximized: value,
       });
 
-      window.xprops?.setBackgroundInfo?.(
-        roomState.bgInfo.url,
-        value.bgInfo.maximized
-      );
+      updateBgSize(value);
+
+      window.xprops?.setBackgroundInfo?.(roomState.bgInfo.url, value);
     });
 
     return {
@@ -332,6 +333,7 @@ export default defineComponent({
       actionsActivated,
       handleAllActions,
       ...toRefs(roomState),
+      localMaximized,
     };
   },
 });

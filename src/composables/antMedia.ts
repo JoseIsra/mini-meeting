@@ -549,7 +549,7 @@ export function useInitWebRTC() {
           console.log('Data Channel closed for stream id', obj);
           // isDataChannelOpen.value = false;
         } else if (info == 'data_received') {
-          // console.log(obj);
+          console.log(obj);
           const objParsed = JSON.parse(obj.data) as Message;
           const { eventType } = objParsed;
           //console.log(objParsed);
@@ -828,8 +828,6 @@ export function useInitWebRTC() {
               obj.data
             ) as ObjBlockParticipantAction;
 
-            console.log(action, value, participantId);
-
             if (participantId !== userMe.id) {
               return;
             }
@@ -893,6 +891,8 @@ export function useInitWebRTC() {
             const { action, value } = JSON.parse(
               obj.data
             ) as ObjBlockEveryoneAction;
+
+            console.log(action, value);
 
             if (action === LOCK_ACTION_TYPE.All) {
               // setMicBlock(value);

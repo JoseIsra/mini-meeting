@@ -32,13 +32,15 @@
       <div class="m-list__content__actions" v-show="userMe.roleId === 0">
         <span>
           {{
-            isEveryoneActionsBlocked ? 'Limitar acciones ' : 'Liberar acciones'
+            isEveryoneActionsBlocked ? 'Liberar acciones ' : 'Limitar acciones'
           }}
         </span>
 
         <q-btn
           :icon="isEveryoneMicBlocked ? 'mic_off' : 'mic'"
           @click="handleEveryoneActions(LOCK_ACTION_TYPE.Mic)"
+          :color="isEveryoneMicBlocked ? 'red' : ''"
+          text-color="white"
           size="8px"
         >
           <q-tooltip
@@ -59,6 +61,8 @@
         <q-btn
           :icon="isEveryoneVideoBlocked ? 'videocam_off' : 'videocam'"
           @click="handleEveryoneActions(LOCK_ACTION_TYPE.Camera)"
+          :color="isEveryoneVideoBlocked ? 'red' : ''"
+          text-color="white"
           size="8px"
         >
           <q-tooltip
@@ -83,6 +87,8 @@
               : 'desktop_windows'
           "
           @click="handleEveryoneActions(LOCK_ACTION_TYPE.Screen)"
+          :color="isEveryoneScreenShareBlocked ? 'red' : ''"
+          text-color="white"
           size="8px"
         >
           <q-tooltip
@@ -774,6 +780,8 @@ export default defineComponent({
             eventType: 'SET_EVERYONE_ACTION',
             value: false,
           });
+
+          // window.xprops?.toggleLockAction?.(0, 0, 0);
         } else {
           setEveryParticipantActions(action, true);
 
@@ -782,6 +790,8 @@ export default defineComponent({
             eventType: 'SET_EVERYONE_ACTION',
             value: true,
           });
+
+          // window.xprops?.toggleLockAction?.(1, 1, 1);
         }
       } else if (action === LOCK_ACTION_TYPE.Mic) {
         if (isEveryoneMicBlocked.value) {
@@ -800,6 +810,12 @@ export default defineComponent({
             eventType: 'SET_EVERYONE_ACTION',
             value: true,
           });
+
+          // window.xprops?.toggleLockAction?.(
+          //   Number(!mic),
+          //   Number(!camera),
+          //   Number(!screenShare)
+          // );
         }
       } else if (action === LOCK_ACTION_TYPE.Camera) {
         if (isEveryoneVideoBlocked.value) {

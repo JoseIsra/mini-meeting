@@ -182,7 +182,6 @@ export default defineComponent({
       () => isLandscape.value,
       (value) => {
         if (value) {
-          console.log('watcher con', value);
           if (
             studentPinned.value?.isScreenSharing ||
             studentPinned.value?.isCameraOn
@@ -191,7 +190,6 @@ export default defineComponent({
             orientationClass.value = 'landscapeMode';
           }
         } else {
-          console.log('watcher con', value);
           buttonMinimizeSpecialStyle.value = false;
           if (studentPinned.value?.isScreenSharing) {
             orientationClass.value = 'portraitMode';

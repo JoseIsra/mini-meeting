@@ -1,5 +1,9 @@
 <template>
-  <section class="a-userVideo" :style="styleOnMobile">
+  <section
+    class="a-userVideo"
+    :style="styleOnMobile"
+    :class="{ fade: screenMinimized }"
+  >
     <div
       class="a-userVideo__box"
       :class="{ fade: fullScreenObject.id == userMe.id }"
@@ -164,6 +168,7 @@ import { useToogleFunctions } from '@/composables';
 import { User, useUserMe } from '@/composables/userMe';
 import { useHandleParticipants } from '@/composables/participants';
 import { useQuasar } from 'quasar';
+import { useScreen } from '@/composables/screen';
 
 export default defineComponent({
   name: 'FuCooperateUserVideo',
@@ -181,6 +186,7 @@ export default defineComponent({
 
     const streamIdPinned = ref('');
     const $q = useQuasar();
+    const { screenMinimized } = useScreen();
 
     const goFullScreen = (arg: User | string) => {
       if (isFullScreen.value) {
@@ -211,6 +217,7 @@ export default defineComponent({
       fullScreenObject,
       controlUserToRender,
       styleOnMobile,
+      screenMinimized,
     };
   },
 });

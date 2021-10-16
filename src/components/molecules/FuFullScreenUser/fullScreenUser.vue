@@ -9,9 +9,10 @@
           />
         </figure>
         <div class="m-fuser__info">
-          <label class="m-fuser__info__userName">{{
-            studentPinned.name
-          }}</label>
+          <label class="m-fuser__info__userName"
+            >{{ studentPinned.name }}
+            {{ studentPinned.id === userMe.id ? '(Tú)' : '' }}</label
+          >
         </div>
         <div class="m-fuser__actions">
           <q-btn
@@ -215,6 +216,7 @@ export default defineComponent({
       gotPinnedUser,
       buttonMinimizeSpecialStyle,
       minimizeOnGlobalFocusedUser,
+      userMe,
     };
   },
 });

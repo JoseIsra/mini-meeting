@@ -182,7 +182,6 @@ import FuCooperateNetworkInfo from 'molecules/FuCooperateNetworkInfo';
 import { useInitWebRTC } from '@/composables/antMedia';
 import { useScreen } from '@/composables/screen';
 import { useActions } from '@/composables/actions';
-import { useRoom } from '@/composables/room';
 import { useHandleParticipants } from '@/composables/participants';
 
 export default defineComponent({
@@ -206,8 +205,6 @@ export default defineComponent({
     const { sendData } = useInitWebRTC();
 
     const { periferics, functions, options } = useActions();
-
-    const { roomState } = useRoom();
 
     const { waitingParticipants } = useHandleParticipants();
 
@@ -388,7 +385,7 @@ export default defineComponent({
     };
 
     const disableAction = (action: Icons) => {
-      if (action.onState === 'mic' && roomState.isMicBlocked) {
+      if (action.onState === 'mic' && userMe.isMicBlocked) {
         return true;
       }
 
@@ -400,11 +397,11 @@ export default defineComponent({
       //   return true;
       // }
 
-      if (action.onState === 'videocam' && roomState.isCameraBlocked) {
+      if (action.onState === 'videocam' && userMe.isCameraBlocked) {
         return true;
       }
 
-      if (action.onState === 'monitor' && roomState.isScreenShareBlocked) {
+      if (action.onState === 'monitor' && userMe.isScreenShareBlocked) {
         return true;
       }
 

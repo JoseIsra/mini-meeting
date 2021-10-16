@@ -120,17 +120,17 @@ export default defineComponent({
       roomRestriction = parseInt(route.query.roomRestriction as string) || 0;
     }
 
-    const isMicLocked =
-      window.xprops?.isMicLocked ||
-      (route.query.mic as string) === '1' ||
-      false;
+    const isMicLocked = window.xprops?.isMicLocked || false;
+
+    console.log(isMicLocked);
 
     const isCameraLocked = window.xprops?.isCameraLocked || false;
 
-    const isScreenShareLocked =
-      window.xprops?.isScreenShareLocked ||
-      (route.query.screen as string) === '1' ||
-      false;
+    console.log(isCameraLocked);
+
+    const isScreenShareLocked = window.xprops?.isScreenShareLocked || false;
+
+    console.log(isScreenShareLocked);
 
     const sharingLink =
       window?.xprops?.sharedLink || (route.query.sharedLink as string) || '';
@@ -182,7 +182,7 @@ export default defineComponent({
       name: streamName,
       avatar,
       roleId,
-      isMicOn: isMicOn ? true : isMicLocked,
+      isMicOn: isMicLocked ? false : isMicOn,
       isCameraOn,
       isScreenSharing: false,
       isVideoActivated: isCameraOn,
@@ -217,9 +217,9 @@ export default defineComponent({
       sharingLink,
       classroomId,
       roomRestriction: roleId === 1 ? roomRestriction : 0,
-      isMicBlocked: roleId === 1 ? isMicLocked : false,
-      isCameraBlocked: roleId === 1 ? isCameraLocked : false,
-      isScreenShareBlocked: roleId === 1 ? isScreenShareLocked : false,
+      isMicBlocked: isMicLocked,
+      isCameraBlocked: isCameraLocked,
+      isScreenShareBlocked: isScreenShareLocked,
       bgInfo: bgInfo,
       isBeingRecorded,
       recordingUrl: '',

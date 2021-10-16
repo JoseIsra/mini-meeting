@@ -18,7 +18,7 @@
       :isCameraLocked="actions.camera === 1"
       :isScreenShareLocked="actions.screenshare === 1"
       :getB2Info="getB2Info"
-      :roleId="1"
+      :roleId="0"
       :roomRestriction="0"
       photoURL="https://encrypted.fractalup.com/file/MainPublic/classrooms/1/users/44/assets/1623873430710.png"
       :bgInfo="bgInfo"
@@ -27,8 +27,8 @@
       fractalUserId="34i2jkd23"
       :setPinnedUser="setPinnedUser"
       :pinnedUser="pinnedUser"
-      :isMicOn="true"
-      :isCameraOn="true"
+      :isMicOn="false"
+      :isCameraOn="false"
       :isBeingRecorded="isBeingRecorded"
     />
   </div>

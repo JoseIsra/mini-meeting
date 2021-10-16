@@ -145,6 +145,7 @@ export default defineComponent({
     // });
 
     const hideMenuBar = _.debounce(() => {
+      console.log('the hide debounce activated');
       showMenuBar.value = false;
       showUsersVideoList.value = false;
     }, 6000);
@@ -158,6 +159,7 @@ export default defineComponent({
       }
     );
     const toogleMenuBar = () => {
+      console.log('the toogle activated');
       if (!showMenuBar.value) {
         showMenuBar.value = true;
         showUsersVideoList.value = true;

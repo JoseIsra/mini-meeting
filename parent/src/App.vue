@@ -14,9 +14,9 @@
       :toggleLockAction="toggleLockAction"
       sharedLink="sharedLinkTest"
       classroomId="1"
-      :isCameraLocked="false"
-      :isScreenShareLocked="false"
-      :isMicLocked="false"
+      :isMicLocked="actions.mic === 1"
+      :isCameraLocked="actions.camera === 1"
+      :isScreenShareLocked="actions.screenshare === 1"
       :getB2Info="getB2Info"
       :roleId="0"
       :roomRestriction="0"
@@ -66,6 +66,9 @@ export default Vue.extend({
       bgInfo: localStorage.bgInfo
         ? JSON.parse(localStorage.bgInfo)
         : { url: "", maximized: false },
+      actions: localStorage.actions
+        ? JSON.parse(localStorage.actions)
+        : { mic: 0, camera: 0, screenshare: 0 },
       isBeingRecorded: localStorage.isBeingRecorded === "true",
     };
   },
@@ -87,8 +90,21 @@ export default Vue.extend({
     handleStartRecording: function () {
       window.localStorage.isBeingRecorded = true;
     },
-    toggleLockAction: function (options: Record<string, number>) {
-      console.log("⭐ toggle log action with params", options);
+    toggleLockAction: function ({
+      mic,
+      camera,
+      screenshare,
+    }: {
+      mic: number;
+      camera: number;
+      screenshare: number;
+    }) {
+      console.log("⭐ toggle log action with params", mic, camera, screenshare);
+      window.localStorage.actions = JSON.stringify({
+        mic: mic,
+        camera: camera,
+        screenshare: screenshare,
+      });
     },
     getB2Info: async function () {
       const myQuery = `

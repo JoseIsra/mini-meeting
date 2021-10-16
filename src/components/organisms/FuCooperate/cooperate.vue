@@ -1,10 +1,7 @@
 <template>
   <section
     class="o-cooperate"
-    v-touch:tap="toogleMenuBar"
-    v-on="{
-      mousemove: !screenMinimized ? toogleMenuBar : null,
-    }"
+    v-on="{ mousemove: !screenMinimized ? toogleMenuBar : null }"
     @click.self="closePanels"
     :style="`
       background: url('${bgInfo.url}') #36393f;
@@ -43,7 +40,7 @@
     </transition>
     <fu-cooperate-user-video
       v-show="
-        $q.screen.lt.md && !screenMinimized
+        !screenMinimized && $q.screen.lt.md
           ? showUsersVideoList
           : !screenMinimized
       "
@@ -67,7 +64,14 @@
 </template>
 //TODO: OBJETO DE USUARIO GLOBAL
 <script lang="ts">
-import { defineComponent, ref, toRefs, onMounted, onBeforeUnmount } from 'vue';
+import {
+  defineComponent,
+  ref,
+  toRefs,
+  onMounted,
+  onBeforeUnmount,
+  watch,
+} from 'vue';
 import FuCooperateMenuBar from 'organisms/FuCooperateMenuBar';
 import FuCooperateHeader from 'molecules/FuCooperateHeader';
 import FuCooperateUserVideo from 'atoms/FuCooperateUserVideo';
@@ -146,6 +150,14 @@ export default defineComponent({
       showUsersVideoList.value = false;
     }, 6000);
 
+    watch(
+      () => screenMinimized.value,
+      (value) => {
+        if (value) {
+          hideMenuBar.cancel();
+        }
+      }
+    );
     const toogleMenuBar = () => {
       console.log('the toogle activated');
       if (!showMenuBar.value) {
@@ -166,10 +178,8 @@ export default defineComponent({
     const handleOrientationChange = () => {
       const orientation = window.screen.orientation.type;
       if (orientation == 'landscape-primary') {
-        console.log('retrato');
         setScreenDeviceOrientation(true);
       } else if (orientation == 'portrait-primary') {
-        console.log('portrta');
         setScreenDeviceOrientation(false);
       }
     };

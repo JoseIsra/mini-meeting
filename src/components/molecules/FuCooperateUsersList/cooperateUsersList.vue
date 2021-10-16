@@ -32,13 +32,15 @@
       <div class="m-list__content__actions" v-show="userMe.roleId === 0">
         <span>
           {{
-            isEveryoneActionsBlocked ? 'Limitar acciones ' : 'Liberar acciones'
+            isEveryoneActionsBlocked ? 'Liberar acciones ' : 'Limitar acciones'
           }}
         </span>
 
         <q-btn
           :icon="isEveryoneMicBlocked ? 'mic_off' : 'mic'"
           @click="handleEveryoneActions(LOCK_ACTION_TYPE.Mic)"
+          :color="isEveryoneMicBlocked ? 'red' : ''"
+          text-color="white"
           size="8px"
         >
           <q-tooltip
@@ -59,6 +61,8 @@
         <q-btn
           :icon="isEveryoneVideoBlocked ? 'videocam_off' : 'videocam'"
           @click="handleEveryoneActions(LOCK_ACTION_TYPE.Camera)"
+          :color="isEveryoneVideoBlocked ? 'red' : ''"
+          text-color="white"
           size="8px"
         >
           <q-tooltip
@@ -83,6 +87,8 @@
               : 'desktop_windows'
           "
           @click="handleEveryoneActions(LOCK_ACTION_TYPE.Screen)"
+          :color="isEveryoneScreenShareBlocked ? 'red' : ''"
+          text-color="white"
           size="8px"
         >
           <q-tooltip
@@ -128,7 +134,19 @@
             :src="userMe.avatar"
             alt="avatar-logo"
           />
+
+          <!-- HOST - ADMIN  -->
+
+          <q-avatar
+            v-show="userMe.roleId === 0"
+            class="m-list__content__userBox__avatar__token"
+            color="blue-8"
+            text-color="white"
+            :icon="userMe.isHost ? 'fas fa-crown' : 'fas fa-user-shield'"
+            size="18px"
+          />
         </aside>
+
         <div class="m-list__content__userBox__name">{{ userMe.name }} (Tú)</div>
         <div class="m-list__content__userBox__actions">
           <q-btn
@@ -137,15 +155,13 @@
               { '--noActionable': userMe.roleId === 1 },
             ]"
             :icon="userMe.isMicOn ? 'mic' : 'mic_off'"
-            :color="
-              userMe.isMicOn ? 'blue' : roomState.isMicBlocked ? 'red' : ''
-            "
+            :color="userMe.isMicOn ? 'blue' : userMe.isMicBlocked ? 'red' : ''"
             text-color="white"
           >
             <q-tooltip class="bg-grey-10">
               <label v-if="userMe.isMicOn"> Microfono prendido </label>
-              <label v-else-if="roomState.isMicBlocked">
-                Microfono bloqueado
+              <label v-else-if="userMe.isMicBlocked">
+                Microfono Bloqueado
               </label>
               <label v-else> Microfono apagado </label>
             </q-tooltip>
@@ -158,18 +174,14 @@
             ]"
             :icon="userMe.isCameraOn ? 'videocam' : 'videocam_off'"
             :color="
-              userMe.isCameraOn
-                ? 'blue'
-                : roomState.isCameraBlocked
-                ? 'red'
-                : ''
+              userMe.isCameraOn ? 'blue' : userMe.isCameraBlocked ? 'red' : ''
             "
             text-color="white"
           >
             <q-tooltip class="bg-grey-10">
               <label v-if="userMe.isCameraOn"> Camara encendida </label>
-              <label v-else-if="roomState.isCameraBlocked">
-                Camara bloqueada
+              <label v-else-if="userMe.isCameraBlocked">
+                Camara Bloqueada
               </label>
               <label v-else> Camara apagada </label>
             </q-tooltip>
@@ -188,7 +200,7 @@
             :color="
               userMe.isScreenSharing
                 ? 'blue'
-                : roomState.isScreenShareBlocked
+                : userMe.isScreenShareBlocked
                 ? 'red'
                 : ''
             "
@@ -198,8 +210,8 @@
               <label v-if="userMe.isScreenSharing">
                 Compartir pantalla activo
               </label>
-              <label v-else-if="roomState.isScreenShareBlocked">
-                Compartir pantalla bloqueado
+              <label v-else-if="userMe.isScreenShareBlocked">
+                Compartir pantalla Bloqueado
               </label>
               <label v-else> Compartir pantalla inactivo </label>
             </q-tooltip>
@@ -228,7 +240,7 @@
                       transition-hide="scale"
                     >
                       <label v-if="listenFullScreen.id === userMe.id">
-                        Usuario fijado</label
+                        Desfijar usuario</label
                       >
                       <label v-else> Fijarte para todos</label>
                     </q-tooltip>
@@ -294,6 +306,15 @@
             :src="participant.avatar"
             alt="avatar-logo"
           />
+
+          <q-avatar
+            v-show="participant.roleId === 0"
+            class="m-list__content__userBox__avatar__token"
+            color="blue-8"
+            text-color="white"
+            icon="fas fa-user-shield"
+            size="18px"
+          />
         </aside>
         <div class="m-list__content__userBox__name">{{ participant.name }}</div>
 
@@ -319,11 +340,8 @@
               transition-show="scale"
               transition-hide="scale"
             >
-              <label>{{
-                participant.isMicBlocked
-                  ? 'Desbloquear Microfono'
-                  : 'Bloquear Microfono'
-              }}</label>
+              <!-- Encedido Apagado Bloquear Desbloquear -->
+              <label>{{ participantActionsToolTip(1, participant) }}</label>
             </q-tooltip>
           </q-btn>
 
@@ -347,11 +365,7 @@
               transition-show="scale"
               transition-hide="scale"
             >
-              <label class="">{{
-                participant.isCameraBlocked
-                  ? 'Desbloquear Camara'
-                  : 'Bloquear Camara'
-              }}</label>
+              <label>{{ participantActionsToolTip(2, participant) }}</label>
             </q-tooltip>
           </q-btn>
 
@@ -379,11 +393,7 @@
               transition-show="scale"
               transition-hide="scale"
             >
-              <label class="">{{
-                participant.isScreenShareBlocked
-                  ? 'Desbloquear Compartir Pantalla'
-                  : 'Bloquear Compartir Pantalla'
-              }}</label>
+              <label>{{ participantActionsToolTip(3, participant) }}</label>
             </q-tooltip>
           </q-btn>
 
@@ -409,7 +419,7 @@
                       transition-hide="scale"
                     >
                       <label v-if="listenFullScreen.id === participant.id">
-                        Usuario fijado</label
+                        Desfijar usuario</label
                       >
                       <label v-else> Fijar usuario para todos</label>
                     </q-tooltip>
@@ -432,7 +442,7 @@
                       transition-hide="scale"
                     >
                       <label v-if="listenFullScreen.id == participant.id">
-                        Usuario fijado</label
+                        Desfijar usuario</label
                       >
                       <label v-else>Fijar usuario</label>
                     </q-tooltip>
@@ -559,6 +569,7 @@
               }}</label>
             </q-tooltip>
           </q-btn>
+
           <q-btn
             :icon="
               listenFullScreen.id == participant.id
@@ -576,7 +587,7 @@
               transition-hide="scale"
             >
               <label v-if="listenFullScreen.id == participant.id">
-                Usuario fijado</label
+                Desfijar usuario</label
               >
               <label v-else>Fijar usuario</label>
             </q-tooltip>
@@ -593,7 +604,7 @@ import { useHandleParticipants } from '@/composables/participants';
 import { User, useUserMe } from '@/composables/userMe';
 import { useInitWebRTC } from '@/composables/antMedia';
 import { Participant } from '@/types';
-import { LOCK_ACTION_TYPE } from '@/utils/enums';
+import { LOCK_ACTION_TYPE, USER_ROLE } from '@/utils/enums';
 import { nanoid } from 'nanoid';
 import { useSidebarToogle } from '@/composables';
 import { useToogleFunctions } from '@/composables';
@@ -615,7 +626,13 @@ export default defineComponent({
 
     const { sendData } = useInitWebRTC();
 
-    const { roomState, updateFocus } = useRoom();
+    const {
+      roomState,
+      updateFocus,
+      setRoomMicState,
+      setRoomCameraState,
+      setRoomScreenShareState,
+    } = useRoom();
 
     const {
       setFullScreen,
@@ -631,25 +648,12 @@ export default defineComponent({
       return '';
     });
 
-    const isEveryoneMicBlocked = computed(
-      () =>
-        !admittedParticipants.value.some(
-          (participant) => participant?.isMicBlocked === false
-        )
-    );
+    const isEveryoneMicBlocked = computed(() => roomState.isMicBlocked);
 
-    const isEveryoneVideoBlocked = computed(
-      () =>
-        !admittedParticipants.value.some(
-          (participant) => participant?.isCameraBlocked === false
-        )
-    );
+    const isEveryoneVideoBlocked = computed(() => roomState.isCameraBlocked);
 
     const isEveryoneScreenShareBlocked = computed(
-      () =>
-        !admittedParticipants.value.some(
-          (participant) => participant?.isScreenShareBlocked === false
-        )
+      () => roomState.isScreenShareBlocked
     );
 
     const isEveryoneActionsBlocked = computed(
@@ -658,18 +662,6 @@ export default defineComponent({
         isEveryoneVideoBlocked.value &&
         isEveryoneScreenShareBlocked.value
     );
-
-    const hasActionsBlocked = (participant: Participant) => {
-      const participantActions = admittedParticipants.value.find(
-        (part) => part.id === participant.id
-      );
-
-      return (
-        participantActions?.isMicBlocked === true &&
-        participantActions?.isCameraBlocked === true &&
-        participantActions?.isScreenShareBlocked === true
-      );
-    };
 
     const isMicBlocked = (participant: Participant) =>
       admittedParticipants.value.find((part) => part.id === participant.id)
@@ -687,6 +679,10 @@ export default defineComponent({
       participant: Participant,
       action: number
     ) => {
+      if (participant.roleId === USER_ROLE.ADMINISTRATOR) {
+        return;
+      }
+
       const blockActions = {
         id: nanoid(),
         streamId: userMe.id,
@@ -737,7 +733,6 @@ export default defineComponent({
           });
         }
       } else {
-        // LOCK_ACTION_TYPE.Screen
         if (isScreenShareBlocked(participant)) {
           setParticipantActions(participant.id as string, action, false);
 
@@ -758,6 +753,61 @@ export default defineComponent({
       }
     };
 
+    const participantActionsToolTip = (
+      action: number,
+      participant: Participant
+    ) => {
+      if (participant.roleId === USER_ROLE.REGULAR_PARTICIPANT) {
+        switch (action) {
+          case 1:
+            return participant.isMicOn
+              ? 'Microfono Encendido'
+              : participant.isMicBlocked
+              ? 'Desbloquear Microfono'
+              : 'Bloquear Microfono';
+            break;
+          case 2:
+            return participant.isCameraOn
+              ? 'Camara encendida'
+              : participant.isCameraBlocked
+              ? 'Desbloquear Camara'
+              : 'Bloquear Camara';
+            break;
+          case 3:
+            return participant.isScreenSharing
+              ? 'Compartiendo Pantalla'
+              : participant.isScreenShareBlocked
+              ? 'Desbloquear Compartir Pantalla'
+              : 'Bloquear Compartir Pantalla';
+            break;
+          default:
+            return 'Error';
+            break;
+        }
+      } else {
+        switch (action) {
+          case 1:
+            return participant.isMicOn
+              ? 'Microfono Encendido'
+              : 'Microfono Apagado';
+            break;
+          case 2:
+            return participant.isCameraOn
+              ? 'Camara Encendida'
+              : 'Camara Apagada';
+            break;
+          case 3:
+            return participant.isScreenSharing
+              ? 'Compartiendo Pantalla'
+              : 'Compartir Pantalla Apagada';
+            break;
+          default:
+            return 'Error';
+            break;
+        }
+      }
+    };
+
     const handleEveryoneActions = (action: number) => {
       const blockActions = {
         id: nanoid(),
@@ -769,98 +819,143 @@ export default defineComponent({
         if (isEveryoneActionsBlocked.value) {
           setEveryParticipantActions(action, false);
 
+          setRoomMicState(false);
+          setRoomCameraState(false);
+          setRoomScreenShareState(false);
+
           sendData(userMe.id, {
             ...blockActions,
             eventType: 'SET_EVERYONE_ACTION',
             value: false,
           });
+
+          window.xprops?.toggleLockAction?.({
+            mic: 0,
+            camera: 0,
+            screenshare: 0,
+          });
         } else {
           setEveryParticipantActions(action, true);
+
+          setRoomMicState(true);
+          setRoomCameraState(true);
+          setRoomScreenShareState(true);
 
           sendData(userMe.id, {
             ...blockActions,
             eventType: 'SET_EVERYONE_ACTION',
             value: true,
+          });
+
+          window.xprops?.toggleLockAction?.({
+            mic: 1,
+            camera: 1,
+            screenshare: 1,
           });
         }
       } else if (action === LOCK_ACTION_TYPE.Mic) {
         if (isEveryoneMicBlocked.value) {
           setEveryParticipantActions(action, false);
 
+          setRoomMicState(false);
+
           sendData(userMe.id, {
             ...blockActions,
             eventType: 'SET_EVERYONE_ACTION',
             value: false,
           });
+
+          window.xprops?.toggleLockAction?.({
+            mic: 0,
+            camera: Number(roomState.isCameraBlocked),
+            screenshare: Number(roomState.isScreenShareBlocked),
+          });
         } else {
           setEveryParticipantActions(action, true);
+
+          setRoomMicState(true);
 
           sendData(userMe.id, {
             ...blockActions,
             eventType: 'SET_EVERYONE_ACTION',
             value: true,
+          });
+
+          window.xprops?.toggleLockAction?.({
+            mic: 1,
+            camera: Number(roomState.isCameraBlocked),
+            screenshare: Number(roomState.isScreenShareBlocked),
           });
         }
       } else if (action === LOCK_ACTION_TYPE.Camera) {
         if (isEveryoneVideoBlocked.value) {
           setEveryParticipantActions(action, false);
 
+          setRoomCameraState(false);
+
           sendData(userMe.id, {
             ...blockActions,
             eventType: 'SET_EVERYONE_ACTION',
             value: false,
           });
+
+          window.xprops?.toggleLockAction?.({
+            mic: Number(roomState.isMicBlocked),
+            camera: 0,
+            screenshare: Number(roomState.isScreenShareBlocked),
+          });
         } else {
           setEveryParticipantActions(action, true);
+
+          setRoomCameraState(true);
 
           sendData(userMe.id, {
             ...blockActions,
             eventType: 'SET_EVERYONE_ACTION',
             value: true,
+          });
+
+          window.xprops?.toggleLockAction?.({
+            mic: Number(roomState.isMicBlocked),
+            camera: 1,
+            screenshare: Number(roomState.isScreenShareBlocked),
           });
         }
       } else if (action === LOCK_ACTION_TYPE.Screen) {
         if (isEveryoneScreenShareBlocked.value) {
           setEveryParticipantActions(action, false);
 
+          setRoomScreenShareState(false);
+
           sendData(userMe.id, {
             ...blockActions,
             eventType: 'SET_EVERYONE_ACTION',
             value: false,
           });
+
+          window.xprops?.toggleLockAction?.({
+            mic: Number(roomState.isMicBlocked),
+            camera: Number(roomState.isCameraBlocked),
+            screenshare: 0,
+          });
         } else {
           setEveryParticipantActions(action, true);
+
+          setRoomScreenShareState(true);
 
           sendData(userMe.id, {
             ...blockActions,
             eventType: 'SET_EVERYONE_ACTION',
             value: true,
           });
+
+          window.xprops?.toggleLockAction?.({
+            mic: Number(roomState.isMicBlocked),
+            camera: Number(roomState.isCameraBlocked),
+            screenshare: 1,
+          });
         }
       }
-
-      // AllActionsBlocked
-      // AllMicBlocked
-      // AllCameraBlocked
-      // AllShareScreenBlocked
-
-      // if (isEveryoneBlocked.value) {
-      //   unlockEveryParticipantActions();
-
-      // sendData(userMe.id, {
-      //   ...blockActions,
-      //   eventType: 'SET_EVERYONE_ACTION',
-      //   value: false,
-      // });
-      // } else {
-      //   lockEveryParticipantActions();
-
-      //   sendData(userMe.id, {
-      //     ...blockActions,
-      //     eventType: 'SET_EVERYONE_ACTION',
-      //     value: true,
-      //   });
-      // }
     };
 
     const handleKickParticipant = (participant: Participant) => {
@@ -881,7 +976,7 @@ export default defineComponent({
     };
 
     const handleEveryoneFocus = (user: User) => {
-      if (roomState.pinnedUser === user) {
+      if (roomState.pinnedUser?.id === user.id) {
         cancelEveryoneFullScreen();
       } else {
         setFullScreen('user', true);
@@ -916,7 +1011,6 @@ export default defineComponent({
       waitingParticipants,
       admittedParticipants,
       toggleParticipantPanel,
-      hasActionsBlocked,
       handleEveryoneActions,
       userMe,
       isEveryoneMicBlocked,
@@ -937,6 +1031,7 @@ export default defineComponent({
       cancelEveryoneFullScreen,
       roomState,
       closeUserListPanel,
+      participantActionsToolTip,
     };
   },
 });

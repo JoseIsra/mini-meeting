@@ -9,9 +9,10 @@
           />
         </figure>
         <div class="m-fuser__info">
-          <label class="m-fuser__info__userName">{{
-            studentPinned.name
-          }}</label>
+          <label class="m-fuser__info__userName"
+            >{{ studentPinned.name }}
+            {{ studentPinned.id === userMe.id ? '(Tú)' : '' }}</label
+          >
         </div>
         <div class="m-fuser__actions">
           <q-btn
@@ -181,7 +182,6 @@ export default defineComponent({
       () => isLandscape.value,
       (value) => {
         if (value) {
-          console.log('watcher con', value);
           if (
             studentPinned.value?.isScreenSharing ||
             studentPinned.value?.isCameraOn
@@ -190,7 +190,6 @@ export default defineComponent({
             orientationClass.value = 'landscapeMode';
           }
         } else {
-          console.log('watcher con', value);
           buttonMinimizeSpecialStyle.value = false;
           if (studentPinned.value?.isScreenSharing) {
             orientationClass.value = 'portraitMode';
@@ -217,6 +216,7 @@ export default defineComponent({
       gotPinnedUser,
       buttonMinimizeSpecialStyle,
       minimizeOnGlobalFocusedUser,
+      userMe,
     };
   },
 });

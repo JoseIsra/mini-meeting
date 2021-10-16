@@ -122,15 +122,9 @@ export default defineComponent({
 
     const isMicLocked = window.xprops?.isMicLocked || false;
 
-    console.log('Mic-block incoming status: ', isMicLocked);
-
     const isCameraLocked = window.xprops?.isCameraLocked || false;
 
-    console.log('Camera-block incoming status: ', isCameraLocked);
-
     const isScreenShareLocked = window.xprops?.isScreenShareLocked || false;
-
-    console.log('Screenshare-block incoming status: ', isScreenShareLocked);
 
     const sharingLink =
       window?.xprops?.sharedLink || (route.query.sharedLink as string) || '';
@@ -145,14 +139,10 @@ export default defineComponent({
       (route.query.isCameraOn as string) === 'camera' ||
       false;
 
-    console.log('Camera incoming status: ', isCameraOn);
-
     const isMicOn =
       window?.xprops?.isMicOn ||
       (route.query.isMicOn as string) == 'micro' ||
       false;
-
-    console.log('Mic incoming status: ', isMicOn);
 
     const isHost =
       window?.xprops?.isHost ||

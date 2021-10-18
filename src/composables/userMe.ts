@@ -20,8 +20,10 @@ export interface User {
   videoInstance?: HTMLMediaElement & { playerId: string };
   currentTime?: number;
   isPlayingVideo?: boolean;
-  isRecording: boolean;  
+  isRecording: boolean;
   isHost: boolean;
+  cameraId?: string;
+  micId?: string;
 }
 
 export interface UpdatedUserfields {
@@ -41,6 +43,8 @@ export interface UpdatedUserfields {
   isPlayingVideo?: boolean;
   isRecording?: boolean;
   isHost?: boolean;
+  cameraId?: string;
+  micId?: string;
 }
 
 // blocked: some functionalities blocked (mic, screen, camera)
@@ -86,7 +90,7 @@ export function useUserMe() {
   };
 
   // const setCameraDevice = (value: string) => {
-  //   userMe.cameraDeviceId = value;
+  //   userMe.cameraId = value;
   // };
 
   const setVideoActivatedState = (value: boolean) => {

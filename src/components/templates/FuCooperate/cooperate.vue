@@ -123,6 +123,9 @@ export default defineComponent({
     const isMicLocked = window.xprops?.isMicLocked || false;
 
     console.log(isMicLocked);
+    const cameraId =
+      window.xprops?.cameraId || (route.query.cameraId as string);
+    const micId = window.xprops?.micId || (route.query.micId as string);
 
     const isCameraLocked = window.xprops?.isCameraLocked || false;
 
@@ -204,6 +207,8 @@ export default defineComponent({
       existVideo: false,
       isRecording: false,
       isHost,
+      cameraId,
+      micId,
     });
 
     setMicIconState(isMicLocked ? false : isMicOn);

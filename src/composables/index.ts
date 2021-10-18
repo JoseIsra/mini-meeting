@@ -17,7 +17,7 @@ interface PerifericsState {
   isMicOn: boolean;
   isCameraOn: boolean;
   isScreenShared: boolean;
-  cameraDeviceId: string;
+  cameraId: string;
   isVideoActivated: boolean;
 }
 
@@ -48,7 +48,7 @@ const perifericsState = {
   isMicOn: true,
   isCameraOn: false,
   isScreenShared: false,
-  cameraDeviceId: '',
+  cameraId: '',
   isVideoActivated: false,
 };
 
@@ -150,7 +150,7 @@ export function usePerifericsControls() {
   };
 
   const setCameraDevice = (value: string) => {
-    perifericsControl.cameraDeviceId = value;
+    perifericsControl.cameraId = value;
   };
 
   const setVideoActivatedState = (value: boolean) => {

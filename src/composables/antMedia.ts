@@ -1217,10 +1217,23 @@ export function useInitWebRTC() {
   };
 
   const turnOnLocalCamera = (streamId: string) => {
+    /* navigator.mediaDevices
+      .enumerateDevices()
+      .then((devices) => {
+        console.log(devices);
+        const filtrado = devices.filter((x) => x.kind === 'videoinput')[0];
+        cameraId = filtrado.deviceId;
+        webRTCInstance.value.switchVideoCameraCapture?.(streamId, cameraId);
+      })
+      .catch((err) => console.log(err)); */
+    webRTCInstance.value.switchVideoCameraCapture?.(streamId, userMe.cameraId);
+    console.log(userMe.cameraId, '📸📸');
     webRTCInstance.value.turnOnLocalCamera?.(streamId);
   };
 
   const unmuteLocalMic = () => {
+    //webRTCInstance.value.switchAudioInputSource(userMe.id, userMe.micId);
+    console.log(userMe.micId, '🎤🎤');
     webRTCInstance.value.unmuteLocalMic?.();
   };
 

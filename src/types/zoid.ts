@@ -30,6 +30,8 @@ export interface ZoidProps {
   roomRestriction?: number;
   isHost?: boolean;
   startDate?: string;
+  cameraId?: string;
+  micId?: string;
   handleLeaveCall?: (
     arg: number,
     remainingParticipantsFractalUserIds?: string[]

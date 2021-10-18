@@ -2,6 +2,7 @@
   <section
     class="o-cooperate"
     v-on="{ mousemove: !screenMinimized ? toogleMenuBar : null }"
+    v-touch:tap="toogleMenuBar"
     @click.self="closePanels"
     :style="`
       background: url('${bgInfo.url}') #36393f;

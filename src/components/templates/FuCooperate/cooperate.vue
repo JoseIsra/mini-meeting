@@ -122,15 +122,9 @@ export default defineComponent({
 
     const isMicLocked = window.xprops?.isMicLocked || false;
 
-    console.log(isMicLocked);
-
     const isCameraLocked = window.xprops?.isCameraLocked || false;
 
-    console.log(isCameraLocked);
-
     const isScreenShareLocked = window.xprops?.isScreenShareLocked || false;
-
-    console.log(isScreenShareLocked);
 
     const sharingLink =
       window?.xprops?.sharedLink || (route.query.sharedLink as string) || '';
@@ -171,21 +165,17 @@ export default defineComponent({
 
     const { setIDButtonSelected, setFullScreen } = useToogleFunctions();
 
-    if (isCameraOn) {
-      setVideoActivatedState(true);
-      setCameraState(true);
-      setCameraIconState(true);
-    }
-
     setUserMe({
       id: streamId,
       name: streamName,
       avatar,
       roleId,
-      isMicOn: isMicLocked ? false : isMicOn,
-      isCameraOn,
+      isMicOn: roleId === 1 ? (isMicLocked ? false : isMicOn) : isMicOn,
+      isCameraOn:
+        roleId === 1 ? (isCameraLocked ? false : isCameraOn) : isCameraOn,
       isScreenSharing: false,
-      isVideoActivated: isCameraOn,
+      isVideoActivated:
+        roleId === 1 ? (isCameraLocked ? false : isCameraOn) : isCameraOn,
       isMicBlocked: roleId === 1 ? isMicLocked : false,
       isCameraBlocked: roleId === 1 ? isCameraLocked : false,
       isScreenShareBlocked: roleId === 1 ? isScreenShareLocked : false,
@@ -195,20 +185,10 @@ export default defineComponent({
           ? PERMISSION_STATUS.asked
           : PERMISSION_STATUS.admitted
         : PERMISSION_STATUS.admitted,
-      // denied:
-      //   roleId === 1
-      //     ? privacy
-      //       ? PERMISSION_STATUS.asked
-      //       : PERMISSION_STATUS.admitted
-      //     : PERMISSION_STATUS.admitted,
       existVideo: false,
       isRecording: false,
       isHost,
     });
-
-    setMicIconState(isMicLocked ? false : isMicOn);
-    // setCameraIconState(!isCameraLocked);
-    // setScreenShareIconState(!isScreenShareLocked);
 
     const startDate = window.xprops?.startDate || '2020-01-11 11:23';
 
@@ -228,31 +208,18 @@ export default defineComponent({
       startDate,
     });
 
+    setMicIconState(roleId === 1 ? (isMicLocked ? false : isMicOn) : isMicOn);
+
+    if (roleId === 1 ? (isCameraLocked ? false : isCameraOn) : isCameraOn) {
+      setVideoActivatedState(true);
+      setCameraIconState(true);
+      setCameraState(true);
+      turnOnLocalCamera(streamId);
+      sendNotificationEvent('CAM_TURNED_ON', streamId);
+    }
+
     if (userPinnedZoid) {
       setFullScreen('user', true);
-    }
-
-    if (isMicLocked) {
-      sendNotificationEvent('MIC_MUTED', streamId);
-      // if (roleId === 1) {
-      //   setMicState(!isMicLocked);
-      // }
-    }
-
-    if (isCameraLocked) {
-      setVideoActivatedState(!isCameraLocked);
-      sendNotificationEvent('CAM_TURNED_OFF', userMe.id);
-      // if (roleId === 1) {
-      //   setCameraState(!isCameraLocked);
-      // }
-    }
-
-    if (isScreenShareLocked) {
-      setVideoActivatedState(!isScreenShareLocked);
-      sendNotificationEvent('SCREEN_SHARING_OFF', userMe.id);
-      // if (roleId === 1) {
-      //   setScreenState(!isScreenShareLocked);
-      // }
     }
 
     const publishToken =

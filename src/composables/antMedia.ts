@@ -13,7 +13,7 @@ import { Message, useHandleMessage } from '@/composables/chat';
 import { useToogleFunctions } from '@/composables';
 import { useRoom } from '@/composables/room';
 import { PERMISSION_STATUS } from '@/utils/enums';
-import { notifyWithAction } from '@/utils/notify';
+import { notifyWithAction, warningMessage } from '@/utils/notify';
 import { useExternalVideo } from './external-video';
 import videojs from 'video.js';
 import { useActions } from '@/composables/actions';
@@ -636,6 +636,7 @@ export function useInitWebRTC() {
             } else if (notificationType == 'RECORDING_STARTED') {
               updateRoom({ isBeingRecorded: true });
             } else if (notificationType == 'RECORDING_STOPPED') {
+              warningMessage('Grabación terminada ⏹️');
               updateRoom({ isBeingRecorded: false });
               const stateParsed = JSON.parse(
                 obj.data
@@ -757,7 +758,7 @@ export function useInitWebRTC() {
                 user.fractalUserId =
                   remoteUserInfoParsed.userInfo.fractalUserId;
                 user.denied = remoteUserInfoParsed.userInfo.denied;
-                user.isRecording = remoteUserInfoParsed.userInfo.isRecording;
+                // user.isRecording = remoteUserInfoParsed.userInfo.isRecording;
                 user.roleId = remoteUserInfoParsed.userInfo.roleId;
 
                 if (
@@ -806,7 +807,10 @@ export function useInitWebRTC() {
                 user.denied = remoteUserInfoParsed.userInfo.denied;
                 user.isRecording = remoteUserInfoParsed.userInfo.isRecording;
                 user.roleId = remoteUserInfoParsed.userInfo.roleId;
-
+                if (remoteUserInfoParsed.userInfo.isRecording) {
+                  updateRoom({ isBeingRecorded: true });
+                  user.isRecording = true;
+                }
                 if (remoteUserInfoParsed.userInfo.existVideo) {
                   console.log(
                     'HAY VIDEO EN LA SALA',

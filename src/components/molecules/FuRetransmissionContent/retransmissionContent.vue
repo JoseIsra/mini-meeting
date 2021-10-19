@@ -122,7 +122,6 @@ export default defineComponent({
       );
       const response = await fetch(rtmpRequest);
       console.log(response);
-      // createInstance(roomId, 'idRetransmission', 'retransmissionName');
       if (response.ok) {
         //document.cookie = 'isInTransmission=true';
         setCookie('endpoint', endpoint.value, 30);

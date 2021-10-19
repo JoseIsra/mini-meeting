@@ -25,8 +25,14 @@
         font-weight: bold;
       }
       &__box {
-        &__list {
-          margin: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+        margin: 1.1rem;
+        &__label {
+          color: #fffffe;
+          font-size: clamp(0.7rem, 2.5vw, 0.8rem);
+          margin: 0;
         }
       }
     }

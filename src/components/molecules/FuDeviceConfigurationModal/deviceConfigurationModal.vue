@@ -6,52 +6,44 @@
     <q-card-section class="m-config__body" tag="div">
       <div class="m-config__body__periferics">
         <p class="m-config__body__periferics__title">Mis dispositivos</p>
-        <div class="m-config__body__periferics__box">
-          <!-- <q-select
-            v-model="microphoneSelected"
-            borderless
-            dense
-            class="m-config__body__periferics__box__list"
-            label-color="black"
-            bg-color="white"
-            style="width: 300px"
-            :options="getDevicesObject(audioDevices)"
-            @input="selectNewMicrophone(microphoneSelected)"
-          >
-            <template #before>
-              <q-icon color="white" name="fas fa-microphone" size="14px" />
-            </template>
-          </q-select> -->
-          <!-- 
-          <q-select
-            v-model="cameraSelected.label"
-            borderless
-            dense
-            label-color="black"
-            bg-color="white"
-            style="width: 300px"
-            class="m-config__body__periferics__box__list"
-            :options="getDevicesObject(videoDevices)"
-            @input="selectNewCamera"
-          >
-            <template #before>
-              <q-icon color="white" name="fas fa-video" size="14px" />
-            </template>
-          </q-select> -->
-
+        <div class="m-config__body__periferics__box --micro">
+          <p class="m-config__body__periferics__box__label">Microfonos</p>
           <q-btn-dropdown
             color="primary"
-            :label="
-              microphoneSelected.label ? microphoneSelected.label : 'goes'
-            "
+            flat
+            rounded
+            :label="microphoneSelected.label"
           >
             <q-list>
               <q-item
                 clickable
                 v-close-popup
-                @click="chazam(device)"
-                v-for="(device, index) in getDevicesObject(audioDevices)"
-                :key="index"
+                v-for="device in getDevicesObject(audioDevices)"
+                :key="device.deviceId"
+                @click="selectNewMicrophone(device)"
+              >
+                <q-item-section>
+                  <q-item-label>{{ device.label }}</q-item-label>
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-btn-dropdown>
+        </div>
+        <div class="m-config__body__periferics__box --camera">
+          <p class="m-config__body__periferics__box__label">Cámaras</p>
+          <q-btn-dropdown
+            color="primary"
+            flat
+            rounded
+            :label="cameraSelected.label"
+          >
+            <q-list>
+              <q-item
+                clickable
+                v-close-popup
+                v-for="device in getDevicesObject(videoDevices)"
+                :key="device.deviceId"
+                @click="selectNewCamera(device)"
               >
                 <q-item-section>
                   <q-item-label>{{ device.label }}</q-item-label>
@@ -67,6 +59,16 @@
 
 <script lang="ts">
 import { defineComponent, ref, reactive, onMounted } from 'vue';
+import { useInitWebRTC } from '@/composables/antMedia';
+import { useUserMe } from '@/composables/userMe';
+
+type MediaDeviceKind = 'audioinput' | 'audiooutput' | 'videoinput';
+interface MediaDeviceInfo {
+  deviceId: string;
+  groupId: string;
+  kind: MediaDeviceKind;
+  label: string;
+}
 
 export default defineComponent({
   setup() {
@@ -80,6 +82,13 @@ export default defineComponent({
 
     const audioDevices = ref<MediaDeviceInfo[]>([]);
     const videoDevices = ref<MediaDeviceInfo[]>([]);
+    const { updateUserMe, userMe } = useUserMe();
+    const {
+      switchAudioInputSource,
+      switchVideoCameraCapture,
+      turnOffLocalCamera,
+      muteLocalMic,
+    } = useInitWebRTC();
 
     onMounted(async () => {
       await getDevices();
@@ -93,50 +102,37 @@ export default defineComponent({
           videoDevices.value = res.filter(
             (device) => device.kind == 'videoinput'
           );
-          cameraSelected = videoDevices.value[0];
 
           audioDevices.value = res.filter(
             (device) => device.kind == 'audioinput'
           );
-          microphoneSelected = audioDevices.value[0];
         })
         .catch((err) => console.log(err));
     };
 
     const selectNewMicrophone = (micDevice: MediaDeviceInfo) => {
-      console.log('mic en selectnew micro', micDevice);
-      navigator.mediaDevices
-        .getUserMedia({ audio: { deviceId: micDevice.deviceId } })
-        .then(() => {
-          console.log('aea');
-          // Object.assign(microphoneSelected, micDevice);
-        })
-        .catch((error) => console.log(error));
+      muteLocalMic();
+      updateUserMe({ micId: micDevice.deviceId });
+      Object.assign(microphoneSelected, micDevice);
+      switchAudioInputSource(userMe.id, micDevice.deviceId);
     };
 
     const getDevicesObject = (devices: MediaDeviceInfo[]) => {
       return devices.map((device) => ({
         label: device.label,
         deviceId: device.deviceId,
+        groupId: device.groupId,
+        kind: device.kind,
       }));
     };
 
     const selectNewCamera = (cameraDevice: MediaDeviceInfo) => {
-      console.log(cameraDevice, 'as');
-      navigator.mediaDevices
-        .getUserMedia({
-          video: { deviceId: cameraDevice.deviceId },
-        })
-        .then(() => {
-          console.log('stream bro');
-          Object.assign(cameraSelected, cameraDevice);
-        })
-        .catch((err) => console.log(err));
+      turnOffLocalCamera(userMe.id);
+      updateUserMe({ cameraId: cameraDevice.deviceId });
+      Object.assign(cameraSelected, cameraDevice);
+      switchVideoCameraCapture(userMe.id, cameraDevice.deviceId);
     };
 
-    const chazam = (device: MediaDeviceInfo) => {
-      microphoneSelected = device;
-    };
     return {
       microphoneSelected,
       getDevicesObject,
@@ -145,7 +141,6 @@ export default defineComponent({
       cameraSelected,
       selectNewCamera,
       videoDevices,
-      chazam,
     };
   },
 });

@@ -1200,16 +1200,27 @@ export function useInitWebRTC() {
   };
 
   //TODO: Get the device id in the websocket as it works in remotePlayer.html
-  const switchVideoCameraCapture = (streamId: string) => {
-    let cameraId: string;
-    navigator.mediaDevices
-      .enumerateDevices()
-      .then((devices) => {
-        const filtrado = devices.filter((x) => x.kind === 'videoinput')[0];
-        cameraId = filtrado.deviceId;
-        webRTCInstance.value.switchVideoCameraCapture?.(streamId, cameraId);
-      })
-      .catch((err) => console.log(err));
+  const switchVideoCameraCapture = (streamId: string, cameraId: string) => {
+    webRTCInstance.value.switchVideoCameraCapture?.(streamId, cameraId);
+    // let cameraId: string;
+    // navigator.mediaDevices
+    //   .enumerateDevices()
+    //   .then((devices) => {
+    //     const filtrado = devices.filter((x) => x.kind === 'videoinput')[0];
+    //     cameraId = filtrado.deviceId;
+    //   })
+    //   .catch((err) => console.log(err));
+  };
+  const switchAudioInputSource = (streamId: string, microId: string) => {
+    webRTCInstance.value.switchAudioInputSource?.(streamId, microId);
+    // let microId: string;
+    // navigator.mediaDevices
+    //   .enumerateDevices()
+    //   .then((devices) => {
+    //     const filtrado = devices.filter((x) => x.kind === 'audioinput')[0];
+    //     microId = filtrado.deviceId;
+    //   })
+    //   .catch((err) => console.log(err));
   };
 
   const resetDesktop = () => {
@@ -1279,5 +1290,6 @@ export function useInitWebRTC() {
     muteLocalMic,
     sendNotificationEvent,
     justTurnOnLocalCamera,
+    switchAudioInputSource,
   };
 }

@@ -757,7 +757,7 @@ export function useInitWebRTC() {
                 user.fractalUserId =
                   remoteUserInfoParsed.userInfo.fractalUserId;
                 user.denied = remoteUserInfoParsed.userInfo.denied;
-                // user.isRecording = remoteUserInfoParsed.userInfo.isRecording;
+                user.isRecording = remoteUserInfoParsed.userInfo.isRecording;
                 user.roleId = remoteUserInfoParsed.userInfo.roleId;
 
                 if (
@@ -805,8 +805,8 @@ export function useInitWebRTC() {
                   remoteUserInfoParsed.userInfo.fractalUserId;
                 user.denied = remoteUserInfoParsed.userInfo.denied;
                 user.isRecording = remoteUserInfoParsed.userInfo.isRecording;
+                user.isRecording = remoteUserInfoParsed.userInfo.isRecording;
                 user.roleId = remoteUserInfoParsed.userInfo.roleId;
-                user.isRecording = true;
                 if (remoteUserInfoParsed.userInfo.existVideo) {
                   console.log(
                     'HAY VIDEO EN LA SALA',

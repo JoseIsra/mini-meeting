@@ -33,14 +33,6 @@
       muted
       playsinline
     ></video>
-    <video
-      v-show="false"
-      id="localVideo3"
-      class="a-userVideo__box__stream"
-      autoplay
-      muted
-      playsinline
-    ></video>
   </div>
 </template>
 

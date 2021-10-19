@@ -1,0 +1,34 @@
+.m-config {
+  height: 300px;
+  width: 500px;
+  background-color: #202125;
+  max-width: 800px;
+  border-radius: 9px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  &__head {
+    padding: 10px;
+    background-color: #212121;
+    &__text {
+      color: #fffffe;
+      font-size: clamp(0.6rem, 2.5vw, 1rem);
+      margin: 0;
+    }
+  }
+
+  &__body {
+    padding: 20px;
+    &__periferics {
+      &__title {
+        color: #fffffe;
+        font-weight: bold;
+      }
+      &__box {
+        &__list {
+          margin: 1rem;
+        }
+      }
+    }
+  }
+}

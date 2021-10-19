@@ -58,7 +58,10 @@
       </li>
     </ul>
     <q-dialog v-model="openModal">
-      <fu-delete-room-modal />
+      <fu-delete-room-modal v-if="cardContent == 'delete-card'" />
+      <fu-device-configuration-modal
+        v-if="cardContent == 'configuration-card'"
+      />
     </q-dialog>
   </section>
 </template>
@@ -72,15 +75,17 @@ import { useUserMe } from '@/composables/userMe';
 import { REASON_TO_LEAVE_ROOM } from '@/utils/enums';
 import { useHandleParticipants } from '@/composables/participants';
 import { useInitWebRTC } from '@/composables/antMedia';
+import FuDeviceConfigurationModal from 'molecules/FuDeviceConfigurationModal';
 
 interface OptionsClickMethods {
   LEAVE: () => void;
   END: () => void;
   ROOMDETAILS: () => void;
+  DEVICECONFIGURATION: () => void;
 }
 export default defineComponent({
   name: 'FuMenuContentOptions',
-  components: { FuDeleteRoomModal },
+  components: { FuDeleteRoomModal, FuDeviceConfigurationModal },
   setup() {
     const options = ref<MenuOptions>(menuOptions);
     let openModal = ref(false);
@@ -102,12 +107,15 @@ export default defineComponent({
           sendNotificationEvent('RECORDING_STOPPED', userMe.id);
         }
       },
-      END: () => openDeleteRoomModal(),
+      END: () => openModalWithName('delete-card'),
       ROOMDETAILS: () => openInfoRoomCard(),
+      DEVICECONFIGURATION: () => openModalWithName('configuration-card'),
     });
+    const cardContent = ref('');
 
-    const openDeleteRoomModal = () => {
+    const openModalWithName = (modalName: string) => {
       openModal.value = true;
+      cardContent.value = modalName;
     };
 
     const openInfoRoomCard = () => {
@@ -131,6 +139,7 @@ export default defineComponent({
       openModal,
       canEndCall,
       canLeaveCall,
+      cardContent,
     };
   },
 });

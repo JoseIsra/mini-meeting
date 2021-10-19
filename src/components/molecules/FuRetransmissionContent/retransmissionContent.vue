@@ -48,6 +48,9 @@
 import { defineComponent, ref, computed, onMounted } from 'vue';
 import { useUserMe } from '@/composables/userMe';
 import FuHiddenText from '@/components/atoms/FuHiddenText';
+import { useRoute } from 'vue-router';
+import { WebRTCAdaptor } from '@/utils/webrtc/webrtc_adaptor';
+import { objWebRTC } from '@/types';
 
 export default defineComponent({
   name: 'FuRetransmissionContent',
@@ -55,15 +58,48 @@ export default defineComponent({
     FuHiddenText,
   },
   setup() {
+    const route = useRoute();
     const { userMe } = useUserMe();
     const moreContent = ref(true);
     // const layout = ref(false);
+    const roomId =
+      window?.xprops?.roomId || (route.query.roomId as string) || '';
+    const publishToken =
+      window?.xprops?.publishToken ||
+      (route.query.publishToken as string) ||
+      '';
+
+    const subscriberId = (route.query.subscriberId as string) || undefined;
+
+    const subscriberCode = (route.query.subscriberCode as string) || undefined;
 
     const endpoint = ref('');
     const key = ref('');
 
     const isStreaming = ref(false);
+    const websocketURL = `wss://${process.env.ANTMEDIA_SERVER}/${process.env.ANTMEDIA_APP}/websocket`;
 
+    const mediaConstraints = {
+      video: true,
+      audio: true,
+    };
+
+    const pc_config = {
+      iceServers: [
+        {
+          urls: 'stun:stun1.l.google.com:19302',
+        },
+      ],
+    };
+    const webRTCInstance = ref<WebRTCAdaptor>({} as WebRTCAdaptor);
+
+    const sdpConstraints = {
+      OfferToReceiveAudio: false,
+      OfferToReceiveVideo: false,
+    };
+    const leaveRoom = (roomId: string) => {
+      webRTCInstance.value.leaveFromRoom?.(roomId);
+    };
     onMounted(() => {
       /* handleMerge(); */
       const cookieEndpoint = getCookie('endpoint');
@@ -100,6 +136,64 @@ export default defineComponent({
         name + '=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
     }
 
+    const joinRoom = (roomId: string) => {
+      webRTCInstance.value.joinRoom?.(roomId, 'retraId', 'legacy');
+    };
+
+    const publish = (
+      streamId: string,
+      token?: string,
+      subscriberId?: string,
+      subscriberCode?: string,
+      streamName?: string
+    ) => {
+      streamId = streamId;
+      webRTCInstance.value.publish?.(
+        streamId,
+        token,
+        subscriberId,
+        subscriberCode,
+        streamName
+      );
+    };
+
+    const initMiniWebrtc = () => {
+      webRTCInstance.value = new WebRTCAdaptor({
+        websocket_url: websocketURL,
+        mediaConstraints: mediaConstraints,
+        peerconnection_config: pc_config,
+        sdp_constraints: sdpConstraints,
+        isPlayMode: false,
+        debug: true,
+        dataChannelEnabled: true,
+        initCameraState: false,
+        callback: (info: string, obj: objWebRTC) => {
+          if (info == 'initialized') {
+            joinRoom(roomId);
+          } else if (info == 'joinedTheRoom') {
+            console.log('JOINED THE ROOM MINIWEBRTC 🐊', obj);
+            window.addEventListener('unload', () => {
+              leaveRoom?.(roomId);
+            });
+            publish(
+              'retraId',
+              publishToken,
+              subscriberId,
+              subscriberCode,
+              'streamName'
+            );
+          } else if (info == 'newStreamAvailable') {
+            console.log('new stream available MINIWEBRTC 🚀', obj);
+          } else if (info == 'publish_started') {
+            console.log('PUBLICANDO MINI WEBRTC', obj);
+          }
+        },
+        callbackError: (error: string, message: string) => {
+          console.log(error, message);
+        },
+      });
+    };
+
     const handleStartTransmission = async () => {
       let rtmpUrl = `${endpoint.value}/${key.value}`;
       if (rtmpUrl.slice(-1) === '/') {
@@ -121,6 +215,8 @@ export default defineComponent({
       );
       const response = await fetch(rtmpRequest);
       console.log(response);
+      initMiniWebrtc();
+      // createInstance(roomId, 'idRetransmission', 'retransmissionName');
       if (response.ok) {
         //document.cookie = 'isInTransmission=true';
         setCookie('endpoint', endpoint.value, 30);
@@ -151,6 +247,7 @@ export default defineComponent({
       const response = await fetch(rtmpRequest);
       console.log(response);
       if (response.ok) {
+        leaveRoom(roomId);
         //document.cookie = 'isInTransmission=true';
         eraseCookie('endpoint');
         eraseCookie('key');

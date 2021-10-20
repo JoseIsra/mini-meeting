@@ -1,14 +1,15 @@
 import { ref, computed } from 'vue';
-import { Participant } from '@/types';
+import { Participant, UpdatedParticipantfields } from '@/types';
 import { LOCK_ACTION_TYPE, PERMISSION_STATUS } from '@/utils/enums';
 import _ from 'lodash';
 
 const participants = ref<Participant[]>([]);
 
 export function useHandleParticipants() {
-  const addParticipants = (value: Participant) => {
+  const addParticipant = (value: Participant) => {
     const newParticipants = _.cloneDeep(participants.value);
-    participants.value = [value, ...newParticipants];
+    newParticipants.push(value);
+    participants.value = newParticipants;
   };
 
   const deleteParticipantById = (id: string) => {
@@ -20,6 +21,19 @@ export function useHandleParticipants() {
 
   const deleteAllParticipants = () => {
     participants.value.splice(0, 1);
+  };
+
+  const updateParticipantById = (
+    id: string,
+    fields: UpdatedParticipantfields
+  ) => {
+    const newParticipants = _.cloneDeep(participants.value);
+    const participantFound = newParticipants.find(
+      (participant) => participant.id == id
+    );
+    fields.stream = participantFound?.stream; //For not replacing the stream
+    Object.assign(participantFound, fields);
+    participants.value = newParticipants;
   };
 
   const setParticipantActions = (
@@ -90,7 +104,8 @@ export function useHandleParticipants() {
 
   return {
     deleteAllParticipants,
-    addParticipants,
+    updateParticipantById,
+    addParticipant,
     deleteParticipantById,
     participants,
     setParticipantActions,

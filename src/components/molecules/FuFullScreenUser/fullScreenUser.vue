@@ -137,7 +137,7 @@ export default defineComponent({
       if (userMe.roleId === 0 && roomState.pinnedUser) {
         console.log('Admin fullScreen task');
 
-        sendData(userMe.id, {
+        sendData(roomState.hostId, {
           eventType: 'SET_FULL_SCREEN',
           mode: 'none',
         });

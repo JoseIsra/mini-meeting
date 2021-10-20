@@ -1,4 +1,4 @@
-import { reactive } from 'vue';
+import { reactive, computed, ComputedRef } from 'vue';
 
 export interface User {
   id: string;
@@ -20,17 +20,17 @@ export interface User {
   videoInstance?: HTMLMediaElement & { playerId: string };
   currentTime?: number;
   isPlayingVideo?: boolean;
-  isRecording: boolean;  
+  isRecording: boolean;
   isHost: boolean;
+  isPublishing: number; // 0 -> off / 1 -> on / 2 -> loading
+  cameraPublishedState?: ComputedRef;
+  micPublishedState?: ComputedRef;
 }
 
 export interface UpdatedUserfields {
   id?: string;
   name?: string;
   avatar?: string;
-  isCameraOn?: boolean;
-  isMicOn?: boolean;
-  isScreenSharing?: boolean;
   isVideoActivated?: boolean;
   stream?: MediaStream;
   fractalUserId?: string;
@@ -41,6 +41,10 @@ export interface UpdatedUserfields {
   isPlayingVideo?: boolean;
   isRecording?: boolean;
   isHost?: boolean;
+  isCameraOn?: boolean;
+  isMicOn?: boolean;
+  isScreenSharing?: boolean;
+  isPublishing?: number; // 0 -> off / 1 -> on / 2 -> loading
 }
 
 // blocked: some functionalities blocked (mic, screen, camera)
@@ -60,6 +64,22 @@ export function useUserMe() {
   const updateUserMe = (value: UpdatedUserfields) => {
     Object.assign(userMe, { ...userMe, ...value });
   };
+
+  userMe.cameraPublishedState = computed(() =>
+    userMe.isCameraOn && userMe.isPublishing == 1
+      ? 1
+      : userMe.isPublishing == 2 && userMe.isCameraOn
+      ? 2
+      : 0
+  );
+
+  userMe.micPublishedState = computed(() =>
+    userMe.isMicOn && userMe.isPublishing == 1
+      ? 1
+      : userMe.isPublishing == 2 && userMe.isMicOn
+      ? 2
+      : 0
+  );
 
   const setMicState = (value: boolean) => {
     userMe.isMicOn = value;

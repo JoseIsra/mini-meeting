@@ -19,6 +19,7 @@ export interface Room {
   pinnedUser: null | User;
   pinnedUserId?: string;
   bgInfo: BgInfo;
+  hostId: string;
 }
 
 export interface UpdatedRoomFields {
@@ -37,6 +38,7 @@ export interface UpdatedRoomFields {
   pinnedUser?: null | User;
   pinnedUserId?: string;
   bgInfo?: BgInfo;
+  hostId?: string;
 }
 
 export interface participantOnWait {

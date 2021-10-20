@@ -258,7 +258,7 @@ export default defineComponent({
     };
 
     watch(roomState, (value) => {
-      sendData(userMe.id, {
+      sendData(roomState.hostId, {
         eventType: 'UPDATE_ROOM_SIZE',
         maximized: value.bgInfo.maximized,
       });

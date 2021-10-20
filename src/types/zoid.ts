@@ -29,6 +29,8 @@ export interface ZoidProps {
   isBeingRecorded?: boolean;
   roomRestriction?: number;
   isHost?: boolean;
+  hostId?: string;
+  setHostId?: (userId: string) => void;
   startDate?: string;
   handleLeaveCall?: (
     arg: number,

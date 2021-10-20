@@ -27,6 +27,31 @@ export interface Participant {
   isPlayingVideo?: boolean;
   isRecording?: boolean;
   roleId?: number;
+  isBeingPlayed?: boolean;
+}
+
+export interface UpdatedParticipantfields {
+  id?: string;
+  name?: string;
+  avatar?: string;
+  stream?: MediaStream;
+  isCameraOn?: boolean;
+  isMicOn?: boolean;
+  isScreenSharing?: boolean;
+  isVideoActivated?: boolean;
+  isMicBlocked?: boolean;
+  isCameraBlocked?: boolean;
+  isScreenShareBlocked?: boolean;
+  fractalUserId?: string;
+  denied?: number;
+  existVideo?: boolean;
+  urlOfVideo?: string;
+  videoInstance?: HTMLMediaElement & { playerId: string };
+  currentTime?: number;
+  isPlayingVideo?: boolean;
+  isRecording?: boolean;
+  roleId?: number;
+  isBeingPlayed?: boolean;
 }
 
 export type Scalars = {
@@ -67,6 +92,7 @@ export interface Icons {
   id: string;
   onState: string;
   offState: string;
+  loadingState?: string;
   active: boolean;
   toolTipMessage: string;
   toolTipSecondMessage?: string;

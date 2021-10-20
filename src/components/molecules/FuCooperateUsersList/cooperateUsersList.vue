@@ -704,7 +704,7 @@ export default defineComponent({
         if (isMicBlocked(participant)) {
           setParticipantActions(participant.id as string, action, false);
 
-          sendData(userMe.id, {
+          sendData(roomState.hostId, {
             ...blockActions,
             eventType: 'SET_PARTICIPANT_ACTION',
             value: false,
@@ -712,7 +712,7 @@ export default defineComponent({
         } else {
           setParticipantActions(participant.id as string, action, true);
 
-          sendData(userMe.id, {
+          sendData(roomState.hostId, {
             ...blockActions,
             eventType: 'SET_PARTICIPANT_ACTION',
             value: true,
@@ -722,7 +722,7 @@ export default defineComponent({
         if (isVideoBlocked(participant)) {
           setParticipantActions(participant.id as string, action, false);
 
-          sendData(userMe.id, {
+          sendData(roomState.hostId, {
             ...blockActions,
             eventType: 'SET_PARTICIPANT_ACTION',
             value: false,
@@ -730,7 +730,7 @@ export default defineComponent({
         } else {
           setParticipantActions(participant.id as string, action, true);
 
-          sendData(userMe.id, {
+          sendData(roomState.hostId, {
             ...blockActions,
             eventType: 'SET_PARTICIPANT_ACTION',
             value: true,
@@ -741,7 +741,7 @@ export default defineComponent({
         if (isScreenShareBlocked(participant)) {
           setParticipantActions(participant.id as string, action, false);
 
-          sendData(userMe.id, {
+          sendData(roomState.hostId, {
             ...blockActions,
             eventType: 'SET_PARTICIPANT_ACTION',
             value: false,
@@ -749,7 +749,7 @@ export default defineComponent({
         } else {
           setParticipantActions(participant.id as string, action, true);
 
-          sendData(userMe.id, {
+          sendData(roomState.hostId, {
             ...blockActions,
             eventType: 'SET_PARTICIPANT_ACTION',
             value: true,
@@ -769,7 +769,7 @@ export default defineComponent({
         if (isEveryoneActionsBlocked.value) {
           setEveryParticipantActions(action, false);
 
-          sendData(userMe.id, {
+          sendData(roomState.hostId, {
             ...blockActions,
             eventType: 'SET_EVERYONE_ACTION',
             value: false,
@@ -777,7 +777,7 @@ export default defineComponent({
         } else {
           setEveryParticipantActions(action, true);
 
-          sendData(userMe.id, {
+          sendData(roomState.hostId, {
             ...blockActions,
             eventType: 'SET_EVERYONE_ACTION',
             value: true,
@@ -787,7 +787,7 @@ export default defineComponent({
         if (isEveryoneMicBlocked.value) {
           setEveryParticipantActions(action, false);
 
-          sendData(userMe.id, {
+          sendData(roomState.hostId, {
             ...blockActions,
             eventType: 'SET_EVERYONE_ACTION',
             value: false,
@@ -795,7 +795,7 @@ export default defineComponent({
         } else {
           setEveryParticipantActions(action, true);
 
-          sendData(userMe.id, {
+          sendData(roomState.hostId, {
             ...blockActions,
             eventType: 'SET_EVERYONE_ACTION',
             value: true,
@@ -805,7 +805,7 @@ export default defineComponent({
         if (isEveryoneVideoBlocked.value) {
           setEveryParticipantActions(action, false);
 
-          sendData(userMe.id, {
+          sendData(roomState.hostId, {
             ...blockActions,
             eventType: 'SET_EVERYONE_ACTION',
             value: false,
@@ -813,7 +813,7 @@ export default defineComponent({
         } else {
           setEveryParticipantActions(action, true);
 
-          sendData(userMe.id, {
+          sendData(roomState.hostId, {
             ...blockActions,
             eventType: 'SET_EVERYONE_ACTION',
             value: true,
@@ -823,7 +823,7 @@ export default defineComponent({
         if (isEveryoneScreenShareBlocked.value) {
           setEveryParticipantActions(action, false);
 
-          sendData(userMe.id, {
+          sendData(roomState.hostId, {
             ...blockActions,
             eventType: 'SET_EVERYONE_ACTION',
             value: false,
@@ -831,7 +831,7 @@ export default defineComponent({
         } else {
           setEveryParticipantActions(action, true);
 
-          sendData(userMe.id, {
+          sendData(roomState.hostId, {
             ...blockActions,
             eventType: 'SET_EVERYONE_ACTION',
             value: true,
@@ -864,7 +864,7 @@ export default defineComponent({
     };
 
     const handleKickParticipant = (participant: Participant) => {
-      sendData(userMe.id, { eventType: 'KICK', to: participant.id });
+      sendData(roomState.hostId, { eventType: 'KICK', to: participant.id });
     };
 
     const handleEveryoneFocus = (user: User) => {
@@ -879,7 +879,7 @@ export default defineComponent({
         setFullScreen('none', false);
         clearFullScreenObject();
 
-        sendData(userMe.id, {
+        sendData(roomState.hostId, {
           eventType: 'SET_FULL_SCREEN',
           mode: 'none',
         });
@@ -890,7 +890,7 @@ export default defineComponent({
         setFullScreenObject(user);
         updateFocus(user);
 
-        sendData(userMe.id, {
+        sendData(roomState.hostId, {
           eventType: 'SET_FULL_SCREEN',
           participant: user,
           mode: 'user',
@@ -905,7 +905,7 @@ export default defineComponent({
       setFullScreen('none', false);
       clearFullScreenObject();
 
-      sendData(userMe.id, {
+      sendData(roomState.hostId, {
         eventType: 'SET_FULL_SCREEN',
         mode: 'none',
       });

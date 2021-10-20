@@ -2,20 +2,24 @@
   <div class="a-menuBar">
     <section class="a-menuBar__box">
       <aside class="a-menuBar__periferics">
-        <q-btn
+        <!-- <q-btn
           flat
           round
           :class="['a-menuBar__icon', { active: icon.active }]"
           v-for="icon in periferics"
           :key="icon.id"
-          :icon="icon.active ? icon.onState : icon.offState"
+          :icon="
+            userMe.isMicOn && userMe.isPublishing == 1
+              ? icon.onState
+              : userMe.isPublishing == 2
+              ? icon.loadingState
+              : icon.offState
+          "
           size="0.7rem"
           :disable="disableAction(icon)"
-          @click="
-            icon.active = !icon.active;
-            tooglePeriferic(icon?.interaction);
-          "
+          @click="tooglePeriferic(icon?.interaction)"
         >
+          {{ userMe.isPublishing }}
           <q-tooltip class="bg-grey-10" v-if="!icon.active">
             <label class="a-menuBar__icon__tooltip">
               {{ icon.toolTipMessage }}
@@ -26,6 +30,62 @@
               {{ icon.toolTipSecondMessage }}
             </label>
           </q-tooltip>
+        </q-btn> -->
+        <q-btn
+          flat
+          round
+          :class="[
+            'a-menuBar__icon',
+            { active: userMe.isMicOn && userMe.isPublishing },
+          ]"
+          :icon="
+            userMe.micPublishedState == 1
+              ? iconsPeriferics.mic.onState
+              : userMe.micPublishedState == 2
+              ? iconsPeriferics.mic.loadingState
+              : iconsPeriferics.mic.offState
+          "
+          size="0.7rem"
+          @click="toggleMIC"
+        >
+          <!-- <q-tooltip class="bg-grey-10" v-if="!icon.active">
+            <label class="a-menuBar__icon__tooltip">
+              {{ icon.toolTipMessage }}
+            </label>
+          </q-tooltip>
+          <q-tooltip class="bg-grey-10" v-if="icon.active">
+            <label class="a-menuBar__icon__tooltip">
+              {{ icon.toolTipSecondMessage }}
+            </label>
+          </q-tooltip> -->
+        </q-btn>
+        <q-btn
+          flat
+          round
+          :class="[
+            'a-menuBar__icon',
+            { active: userMe.isCameraOn && userMe.isPublishing },
+          ]"
+          :icon="
+            userMe.cameraPublishedState == 1
+              ? iconsPeriferics.camera.onState
+              : userMe.cameraPublishedState == 2
+              ? iconsPeriferics.camera.loadingState
+              : iconsPeriferics.camera.offState
+          "
+          size="0.7rem"
+          @click="toggleCamera"
+        >
+          <!-- <q-tooltip class="bg-grey-10" v-if="!icon.active">
+            <label class="a-menuBar__icon__tooltip">
+              {{ icon.toolTipMessage }}
+            </label>
+          </q-tooltip>
+          <q-tooltip class="bg-grey-10" v-if="icon.active">
+            <label class="a-menuBar__icon__tooltip">
+              {{ icon.toolTipSecondMessage }}
+            </label>
+          </q-tooltip> -->
         </q-btn>
       </aside>
       <div class="a-menuBar__functions">
@@ -177,6 +237,8 @@ import { defineComponent, ref, reactive } from 'vue';
 import FuCooperateMenu from 'molecules/FuCooperateMenu';
 import { Icons, Periferics, Functionalities } from '@/types';
 
+import { iconsPeriferics } from '@/helpers/iconsMenuBar';
+
 import { useToogleFunctions, useSidebarToogle } from '@/composables';
 import { useUserMe } from '@/composables/userMe';
 import { nanoid } from 'nanoid';
@@ -208,7 +270,7 @@ export default defineComponent({
   setup(props) {
     const { sendData } = useInitWebRTC();
 
-    const { periferics, functions, options } = useActions();
+    const { functions, options } = useActions();
 
     const { roomState } = useRoom();
 
@@ -330,13 +392,13 @@ export default defineComponent({
         )
       ) {
         const downHand = { ...riseHand, eventType: 'NOHAND' };
-        sendData(userMe.id, downHand);
+        sendData(roomState.hostId, downHand);
         handNotificationActive.value = false;
         removeHandNotification(downHand.streamId);
         return;
       }
       handNotificationActive.value = true;
-      sendData(userMe.id, riseHand);
+      sendData(roomState.hostId, riseHand);
       addHandNotificationInfo(riseHand);
     };
 
@@ -423,7 +485,6 @@ export default defineComponent({
     };
 
     return {
-      periferics,
       userMe,
       functions,
       options,
@@ -444,6 +505,9 @@ export default defineComponent({
       canSeeActionsMenu,
       waitingParticipants,
       activeHandBadge,
+      toggleCamera,
+      toggleMIC,
+      iconsPeriferics,
     };
   },
 });

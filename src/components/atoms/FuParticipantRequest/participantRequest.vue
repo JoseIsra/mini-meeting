@@ -37,6 +37,7 @@ import { useUserMe } from '@/composables/userMe';
 import { PERMISSION_STATUS } from '@/utils/enums/general';
 import { Participant } from '@/types';
 import { defineComponent, PropType } from 'vue';
+import { useRoom } from '@/composables/room';
 
 export default defineComponent({
   name: 'FuParticipantRequest',
@@ -48,6 +49,7 @@ export default defineComponent({
   },
   setup(props) {
     const { updateParticipantDenied } = useHandleParticipants();
+    const { roomState } = useRoom();
 
     const { userMe } = useUserMe();
 
@@ -56,7 +58,7 @@ export default defineComponent({
     const admitParticipant = () => {
       console.log('Admitir participante: ', props.participant.id);
 
-      sendData(userMe.id, {
+      sendData(roomState.hostId, {
         id: '',
         participantId: props.participant.id,
         eventType: 'ANSWER_PERMISSION',
@@ -72,7 +74,7 @@ export default defineComponent({
     const denyParticipant = () => {
       console.log('Denegar participante: ', props.participant.id);
 
-      sendData(userMe.id, {
+      sendData(roomState.hostId, {
         id: '',
         participantId: props.participant.id,
         eventType: 'ANSWER_PERMISSION',

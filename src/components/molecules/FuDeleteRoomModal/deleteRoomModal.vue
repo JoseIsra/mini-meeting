@@ -43,7 +43,7 @@ export default defineComponent({
     const executeDeleteRoom = () => {
       deleteRoom(roomState.id)
         .then(() => {
-          sendData(userMe.id, { eventType: 'KICK', to: 'all' });
+          sendData(roomState.hostId, { eventType: 'KICK', to: 'all' });
 
           const remainingParticipantsFractalUserIds = participants.value.reduce(
             (newArray: string[], participant: Participant) => {

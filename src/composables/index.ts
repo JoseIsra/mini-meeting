@@ -85,8 +85,8 @@ export function useToogleFunctions() {
       );
   };
 
-  const setFullScreen = (specificMode: string) => {
-    isFullScreen.value = !isFullScreen.value;
+  const setFullScreen = (specificMode: string, state: boolean) => {
+    isFullScreen.value = state;
     fullScreenMode.value = specificMode;
   };
 

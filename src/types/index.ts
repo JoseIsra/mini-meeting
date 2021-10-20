@@ -26,6 +26,7 @@ export interface Participant {
   currentTime?: number;
   isPlayingVideo?: boolean;
   isRecording?: boolean;
+  roleId?: number;
 }
 
 export type Scalars = {
@@ -143,6 +144,7 @@ export interface Functionalities {
 }
 
 export interface lockAction {
-  type: number;
-  state: number;
+  mic: number;
+  camera: number;
+  screenshare: number;
 }

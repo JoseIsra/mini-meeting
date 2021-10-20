@@ -1,5 +1,8 @@
 <template>
-  <section :class="['m-video', { miniMode: watchMinimized }]">
+  <section
+    :class="['m-video', { miniMode: watchMinimized }]"
+    :style="redimensionVideoSize"
+  >
     <q-btn
       :style="[simpleMortal ? { visibility: 'hidden' } : '']"
       icon="play_arrow"
@@ -10,15 +13,26 @@
     <video
       autoplay
       id="specialId"
-      :class="{ 'vjs-tech': simpleMortal }"
+      :class="[
+        { 'vjs-poster': posterClass },
+        { 'vjs-youtube': posterClass },
+        { 'vjs-tech': simpleMortal },
+      ]"
       ref="videoPlayer"
-      class="video-js vjs-16-9"
+      class="video-js"
     ></video>
   </section>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted, reactive, computed } from 'vue';
+import {
+  defineComponent,
+  ref,
+  onMounted,
+  reactive,
+  computed,
+  onBeforeUnmount,
+} from 'vue';
 import { useExternalVideo } from '@/composables/external-video';
 import videojs from 'video.js';
 import 'video.js/dist/video.min.js';
@@ -27,10 +41,14 @@ import 'video.js/dist/video-js.css';
 import { useInitWebRTC } from '@/composables/antMedia';
 import { useUserMe } from '@/composables/userMe';
 import { useScreen } from '@/composables/screen';
+import { useQuasar } from 'quasar';
 
 export default defineComponent({
   name: 'FuExternalVideo',
   setup() {
+    const orientationScreenAdvice = ref(false);
+    const $q = useQuasar();
+    let posterClass = ref(false);
     const calculateCurrentSelectedTime = ref(0);
     const { sendData } = useInitWebRTC();
     const { userMe, updateUserMe } = useUserMe();
@@ -46,7 +64,7 @@ export default defineComponent({
       controls: canManipulateVideo.value || screenMinimized.value,
       autoplay: true,
       bigPlayButton: false,
-      fluid: true,
+      responsive: true,
       controlBar: {
         progressControl: {
           seekBar: true,
@@ -60,7 +78,9 @@ export default defineComponent({
         },
       ],
     });
+
     onMounted(() => {
+      window.addEventListener('orientationchange', handleOrientationChange);
       player.value = videojs(
         videoPlayer.value,
         optionsForPlayer,
@@ -83,6 +103,11 @@ export default defineComponent({
               ...userMe,
               currentTime: player.value.currentTime(),
             });
+          });
+          player.value.on('ready', () => {
+            posterClass.value = true;
+            console.log('go on video go on🤭', posterClass.value);
+            void player.value.play();
           });
           player.value.controlBar.on('mouseup', () => {
             setTimeout(() => {
@@ -122,8 +147,41 @@ export default defineComponent({
       });
     };
 
+    onBeforeUnmount(() => {
+      window.removeEventListener('orientationchange', handleOrientationChange);
+    });
+
+    const handleOrientationChange = () => {
+      const orientation = window.screen.orientation.type;
+      if (orientation == 'landscape-primary') {
+        orientationScreenAdvice.value = true;
+        return;
+      }
+      orientationScreenAdvice.value = false;
+    };
+
     const watchMinimized = computed(() => {
       return screenMinimized.value;
+    });
+
+    const redimensionVideoSize = computed(() => {
+      return $q.screen.lt.sm
+        ? {
+            '--top': '40%',
+            '--width': '100vw',
+            '--height': '40vh',
+          }
+        : orientationScreenAdvice.value
+        ? {
+            '--top': '50%',
+            '--width': '80vw',
+            '--height': '70vh',
+          }
+        : {
+            '--top': '50%',
+            '--width': '60vw',
+            '--height': '70vh',
+          };
     });
 
     return {
@@ -135,11 +193,16 @@ export default defineComponent({
       userMe,
       simpleMortal,
       watchMinimized,
+      posterClass,
+      redimensionVideoSize,
     };
   },
 });
 </script>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
+// .vjs-youtube .vjs-poster {
+//   display: none !important;
+// }
 @import './externalVideo.scss';
 </style>

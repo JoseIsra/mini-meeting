@@ -5,6 +5,11 @@ interface B2Info {
   authorizationToken: string;
 }
 
+export interface BgInfo {
+  url: string;
+  maximized: boolean;
+}
+
 export interface ZoidProps {
   streamId?: string;
   roomId: string;
@@ -20,10 +25,9 @@ export interface ZoidProps {
   isScreenShareLocked?: boolean;
   classroomId?: string;
   isMicOn?: boolean;
-  privacy?: boolean;
-  bgUrl?: string;
+  bgInfo?: BgInfo;
   isBeingRecorded?: boolean;
-  roomRestriction?: boolean;
+  roomRestriction?: number;
   isHost?: boolean;
   startDate?: string;
   handleLeaveCall?: (
@@ -32,12 +36,12 @@ export interface ZoidProps {
   ) => void;
   handleStopRecording?: (urlOfRecording: string) => void;
   toggleMinimize?: (isMinimize: boolean) => void;
-  toggleLockAction?: (lockAction: lockAction) => void;
+  toggleLockAction?: (states: lockAction) => void;
   fractalUserId?: string;
   logJoined?: () => void;
   handleStartRecording?: () => void;
   getB2Info?: () => Promise<B2Info>;
-  setBackgroundImg?: (url: string) => void;
+  setBackgroundInfo?: (url: string, maximized: boolean) => void;
   addUserLogToState?: (fractalUserId: string, logType: number) => void;
   setPinnedUser?: (userId: string) => void;
   pinnedUser?: string;

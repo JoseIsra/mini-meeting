@@ -1,6 +1,6 @@
 <template>
   <section class="m-fuser">
-    <div class="m-fuser__content" v-if="gotPinnedUser">
+    <template v-if="gotPinnedUser">
       <div v-show="!studentPinned.isVideoActivated" class="m-fuser__avatar">
         <figure class="m-fuser__avatar__imageBox">
           <img
@@ -9,9 +9,10 @@
           />
         </figure>
         <div class="m-fuser__info">
-          <label class="m-fuser__info__userName">{{
-            studentPinned.name
-          }}</label>
+          <label class="m-fuser__info__userName"
+            >{{ studentPinned.name }}
+            {{ studentPinned.id === userMe.id ? '(Tú)' : '' }}</label
+          >
         </div>
         <div class="m-fuser__actions">
           <q-btn
@@ -47,33 +48,46 @@
       ></video>
       <q-btn
         flat
-        label="Minimizar pantalla"
+        :label="buttonMinimizeSpecialStyle ? '' : 'Minimizar pantalla'"
         class="m-fuser__quitBtn"
+        :class="{ '--cornerButton': buttonMinimizeSpecialStyle }"
         icon="fullscreen_exit"
         @click="exitFullScreen"
         v-show="
           showMinimizeMessage &&
           studentPinned.isVideoActivated &&
-          !screenMinimized
+          !screenMinimized & minimizeOnGlobalFocusedUser
         "
       />
-    </div>
+    </template>
 
     <div class="m-fuser__loading" v-else>
       <q-spinner color="primary" size="10em" />
+
+      <q-btn
+        class="m-fuser__loading__exit"
+        @click="exitFullScreen"
+        round
+        flat
+        icon="fullscreen_exit"
+        color="white"
+      >
+        <q-tooltip
+          class="bg-grey-10"
+          transition-show="scale"
+          transition-hide="scale"
+        >
+          <label class="m-fuser__actions__message"> Minimizar </label>
+        </q-tooltip>
+      </q-btn>
+
+      <span> Cargando... </span>
     </div>
   </section>
 </template>
 
 <script lang="ts">
-import {
-  defineComponent,
-  ref,
-  computed,
-  onMounted,
-  onBeforeUnmount,
-  watch,
-} from 'vue';
+import { defineComponent, ref, computed, watch } from 'vue';
 import { useToogleFunctions } from '@/composables';
 import { useScreen } from '@/composables/screen';
 import _ from 'lodash';
@@ -91,21 +105,19 @@ export default defineComponent({
       clearFullScreenObject,
       setFullScreenObject,
     } = useToogleFunctions();
-
-    const { screenMinimized } = useScreen();
-
+    const { screenMinimized, isLandscape } = useScreen();
     const { updateFocus, roomState } = useRoom();
-
     const { userMe } = useUserMe();
-
     const { admittedParticipants } = useHandleParticipants();
-
+    const { sendData } = useInitWebRTC();
     const gotPinnedUser = computed(() => !!fullScreenObject.id);
+    const buttonMinimizeSpecialStyle = ref(false);
 
     watch(admittedParticipants, (value) => {
       if (!gotPinnedUser.value) {
         const participant = value.find((p) => p.id === roomState.pinnedUserId);
         setFullScreenObject(participant as User);
+        updateFocus(participant as User);
       }
     });
 
@@ -119,27 +131,26 @@ export default defineComponent({
       }
     });
 
-    const { sendData } = useInitWebRTC();
-
-    let showMinimizeMessage = ref(false);
-
-    let orientationClass = ref('');
-
     const exitFullScreen = () => {
-      setFullScreen('none');
+      setFullScreen('none', false);
       clearFullScreenObject();
 
-      if (roomState.pinnedUser) {
+      if (userMe.roleId === 0 && roomState.pinnedUser) {
+        console.log('Admin fullScreen task');
+
         sendData(userMe.id, {
           eventType: 'SET_FULL_SCREEN',
           mode: 'none',
         });
 
         updateFocus(null);
-
         window.xprops?.setPinnedUser?.('');
       }
     };
+
+    let showMinimizeMessage = ref(false);
+
+    let orientationClass = ref('');
 
     const hideMinimizeMessage = _.debounce(() => {
       showMinimizeMessage.value = false;
@@ -154,15 +165,7 @@ export default defineComponent({
     };
 
     const hasCameraActivated = computed(() => {
-      return fullScreenObject.isCameraOn;
-    });
-
-    onMounted(() => {
-      window.addEventListener('orientationchange', handleOrientationChange);
-    });
-
-    onBeforeUnmount(() => {
-      window.removeEventListener('orientationchange', handleOrientationChange);
+      return studentPinned?.value?.isCameraOn;
     });
 
     const studentPinned = computed(() => {
@@ -175,23 +178,32 @@ export default defineComponent({
       }
     });
 
-    const handleOrientationChange = () => {
-      const orientation = window.screen.orientation.type;
-      if (
-        orientation == 'landscape-primary' &&
-        fullScreenObject.isScreenSharing
-      ) {
-        orientationClass.value = 'landscapeMode';
-      } else if (
-        orientation == 'portrait-primary' &&
-        fullScreenObject.isScreenSharing
-      ) {
-        orientationClass.value = 'portraitMode';
+    watch(
+      () => isLandscape.value,
+      (value) => {
+        if (value) {
+          if (
+            studentPinned.value?.isScreenSharing ||
+            studentPinned.value?.isCameraOn
+          ) {
+            buttonMinimizeSpecialStyle.value = true;
+            orientationClass.value = 'landscapeMode';
+          }
+        } else {
+          buttonMinimizeSpecialStyle.value = false;
+          if (studentPinned.value?.isScreenSharing) {
+            orientationClass.value = 'portraitMode';
+          }
+        }
+      },
+      {
+        immediate: true,
       }
-    };
+    );
+
+    const minimizeOnGlobalFocusedUser = computed(() => !roomState.pinnedUser);
 
     return {
-      handleOrientationChange,
       fullScreenObject,
       exitFullScreen,
       toggleMinimizeMessage,
@@ -202,6 +214,9 @@ export default defineComponent({
       canClose,
       studentPinned,
       gotPinnedUser,
+      buttonMinimizeSpecialStyle,
+      minimizeOnGlobalFocusedUser,
+      userMe,
     };
   },
 });

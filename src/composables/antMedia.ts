@@ -3,7 +3,11 @@ import { WebRTCAdaptor } from '@/utils/webrtc/webrtc_adaptor';
 import { useUserMe, User } from '@/composables/userMe';
 import { useAuthState } from '@/composables/auth';
 import { objWebRTC } from '@/types/index';
-import { REASON_TO_LEAVE_ROOM, LOCK_ACTION_TYPE } from '@/utils/enums';
+import {
+  REASON_TO_LEAVE_ROOM,
+  LOCK_ACTION_TYPE,
+  USER_ROLE,
+} from '@/utils/enums';
 import { useHandleParticipants } from '@/composables/participants';
 import { Message, useHandleMessage } from '@/composables/chat';
 import { useToogleFunctions } from '@/composables';
@@ -24,19 +28,24 @@ const {
   updateUserMe,
   setMicState,
   setCameraState,
+  setLocalMicBlock,
+  setLocalScreenShareBlock,
+  setLocalVideoBlock,
   setDenied,
 } = useUserMe();
 
 const { setIsLoadingOrError, setLoadingOrErrorMessage, setExistRoom } =
   useAuthState();
 const {
-  setRecorded,
+  updateRoom,
   setRoomMicState,
   setRoomCameraState,
   setRoomScreenShareState,
-  setPrivacy,
+  setroomRestriction,
   updateFocus,
   updateBgUrl,
+  updateBgSize,
+  roomState,
 } = useRoom();
 
 const {
@@ -44,6 +53,9 @@ const {
   participants,
   addParticipants,
   updateParticipantDenied,
+  admittedParticipants,
+  setParticipantActions,
+  setEveryParticipantActions,
 } = useHandleParticipants();
 
 const { setUserMessage, deleteLoadingMessage } = useHandleMessage();
@@ -141,8 +153,17 @@ interface backgroundInfo {
   url: string;
 }
 
+interface backgroundSize {
+  maximized: boolean;
+}
+
 interface ObjUserLeavingMessageParsed {
   fractalUserId: string;
+  userId: string;
+}
+
+interface ObjRecordingStopParsed {
+  state: Record<string, string>;
 }
 
 export function useInitWebRTC() {
@@ -257,7 +278,7 @@ export function useInitWebRTC() {
     };
 
     const initRemotePlayerInstance = (arg: User) => {
-      setFullScreen('video');
+      setFullScreen('video', true);
       updateExternalVideoState({
         ...externalVideo,
         urlVideo: arg.urlOfVideo,
@@ -278,7 +299,7 @@ export function useInitWebRTC() {
       remotePlayer.value = videojs((arg.remoteInstance as VideoID).playerId);
       setVideoInstance({} as HTMLMediaElement & { playerId: string });
       videojs((arg.remoteInstance as VideoID).playerId).dispose();
-      setFullScreen('none');
+      setFullScreen('none', false);
       updateUserMe({
         ...userMe,
         existVideo: false,
@@ -323,10 +344,33 @@ export function useInitWebRTC() {
           joinRoom(roomId, streamId);
         } else if (info == 'joinedTheRoom') {
           window.addEventListener('unload', () => {
+            // window.xprops?.setPinnedUser?.('');
+
             sendData(userMe.id, {
               eventType: 'USER_LEAVING',
               fractalUserId: userMe.fractalUserId,
+              userId: userMe.id,
             });
+
+            if (roomState.pinnedUser?.id === userMe.id) {
+              sendData(userMe.id, {
+                eventType: 'SET_FULL_SCREEN',
+                mode: 'none',
+              });
+            }
+
+            if (userMe.isRecording) {
+              const idUserGoingToStopRec =
+                admittedParticipants.value.filter(
+                  (participant) => participant.roleId === 0
+                )?.[0].id || admittedParticipants.value[0].id;
+
+              if (idUserGoingToStopRec)
+                sendNotificationEvent('RECORDING_STOPPED', userMe.id, {
+                  to: idUserGoingToStopRec,
+                });
+            }
+
             leaveRoom(roomId);
           });
           /* var room = obj.ATTR_ROOM_NAME; */
@@ -375,10 +419,6 @@ export function useInitWebRTC() {
               };
             } else {
               const isMerge = obj.streamId.split('-')[0] === 'm';
-
-              console.log('Agregando participante');
-              console.log('Id?: ', obj.streamId);
-              console.log('stream?: ', obj.stream);
 
               // objStreams.value.push(obj);
               if (!isMerge)
@@ -594,9 +634,15 @@ export function useInitWebRTC() {
                 user.isMicOn = false;
               }
             } else if (notificationType == 'RECORDING_STARTED') {
-              setRecorded(true);
+              updateRoom({ isBeingRecorded: true });
             } else if (notificationType == 'RECORDING_STOPPED') {
-              setRecorded(false);
+              updateRoom({ isBeingRecorded: false });
+              const stateParsed = JSON.parse(
+                obj.data
+              ) as ObjRecordingStopParsed;
+
+              if (stateParsed?.state?.to === userMe.id)
+                window.xprops?.handleStopRecording?.(roomState.recordingUrl);
             }
           } else if (eventType === 'HAND') {
             addHandNotificationInfo(objParsed);
@@ -712,7 +758,13 @@ export function useInitWebRTC() {
                   remoteUserInfoParsed.userInfo.fractalUserId;
                 user.denied = remoteUserInfoParsed.userInfo.denied;
                 user.isRecording = remoteUserInfoParsed.userInfo.isRecording;
-                if (userMe.roleId == 0) {
+                user.roleId = remoteUserInfoParsed.userInfo.roleId;
+
+                if (
+                  userMe.roleId === 0 &&
+                  remoteUserInfoParsed.userInfo.denied === 0 &&
+                  !roomState.roomRestriction
+                ) {
                   notifyWithAction(
                     remoteUserInfoParsed.userInfo.name,
                     remoteUserInfoParsed.userInfo.id
@@ -725,9 +777,6 @@ export function useInitWebRTC() {
               obj.data
             ) as ObjRemoteUserInfo;
 
-            if (remoteUserInfoParsed.userInfo.isRecording) {
-              setRecorded(true);
-            }
             if (remoteUserInfoParsed.to === userMe.id) {
               console.log('I am receiving info from another user', objParsed);
               console.log('USER_FINISH🚀', remoteUserInfoParsed.userInfo);
@@ -756,6 +805,7 @@ export function useInitWebRTC() {
                   remoteUserInfoParsed.userInfo.fractalUserId;
                 user.denied = remoteUserInfoParsed.userInfo.denied;
                 user.isRecording = remoteUserInfoParsed.userInfo.isRecording;
+                user.roleId = remoteUserInfoParsed.userInfo.roleId;
 
                 if (remoteUserInfoParsed.userInfo.existVideo) {
                   console.log(
@@ -792,16 +842,18 @@ export function useInitWebRTC() {
             ) as ObjBlockParticipantAction;
 
             if (participantId !== userMe.id) {
+              setParticipantActions(participantId, action, value);
               return;
             }
 
             if (action === LOCK_ACTION_TYPE.All) {
-              // setMicBlock(value);
               setRoomMicState(value);
-              // setVideoBlock(value);
+              setLocalMicBlock(value);
               setRoomCameraState(value);
-              // setScreenShareBlock(value);
+              setLocalVideoBlock(value);
               setRoomScreenShareState(value);
+              setLocalScreenShareBlock(value);
+
               if (value) {
                 setMicState(!value);
                 muteLocalMic();
@@ -820,6 +872,7 @@ export function useInitWebRTC() {
             } else if (action === LOCK_ACTION_TYPE.Mic) {
               // setMicBlock(value);
               setRoomMicState(value);
+              setLocalMicBlock(value);
 
               if (value) {
                 setMicIconState(!value);
@@ -830,6 +883,7 @@ export function useInitWebRTC() {
             } else if (action === LOCK_ACTION_TYPE.Camera) {
               // setVideoBlock(value);
               setRoomCameraState(value);
+              setLocalVideoBlock(value);
 
               if (value) {
                 setCameraIconState(!value);
@@ -841,6 +895,7 @@ export function useInitWebRTC() {
             } else if (action === LOCK_ACTION_TYPE.Screen) {
               // setScreenShareBlock(value);
               setRoomScreenShareState(value);
+              setLocalScreenShareBlock(value);
 
               if (value) {
                 setScreenShareIconState(!value);
@@ -856,14 +911,19 @@ export function useInitWebRTC() {
             ) as ObjBlockEveryoneAction;
 
             if (action === LOCK_ACTION_TYPE.All) {
-              // setMicBlock(value);
               setRoomMicState(value);
-              // setVideoBlock(value);
               setRoomCameraState(value);
-              // setScreenShareBlock(value);
               setRoomScreenShareState(value);
 
-              if (value) {
+              if (userMe.roleId === USER_ROLE.REGULAR_PARTICIPANT) {
+                setLocalMicBlock(value);
+                setLocalVideoBlock(value);
+                setLocalScreenShareBlock(value);
+              }
+
+              setEveryParticipantActions(LOCK_ACTION_TYPE.All, value);
+
+              if (value && userMe.roleId === USER_ROLE.REGULAR_PARTICIPANT) {
                 setMicState(!value);
                 muteLocalMic();
                 sendNotificationEvent('MIC_MUTED', userMe.id);
@@ -879,20 +939,28 @@ export function useInitWebRTC() {
                 setScreenShareIconState(!value);
               }
             } else if (action === LOCK_ACTION_TYPE.Mic) {
-              // setMicBlock(value);
               setRoomMicState(value);
+              setEveryParticipantActions(LOCK_ACTION_TYPE.Mic, value);
 
-              if (value) {
+              if (userMe.roleId === USER_ROLE.REGULAR_PARTICIPANT) {
+                setLocalMicBlock(value);
+              }
+
+              if (value && userMe.roleId === USER_ROLE.REGULAR_PARTICIPANT) {
                 setMicIconState(!value);
                 setMicState(!value);
                 muteLocalMic();
                 sendNotificationEvent('MIC_MUTED', userMe.id);
               }
             } else if (action === LOCK_ACTION_TYPE.Camera) {
-              // setVideoBlock(value);
               setRoomCameraState(value);
+              setEveryParticipantActions(LOCK_ACTION_TYPE.Camera, value);
 
-              if (value) {
+              if (userMe.roleId === USER_ROLE.REGULAR_PARTICIPANT) {
+                setLocalVideoBlock(value);
+              }
+
+              if (value && userMe.roleId === USER_ROLE.REGULAR_PARTICIPANT) {
                 setCameraIconState(!value);
                 setCameraState(!value);
                 setVideoActivatedState(!value);
@@ -900,10 +968,14 @@ export function useInitWebRTC() {
                 sendNotificationEvent('CAM_TURNED_OFF', userMe.id);
               }
             } else if (action === LOCK_ACTION_TYPE.Screen) {
-              // setScreenShareBlock(value);
               setRoomScreenShareState(value);
+              setEveryParticipantActions(LOCK_ACTION_TYPE.Screen, value);
 
-              if (value) {
+              if (userMe.roleId === USER_ROLE.REGULAR_PARTICIPANT) {
+                setLocalScreenShareBlock(value);
+              }
+
+              if (value && userMe.roleId === USER_ROLE.REGULAR_PARTICIPANT) {
                 setScreenShareIconState(!value);
                 setScreenState(!value);
                 setVideoActivatedState(!value);
@@ -911,8 +983,6 @@ export function useInitWebRTC() {
                 sendNotificationEvent('SCREEN_SHARING_OFF', userMe.id);
               }
             }
-
-            // setUserActions(lockData.action, lockData.value);
           } else if (eventType === 'ANSWER_PERMISSION') {
             const { participantId, value } = JSON.parse(
               obj.data
@@ -922,7 +992,7 @@ export function useInitWebRTC() {
               console.log('Respuesta para mi');
 
               if (value) {
-                setPrivacy(false);
+                setroomRestriction(0);
                 setDenied(PERMISSION_STATUS.admitted);
               } else {
                 setDenied(PERMISSION_STATUS.denied);
@@ -939,7 +1009,7 @@ export function useInitWebRTC() {
             const externalVideoObject = JSON.parse(
               obj.data
             ) as ExternalVideoObject;
-            setFullScreen('video');
+            setFullScreen('video', true);
             updateExternalVideoState({
               urlVideo: externalVideoObject.urlContent,
             });
@@ -968,24 +1038,21 @@ export function useInitWebRTC() {
               obj.data
             ) as ObjSetFullScreen;
 
-            if (participant) {
+            if (participant && mode === 'user') {
               console.log('Activar fijar usuario');
-
               if (isFullScreen.value) {
                 setFullScreenObject(participant);
                 updateFocus(participant);
                 return;
               }
-
-              updateFocus(participant);
-              setFullScreen(mode);
+              setFullScreen(mode, true);
               setFullScreenObject(participant);
+              updateFocus(participant);
             } else {
               console.log('Quitar fijar usuario');
-
-              updateFocus(null);
-              setFullScreen(mode);
+              setFullScreen(mode, false);
               clearFullScreenObject();
+              updateFocus(null);
             }
           } else if (eventType == 'REMOVE_EXTERNAL_VIDEO') {
             const externalVideoInfo = JSON.parse(
@@ -1002,12 +1069,18 @@ export function useInitWebRTC() {
           } else if (eventType === 'UPDATE_ROOM_BG') {
             const bgData = JSON.parse(obj.data) as backgroundInfo;
             updateBgUrl(bgData.url);
+          } else if (eventType === 'UPDATE_ROOM_SIZE') {
+            const bgData = JSON.parse(obj.data) as backgroundSize;
+            updateBgSize(bgData.maximized);
           } else if (eventType === 'USER_LEAVING') {
             const userLeavingMsgParsed = JSON.parse(
               obj.data
             ) as ObjUserLeavingMessageParsed;
 
-            console.log('USER LEAVING', '🚀🚀🚀');
+            if (roomState.pinnedUser?.id === userLeavingMsgParsed.userId) {
+              window.xprops?.setPinnedUser?.('');
+            }
+
             window.xprops?.addUserLogToState?.(
               userLeavingMsgParsed.fractalUserId,
               LOG_TYPE.OUT
@@ -1027,7 +1100,7 @@ export function useInitWebRTC() {
         ) {
           clearInterval(roomTimerId.value as NodeJS.Timeout);
           const errorMessage =
-            'Error al publicar stream. Por favor, recarga la página';
+            'Error al publicar stream: Parece que su conexión es lenta, Por favor, recargue la página';
           setLoadingOrErrorMessage(errorMessage);
           setExistRoom(false);
         }
@@ -1094,7 +1167,7 @@ export function useInitWebRTC() {
           }
           webRTCInstance.value.resetDesktop?.();
           sendNotificationEvent('SCREEN_SHARING_OFF', userMe.id);
-          errorMessage = 'You are not allowed to access screen share';
+          errorMessage = 'No has dado permisos para compartir tus dispositivos';
           //screen_share_checkbox.checked = false;
         } else if (error.indexOf('AbortError') !== -1) {
           setExistRoom(false);
@@ -1158,7 +1231,7 @@ export function useInitWebRTC() {
   const sendNotificationEvent = (
     notificationType: string,
     streamId: string,
-    state?: boolean
+    state?: boolean | Record<string, string>
   ) => {
     if (isDataChannelOpen.value) {
       const notEvent = {

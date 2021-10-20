@@ -3,29 +3,33 @@
     <fractal-up-cooperate-instance
       class="multichat"
       :class="{ '--minimized': isMinimized }"
-      roomId="room20"
+      roomId="room16"
       :streamId="streamId"
       :streamName="streamName"
       :handleLeaveCall="handleLeaveCall"
       :handleEndCall="handleEndCall"
       :handleStopRecording="handleStopRecording"
+      :handleStartRecording="handleStartRecording"
       :toggleMinimize="toggleMinimize"
       :toggleLockAction="toggleLockAction"
       sharedLink="sharedLinkTest"
       classroomId="1"
-      :isCameraLocked="false"
-      :isScreenShareLocked="false"
-      :isMicLocked="false"
+      :isMicLocked="actions.mic === 1"
+      :isCameraLocked="actions.camera === 1"
+      :isScreenShareLocked="actions.screenshare === 1"
       :getB2Info="getB2Info"
       :roleId="0"
       :roomRestriction="0"
       photoURL="https://encrypted.fractalup.com/file/MainPublic/classrooms/1/users/44/assets/1623873430710.png"
-      backgroundImg=""
-      setBackgroundImg=""
+      :bgInfo="bgInfo"
+      :setBackgroundInfo="setBackgroundImg"
       :addUserLogToState="addUserLogToState"
       fractalUserId="34i2jkd23"
       :setPinnedUser="setPinnedUser"
       :pinnedUser="pinnedUser"
+      :isMicOn="false"
+      :isCameraOn="false"
+      :isBeingRecorded="isBeingRecorded"
     />
   </div>
 </template>
@@ -59,6 +63,13 @@ export default Vue.extend({
       streamName: `userId-${Date.now()}`,
       isMinimized: false,
       pinnedUser: localStorage.pinnedUser,
+      bgInfo: localStorage.bgInfo
+        ? JSON.parse(localStorage.bgInfo)
+        : { url: "", maximized: false },
+      actions: localStorage.actions
+        ? JSON.parse(localStorage.actions)
+        : { mic: 0, camera: 0, screenshare: 0 },
+      isBeingRecorded: localStorage.isBeingRecorded === "true",
     };
   },
   methods: {
@@ -74,9 +85,26 @@ export default Vue.extend({
     },
     handleStopRecording: function (url: string) {
       console.log("⭐ handleStopRecording function executed with params", url);
+      window.localStorage.isBeingRecorded = false;
     },
-    toggleLockAction: function (options: Record<string, number>) {
-      console.log("⭐ toggle log action with params", options);
+    handleStartRecording: function () {
+      window.localStorage.isBeingRecorded = true;
+    },
+    toggleLockAction: function ({
+      mic,
+      camera,
+      screenshare,
+    }: {
+      mic: number;
+      camera: number;
+      screenshare: number;
+    }) {
+      console.log("⭐ toggle log action with params", mic, camera, screenshare);
+      window.localStorage.actions = JSON.stringify({
+        mic: mic,
+        camera: camera,
+        screenshare: screenshare,
+      });
     },
     getB2Info: async function () {
       const myQuery = `
@@ -110,9 +138,13 @@ export default Vue.extend({
       console.log(fractalUserId, logType);
     },
     setPinnedUser: function (userId: string) {
-      console.log('setPinnedUser')
+      console.log("setPinnedUser");
       window.localStorage.pinnedUser = userId;
-    }    
+    },
+    setBackgroundImg: function (url: string, maximized: boolean) {
+      console.log("setBackgroundImg");
+      window.localStorage.bgInfo = JSON.stringify({ url, maximized });
+    },
   },
 });
 </script>

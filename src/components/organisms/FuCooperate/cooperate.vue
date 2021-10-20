@@ -1,15 +1,22 @@
 <template>
   <section
     class="o-cooperate"
-    @mousemove="toogleMenuBar"
+    v-on="{ mousemove: !screenMinimized ? toogleMenuBar : null }"
+    v-touch:tap="toogleMenuBar"
     @click.self="closePanels"
+    :style="`
+      background: url('${bgInfo.url}') #36393f;
+      background-size: ${bgInfo.maximized ? 100 : 50}vw;
+      background-position: 50% center;
+      background-repeat: no-repeat;
+    `"
   >
-    <q-img
+    <!-- <q-img
       class="o-cooperate__background"
-      :src="bgUrl"
+      :src="bgInfo.url"
       :style="bgStyle"
-      :fit="bgMaximixed ? 'fill' : 'cover'"
-    />
+      :fit="bgInfo.maximized ? 'fill' : 'cover'"
+    /> -->
 
     <q-icon
       name="fas fa-expand-alt"
@@ -34,7 +41,7 @@
     </transition>
     <fu-cooperate-user-video
       v-show="
-        $q.screen.lt.md && !screenMinimized
+        !screenMinimized && $q.screen.lt.md
           ? showUsersVideoList
           : !screenMinimized
       "
@@ -46,7 +53,6 @@
     />
 
     <fu-board v-show="showBoard" />
-
     
     <fu-full-screen v-if="isFullScreen" />
 
@@ -61,7 +67,14 @@
 </template>
 //TODO: OBJETO DE USUARIO GLOBAL
 <script lang="ts">
-import { defineComponent, ref, toRefs, onMounted, computed } from 'vue';
+import {
+  defineComponent,
+  ref,
+  toRefs,
+  onMounted,
+  onBeforeUnmount,
+  watch,
+} from 'vue';
 import FuCooperateMenuBar from 'organisms/FuCooperateMenuBar';
 import FuCooperateHeader from 'molecules/FuCooperateHeader';
 import FuCooperateUserVideo from 'atoms/FuCooperateUserVideo';
@@ -103,6 +116,11 @@ export default defineComponent({
   setup(props, { emit }) {
     onMounted(() => {
       emit('mounted');
+      window.addEventListener('orientationchange', handleOrientationChange);
+    });
+
+    onBeforeUnmount(() => {
+      window.removeEventListener('orientationchange', handleOrientationChange);
     });
 
     const showBoard = ref<boolean>(true);
@@ -122,19 +140,29 @@ export default defineComponent({
 
     const { roomState } = useRoom();
 
-    const { screenMinimized, updateScreenState } = useScreen();
+    const { screenMinimized, updateScreenState, setScreenDeviceOrientation } =
+      useScreen();
 
-    const bgStyle = computed(() => {
-      return roomState.bgMaximixed
-        ? 'left: 0; right: 0; top: 0; bottom: 0; width: 100vw; height: 100vh'
-        : 'top: 25vh; width: 50vw; height: 50vh';
-    });
+    // Dynamig-bg update (to delete)
+    // const bgStyle = computed(() => {
+    //   return roomState.bgMaximixed
+    //     ? 'left: 0; right: 0; top: 0; bottom: 0; width: 100vw; height: 100vh'
+    //     : 'top: 25vh; width: 50vw; height: 50vh';
+    // });
 
     const hideMenuBar = _.debounce(() => {
       showMenuBar.value = false;
       showUsersVideoList.value = false;
     }, 6000);
 
+    watch(
+      () => screenMinimized.value,
+      (value) => {
+        if (value) {
+          hideMenuBar.cancel();
+        }
+      }
+    );
     const toogleMenuBar = () => {
       if (!showMenuBar.value) {
         showMenuBar.value = true;
@@ -151,6 +179,15 @@ export default defineComponent({
       setIDButtonSelected('');
     };
 
+    const handleOrientationChange = () => {
+      const orientation = window.screen.orientation.type;
+      if (orientation == 'landscape-primary') {
+        setScreenDeviceOrientation(true);
+      } else if (orientation == 'portrait-primary') {
+        setScreenDeviceOrientation(false);
+      }
+    };
+
     return {
       toogleMenuBar,
       showMenuBar,
@@ -165,7 +202,6 @@ export default defineComponent({
       showBoard,
       showParticipantPanel,
       showUsersVideoList,
-      bgStyle,
     };
   },
 });

@@ -81,14 +81,11 @@
           <q-tooltip class="bg-grey-10" v-if="icon.behaviour == 'ESPECIAL'">
             <label
               class="a-menuBar__icon__tooltip"
-              v-if="functionsOnMenuBar.handNotificationInfo.length > 0"
+              v-if="handNotificationActive"
             >
               {{ icon.toolTipSecondMessage }}
             </label>
-            <label
-              class="a-menuBar__icon__tooltip"
-              v-if="functionsOnMenuBar.handNotificationInfo.length == 0"
-            >
+            <label v-else class="a-menuBar__icon__tooltip">
               {{ icon.toolTipMessage }}
             </label>
           </q-tooltip>
@@ -185,7 +182,6 @@ import FuCooperateNetworkInfo from 'molecules/FuCooperateNetworkInfo';
 import { useInitWebRTC } from '@/composables/antMedia';
 import { useScreen } from '@/composables/screen';
 import { useActions } from '@/composables/actions';
-import { useRoom } from '@/composables/room';
 import { useHandleParticipants } from '@/composables/participants';
 
 export default defineComponent({
@@ -209,8 +205,6 @@ export default defineComponent({
     const { sendData } = useInitWebRTC();
 
     const { periferics, functions, options } = useActions();
-
-    const { roomState } = useRoom();
 
     const { waitingParticipants } = useHandleParticipants();
 
@@ -391,7 +385,7 @@ export default defineComponent({
     };
 
     const disableAction = (action: Icons) => {
-      if (action.onState === 'mic' && roomState.isMicBlocked) {
+      if (action.onState === 'mic' && userMe.isMicBlocked) {
         return true;
       }
 
@@ -403,11 +397,11 @@ export default defineComponent({
       //   return true;
       // }
 
-      if (action.onState === 'videocam' && roomState.isCameraBlocked) {
+      if (action.onState === 'videocam' && userMe.isCameraBlocked) {
         return true;
       }
 
-      if (action.onState === 'monitor' && roomState.isScreenShareBlocked) {
+      if (action.onState === 'monitor' && userMe.isScreenShareBlocked) {
         return true;
       }
 

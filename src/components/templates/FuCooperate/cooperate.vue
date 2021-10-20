@@ -5,7 +5,7 @@
       v-if="existRoom && isLoadingOrError === false"
     >
       <fu-lobby
-        v-if="roomState.privacy"
+        v-if="roomState.roomRestriction"
         @handleLeaveCall="handleZoidLeaveCall"
       />
 
@@ -42,7 +42,7 @@ import FuCooperate from 'organisms/FuCooperate';
 import FuLobby from 'organisms/FuLobby';
 
 import { useRoute } from 'vue-router';
-import { User, useUserMe } from '@/composables/userMe';
+import { useUserMe } from '@/composables/userMe';
 import FuTLoading from 'organisms/FuLoading';
 import { PERMISSION_STATUS, REASON_TO_LEAVE_ROOM } from '@/utils/enums';
 import { useInitWebRTC } from '@/composables/antMedia';
@@ -51,7 +51,6 @@ import { useRoom } from '@/composables/room';
 import { useActions } from '@/composables/actions';
 import { useToogleFunctions } from '@/composables';
 import moment from 'moment';
-import { useHandleParticipants } from '@/composables/participants';
 
 export default defineComponent({
   name: 'FuTCooperate',
@@ -80,8 +79,6 @@ export default defineComponent({
       setCameraState,
       setScreenState,
     } = useUserMe();
-
-    const { admittedParticipants } = useHandleParticipants();
 
     const { roomState, setRoom } = useRoom();
 
@@ -117,22 +114,17 @@ export default defineComponent({
     const roleId =
       window.xprops?.roleId || parseInt(route.query.roleId as string) || 0;
 
-    const privacy =
-      window.xprops?.roomRestriction ||
-      (route.query.roomRestriction as string) === '1' ||
-      false;
+    let roomRestriction = window.xprops?.roomRestriction as number;
 
-    const isMicLocked =
-      window.xprops?.isMicLocked ||
-      (route.query.mic as string) === '1' ||
-      false;
+    if (!roomRestriction) {
+      roomRestriction = parseInt(route.query.roomRestriction as string) || 0;
+    }
+
+    const isMicLocked = window.xprops?.isMicLocked || false;
 
     const isCameraLocked = window.xprops?.isCameraLocked || false;
 
-    const isScreenShareLocked =
-      window.xprops?.isScreenShareLocked ||
-      (route.query.screen as string) === '1' ||
-      false;
+    const isScreenShareLocked = window.xprops?.isScreenShareLocked || false;
 
     const sharingLink =
       window?.xprops?.sharedLink || (route.query.sharedLink as string) || '';
@@ -156,101 +148,78 @@ export default defineComponent({
       window?.xprops?.isHost ||
       (JSON.parse((route.query.isHost as string) || 'false') as boolean);
 
-    const bgUrl =
-      (window?.xprops?.bgUrl as string) ||
-      'https://encrypted.fractalup.com/file/MainPublic/fractalup_assets/landing/main.png';
+    let bgInfo = window?.xprops?.bgInfo || {
+      url: 'https://encrypted.fractalup.com/file/MainPublic/fractalup_assets/landing/main.png',
+      maximized: false,
+    };
+    if (window?.xprops?.bgInfo?.url === '' || !window?.xprops?.bgInfo?.url) {
+      bgInfo = {
+        url: 'https://encrypted.fractalup.com/file/MainPublic/fractalup_assets/landing/main.png',
+        maximized: false,
+      };
+    }
 
     const userPinnedZoid = (window?.xprops?.pinnedUser as string) || '';
 
-    const isBeingRecorded = window?.xprops?.isBeingRecorded;
+    const isBeingRecorded = window?.xprops?.isBeingRecorded || false;
 
     const { setIDButtonSelected, setFullScreen } = useToogleFunctions();
-
-    if (isCameraOn) {
-      setVideoActivatedState(true);
-      setCameraState(true);
-      setCameraIconState(true);
-    }
 
     setUserMe({
       id: streamId,
       name: streamName,
       avatar,
       roleId,
-      isMicOn: isMicOn ? true : isMicLocked,
-      // isMicOn: !isMicLocked,
-      isCameraOn,
+      isMicOn: roleId === 1 ? (isMicLocked ? false : isMicOn) : isMicOn,
+      isCameraOn:
+        roleId === 1 ? (isCameraLocked ? false : isCameraOn) : isCameraOn,
       isScreenSharing: false,
-      isVideoActivated: isCameraOn,
+      isVideoActivated:
+        roleId === 1 ? (isCameraLocked ? false : isCameraOn) : isCameraOn,
       isMicBlocked: roleId === 1 ? isMicLocked : false,
       isCameraBlocked: roleId === 1 ? isCameraLocked : false,
       isScreenShareBlocked: roleId === 1 ? isScreenShareLocked : false,
       fractalUserId,
-      denied:
-        roleId === 1
-          ? privacy
-            ? PERMISSION_STATUS.asked
-            : PERMISSION_STATUS.admitted
-          : PERMISSION_STATUS.admitted,
+      denied: roomRestriction
+        ? roleId === 1
+          ? PERMISSION_STATUS.asked
+          : PERMISSION_STATUS.admitted
+        : PERMISSION_STATUS.admitted,
       existVideo: false,
       isRecording: false,
       isHost,
     });
 
-    setMicIconState(isMicLocked ? false : isMicOn);
-    // setCameraIconState(!isCameraLocked);
-    // setScreenShareIconState(!isScreenShareLocked);
-
     const startDate = window.xprops?.startDate || '2020-01-11 11:23';
-
-    const userPinned = admittedParticipants.value.find(
-      (part) => part.id === userPinnedZoid
-    );
-
-    console.log('Id: ', userPinnedZoid);
 
     setRoom({
       id: roomId,
       sharingLink,
       classroomId,
-      privacy: roleId === 1 ? privacy : false,
-      isMicBlocked: roleId === 1 ? isMicLocked : false,
-      isCameraBlocked: roleId === 1 ? isCameraLocked : false,
-      isScreenShareBlocked: roleId === 1 ? isScreenShareLocked : false,
-      bgUrl: bgUrl,
-      bgMaximixed: false,
+      roomRestriction: roleId === 1 ? roomRestriction : 0,
+      isMicBlocked: isMicLocked,
+      isCameraBlocked: isCameraLocked,
+      isScreenShareBlocked: isScreenShareLocked,
+      bgInfo: bgInfo,
       isBeingRecorded,
-      pinnedUser: (userPinned as User) ?? null,
+      recordingUrl: '',
+      pinnedUser: null,
       pinnedUserId: userPinnedZoid,
       startDate,
     });
 
+    setMicIconState(roleId === 1 ? (isMicLocked ? false : isMicOn) : isMicOn);
+
+    if (roleId === 1 ? (isCameraLocked ? false : isCameraOn) : isCameraOn) {
+      setVideoActivatedState(true);
+      setCameraIconState(true);
+      setCameraState(true);
+      turnOnLocalCamera(streamId);
+      sendNotificationEvent('CAM_TURNED_ON', streamId);
+    }
+
     if (userPinnedZoid) {
-      setFullScreen('user');
-      // setFullScreenObject(userPinned as User);
-    }
-
-    if (isMicLocked) {
-      sendNotificationEvent('MIC_MUTED', streamId);
-      // if (roleId === 1) {
-      //   setMicState(!isMicLocked);
-      // }
-    }
-
-    if (isCameraLocked) {
-      setVideoActivatedState(!isCameraLocked);
-      sendNotificationEvent('CAM_TURNED_OFF', userMe.id);
-      // if (roleId === 1) {
-      //   setCameraState(!isCameraLocked);
-      // }
-    }
-
-    if (isScreenShareLocked) {
-      setVideoActivatedState(!isScreenShareLocked);
-      sendNotificationEvent('SCREEN_SHARING_OFF', userMe.id);
-      // if (roleId === 1) {
-      //   setScreenState(!isScreenShareLocked);
-      // }
+      setFullScreen('user', true);
     }
 
     const publishToken =

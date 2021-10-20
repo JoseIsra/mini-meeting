@@ -1,5 +1,9 @@
 <template>
-  <section class="a-userVideo" :style="styleOnMobile">
+  <section
+    class="a-userVideo"
+    :style="styleOnMobile"
+    :class="{ fade: screenMinimized }"
+  >
     <div
       class="a-userVideo__box"
       :class="{ fade: fullScreenObject.id == userMe.id }"
@@ -18,6 +22,7 @@
           <q-icon :name="userMe.isMicOn ? 'mic' : 'mic_off'" color="white" />
         </div>
       </div>
+
       <video
         :srcObject.prop="userMe.stream"
         v-show="userMe.isVideoActivated"
@@ -26,6 +31,12 @@
         muted
         playsinline
       ></video>
+
+      <div v-show="userMe.isVideoActivated">
+        <div class="a-userVideo__box__avatar__info__userName --video">
+          {{ userMe.name }}
+        </div>
+      </div>
 
       <q-btn
         flat
@@ -90,6 +101,13 @@
         playsinline
         :srcObject.prop="participant.stream"
       ></video>
+
+      <div v-show="participant.isVideoActivated">
+        <div class="a-userVideo__box__avatar__info__userName --video">
+          {{ participant.name }}
+        </div>
+      </div>
+
       <q-btn
         flat
         round
@@ -113,26 +131,48 @@
         </q-tooltip>
       </q-btn>
     </div>
+    <!--  -->
+    <div
+      class="a-userVideo__more"
+      v-show="
+        $q.screen.lt.md
+          ? admittedParticipants.length > 1
+          : admittedParticipants.length > 5
+      "
+    >
+      +{{
+        $q.screen.lt.md
+          ? admittedParticipants.length - 1
+          : admittedParticipants.length - 5
+      }}
+    </div>
+    <div
+      v-for="(participant, index) in $q.screen.lt.md
+        ? admittedParticipants.slice(0, -1)
+        : admittedParticipants.slice(0, -5)"
+      :key="index"
+    >
+      <video
+        :srcObject.prop="participant.stream"
+        :style="{ display: 'none' }"
+        autoplay
+        playsinline
+      />
+    </div>
   </section>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref, computed } from 'vue';
-import { userStreams } from '@/helpers/usersVideo';
 import { useToogleFunctions } from '@/composables';
 import { User, useUserMe } from '@/composables/userMe';
 import { useHandleParticipants } from '@/composables/participants';
 import { useQuasar } from 'quasar';
-
-interface UserStream {
-  id: string;
-  name: string;
-}
+import { useScreen } from '@/composables/screen';
 
 export default defineComponent({
   name: 'FuCooperateUserVideo',
   setup() {
-    const users = ref<UserStream[]>(userStreams);
     const { admittedParticipants } = useHandleParticipants();
 
     const {
@@ -141,24 +181,26 @@ export default defineComponent({
       fullScreenObject,
       isFullScreen,
     } = useToogleFunctions();
+
     const { userMe } = useUserMe();
 
     const streamIdPinned = ref('');
     const $q = useQuasar();
+    const { screenMinimized } = useScreen();
 
     const goFullScreen = (arg: User | string) => {
       if (isFullScreen.value) {
         setFullScreenObject(arg as User);
         return;
       }
-      setFullScreen('user');
+      setFullScreen('user', true);
       setFullScreenObject(arg as User);
     };
 
     const controlUserToRender = computed(() => {
       return $q.screen.lt.md
         ? admittedParticipants.value.slice(-1)
-        : admittedParticipants.value.slice(-9);
+        : admittedParticipants.value.slice(-5);
     });
 
     const styleOnMobile = computed(() => {
@@ -168,7 +210,6 @@ export default defineComponent({
     });
 
     return {
-      users,
       userMe,
       goFullScreen,
       admittedParticipants,
@@ -176,6 +217,7 @@ export default defineComponent({
       fullScreenObject,
       controlUserToRender,
       styleOnMobile,
+      screenMinimized,
     };
   },
 });

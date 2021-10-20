@@ -1,15 +1,14 @@
 .m-video {
   position: absolute;
-  top: 50%;
+  top: var(--top);
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 60vw;
-  min-height: 100vh;
+  width: var(--width);
+  height: var(--height);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 3;
-
   &__btn {
     position: absolute;
     top: 50%;
@@ -38,5 +37,9 @@
 .video-js {
   position: absolute !important;
   width: 100% !important;
-  height: auto !important;
+  height: 90% !important;
+}
+
+.vjs-youtube .vjs-poster {
+  display: none !important;
 }

@@ -148,7 +148,7 @@ export const chatMenuIcon = [
   {
     id: '3',
     iconName: 'delete',
-    description: 'Borrar todos los mensajes',
+    description: 'Borrar todos los mensajes solo para mí',
     important: false,
     interaction: INTERACTION_TYPE_MENU_OPTIONS.CLEARCHAT,
   },

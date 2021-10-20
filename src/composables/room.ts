@@ -1,21 +1,42 @@
 import { reactive } from 'vue';
 
 import { User } from '@/composables/userMe';
+import { BgInfo } from '@/types/zoid';
 
 export interface Room {
   id: string;
   isBeingRecorded?: boolean;
+  recordingUrl: string;
   sharingLink?: string;
   classroomId: string;
   isMicBlocked: boolean;
   isCameraBlocked: boolean;
   isScreenShareBlocked: boolean;
-  privacy: boolean;
-  bgUrl?: string;
-  bgMaximixed: boolean;
+  roomRestriction: number;
+  // bgUrl?: string;
+  // bgMaximixed: boolean;
   startDate: string;
   pinnedUser: null | User;
   pinnedUserId?: string;
+  bgInfo: BgInfo;
+}
+
+export interface UpdatedRoomFields {
+  id?: string;
+  isBeingRecorded?: boolean;
+  recordingUrl?: string;
+  sharingLink?: string;
+  classroomId?: string;
+  isMicBlocked?: boolean;
+  isCameraBlocked?: boolean;
+  isScreenShareBlocked?: boolean;
+  roomRestriction?: number;
+  // bgUrl?: string;
+  // bgMaximixed: boolean;
+  startDate?: string;
+  pinnedUser?: null | User;
+  pinnedUserId?: string;
+  bgInfo?: BgInfo;
 }
 
 export interface participantOnWait {
@@ -29,11 +50,14 @@ export function useRoom() {
   const setRoom = (room: Room) => {
     Object.assign(roomState, room);
   };
-  const setRecorded = (state: boolean) => {
-    Object.assign(roomState, { ...roomState, isBeingRecorded: state });
+
+  const updateRoom = (value: UpdatedRoomFields) => {
+    console.log('changing room', '🚀🚀🚀');
+    Object.assign(roomState, { ...roomState, ...value });
   };
 
-  const setPrivacy = (state: boolean) => (roomState.privacy = state);
+  const setroomRestriction = (state: number) =>
+    (roomState.roomRestriction = state);
 
   const setRoomMicState = (state: boolean) => (roomState.isMicBlocked = state);
 
@@ -44,17 +68,22 @@ export function useRoom() {
     (roomState.isScreenShareBlocked = state);
 
   const updateFocus = (value: null | User) => (roomState.pinnedUser = value);
-  const updateBgUrl = (url: string) => (roomState.bgUrl = url);
+
+  const updateBgUrl = (url: string) => (roomState.bgInfo.url = url);
+
+  const updateBgSize = (maximized: boolean) =>
+    (roomState.bgInfo.maximized = maximized);
 
   return {
     roomState,
+    updateRoom,
     setRoom,
-    setRecorded,
-    setPrivacy,
+    setroomRestriction,
     setRoomMicState,
     setRoomCameraState,
     setRoomScreenShareState,
     updateFocus,
     updateBgUrl,
+    updateBgSize,
   };
 }

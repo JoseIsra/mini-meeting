@@ -52,8 +52,8 @@
       "
     />
 
-    <fu-board v-show="showBoard" />
-    
+    <fu-board />
+
     <fu-full-screen v-if="isFullScreen" />
 
     <q-dialog
@@ -123,7 +123,6 @@ export default defineComponent({
       window.removeEventListener('orientationchange', handleOrientationChange);
     });
 
-    const showBoard = ref<boolean>(true);
     let showMenuBar = ref<boolean>(false);
     let showUsersVideoList = ref<boolean>(false);
 
@@ -199,7 +198,6 @@ export default defineComponent({
       screenMinimized,
       updateScreenState,
       ...toRefs(roomState),
-      showBoard,
       showParticipantPanel,
       showUsersVideoList,
     };

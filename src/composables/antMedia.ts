@@ -7,6 +7,7 @@ import {
   REASON_TO_LEAVE_ROOM,
   LOCK_ACTION_TYPE,
   USER_ROLE,
+  BOARD_EVENTS,
 } from '@/utils/enums';
 import { useHandleParticipants } from '@/composables/participants';
 import { Message, useHandleMessage } from '@/composables/chat';
@@ -18,6 +19,7 @@ import { useExternalVideo } from './external-video';
 import videojs from 'video.js';
 import { useActions } from '@/composables/actions';
 import { LOG_TYPE } from '@/utils/enums/zoid';
+import { useBoard } from './board';
 
 const webRTCInstance = ref<WebRTCAdaptor>({} as WebRTCAdaptor);
 
@@ -83,6 +85,8 @@ const {
 
 const { setMicIconState, setCameraIconState, setScreenShareIconState } =
   useActions();
+
+const { handleObject, clearBoard } = useBoard();
 
 const remotePlayer = ref<videojs.Player>({} as videojs.Player);
 
@@ -164,6 +168,11 @@ interface ObjUserLeavingMessageParsed {
 
 interface ObjRecordingStopParsed {
   state: Record<string, string>;
+}
+
+interface ObjBoardEvent {
+  object: string;
+  event: number;
 }
 
 export function useInitWebRTC() {
@@ -1085,6 +1094,29 @@ export function useInitWebRTC() {
               userLeavingMsgParsed.fractalUserId,
               LOG_TYPE.OUT
             );
+          } else if (eventType === 'BOARD_EVENT') {
+            const { event, object } = JSON.parse(obj.data) as ObjBoardEvent;
+
+            if (!object) {
+              console.log('Turn on or off');
+              if (event === BOARD_EVENTS.TURN_ON) {
+                console.log('Enceder board');
+              } else if (event === BOARD_EVENTS.TURN_OFF) {
+                console.log('Apagar board');
+              } else if (event === BOARD_EVENTS.CLEAN) {
+                clearBoard();
+              }
+            } else {
+              handleObject(JSON.parse(object));
+              // if (event === BOARD_EVENTS.ADD) {
+              //   /* eslint-disable @typescript-eslint/no-unsafe-call */
+              //   addObject(JSON.parse(object));
+              // } else if (event === BOARD_EVENTS.REMOVE) {
+              //   console.log('Remove element');
+              // } else if (event === BOARD_EVENTS.UPDATE) {
+              //   console.log('Update element');
+              // }
+            }
           }
         }
       },

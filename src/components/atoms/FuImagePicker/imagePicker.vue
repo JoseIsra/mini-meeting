@@ -72,7 +72,10 @@ export default defineComponent({
           url: fileRoute,
         });
 
-        window.xprops?.setBackgroundInfo?.(fileRoute, roomState.bgInfo.maximized);
+        window.xprops?.setBackgroundInfo?.(
+          fileRoute,
+          roomState.bgInfo.maximized
+        );
       } else {
         updateBgUrl(
           'https://encrypted.fractalup.com/file/MainPublic/fractalup_assets/landing/main.png'

@@ -1,71 +1,115 @@
 <template>
   <section class="m-generalPanel">
-    <fieldset class="m-generalPanel__linkBox">
-      <legend class="m-generalPanel__linkBox__text --mainTitle">
-        Enlace de la sala
-      </legend>
-      <!-- <p class="m-generalPanel__linkBox__text --mainTitle">Enlace de la sala</p> -->
-      <p class="m-generalPanel__linkBox__text --subTitle">
-        Puedes compartir este enlace de la sala con las personas que quieras que
-        se unan
-      </p>
-      <div class="m-generalPanel__linkBox__actions">
-        <p class="m-generalPanel__linkBox__actions__link">
-          {{ linkToShareWithYourHommies }}
+    <div class="m-generalPanel__inner">
+      <fieldset class="m-generalPanel__linkBox">
+        <legend class="m-generalPanel__linkBox__text --mainTitle">
+          Enlace de la sala
+        </legend>
+        <p class="m-generalPanel__linkBox__text --subTitle">
+          Puedes compartir este enlace de la sala con las personas que quieras
+          que se unan
         </p>
-        <q-btn
-          no-caps
-          :class="[
-            'm-generalPanel__linkBox__actions__copyBtn',
-            { '--copied': linkCopied },
-          ]"
-          :label="linkCopied ? 'Enlace copiado' : 'Copiar enlace'"
-          @click="copySharedLink"
-        />
-      </div>
-    </fieldset>
-    <fieldset class="m-generalPanel__bgBox">
-      <legend class="m-generalPanel__bgBox__text --mainTitle">
-        Pantalla de fondo
-      </legend>
-      <!-- COMPONTE FILE CATCHER-->
-      <fu-file-catcher-cooperate />
-
-      <div class="m-generalPanel__bgBox__actions">
-        <q-checkbox
-          v-model="bgActive"
-          label="Maximizar fondo de pantalla"
-          dense
-          dark
-          class="m-generalPanel__bgBox__actions__check"
-          left-label
-          color="primary"
-        />
-        <p class="m-generalPanel__bgBox__actions__hint">
-          Mensaje referente para hacer crecer la imagen...
-        </p>
-      </div>
-    </fieldset>
+        <div class="m-generalPanel__linkBox__actions">
+          <p class="m-generalPanel__linkBox__actions__link">
+            {{ linkToShareWithYourHommies }}
+          </p>
+          <q-btn
+            no-caps
+            push
+            :class="[
+              'm-generalPanel__linkBox__actions__copyBtn',
+              { '--copied': linkCopied },
+            ]"
+            :label="linkCopied ? 'Enlace copiado' : 'Copiar enlace'"
+            @click="copySharedLink"
+          />
+        </div>
+      </fieldset>
+      <fieldset class="m-generalPanel__bgBox">
+        <legend class="m-generalPanel__bgBox__text --mainTitle">
+          Fondo de Cooperate
+        </legend>
+        <fu-file-catcher-cooperate @file-dropped="fileWasDroppped" />
+        <div class="m-generalPanel__bgBox__fileInfo" v-show="tempFileName">
+          <p class="m-generalPanel__bgBox__fileInfo__name">
+            {{ fileNameDroppedMessage }}
+          </p>
+          <q-btn
+            :loading="isLoading"
+            push
+            label="Cargar imagen"
+            class="m-generalPanel__bgBox__btn --fileBtn"
+            @click="changeBgImage"
+          >
+            <template v-slot:loading>
+              <q-spinner-hourglass color="blue-6" size="30px" />
+              Procesando...
+            </template>
+          </q-btn>
+        </div>
+        <div class="m-generalPanel__bgBox__actions">
+          <q-checkbox
+            v-model="maximizeBg"
+            label="Maximizar fondo de pantalla"
+            dense
+            dark
+            class="m-generalPanel__bgBox__actions__check"
+            left-label
+            color="primary"
+          />
+          <p class="m-generalPanel__bgBox__actions__hint">
+            La imagen de fondo ocupa todo el alto y ancho de la pantalla
+          </p>
+          <q-btn
+            push
+            class="m-generalPanel__bgBox__btn --reset"
+            :class="{ '--off': !roomState.bgInfo.allowResetBg }"
+            label="Restablecer fondo de pantalla"
+            :disable="!roomState.bgInfo.allowResetBg"
+            @click="resetCooperateBg"
+          />
+        </div>
+      </fieldset>
+    </div>
   </section>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, toRefs, computed } from 'vue';
+import { defineComponent, ref, toRefs, computed, watch } from 'vue';
 import { useRoom } from '@/composables/room';
 import FuFileCatcherCooperate from 'atoms/FuFileCatcherCooperate';
+import { useInitWebRTC } from '@/composables/antMedia';
+import { backBlazePath } from '@/config/constants';
+import { simplifyExtension, renameFile } from '@/utils/file';
+import backblazeService from '@/services/backblaze';
+import { useUserMe } from '@/composables/userMe';
+import { errorMessage, successMessage } from '@/utils/notify';
+const { uploadFileToBackblaze } = backblazeService;
 
 export default defineComponent({
   name: 'FuGeneralPanel',
   components: { FuFileCatcherCooperate },
   setup() {
-    const bgActive = ref(false);
-    const { roomState } = useRoom();
+    const { roomState, updateBgUrl, updateBgSize, updateAllowResetBg } =
+      useRoom();
+    const maximizeBg = ref(roomState.bgInfo.maximized);
     const linkCopied = ref(false);
+    let fileToChangeBg = ref({} as File);
+    let tempFileName = ref('');
+    const { sendData } = useInitWebRTC();
+    const { userMe } = useUserMe();
+    const isLoading = ref(false);
 
+    //*******COMPUTEDSSS */
     const linkToShareWithYourHommies = computed(() => {
-      return roomState.sharingLink || 'https://localhost:8081/?roomId=room5';
+      return roomState.sharingLink || 'https://localhost:8081/';
     });
 
+    const fileNameDroppedMessage = computed(
+      () => `Imagen: ${tempFileName.value}`
+    );
+
+    //*******************METHODS  */
     const copyingLink = () => {
       navigator.clipboard
         .writeText(linkToShareWithYourHommies.value)
@@ -84,12 +128,99 @@ export default defineComponent({
       copyingLink();
     };
 
+    const fileWasDroppped = (fileDropped: File) => {
+      fileToChangeBg.value = fileDropped;
+      tempFileName.value = fileDropped.name;
+    };
+
+    const changeBgImage = async () => {
+      isLoading.value = true;
+      const fileExtension = simplifyExtension(fileToChangeBg.value.type);
+      const fileNameToBackblaze = `${new Date().getTime()}.${fileExtension}`;
+      const newFile = renameFile(fileToChangeBg.value, fileNameToBackblaze);
+      const fileName = newFile.name;
+
+      const B2Info = await window.xprops?.getB2Info?.();
+      const uploadUrl = B2Info?.uploadUrl;
+      const authorizationToken = B2Info?.authorizationToken;
+
+      const b2Info = {
+        uploadUrl: uploadUrl,
+        authorizationToken: authorizationToken,
+      };
+      try {
+        await uploadFileToBackblaze({
+          file: new File([newFile], encodeURIComponent(fileName)),
+          path: `classrooms/${roomState.classroomId}/cooperate/backgrounds`,
+          b2Info,
+          retries: 10,
+        });
+
+        const fileRoute = `${backBlazePath}/${roomState.classroomId}/cooperate/backgrounds/${fileName}`;
+
+        updateBgUrl(
+          fileRoute ||
+            'https://www.fcbarcelona.com/photo-resources/2021/08/09/c4f2dddd-2152-4b8b-acf8-826b4377e29d/Camp-Nou-4.jpg?width=1200&height=750'
+        );
+        updateAllowResetBg(true);
+        sendData(userMe.id, {
+          eventType: 'UPDATE_ROOM_BG',
+          url: fileRoute,
+        });
+        isLoading.value = false;
+        window.xprops?.setBackgroundInfo?.(
+          fileRoute,
+          roomState.bgInfo.maximized
+        );
+        successMessage('Fondo de pantalla cambiado');
+      } catch (error) {
+        console.log(error);
+        errorMessage('No se pudo cargar la imagen');
+      }
+    };
+
+    watch(maximizeBg, (value) => {
+      sendData(userMe.id, {
+        eventType: 'UPDATE_ROOM_SIZE',
+        maximized: value,
+      });
+
+      updateBgSize(value);
+
+      window.xprops?.setBackgroundInfo?.(roomState.bgInfo.url, value);
+    });
+
+    const resetCooperateBg = () => {
+      updateBgUrl(
+        'https://encrypted.fractalup.com/file/MainPublic/fractalup_assets/landing/main.png'
+      );
+
+      sendData(userMe.id, {
+        eventType: 'UPDATE_ROOM_BG',
+        url: 'https://encrypted.fractalup.com/file/MainPublic/fractalup_assets/landing/main.png',
+      });
+
+      window.xprops?.setBackgroundInfo?.(
+        'https://encrypted.fractalup.com/file/MainPublic/fractalup_assets/landing/main.png',
+        roomState.bgInfo.maximized
+      );
+      updateAllowResetBg(false);
+      successMessage('Fondo de pantalla cambiado');
+    };
+
     return {
-      bgActive,
+      maximizeBg,
       ...toRefs(roomState),
       linkToShareWithYourHommies,
       copySharedLink,
       linkCopied,
+      fileWasDroppped,
+      fileNameDroppedMessage,
+      changeBgImage,
+      tempFileName,
+      roomState,
+      resetCooperateBg,
+      isLoading,
     };
   },
 });

@@ -74,6 +74,9 @@ export function useRoom() {
   const updateBgSize = (maximized: boolean) =>
     (roomState.bgInfo.maximized = maximized);
 
+  const updateAllowResetBg = (value: boolean) =>
+    (roomState.bgInfo.allowResetBg = value);
+
   return {
     roomState,
     updateRoom,
@@ -85,5 +88,6 @@ export function useRoom() {
     updateFocus,
     updateBgUrl,
     updateBgSize,
+    updateAllowResetBg,
   };
 }

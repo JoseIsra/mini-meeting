@@ -1,7 +1,14 @@
 <template>
   <q-card class="o-panel">
     <q-card-section class="o-panel__body" tag="div">
-      <q-card-section horizontal class="o-panel__body__options">
+      <q-card-section
+        horizontal
+        :class="[
+          'o-panel__body__options',
+          { '--optionsResponsive': $q.screen.lt.sm },
+          { '--slideLeft': moveToLeft && $q.screen.lt.sm },
+        ]"
+      >
         <ul class="o-panel__body__options__container">
           <li
             v-for="panel in panelOptions"
@@ -19,13 +26,36 @@
           </li>
         </ul>
       </q-card-section>
-      <q-card-section tag="aside" class="o-panel__body__contentOptions">
-        <component
-          v-for="compo in componentList"
-          :key="compo.id"
-          :is="compo.name"
-          v-show="compo.respondToOption == panelSelected.description"
-        ></component>
+      <q-card-section
+        tag="aside"
+        :class="[
+          'o-panel__body__contentOptions',
+          { '--responsiveContentOptions': $q.screen.lt.sm },
+          { '--slideRight': moveToLeft && $q.screen.lt.sm },
+        ]"
+      >
+        <q-btn
+          no-caps
+          v-show="$q.screen.lt.sm"
+          label="Volver"
+          flat
+          dense
+          icon="chevron_left"
+          class="o-panel__body__contentOptions__responsiveBtn --goBack"
+          @click="returnToPanelOptions"
+        />
+        <div class="o-panel__body__contentOptions__surfaceContainer">
+          <div class="o-panel__body__contentOptions__innerContainer">
+            <keep-alive>
+              <component
+                v-for="compo in componentList"
+                :key="compo.id"
+                :is="compo.name"
+                v-show="compo.respondToOption == panelSelected.description"
+              ></component>
+            </keep-alive>
+          </div>
+        </div>
       </q-card-section>
     </q-card-section>
   </q-card>
@@ -56,9 +86,17 @@ export default defineComponent({
 
     const activePanel = ref(false);
     const panelSelected = ref(panelOptions.value[0]);
+    const moveToLeft = ref(false);
+    const moveToRight = ref(false);
 
     const selectPanel = (panel: Options) => {
       panelSelected.value = panel;
+      moveToLeft.value = !moveToLeft.value;
+      // moveToRight.value = true;
+    };
+
+    const returnToPanelOptions = () => {
+      moveToLeft.value = !moveToLeft.value;
     };
 
     return {
@@ -68,6 +106,9 @@ export default defineComponent({
       panelSelected,
       mycomponents,
       componentList,
+      moveToLeft,
+      moveToRight,
+      returnToPanelOptions,
     };
   },
 });

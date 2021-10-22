@@ -17,7 +17,7 @@
     :isScreenShareLocked="false"
     :isMicLocked="false"
     :getB2Info="getB2Info"
-    :roleId="0"
+    :roleId="roleId"
     :roomRestriction="0"
     photoURL="https://encrypted.fractalup.com/file/MainPublic/classrooms/1/users/44/assets/1623873430710.png"
     :bgInfo="bgInfo"
@@ -58,6 +58,7 @@ export default {
       isBeingRecorded: localStorage.isBeingRecorded === "true",
       hostId: localStorage.hostId,
       isHost: this.$route.query.isHost == "true" || false,
+      roleId: parseInt(this.$route.query.roleId) || 0,
     };
   },
   methods: {

@@ -1,6 +1,6 @@
 import { ref, computed } from 'vue';
 import { Participant, UpdatedParticipantfields } from '@/types';
-import { LOCK_ACTION_TYPE, PERMISSION_STATUS } from '@/utils/enums';
+import { LOCK_ACTION_TYPE, PERMISSION_STATUS, USER_ROLE } from '@/utils/enums';
 import _ from 'lodash';
 
 const participants = ref<Participant[]>([]);
@@ -67,25 +67,29 @@ export function useHandleParticipants() {
 
   const setEveryParticipantActions = (action: number, value: boolean) => {
     participants.value = participants.value.map((part) => {
-      if (action === LOCK_ACTION_TYPE.All) {
-        return {
-          ...part,
-          isMicBlocked: value,
-          isCameraBlocked: value,
-          isScreenShareBlocked: value,
-        };
+      if (part.roleId === USER_ROLE.ADMINISTRATOR) {
+        return part;
       } else {
-        return {
-          ...part,
-          isMicBlocked:
-            action === LOCK_ACTION_TYPE.Mic ? value : part.isMicBlocked,
-          isCameraBlocked:
-            action === LOCK_ACTION_TYPE.Camera ? value : part.isCameraBlocked,
-          isScreenShareBlocked:
-            action === LOCK_ACTION_TYPE.Screen
-              ? value
-              : part.isScreenShareBlocked,
-        };
+        if (action === LOCK_ACTION_TYPE.All) {
+          return {
+            ...part,
+            isMicBlocked: value,
+            isCameraBlocked: value,
+            isScreenShareBlocked: value,
+          };
+        } else {
+          return {
+            ...part,
+            isMicBlocked:
+              action === LOCK_ACTION_TYPE.Mic ? value : part.isMicBlocked,
+            isCameraBlocked:
+              action === LOCK_ACTION_TYPE.Camera ? value : part.isCameraBlocked,
+            isScreenShareBlocked:
+              action === LOCK_ACTION_TYPE.Screen
+                ? value
+                : part.isScreenShareBlocked,
+          };
+        }
       }
     });
   };

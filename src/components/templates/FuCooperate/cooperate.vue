@@ -123,17 +123,11 @@ export default defineComponent({
       roomRestriction = parseInt(route.query.roomRestriction as string) || 0;
     }
 
-    const isMicLocked =
-      window.xprops?.isMicLocked ||
-      (route.query.mic as string) === '1' ||
-      false;
+    const isMicLocked = window.xprops?.isMicLocked || false;
 
     const isCameraLocked = window.xprops?.isCameraLocked || false;
 
-    const isScreenShareLocked =
-      window.xprops?.isScreenShareLocked ||
-      (route.query.screen as string) === '1' ||
-      false;
+    const isScreenShareLocked = window.xprops?.isScreenShareLocked || false;
 
     const sharingLink =
       window?.xprops?.sharedLink || (route.query.sharedLink as string) || '';
@@ -194,10 +188,12 @@ export default defineComponent({
       name: streamName,
       avatar,
       roleId,
-      isMicOn: isMicOn ? true : isMicLocked,
-      isCameraOn,
+      isMicOn: roleId === 1 ? (isMicLocked ? false : isMicOn) : isMicOn,
+      isCameraOn:
+        roleId === 1 ? (isCameraLocked ? false : isCameraOn) : isCameraOn,
       isScreenSharing: false,
-      isVideoActivated: isCameraOn,
+      isVideoActivated:
+        roleId === 1 ? (isCameraLocked ? false : isCameraOn) : isCameraOn,
       isMicBlocked: roleId === 1 ? isMicLocked : false,
       isCameraBlocked: roleId === 1 ? isCameraLocked : false,
       isScreenShareBlocked: roleId === 1 ? isScreenShareLocked : false,
@@ -207,12 +203,6 @@ export default defineComponent({
           ? PERMISSION_STATUS.asked
           : PERMISSION_STATUS.admitted
         : PERMISSION_STATUS.admitted,
-      // denied:
-      //   roleId === 1
-      //     ? privacy
-      //       ? PERMISSION_STATUS.asked
-      //       : PERMISSION_STATUS.admitted
-      //     : PERMISSION_STATUS.admitted,
       existVideo: false,
       isRecording: false,
       isHost,
@@ -230,9 +220,9 @@ export default defineComponent({
       sharingLink,
       classroomId,
       roomRestriction: roleId === 1 ? roomRestriction : 0,
-      isMicBlocked: roleId === 1 ? isMicLocked : false,
-      isCameraBlocked: roleId === 1 ? isCameraLocked : false,
-      isScreenShareBlocked: roleId === 1 ? isScreenShareLocked : false,
+      isMicBlocked: isMicLocked,
+      isCameraBlocked: isCameraLocked,
+      isScreenShareBlocked: isScreenShareLocked,
       bgInfo: bgInfo,
       isBeingRecorded,
       recordingUrl: '',
@@ -242,31 +232,18 @@ export default defineComponent({
       hostId,
     });
 
+    /* setMicIconState(roleId === 1 ? (isMicLocked ? false : isMicOn) : isMicOn); */
+
+    if (roleId === 1 ? (isCameraLocked ? false : isCameraOn) : isCameraOn) {
+      setVideoActivatedState(true);
+      /* setCameraIconState(true); */
+      setCameraState(true);
+      turnOnLocalCamera(streamId);
+      sendNotificationEvent('CAM_TURNED_ON', streamId);
+    }
+
     if (userPinnedZoid) {
       setFullScreen('user', true);
-    }
-
-    if (isMicLocked) {
-      sendNotificationEvent('MIC_MUTED', streamId);
-      // if (roleId === 1) {
-      //   setMicState(!isMicLocked);
-      // }
-    }
-
-    if (isCameraLocked) {
-      setVideoActivatedState(!isCameraLocked);
-      sendNotificationEvent('CAM_TURNED_OFF', userMe.id);
-      // if (roleId === 1) {
-      //   setCameraState(!isCameraLocked);
-      // }
-    }
-
-    if (isScreenShareLocked) {
-      setVideoActivatedState(!isScreenShareLocked);
-      sendNotificationEvent('SCREEN_SHARING_OFF', userMe.id);
-      // if (roleId === 1) {
-      //   setScreenState(!isScreenShareLocked);
-      // }
     }
 
     const publishToken =

@@ -7,6 +7,11 @@ export enum REASON_TO_LEAVE_ROOM {
   BY_HOST_LEFT,
 }
 
+export enum USER_ROLE {
+  ADMINISTRATOR,
+  REGULAR_PARTICIPANT
+}
+
 export enum LOCK_ACTION_TYPE {
   'All',
   'Mic',

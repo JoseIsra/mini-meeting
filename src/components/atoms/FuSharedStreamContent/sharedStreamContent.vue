@@ -45,8 +45,8 @@
         </q-btn>
       </div>
 
-      <div class="m-shared__admin" v-show="canModifyActions">
-        <div class="m-shared__admin__actions">
+      <div class="m-shared__admin" v-show="adminPanel">
+        <!-- <div class="m-shared__admin__actions">
           <q-toggle
             class="m-shared__admin__toggle"
             v-model="cooperateMicState"
@@ -104,14 +104,14 @@
               </q-tooltip>
             </q-btn>
           </div>
-        </div>
+        </div> -->
 
         <div class="m-shared__admin__backgroundImage">
           <fu-image-picker />
 
           <q-checkbox
             style="justify-content: space-between; width: 100%; margin: 8px 0"
-            v-model="bgInfo.maximized"
+            v-model="localMaximized"
             label="Maximizar fondo de pantalla"
             dense
             dark
@@ -128,8 +128,8 @@
 import { defineComponent, ref, computed, watch, toRefs } from 'vue';
 import FuImagePicker from '@/components/atoms/FuImagePicker';
 import { useUserMe } from '@/composables/userMe';
-import { lockAction } from '@/types/index';
-import { LOCK_ACTION_TYPE } from '@/utils/enums';
+// import { lockAction } from '@/types/index';
+// import { LOCK_ACTION_TYPE } from '@/utils/enums';
 import { useRoom } from '@/composables/room';
 import { useInitWebRTC } from '@/composables/antMedia';
 
@@ -151,7 +151,9 @@ export default defineComponent({
 
     const { userMe } = useUserMe();
 
-    const { roomState } = useRoom();
+    const { roomState, updateBgSize } = useRoom();
+
+    const localMaximized = ref(roomState.bgInfo.maximized);
 
     const { sendData } = useInitWebRTC();
 
@@ -174,64 +176,93 @@ export default defineComponent({
         cooperateCameraState.value
     );
 
-    watch(
-      [cooperateMicState, cooperateCameraState, cooperateScreenShareState],
-      ([mic, camera, screenShare], [prevMic, prevCamera, prevScreenShare]) => {
-        const haveAllChanged =
-          prevMic !== mic &&
-          camera !== prevCamera &&
-          screenShare !== prevScreenShare;
+    // watch(
+    //   [cooperateMicState, cooperateCameraState, cooperateScreenShareState],
+    //   ([mic, camera, screenShare], [prevMic, prevCamera, prevScreenShare]) => {
+    //     const haveAllChanged =
+    //       prevMic !== mic &&
+    //       camera !== prevCamera &&
+    //       screenShare !== prevScreenShare;
 
-        if (haveAllChanged) {
-          if (mic && camera && screenShare) {
-            const lockAction = {
-              type: LOCK_ACTION_TYPE.All,
-              state: 0,
-            } as lockAction;
+    //     const individualState = {
+    //       mic: Number(!mic),
+    //       camera: Number(!camera),
+    //       screenshare: Number(!screenShare),
+    //     } as lockAction;
 
-            window.xprops?.toggleLockAction?.(lockAction);
-          }
+    //     if (haveAllChanged) {
+    //       if (mic && camera && screenShare) {
+    //         const state = {
+    //           mic: 0,
+    //           camera: 0,
+    //           screenshare: 0,
+    //         } as lockAction;
 
-          if (!mic && !camera && !screenShare) {
-            const lockAction = {
-              type: LOCK_ACTION_TYPE.All,
-              state: 1,
-            } as lockAction;
+    //         sendData(userMe.id, {
+    //           eventType: 'SET_EVERYONE_ACTION',
+    //           action: LOCK_ACTION_TYPE.All,
+    //           value: false,
+    //         });
 
-            window.xprops?.toggleLockAction?.(lockAction);
-          }
-        } else {
-          if (mic !== prevMic) {
-            const lockAction = {
-              type: LOCK_ACTION_TYPE.Mic,
-              state: Number(!mic),
-            } as lockAction;
+    //         window.xprops?.toggleLockAction?.(state);
+    //       }
 
-            window.xprops?.toggleLockAction?.(lockAction);
-          }
+    //       if (!mic && !camera && !screenShare) {
+    //         const state = {
+    //           mic: 1,
+    //           camera: 1,
+    //           screenshare: 1,
+    //         } as lockAction;
 
-          if (camera !== prevCamera) {
-            const lockAction = {
-              type: LOCK_ACTION_TYPE.Camera,
-              state: Number(!camera),
-            } as lockAction;
+    //         sendData(userMe.id, {
+    //           eventType: 'SET_EVERYONE_ACTION',
+    //           action: LOCK_ACTION_TYPE.All,
+    //           value: true,
+    //         });
 
-            window.xprops?.toggleLockAction?.(lockAction);
-          }
+    //         window.xprops?.toggleLockAction?.(state);
+    //       }
+    //     } else {
+    //       if (mic !== prevMic) {
+    //         console.log('Toggle mic: ', Number(!mic));
 
-          if (screenShare !== prevScreenShare) {
-            const lockAction = {
-              type: LOCK_ACTION_TYPE.Screen,
-              state: Number(!screenShare),
-            } as lockAction;
+    //         sendData(userMe.id, {
+    //           eventType: 'SET_EVERYONE_ACTION',
+    //           action: LOCK_ACTION_TYPE.Mic,
+    //           value: !mic,
+    //         });
 
-            window.xprops?.toggleLockAction?.(lockAction);
-          }
-        }
-      }
-    );
+    //         window.xprops?.toggleLockAction?.(individualState);
+    //       }
 
-    const canModifyActions = ref(userMe.roleId === 0);
+    //       if (camera !== prevCamera) {
+    //         console.log('Toggle camera: ', Number(!camera));
+
+    //         sendData(userMe.id, {
+    //           eventType: 'SET_EVERYONE_ACTION',
+    //           action: LOCK_ACTION_TYPE.Camera,
+    //           value: !camera,
+    //         });
+
+    //         window.xprops?.toggleLockAction?.(individualState);
+    //       }
+
+    //       if (screenShare !== prevScreenShare) {
+    //         console.log('Toggle screenshare: ', Number(!screenShare));
+
+    //         sendData(userMe.id, {
+    //           eventType: 'SET_EVERYONE_ACTION',
+    //           action: LOCK_ACTION_TYPE.Screen,
+    //           value: !screenShare,
+    //         });
+
+    //         window.xprops?.toggleLockAction?.(individualState);
+    //       }
+    //     }
+    //   }
+    // );
+
+    const adminPanel = ref(userMe.roleId === 0);
 
     const handleAllActions = () => {
       if (actionsActivated.value) {
@@ -257,30 +288,30 @@ export default defineComponent({
       emit('close-room-info-card');
     };
 
-    watch(roomState, (value) => {
+    /* watch(roomState, (value) => {
       sendData(roomState.hostId, {
         eventType: 'UPDATE_ROOM_SIZE',
-        maximized: value.bgInfo.maximized,
+        maximized: value,
       });
 
-      window.xprops?.setBackgroundInfo?.(
-        roomState.bgInfo.url,
-        value.bgInfo.maximized
-      );
-    });
+      updateBgSize(value);
+
+      window.xprops?.setBackgroundInfo?.(roomState.bgInfo.url, value);
+    }); */
 
     return {
       sharedLinkOnInput,
       copySharedLink,
       toolTipMessage,
       closeInfoRoomCard,
-      canModifyActions,
+      adminPanel,
       cooperateMicState,
       cooperateCameraState,
       cooperateScreenShareState,
       actionsActivated,
       handleAllActions,
       ...toRefs(roomState),
+      localMaximized,
     };
   },
 });

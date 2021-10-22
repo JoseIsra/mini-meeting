@@ -3,7 +3,11 @@ import { WebRTCAdaptor } from '@/utils/webrtc/webrtc_adaptor';
 import { useUserMe, User } from '@/composables/userMe';
 import { useAuthState } from '@/composables/auth';
 import { objWebRTC, Participant } from '@/types/index';
-import { REASON_TO_LEAVE_ROOM, LOCK_ACTION_TYPE } from '@/utils/enums';
+import {
+  REASON_TO_LEAVE_ROOM,
+  LOCK_ACTION_TYPE,
+  USER_ROLE,
+} from '@/utils/enums';
 import { useHandleParticipants } from '@/composables/participants';
 import { Message, useHandleMessage } from '@/composables/chat';
 import { useToogleFunctions } from '@/composables';
@@ -25,6 +29,9 @@ const {
   updateUserMe,
   setMicState,
   setCameraState,
+  setLocalMicBlock,
+  setLocalScreenShareBlock,
+  setLocalVideoBlock,
   setDenied,
 } = useUserMe();
 
@@ -49,6 +56,8 @@ const {
   updateParticipantDenied,
   admittedParticipants,
   updateParticipantById,
+  setEveryParticipantActions,
+  setParticipantActions,
 } = useHandleParticipants();
 
 const { setUserMessage, deleteLoadingMessage } = useHandleMessage();
@@ -153,6 +162,7 @@ interface backgroundSize {
 interface ObjUserLeavingMessageParsed {
   id: string;
   fractalUserId: string;
+  userId: string;
 }
 
 interface ObjRecordingStopParsed {
@@ -996,16 +1006,18 @@ export function useInitWebRTC() {
             ) as ObjBlockParticipantAction;
 
             if (participantId !== userMe.id) {
+              setParticipantActions(participantId, action, value);
               return;
             }
 
             if (action === LOCK_ACTION_TYPE.All) {
-              // setMicBlock(value);
               setRoomMicState(value);
-              // setVideoBlock(value);
+              setLocalMicBlock(value);
               setRoomCameraState(value);
-              // setScreenShareBlock(value);
+              setLocalVideoBlock(value);
               setRoomScreenShareState(value);
+              setLocalScreenShareBlock(value);
+
               if (value) {
                 setMicState(!value);
                 muteLocalMic();
@@ -1024,6 +1036,7 @@ export function useInitWebRTC() {
             } else if (action === LOCK_ACTION_TYPE.Mic) {
               // setMicBlock(value);
               setRoomMicState(value);
+              setLocalMicBlock(value);
 
               if (value) {
                 /* setMicIconState(!value); */
@@ -1034,6 +1047,7 @@ export function useInitWebRTC() {
             } else if (action === LOCK_ACTION_TYPE.Camera) {
               // setVideoBlock(value);
               setRoomCameraState(value);
+              setLocalVideoBlock(value);
 
               if (value) {
                 /* setCameraIconState(!value); */
@@ -1045,6 +1059,7 @@ export function useInitWebRTC() {
             } else if (action === LOCK_ACTION_TYPE.Screen) {
               // setScreenShareBlock(value);
               setRoomScreenShareState(value);
+              setLocalScreenShareBlock(value);
 
               if (value) {
                 setScreenShareIconState(!value);
@@ -1060,14 +1075,19 @@ export function useInitWebRTC() {
             ) as ObjBlockEveryoneAction;
 
             if (action === LOCK_ACTION_TYPE.All) {
-              // setMicBlock(value);
               setRoomMicState(value);
-              // setVideoBlock(value);
               setRoomCameraState(value);
-              // setScreenShareBlock(value);
               setRoomScreenShareState(value);
 
-              if (value) {
+              if (userMe.roleId === USER_ROLE.REGULAR_PARTICIPANT) {
+                setLocalMicBlock(value);
+                setLocalVideoBlock(value);
+                setLocalScreenShareBlock(value);
+              }
+
+              setEveryParticipantActions(LOCK_ACTION_TYPE.All, value);
+
+              if (value && userMe.roleId === USER_ROLE.REGULAR_PARTICIPANT) {
                 setMicState(!value);
                 muteLocalMic();
                 sendNotificationEvent('MIC_MUTED', userMe.id);
@@ -1083,8 +1103,8 @@ export function useInitWebRTC() {
                 setScreenShareIconState(!value);
               }
             } else if (action === LOCK_ACTION_TYPE.Mic) {
-              // setMicBlock(value);
               setRoomMicState(value);
+              setEveryParticipantActions(LOCK_ACTION_TYPE.Mic, value);
 
               if (value) {
                 /* setMicIconState(!value); */
@@ -1093,8 +1113,8 @@ export function useInitWebRTC() {
                 sendNotificationEvent('MIC_MUTED', userMe.id);
               }
             } else if (action === LOCK_ACTION_TYPE.Camera) {
-              // setVideoBlock(value);
               setRoomCameraState(value);
+              setEveryParticipantActions(LOCK_ACTION_TYPE.Camera, value);
 
               if (value) {
                 /* setCameraIconState(!value); */
@@ -1104,10 +1124,14 @@ export function useInitWebRTC() {
                 sendNotificationEvent('CAM_TURNED_OFF', userMe.id);
               }
             } else if (action === LOCK_ACTION_TYPE.Screen) {
-              // setScreenShareBlock(value);
               setRoomScreenShareState(value);
+              setEveryParticipantActions(LOCK_ACTION_TYPE.Screen, value);
 
-              if (value) {
+              if (userMe.roleId === USER_ROLE.REGULAR_PARTICIPANT) {
+                setLocalScreenShareBlock(value);
+              }
+
+              if (value && userMe.roleId === USER_ROLE.REGULAR_PARTICIPANT) {
                 setScreenShareIconState(!value);
                 setScreenState(!value);
                 setVideoActivatedState(!value);
@@ -1115,8 +1139,6 @@ export function useInitWebRTC() {
                 sendNotificationEvent('SCREEN_SHARING_OFF', userMe.id);
               }
             }
-
-            // setUserActions(lockData.action, lockData.value);
           } else if (eventType === 'ANSWER_PERMISSION') {
             const { participantId, value } = JSON.parse(
               obj.data
@@ -1222,7 +1244,6 @@ export function useInitWebRTC() {
               userLeavingMsgParsed.fractalUserId
             ) {
               window.xprops?.setPinnedUser?.('');
-              console.log('Se fue el pinneado');
             }
 
             window.xprops?.addUserLogToState?.(

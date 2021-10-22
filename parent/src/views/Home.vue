@@ -4,7 +4,7 @@
     :class="{ '--minimized': isMinimized }"
     roomId="room17"
     :streamId="streamId"
-    :streamName="this.isHost ? 'host' : streamName"
+    :streamName="streamName"
     :handleLeaveCall="handleLeaveCall"
     :handleEndCall="handleEndCall"
     :handleStopRecording="handleStopRecording"
@@ -49,7 +49,7 @@ export default {
   data: function () {
     return {
       streamId: this.$route.query.id || `u-nr-userId-${Date.now()}`,
-      streamName: this.$route.query.name || `userId-${Date.now()}`,
+      streamName: this.$route.query.id || `userId-${Date.now()}`,
       isMinimized: false,
       pinnedUser: localStorage.pinnedUser,
       bgInfo: localStorage.bgInfo

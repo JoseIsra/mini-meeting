@@ -35,7 +35,7 @@ import { useInitWebRTC } from '@/composables/antMedia';
 import { useHandleParticipants } from '@/composables/participants';
 import { useUserMe } from '@/composables/userMe';
 import { PERMISSION_STATUS } from '@/utils/enums/general';
-import { Participant } from '@/types';
+import { Participant } from '@/types/participant';
 import { defineComponent, PropType } from 'vue';
 import { useRoom } from '@/composables/room';
 

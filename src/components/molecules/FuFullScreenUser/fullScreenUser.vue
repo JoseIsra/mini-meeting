@@ -92,7 +92,8 @@ import { useToogleFunctions } from '@/composables';
 import { useScreen } from '@/composables/screen';
 import _ from 'lodash';
 import { useRoom } from '@/composables/room';
-import { User, useUserMe } from '@/composables/userMe';
+import { useUserMe } from '@/composables/userMe';
+import { User } from '@/types/user';
 import { useInitWebRTC } from '@/composables/antMedia';
 import { useHandleParticipants } from '@/composables/participants';
 

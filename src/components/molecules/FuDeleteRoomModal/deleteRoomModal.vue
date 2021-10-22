@@ -29,7 +29,7 @@ import { defineComponent } from 'vue';
 import { useUserMe } from '@/composables/userMe';
 import { useRoom } from '@/composables/room';
 import { useInitWebRTC } from '@/composables/antMedia';
-import { Participant } from '@/types';
+import { Participant } from '@/types/participant';
 import { REASON_TO_LEAVE_ROOM } from '@/utils/enums';
 import { useHandleParticipants } from '@/composables/participants';
 export default defineComponent({

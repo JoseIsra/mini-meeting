@@ -3,7 +3,7 @@
     class="multichat"
     :class="{ '--minimized': isMinimized }"
     roomId="room17"
-    :streamId="this.isHost ? 'host' : streamId"
+    :streamId="streamId"
     :streamName="this.isHost ? 'host' : streamName"
     :handleLeaveCall="handleLeaveCall"
     :handleEndCall="handleEndCall"
@@ -30,7 +30,7 @@
     :isCameraOn="false"
     :isBeingRecorded="isBeingRecorded"
     :setHostId="setHostId"
-    :hostId="this.isHost ? 'host' : hostId"
+    :hostId="this.isHost ? streamId : hostId"
     :isHost="isHost"
     :logUserExits="logUserExits"
     :logJoined="logJoined"
@@ -48,7 +48,7 @@ export default {
   },
   data: function () {
     return {
-      streamId: `u-nr-userId-${Date.now()}`,
+      streamId: this.$route.query.id || `u-nr-userId-${Date.now()}`,
       streamName: this.$route.query.name || `userId-${Date.now()}`,
       isMinimized: false,
       pinnedUser: localStorage.pinnedUser,

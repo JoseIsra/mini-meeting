@@ -1,6 +1,7 @@
 import { reactive } from 'vue';
 
-import { User } from '@/composables/userMe';
+import { User } from '@/types/user';
+
 import { BgInfo } from '@/types/zoid';
 
 export interface Room {

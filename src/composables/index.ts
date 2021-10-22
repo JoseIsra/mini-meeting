@@ -1,5 +1,5 @@
 import { ref, reactive } from 'vue';
-import { User } from './userMe';
+import { User } from '@/types/user';
 
 interface FunctionState {
   renderChat: boolean;

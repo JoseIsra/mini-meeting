@@ -601,9 +601,10 @@
 <script lang="ts">
 import { defineComponent, computed } from 'vue';
 import { useHandleParticipants } from '@/composables/participants';
-import { User, useUserMe } from '@/composables/userMe';
+import { useUserMe } from '@/composables/userMe';
+import { User } from '@/types/user';
 import { useInitWebRTC } from '@/composables/antMedia';
-import { Participant } from '@/types';
+import { Participant } from '@/types/participant';
 import { LOCK_ACTION_TYPE, USER_ROLE } from '@/utils/enums';
 import { nanoid } from 'nanoid';
 import { useSidebarToogle } from '@/composables';

@@ -1,51 +1,6 @@
-import { reactive, computed, ComputedRef } from 'vue';
+import { reactive, computed } from 'vue';
 
-export interface User {
-  id: string;
-  name: string;
-  avatar: string;
-  isCameraOn: boolean;
-  isMicOn: boolean;
-  isScreenSharing: boolean;
-  isVideoActivated: boolean;
-  roleId: number;
-  isMicBlocked: boolean;
-  isCameraBlocked: boolean;
-  isScreenShareBlocked: boolean;
-  stream?: MediaStream;
-  fractalUserId: string;
-  denied: number;
-  existVideo?: boolean;
-  urlOfVideo?: string;
-  videoInstance?: HTMLMediaElement & { playerId: string };
-  currentTime?: number;
-  isPlayingVideo?: boolean;
-  isRecording: boolean;
-  isHost: boolean;
-  isPublishing: number; // 0 -> off / 1 -> on / 2 -> loading
-  cameraPublishedState?: ComputedRef;
-  micPublishedState?: ComputedRef;
-}
-
-export interface UpdatedUserfields {
-  id?: string;
-  name?: string;
-  avatar?: string;
-  isVideoActivated?: boolean;
-  stream?: MediaStream;
-  fractalUserId?: string;
-  existVideo?: boolean;
-  urlOfVideo?: string;
-  videoInstance?: HTMLMediaElement & { playerId: string };
-  currentTime?: number;
-  isPlayingVideo?: boolean;
-  isRecording?: boolean;
-  isHost?: boolean;
-  isCameraOn?: boolean;
-  isMicOn?: boolean;
-  isScreenSharing?: boolean;
-  isPublishing?: number; // 0 -> off / 1 -> on / 2 -> loading
-}
+import { User, UpdatedUserfields } from '@/types/user';
 
 // blocked: some functionalities blocked (mic, screen, camera)
 // Role id: 'Admin|0' ; 'participant|1';

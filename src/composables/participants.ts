@@ -1,5 +1,6 @@
 import { ref, computed } from 'vue';
-import { Participant, UpdatedParticipantfields } from '@/types';
+import { Participant } from '@/types/participant';
+
 import { LOCK_ACTION_TYPE, PERMISSION_STATUS, USER_ROLE } from '@/utils/enums';
 import _ from 'lodash';
 
@@ -23,10 +24,7 @@ export function useHandleParticipants() {
     participants.value.splice(0, 1);
   };
 
-  const updateParticipantById = (
-    id: string,
-    fields: UpdatedParticipantfields
-  ) => {
+  const updateParticipantById = (id: string, fields: Participant) => {
     const newParticipants = _.cloneDeep(participants.value);
     const participantFound = newParticipants.find(
       (participant) => participant.id == id

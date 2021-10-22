@@ -1,14 +1,40 @@
 import { User } from './user';
 
+export interface BaseMessage {
+  streamId: string;
+  data: string;
+}
+
+export interface BaseData {
+  from: string;
+  to: string;
+  eventType: string;
+}
+
+export interface Message extends BaseData {
+  id: string;
+  streamId: string;
+  date: string;
+  streamName: string;
+  eventType: string;
+  content: string | Blob;
+  avatar: string;
+  typeMessage: string;
+  fileType?: string;
+  fileName?: string;
+}
+
+export interface Notification extends BaseData {
+  streamId: string;
+  notificationType: string;
+}
+
+
+/*  */
+
 interface ObjInfoRequested {
   to: string;
   from: string;
-}
-
-export interface Data {
-  streamId: string;
-  notificationType: string;
-  eventType: string;
 }
 
 export interface ObjRemoteUserInfo extends ObjInfoRequested {

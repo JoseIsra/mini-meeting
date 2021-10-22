@@ -2,7 +2,7 @@
   <fractal-up-cooperate-instance
     class="multichat"
     :class="{ '--minimized': isMinimized }"
-    roomId="room17"
+    :roomId="roomId"
     :streamId="streamId"
     :streamName="streamName"
     :handleLeaveCall="handleLeaveCall"
@@ -59,6 +59,7 @@ export default {
       hostId: localStorage.hostId,
       isHost: this.$route.query.isHost == "true" || false,
       roleId: parseInt(this.$route.query.roleId) || 0,
+      roomId: this.$route.query.roomId || "room16",
     };
   },
   methods: {

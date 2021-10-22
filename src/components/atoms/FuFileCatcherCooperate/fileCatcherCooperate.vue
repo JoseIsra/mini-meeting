@@ -1,16 +1,17 @@
 <template>
   <div
+    v-ripple.early="$q.screen.lt.sm"
     class="a-fileCatcher"
     @dragenter.prevent="onDragEnter;"
     @dragleave.prevent="onDragLeave"
     @dragover.prevent
     @drop.prevent.stop="onDrop"
-    v-on="$q.screen.lt.sm ? { click: dosomShit } : {}"
+    v-on="$q.screen.lt.sm ? { click: () => $refs.inputFileMobile.click() } : {}"
   >
     <input
+      ref="inputFileMobile"
       type="file"
       :style="{ display: 'none' }"
-      ref="holymoly"
       @change="previewFiles"
     />
     <div class="a-fileCatcher__previewWrapper" :style="previewImageBackground">
@@ -23,7 +24,7 @@
       />
     </div>
     <p v-show="!showPreview" class="a-fileCatcher__hint">
-      Arrastra tu imagen preferida
+      {{ hintMessage }}
     </p>
   </div>
 </template>
@@ -32,6 +33,7 @@
 import { defineComponent, ref, computed, toRefs } from 'vue';
 import { simplifyExtension, isFileImage } from '@/utils/file';
 import { errorMessage } from '@/utils/notify';
+import { useQuasar } from 'quasar';
 
 export default defineComponent({
   name: 'FuFileCatcherCooperate',
@@ -59,6 +61,7 @@ export default defineComponent({
     const previewImage = ref('');
     const errorLoad = ref(false);
     const inputFile = ref<File | null>({} as File);
+    const $q = useQuasar();
 
     //****************COMPUTEDS*****************+ */
     const isImageFile = computed(() => {
@@ -73,6 +76,12 @@ export default defineComponent({
           }
         : ''
     );
+
+    const hintMessage = computed(() => {
+      return $q.screen.lt.sm
+        ? 'Selecciona tu imagen favorita'
+        : 'Arrastra tu imagen favorita';
+    });
 
     //***********************METHODS*/
 
@@ -133,23 +142,19 @@ export default defineComponent({
     };
 
     const previewFiles = (event: { target: HTMLInputElement }) => {
-      console.log('INPUT TYPE ON MOBILE', event.target.files);
-      // if (
-      //   Number(event?.target?.files?.length) > 0 &&
-      //   isValidFile(event?.target?.files?.[0] as File)
-      // ) {
-      //   inputFile.value = event?.target?.files?.[0] as File;
-      //   selectNameFile.value = inputFile.value.name;
-      //   createPreview();
-      //   emit('file-dropped', inputFile.value);
-      // } else {
-      //   console.log('nica');
-      // }
+      if (
+        Number(event?.target?.files?.length) > 0 &&
+        isValidFile(event?.target?.files?.[0] as File)
+      ) {
+        inputFile.value = event?.target?.files?.[0] as File;
+        selectNameFile.value = inputFile.value.name;
+        createPreview();
+        emit('file-dropped', inputFile.value);
+      } else {
+        errorMessage('No es un tipo de archivo válido');
+      }
     };
 
-    const dosomShit = () => {
-      console.log('alo click den boton');
-    };
     return {
       inputFile,
       onDrop,
@@ -163,7 +168,7 @@ export default defineComponent({
       inputState,
       previewImageBackground,
       previewFiles,
-      dosomShit,
+      hintMessage,
     };
   },
 });

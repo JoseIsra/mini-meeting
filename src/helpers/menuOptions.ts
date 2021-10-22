@@ -167,6 +167,12 @@ export const adminPanelOptions = [
     iconName: 'toggle_on',
     important: false,
   },
+  {
+    id: '3',
+    description: 'Retransmisión',
+    iconName: 'live_tv',
+    important: false,
+  },
 ];
 
 export const componentList = [
@@ -179,5 +185,10 @@ export const componentList = [
     id: '2',
     name: 'fu-participant-periferic-panel',
     respondToOption: 'Administrador',
+  },
+  {
+    id: '3',
+    name: 'fu-retransmission-panel',
+    respondToOption: 'Retransmisión',
   },
 ];

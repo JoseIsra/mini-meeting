@@ -44,16 +44,14 @@
           class="o-panel__body__contentOptions__responsiveBtn --goBack"
           @click="returnToPanelOptions"
         />
-        <div class="o-panel__body__contentOptions__surfaceContainer">
+        <div class="o-panel__body__contentOptions__externalContainer">
           <div class="o-panel__body__contentOptions__innerContainer">
-            <keep-alive>
-              <component
-                v-for="compo in componentList"
-                :key="compo.id"
-                :is="compo.name"
-                v-show="compo.respondToOption == panelSelected.description"
-              ></component>
-            </keep-alive>
+            <component
+              v-for="compo in componentList"
+              :key="compo.id"
+              :is="compo.name"
+              v-show="compo.respondToOption == panelSelected.description"
+            ></component>
           </div>
         </div>
       </q-card-section>
@@ -70,6 +68,7 @@ import {
 } from '@/helpers/menuOptions';
 import FuGeneralPanel from 'molecules/FuGeneralPanel';
 import FuParticipantPerifericPanel from 'molecules/FuParticipantPerifericPanel';
+import FuRetransmissionPanel from 'molecules/FuRetransmissionPanel';
 
 interface List {
   id: string;
@@ -79,7 +78,11 @@ interface List {
 
 export default defineComponent({
   name: 'FuAdminPanel',
-  components: { FuGeneralPanel, FuParticipantPerifericPanel },
+  components: {
+    FuGeneralPanel,
+    FuParticipantPerifericPanel,
+    FuRetransmissionPanel,
+  },
   setup() {
     const panelOptions = ref<Options[]>(adminPanelOptions);
     const mycomponents = ref<List[]>(componentList);
@@ -87,12 +90,10 @@ export default defineComponent({
     const activePanel = ref(false);
     const panelSelected = ref(panelOptions.value[0]);
     const moveToLeft = ref(false);
-    const moveToRight = ref(false);
 
     const selectPanel = (panel: Options) => {
       panelSelected.value = panel;
       moveToLeft.value = !moveToLeft.value;
-      // moveToRight.value = true;
     };
 
     const returnToPanelOptions = () => {
@@ -107,7 +108,6 @@ export default defineComponent({
       mycomponents,
       componentList,
       moveToLeft,
-      moveToRight,
       returnToPanelOptions,
     };
   },

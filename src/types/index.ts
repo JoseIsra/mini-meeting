@@ -28,6 +28,7 @@ export interface Participant {
   isRecording?: boolean;
   roleId?: number;
   isBeingPlayed?: boolean;
+  hasLogJoin?: boolean;
 }
 
 export interface UpdatedParticipantfields {
@@ -52,6 +53,7 @@ export interface UpdatedParticipantfields {
   isRecording?: boolean;
   roleId?: number;
   isBeingPlayed?: boolean;
+  hasLogJoin?: boolean;
 }
 
 export type Scalars = {

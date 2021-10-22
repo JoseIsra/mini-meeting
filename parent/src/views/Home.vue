@@ -2,7 +2,7 @@
   <fractal-up-cooperate-instance
     class="multichat"
     :class="{ '--minimized': isMinimized }"
-    roomId="room16"
+    roomId="room17"
     :streamId="this.isHost ? 'host' : streamId"
     :streamName="this.isHost ? 'host' : streamName"
     :handleLeaveCall="handleLeaveCall"
@@ -32,6 +32,8 @@
     :setHostId="setHostId"
     :hostId="this.isHost ? 'host' : hostId"
     :isHost="isHost"
+    :logUserExits="logUserExits"
+    :logJoined="logJoined"
   />
 </template>
 
@@ -120,6 +122,18 @@ export default {
     },
     setHostId: function (userId) {
       window.localStorage.hostId = userId;
+    },
+    logUserExits: function (leftParticipants) {
+      console.log(
+        "Registrando la salida de los participantes: ",
+        leftParticipants
+      );
+    },
+    logJoined: function (participantLeaving) {
+      console.log(
+        "Registrando la entra del participante: ",
+        participantLeaving
+      );
     },
   },
 };

@@ -63,8 +63,6 @@ const {
   clearFullScreenObject,
 } = useToogleFunctions();
 
-const alreadyPublishing = ref(false);
-
 const roomTimerId = ref<ReturnType<typeof setInterval> | null>(null);
 
 const isDataChannelOpen = ref(false);
@@ -166,6 +164,8 @@ export function useInitWebRTC() {
     webRTCInstance.value.joinRoom?.(roomId, streamId, 'legacy');
   };
 
+  const playedStreams = ref<string[]>([]);
+
   const publish = (
     streamId: string,
     token?: string,
@@ -173,59 +173,18 @@ export function useInitWebRTC() {
     subscriberCode?: string,
     streamName?: string
   ) => {
-    if (!userMe.isPublishing) {
-      /* 
-      /*  webRTCInstance.value.play?.(
-        roomState.hostId,
-        undefined,
-        roomState.id,
-        undefined,
-        undefined,
-        undefined
-      ); */
-      /* webRTCInstance.value.leaveFromRoom?.(roomState.id); */
-
-      webRTCInstance.value.publish?.(
-        streamId,
-        token,
-        subscriberId,
-        subscriberCode,
-        streamName
-      );
-      /* joinRoom(roomState.id, userMe.id); */
-      /* webRTCInstance.value.join(streamId); */
-    } else {
-      webRTCInstance.value.publish?.(
-        streamId,
-        token,
-        subscriberId,
-        subscriberCode,
-        streamName
-      );
-    }
+    webRTCInstance.value.publish?.(
+      streamId,
+      token,
+      subscriberId,
+      subscriberCode,
+      streamName
+    );
   };
 
   const removeRemoteVideo = (streamId: string) => {
     deleteParticipantById(streamId);
     console.log('removing participant 🛕');
-  };
-
-  const streamInformation = (
-    obj: objWebRTC,
-    roomId: string,
-    playToken?: string
-  ) => {
-    const isMerge = obj.streamId.split('-')[0] === 'm';
-    console.log(obj);
-    if (!isMerge)
-      webRTCInstance.value.play?.(
-        obj.streamId,
-        playToken,
-        roomId,
-        undefined,
-        undefined,
-        undefined
-      );
   };
 
   const handleNotificationEvent = (obj: objWebRTC) => {
@@ -327,10 +286,6 @@ export function useInitWebRTC() {
         currentTime: 0,
         isPlayingVideo: false,
       });
-      // setTimeout(() => {
-      //   setTimeout(() => {
-      //   }, 500);
-      // }, 1000);
     };
 
     webRTCInstance.value = new WebRTCAdaptor({
@@ -359,12 +314,13 @@ export function useInitWebRTC() {
           joinRoom(roomId, streamId);
         } else if (info == 'joinedTheRoom') {
           window.addEventListener('unload', () => {
-            sendData(roomState.hostId, {
+            /* sendData(roomState.hostId, {
               eventType: 'USER_LEAVING',
               id: userMe.id,
               fractalUserId: userMe.fractalUserId,
-            });
+            }); */
 
+            //TODO: Pass this when user leave in fetch
             if (roomState.pinnedUser?.id === userMe.id) {
               sendData(roomState.hostId, {
                 eventType: 'SET_FULL_SCREEN',
@@ -372,6 +328,7 @@ export function useInitWebRTC() {
               });
             }
 
+            //TODO: Pass this when user leave in fetch
             if (userMe.isRecording) {
               const idUserGoingToStopRec =
                 admittedParticipants.value.filter(
@@ -386,53 +343,14 @@ export function useInitWebRTC() {
 
             try {
               leaveRoom(roomId);
+              stopPublishing(userMe.id);
             } catch (e) {
               console.log(e);
             }
           });
 
-          /* watch(
-            () => userMe.isPublishing,
-            (actual, prev) => {
-              if (actual) {
-                publish(
-                  userMe.id,
-                  undefined,
-                  undefined,
-                  undefined,
-                  userMe.name
-                );
-                const interval = setInterval(() => {
-                  if(alreadyPublishing.value) {
-                    
-                    clearInterval(interval)
-                  }
-                }, 1000);
-              } else console.log('ispublishing or not', actual);
-            }
-          ); */
-          /* watch(
-            () => alreadyPublishing,
-            (act, prev) => {
-              if (act) {
-                updateUserMe({ isPublishing: true });
-                console.log(userMe.isPublishing);
-              }
-            }
-          ); */
-          /* var room = obj.ATTR_ROOM_NAME; */
-          console.log('joined', obj);
-
-          //const room = obj.ATTR_ROOM_NAME;
           const streamId = obj.streamId;
-          /* this.roomOfStream[obj.streamId] = room; */
-          //roomOfStream.value[obj.streamId] = room;
-          /* console.log(`joined the room: ${room}`); */
 
-          /* if (playOnly.value) {
-            isCameraOff.value = true;
-          } else {
-            } */
           if (userMe.isHost) {
             publish(
               streamId,
@@ -443,22 +361,11 @@ export function useInitWebRTC() {
             );
           }
 
-          /* if (obj.streams != null) {
-            
-            obj.streams.forEach(function (item) {
-              console.log('🥲 Stream joined with ID: ' + item);
-              webRTCAdaptor.value.play?.(item, playToken, roomId);
-            });
-            streamsList.value = obj.streams;              
-
-            console.log(streamsList.value, 'streamslisttttttt');
-          } */
           roomTimerId.value = setInterval(() => {
             webRTCInstance.value.getRoomInfo?.(roomId, streamId);
           }, 2000);
         } else if (info == 'newStreamAvailable') {
-          console.log('NEW STREAM!!!!!!!!!!!');
-          console.log(obj);
+          console.debug('New stream available', obj);
 
           const isThere = participants.value.find((x) => x.id === obj.streamId);
 
@@ -478,9 +385,6 @@ export function useInitWebRTC() {
             console.log(participants.value, '🅿️🅿️');
           }
         } else if (info == 'publish_started') {
-          /* console.debug(
-            `publish started to room: #️⃣ ${roomOfStream.value[obj.streamId]}`
-          ); */
           console.debug('publish started');
         } else if (info == 'publish_finished') {
           console.debug('publish finished');
@@ -502,61 +406,32 @@ export function useInitWebRTC() {
           if (roomTimerId.value != null) {
             clearInterval(roomTimerId.value as NodeJS.Timeout);
           }
-
-          //TODO: este es el error por el que sale streamid que ya se está escuchando
-          /* if (participants.value.length !== 0) {
-            deleteAllParticipants();
-          } */
-          /* if (streamsList.value != null) { */
-          /* this.streamsList.forEach(function (item) {
-            removeRemoteVideo(item);
-          }); */
-          /* } */
-          /* if (participants.value != null) {
-            participants.forEach(function (participant) {
-            removeRemoteVideo(partic);
-          });
-          } */
-          // we need to reset streams list
-          //participants.value = [];
-          //streamsList.value = [];
         } else if (info == 'closed') {
-          //console.log("Connection closed");
+          console.debug('Connection closed');
 
           if (typeof obj != 'undefined') {
             console.log('Connecton closed: ' + JSON.stringify(obj));
           }
         } else if (info == 'play_finished') {
-          /* console.log('play_finished');
-        removeRemoteVideo(obj.streamId); */
-          //removeRemoteVideo(obj.streamId);
+          console.debug('play finished');
         } else if (info == 'streamInformation') {
-          streamInformation(obj, roomId, playToken);
+          console.debug('stream information received');
         } else if (info == 'roomInformation') {
-          /* console.log(obj.streams); */
-          /* participants.value.forEach((previousParticip
-            ant) => {
-            obj.streams.forEach((actualParticipant) => {
-              if (previousParticipant.id !== actualParticipant) {
-                removeRemoteVideo(previousParticipant.id);
-              }
-            });
-          }); */
-
-          //Checks if any new stream has added, if yes, plays.
-          /* for (let str of obj.streams) {
-            if (!streamsList.value.includes(str)) {
-              webRTCAdaptor.value.play?.(str, playToken, roomId);
+          for (const playedStream of playedStreams.value) {
+            if (!obj.streams.includes(playedStream)) {
+              const elementIndex = playedStreams.value.indexOf(playedStream);
+              playedStreams.value.splice(elementIndex, 1);
             }
-          } */
+          }
 
           for (const str of obj.streams) {
-            const participant = participants.value.filter(
+            /* const participant = participants.value.filter(
               (participant) => participant.id === str
-            )[0];
+            )[0]; */
             const isMerge = str.split('-')[0] === 'm';
 
-            if (!participant?.isBeingPlayed) {
+            /* if (!participant?.isBeingPlayed && str === roomState.hostId) {
+              console.log('i am gonna play: ', participant?.id);
               webRTCInstance.value.play?.(
                 str,
                 playToken,
@@ -565,26 +440,16 @@ export function useInitWebRTC() {
                 undefined,
                 undefined
               );
-              updateParticipantById(participant.id as string, {
-                isBeingPlayed: true,
-              });
-            }
-            //Si el participante es nuevo - play
-            /* if (participant) {
-              if (!participant.isBeingPlayed && !isMerge) {
-                webRTCInstance.value.play?.(
-                  str,
-                  playToken,
-                  roomId,
-                  undefined,
-                  undefined,
-                  undefined
-                );
+              if (participant) {
                 updateParticipantById(participant.id as string, {
                   isBeingPlayed: true,
                 });
               }
-            } else {
+            } */
+
+            if (!playedStreams.value.includes(str) && !isMerge) {
+              console.debug('⭐⭐⭐ trying to play: ', str);
+              playedStreams.value.push(str);
               webRTCInstance.value.play?.(
                 str,
                 playToken,
@@ -593,36 +458,95 @@ export function useInitWebRTC() {
                 undefined,
                 undefined
               );
-            } */
-          }
-          /* for (let str of streamsList.value) {
-            if (!obj.streams.includes(str)) {
-              removeRemoteVideo(str);
-            }              
-          } */
-
-          /* Comentado por la lógica */
-          /* participants.value.forEach((participant) => {
-            if (!obj.streams.includes(participant.id as string)) {
-              removeRemoteVideo(participant.id as string);
             }
-          }); */
-
-          //Lastly updates the current streamlist with the fetched one.
-          /* streamsList.value = obj.streams; */
+          }
         } else if (info == 'data_channel_opened') {
           console.info('Data Channel open for stream id 🃏🃏🃏', obj);
 
           const user = obj as unknown as string;
 
-          console.log(participants.value, '🅰️');
+          if (roomState.hostId == user) {
+            if (userMe.isMicOn || userMe.isCameraOn) {
+              publish(
+                streamId,
+                publishToken,
+                subscriberId,
+                subscriberCode,
+                streamName
+              );
+            }
+
+            if (userMe.isHost) {
+              setInterval(() => {
+                fetch(
+                  `https://${process.env.ANTMEDIA_SERVER}/${process.env.ANTMEDIA_APP}/rest/v2/broadcasts/conference-rooms/${roomState.id}`
+                )
+                  .then(async (res) => {
+                    const body = (await res.json()) as unknown as Record<
+                      string,
+                      string
+                    >;
+
+                    const currentParticipants = body.roomStreamList;
+                    const offlineParticipants: string[] = [];
+                    for (const participant of participants.value) {
+                      if (
+                        !currentParticipants.includes(participant.id as string)
+                      ) {
+                        const isAnAdmittedParticipant =
+                          admittedParticipants.value.some(
+                            (admittedParticipant) =>
+                              admittedParticipant.id == participant.id
+                          );
+                        if (isAnAdmittedParticipant) {
+                          offlineParticipants.push(
+                            participant.fractalUserId as string
+                          );
+                        }
+                        /*  */
+                        removeRemoteVideo(participant.id as string);
+                        sendData(roomState.hostId, {
+                          eventType: 'USER_LEAVING',
+                          id: participant.id,
+                          fractalUserId: participant.fractalUserId,
+                        });
+                      }
+                    }
+
+                    for (const participant of admittedParticipants.value) {
+                      if (
+                        currentParticipants.includes(
+                          participant.id as string
+                        ) &&
+                        !participant.hasLogJoin
+                      ) {
+                        console.log(
+                          'asistencia registrada (login) con el siguiente id: ',
+                          participant?.fractalUserId
+                        );
+                        window.xprops?.logJoined?.(
+                          participant?.fractalUserId as string
+                        );
+                        updateParticipantById(participant?.id as string, {
+                          hasLogJoin: true,
+                        });
+                      }
+                    }
+
+                    if (offlineParticipants.length > 0)
+                      window.xprops?.logUserExits?.(offlineParticipants);
+                  })
+                  .catch((e) => console.log(e));
+              }, 5000);
+            }
+          }
 
           if (
             user !== userMe.id &&
             !userMe.isHost &&
             user === roomState.hostId
           ) {
-            console.info(
+            console.debug(
               '⭐ SENDING REQUEST FOR INFO OF PARTICIPANTS IN ROOM',
               obj
             );
@@ -632,7 +556,7 @@ export function useInitWebRTC() {
             webRTCInstance.value.sendData?.(
               roomState.hostId,
               JSON.stringify({
-                eventType: 'PARTICIPANTS_IN_ROOM_INFO_REQUEST',
+                eventType: 'NEW_USER:PARTICIPANTS_IN_ROOM_INFO_REQUEST',
                 from: userMe.id,
                 to: roomState.hostId,
                 userInfo: userMe,
@@ -648,12 +572,53 @@ export function useInitWebRTC() {
           isDataChannelOpen.value = true;
         } else if (info == 'data_channel_closed') {
           console.log('Data Channel closed for stream id', obj);
+          // el primer usuario que aparezca en la devolución del api ejecutará el registro de salida para los usuarios si no está el id del host en la lista de miembros:
+          const channelStreamId = obj as unknown as string;
+          if (roomState.hostId == channelStreamId) {
+            fetch(
+              `https://${process.env.ANTMEDIA_SERVER}/${process.env.ANTMEDIA_APP}/rest/v2/broadcasts/conference-rooms/${roomState.id}`
+            )
+              .then(async (res) => {
+                const body = (await res.json()) as unknown as Record<
+                  string,
+                  string[]
+                >;
+
+                const currentParticipants: string[] = body.roomStreamList;
+                const isHostInRoom = currentParticipants.includes(
+                  roomState.hostId
+                );
+                if (!isHostInRoom) {
+                  if (currentParticipants[0] == userMe.id) {
+                    currentParticipants.push(roomState.hostId);
+                    const leftParticipantsFractalUserId: string[] = [];
+                    const allParticipants = [...participants.value, userMe];
+                    for (const currentParticipant of currentParticipants) {
+                      const participantInRoom = allParticipants.find(
+                        (participant) => participant.id === currentParticipant
+                      );
+                      leftParticipantsFractalUserId.push(
+                        participantInRoom?.fractalUserId as string
+                      );
+                    }
+                    window.xprops?.logUserExits?.(
+                      leftParticipantsFractalUserId
+                    );
+                  }
+                  window.xprops?.handleLeaveCall?.(
+                    REASON_TO_LEAVE_ROOM.BY_HOST_LEFT
+                  );
+                }
+              })
+              .catch((e) => console.log(e));
+          }
+
           // isDataChannelOpen.value = false;
         } else if (info == 'data_received') {
           // console.log(obj);
           const objParsed = JSON.parse(obj.data) as Message;
           const { eventType } = objParsed;
-          //console.log(objParsed);
+          console.log(objParsed);
           if (eventType === 'CHAT_MESSAGE') {
             //console.log(objParsed);
             const messageParsed = JSON.parse(obj.data) as Message;
@@ -669,7 +634,6 @@ export function useInitWebRTC() {
             const { notificationType, streamId } = JSON.parse(obj.data) as Data;
             console.log(notificationType);
             if (notificationType == 'CAM_TURNED_ON') {
-              //const streamID = obj.streamId;
               const user = participants.value.find(
                 (participant) => participant.id === streamId
               );
@@ -712,6 +676,14 @@ export function useInitWebRTC() {
                 }
               }
             } else if (notificationType == 'MIC_UNMUTED') {
+              /* webRTCInstance.value.play?.(
+                streamId,
+                playToken,
+                roomId,
+                undefined,
+                undefined,
+                undefined
+              ); */
               const user = participants.value.find(
                 (participant) => participant.id === streamId
               );
@@ -747,7 +719,9 @@ export function useInitWebRTC() {
             addHandNotificationInfo(objParsed);
           } else if (eventType === 'NOHAND') {
             removeHandNotification(objParsed.streamId);
-          } else if (eventType === 'PARTICIPANTS_IN_ROOM_INFO_REQUEST') {
+          } else if (
+            eventType === 'NEW_USER:PARTICIPANTS_IN_ROOM_INFO_REQUEST'
+          ) {
             /* TODOS RECIBEN LA DATA DEL USUARIO ENTRANTE PERO SOLO EL HOST ENVÍA UN MENSAJE CON LA DATA DE LOS PARTICIPANTES EN LA SALA */
 
             const infoRequestParsed = JSON.parse(obj.data) as ObjRemoteUserInfo;
@@ -776,7 +750,7 @@ export function useInitWebRTC() {
                 webRTCInstance.value.sendData?.(
                   roomState.hostId,
                   JSON.stringify({
-                    eventType: 'PARTICIPANTS_IN_ROOM_INFO',
+                    eventType: 'HOST:PARTICIPANTS_IN_ROOM_INFO',
                     from: infoRequestParsed.to,
                     to: infoRequestParsed.from,
                     participantsInRoom,
@@ -790,15 +764,12 @@ export function useInitWebRTC() {
               }
             }
 
+            /* Todos lo añaden al participante */
+
             const remoteUserInfoParsed = JSON.parse(
               obj.data
             ) as ObjRemoteUserInfo;
 
-            /* const user = participants.value.find(
-              (participant) =>
-                participant.id === remoteUserInfoParsed.userInfo.id
-            ); */
-            /* if (user) { */
             const newUser = {
               id: remoteUserInfoParsed.userInfo.id,
               avatar: remoteUserInfoParsed.userInfo.avatar,
@@ -815,6 +786,7 @@ export function useInitWebRTC() {
               isRecording: remoteUserInfoParsed.userInfo.isRecording,
               fractalUserId: remoteUserInfoParsed.userInfo.fractalUserId,
               existVideo: remoteUserInfoParsed.userInfo.existVideo,
+              hasLogJoin: false,
             };
 
             if (remoteUserInfoParsed.userInfo.existVideo) {
@@ -822,9 +794,7 @@ export function useInitWebRTC() {
             }
 
             participants.value.push(newUser);
-
-            /* } */
-          } else if (eventType === 'PARTICIPANTS_IN_ROOM_INFO') {
+          } else if (eventType === 'HOST:PARTICIPANTS_IN_ROOM_INFO') {
             // MENSAJE QUE RECIBE EL HOST PARA ENVIAR LA DATA DE LOS PARTICIPANTES
             console.info(
               '⭐ I am recieving info of user in room and i am setting it in my local state',
@@ -853,11 +823,11 @@ export function useInitWebRTC() {
                   participant.id === remoteUserInfoParsed.userInfo.id
               ); */
               /* if (user) { */
-              console.log('PARTICIPANTS 🥲🥲🥲', participants.value);
+              /* console.log('PARTICIPANTS 🥲🥲🥲', participants.value);
               console.log(
                 'PARTICIPANTSINROOM 🥲🥲🥲',
                 remoteUserInfoParsed.participantsInRoom
-              );
+              ); */
 
               remoteUserInfoParsed.participantsInRoom.forEach(
                 (participantInRoom) => {
@@ -886,7 +856,6 @@ export function useInitWebRTC() {
                   );
                   const exist = !!findVal;
                   if (exist) {
-                    console.log('exist');
                     updateParticipantById(
                       findVal?.id as string,
                       participantInRoom
@@ -915,13 +884,13 @@ export function useInitWebRTC() {
                 }
               );
 
-              console.log(
+              /* console.log(
                 'PARTICIPANTS IN ROOM 🥲🥲🥲',
                 remoteUserInfoParsed.participantsInRoom
               );
               console.log('PARTICIPANTS 🥲🥲🥲', participants.value);
 
-              console.log(admittedParticipants);
+              console.log(admittedParticipants); */
 
               //participants.value = remoteUserInfoParsed.participantsInRoom;
 
@@ -1267,7 +1236,7 @@ export function useInitWebRTC() {
         error: string,
         message: string /* error: string, message: string */
       ) {
-        console.log(error, message);
+        console.error(error, message);
         //some of the possible errors, NotFoundError, SecurityError,PermissionDeniedError
         if (
           error.indexOf('publishTimeoutError') != -1 &&
@@ -1351,7 +1320,7 @@ export function useInitWebRTC() {
           );
         }
 
-        console.log(errorMessage, '#️⃣');
+        console.error(errorMessage, '#️⃣');
         //alert(errorMessage);
       },
     });

@@ -40,11 +40,12 @@ export interface ZoidProps {
   toggleMinimize?: (isMinimize: boolean) => void;
   toggleLockAction?: (lockAction: lockAction) => void;
   fractalUserId?: string;
-  logJoined?: () => void;
+  logJoined?: (fractalUserId: string) => void;
   handleStartRecording?: () => void;
   getB2Info?: () => Promise<B2Info>;
   setBackgroundInfo?: (url: string, maximized: boolean) => void;
   addUserLogToState?: (fractalUserId: string, logType: number) => void;
   setPinnedUser?: (userId: string) => void;
   pinnedUser?: string;
+  logUserExits?: (fractalUserIds: string[]) => void;
 }

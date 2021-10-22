@@ -290,6 +290,10 @@ export default defineComponent({
         setScreenState(false);
         resetDesktop();
         sendNotificationEvent('SCREEN_SHARING_OFF', streamId);
+        if (!userMe.isHost && !userMe.isMicOn && !userMe.isCameraOn) {
+          updateUserMe({ isPublishing: 0 });
+          stopPublishing(userMe.id);
+        }
       } else {
         if (userMe.isCameraOn) {
           //apagar camara y prender captura
@@ -297,11 +301,31 @@ export default defineComponent({
           setCameraState(false);
           turnOffLocalCamera(streamId);
           sendNotificationEvent('CAM_TURNED_OFF', streamId);
+          if (!userMe.isHost && !userMe.isMicOn && !userMe.isScreenSharing) {
+            updateUserMe({ isPublishing: 0 });
+            stopPublishing(userMe.id);
+          }
         }
-        switchDesktopCapture(streamId);
-        setVideoActivatedState(true);
-        setScreenState(true);
-        sendNotificationEvent('SCREEN_SHARING_ON', streamId);
+
+        if (userMe.isPublishing == 1) {
+          switchDesktopCapture(streamId);
+          setVideoActivatedState(true);
+          setScreenState(true);
+          sendNotificationEvent('SCREEN_SHARING_ON', streamId);
+        } else {
+          updateUserMe({ isPublishing: 2 });
+          publish(userMe.id, undefined, undefined, undefined, userMe.name);
+          const interval = setInterval(() => {
+            if (userMe.isPublishing == 1) {
+              clearInterval(interval);
+              /* setMicIconState(true); */
+              switchDesktopCapture(streamId);
+              setVideoActivatedState(true);
+              setScreenState(true);
+              sendNotificationEvent('SCREEN_SHARING_ON', streamId);
+            }
+          }, 1000);
+        }
       }
       // if (userMe.isCameraOn && !userMe.isScreenSharing) {
       //   turnOffLocalCamera(streamId);
@@ -506,7 +530,13 @@ export default defineComponent({
       //   subscriberId,
       //   subscriberCode
       // );
-      window.xprops?.logJoined?.();
+      if (userMe.isHost) {
+        console.log(
+          'asistencia registrada (login) con el siguiente id: ',
+          userMe.fractalUserId
+        );
+        window.xprops?.logJoined?.(userMe.fractalUserId);
+      }
     };
 
     /* onUnmounted(() => {

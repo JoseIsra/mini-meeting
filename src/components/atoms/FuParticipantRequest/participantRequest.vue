@@ -35,7 +35,7 @@ import { useInitWebRTC } from '@/composables/antMedia';
 import { useHandleParticipants } from '@/composables/participants';
 import { useUserMe } from '@/composables/userMe';
 import { PERMISSION_STATUS } from '@/utils/enums/general';
-import { Participant } from '@/types/participant';
+import { User } from '@/types/user';
 import { defineComponent, PropType } from 'vue';
 import { useRoom } from '@/composables/room';
 
@@ -43,7 +43,7 @@ export default defineComponent({
   name: 'FuParticipantRequest',
   props: {
     participant: {
-      type: Object as PropType<Participant>,
+      type: Object as PropType<Partial<User>>,
       required: true,
     },
   },

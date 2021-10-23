@@ -1,13 +1,13 @@
 import { ref, computed } from 'vue';
-import { Participant } from '@/types/participant';
 
 import { LOCK_ACTION_TYPE, PERMISSION_STATUS, USER_ROLE } from '@/utils/enums';
 import _ from 'lodash';
+import { User } from '@/types/user';
 
-const participants = ref<Participant[]>([]);
+const participants = ref<Partial<User>[]>([]);
 
 export function useHandleParticipants() {
-  const addParticipant = (value: Participant) => {
+  const addParticipant = (value: Partial<User>) => {
     const newParticipants = _.cloneDeep(participants.value);
     newParticipants.push(value);
     participants.value = newParticipants;
@@ -24,7 +24,7 @@ export function useHandleParticipants() {
     participants.value.splice(0, 1);
   };
 
-  const updateParticipantById = (id: string, fields: Participant) => {
+  const updateParticipantById = (id: string, fields: Partial<User>) => {
     const newParticipants = _.cloneDeep(participants.value);
     const participantFound = newParticipants.find(
       (participant) => participant.id == id

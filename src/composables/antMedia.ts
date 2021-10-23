@@ -4,7 +4,7 @@ import { useUserMe } from '@/composables/userMe';
 import { User } from '@/types/user';
 import { useAuthState } from '@/composables/auth';
 import { objWebRTC } from '@/types/index';
-import { Participant } from '@/types/participant';
+
 import {
   REASON_TO_LEAVE_ROOM,
   LOCK_ACTION_TYPE,

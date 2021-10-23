@@ -618,7 +618,6 @@ import { useHandleParticipants } from '@/composables/participants';
 import { useUserMe } from '@/composables/userMe';
 import { User } from '@/types/user';
 import { useInitWebRTC } from '@/composables/antMedia';
-import { Participant } from '@/types/participant';
 import { LOCK_ACTION_TYPE, USER_ROLE } from '@/utils/enums';
 import { nanoid } from 'nanoid';
 import { useSidebarToogle } from '@/composables';
@@ -679,20 +678,20 @@ export default defineComponent({
         isEveryoneScreenShareBlocked.value
     );
 
-    const isMicBlocked = (participant: Participant) =>
+    const isMicBlocked = (participant: Partial<User>) =>
       admittedParticipants.value.find((part) => part.id === participant.id)
         ?.isMicBlocked === true;
 
-    const isVideoBlocked = (participant: Participant) =>
+    const isVideoBlocked = (participant: Partial<User>) =>
       admittedParticipants.value.find((part) => part.id === participant.id)
         ?.isCameraBlocked === true;
 
-    const isScreenShareBlocked = (participant: Participant) =>
+    const isScreenShareBlocked = (participant: Partial<User>) =>
       admittedParticipants.value.find((part) => part.id === participant.id)
         ?.isScreenShareBlocked === true;
 
     const handleParticipantActions = (
-      participant: Participant,
+      participant: Partial<User>,
       action: number
     ) => {
       if (participant.roleId === USER_ROLE.ADMINISTRATOR) {
@@ -771,7 +770,7 @@ export default defineComponent({
 
     const participantActionsToolTip = (
       action: number,
-      participant: Participant
+      participant: Partial<User>
     ) => {
       if (participant.roleId === USER_ROLE.REGULAR_PARTICIPANT) {
         switch (action) {
@@ -974,7 +973,7 @@ export default defineComponent({
       }
     };
 
-    const handleKickParticipant = (participant: Participant) => {
+    const handleKickParticipant = (participant: Partial<User>) => {
       sendData(roomState.hostId, { eventType: 'KICK', to: participant.id });
     };
 

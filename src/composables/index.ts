@@ -1,5 +1,6 @@
 import { ref, reactive } from 'vue';
 import { User } from '@/types/user';
+import { HandNotification } from '@/types/datachannelMessages';
 
 interface FunctionState {
   renderChat: boolean;
@@ -19,13 +20,6 @@ interface PerifericsState {
   isScreenShared: boolean;
   cameraDeviceId: string;
   isVideoActivated: boolean;
-}
-
-export interface HandNotification {
-  id: string;
-  streamId: string;
-  streamName: string;
-  eventType: string;
 }
 
 export interface FullScreenContent<T> {
@@ -81,7 +75,7 @@ export function useToogleFunctions() {
   const removeHandNotification = (value: string) => {
     functionsOnMenuBar.handNotificationInfo =
       functionsOnMenuBar.handNotificationInfo.filter(
-        (notific) => notific.streamId !== value
+        (notific) => notific.from !== value
       );
   };
 

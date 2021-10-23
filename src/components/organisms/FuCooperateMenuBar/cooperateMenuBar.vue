@@ -382,19 +382,20 @@ export default defineComponent({
     const toogleHandUp = () => {
       const riseHand = {
         id: nanoid(),
-        streamId: userMe.id,
+        to: 'ALL',
+        from: userMe.id,
         streamName: userMe.name,
         eventType: 'HAND',
       };
       if (
         functionsOnMenuBar.handNotificationInfo.some(
-          (notific) => notific.streamId === riseHand.streamId
+          (notific) => notific.from === riseHand.from
         )
       ) {
         const downHand = { ...riseHand, eventType: 'NOHAND' };
         sendData(roomState.hostId, downHand);
         handNotificationActive.value = false;
-        removeHandNotification(downHand.streamId);
+        removeHandNotification(downHand.from);
         return;
       }
       handNotificationActive.value = true;

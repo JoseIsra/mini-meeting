@@ -1025,7 +1025,7 @@ export default defineComponent({
 
     const notificateHandUp = (userId: string) => {
       return functionsOnMenuBar.handNotificationInfo.some(
-        (notific) => notific.streamId == userId
+        (notific) => notific.from == userId
       );
     };
 

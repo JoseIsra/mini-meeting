@@ -12,7 +12,8 @@ import {
 } from '@/utils/enums';
 import { useHandleParticipants } from '@/composables/participants';
 import { useHandleMessage } from '@/composables/chat';
-import { HandNotification, useToogleFunctions } from '@/composables';
+import { useToogleFunctions } from '@/composables';
+import { HandNotification } from '@/types/datachannelMessages';
 import { useRoom } from '@/composables/room';
 import { PERMISSION_STATUS } from '@/utils/enums';
 import { notifyWithAction } from '@/utils/notify';
@@ -744,8 +745,9 @@ export function useInitWebRTC() {
           //console.log(obj);
           const baseMessage = obj as BaseMessage;
           const baseData = baseMessage.data;
+          const baseDataParsed = JSON.parse(baseData) as BaseData;
 
-          const { eventType } = JSON.parse(baseData) as BaseData;
+          const { eventType } = baseDataParsed;
 
           if (eventType === 'CHAT_MESSAGE') {
             const chatMessageParsed = JSON.parse(baseData) as Message;
@@ -769,7 +771,7 @@ export function useInitWebRTC() {
             ) as HandNotification;
             addHandNotificationInfo(handNotificationParsed);
           } else if (eventType === 'NOHAND') {
-            //removeHandNotification(objParsed.streamId);
+            removeHandNotification(baseDataParsed.from);
           } else if (
             eventType === 'NEW_USER:PARTICIPANTS_IN_ROOM_INFO_REQUEST'
           ) {

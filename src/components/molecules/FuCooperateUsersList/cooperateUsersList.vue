@@ -129,7 +129,14 @@
       </div>
       <div class="m-list__content__userBox">
         <aside class="m-list__content__userBox__avatar">
+          <q-icon
+            v-if="notificateHandUp(userMe.id)"
+            name="front_hand"
+            class="m-list__content__userBox__avatar__handIcon"
+            size="25px"
+          />
           <q-img
+            v-else
             class="m-list__content__userBox__avatar__image"
             :src="userMe.avatar"
             alt="avatar-logo"
@@ -301,7 +308,14 @@
         :key="participant.id"
       >
         <aside class="m-list__content__userBox__avatar">
+          <q-icon
+            v-if="notificateHandUp(participant.id)"
+            name="front_hand"
+            size="25px"
+            class="m-list__content__userBox__avatar__handIcon"
+          />
           <q-img
+            v-else
             class="m-list__content__userBox__avatar__image"
             :src="participant.avatar"
             alt="avatar-logo"
@@ -642,6 +656,7 @@ export default defineComponent({
       fullScreenObject,
       clearFullScreenObject,
       setIDButtonSelected,
+      functionsOnMenuBar,
     } = useToogleFunctions();
 
     const listenFullScreen = computed(() => {
@@ -1008,6 +1023,12 @@ export default defineComponent({
       setIDButtonSelected('');
     };
 
+    const notificateHandUp = (userId: string) => {
+      return functionsOnMenuBar.handNotificationInfo.some(
+        (notific) => notific.streamId == userId
+      );
+    };
+
     return {
       waitingParticipants,
       admittedParticipants,
@@ -1033,6 +1054,7 @@ export default defineComponent({
       roomState,
       closeUserListPanel,
       participantActionsToolTip,
+      notificateHandUp,
     };
   },
 });

@@ -21,7 +21,6 @@ export interface User {
   isPlayingVideo: boolean;
   isRecording: boolean;
   roleId: number;
-  isBeingPlayed: boolean; //For other participants
   isHost: boolean;
   isPublishing: number; // 0 -> off / 1 -> on / 2 -> loading . For my own user
   cameraPublishedState: ComputedRef; // For my own user

@@ -21,11 +21,7 @@ export function useUserMe() {
   const updateUserMe = (value: Partial<User>) => {
     const updatedUser = _.cloneDeep(userMe);
     Object.keys(value).forEach((key: string) => {
-      if (
-        key != 'cameraPublishedState' &&
-        key != 'micPublishedState' &&
-        userMe.hasOwnProperty(key)
-      ) {
+      if (key != 'cameraPublishedState' && key != 'micPublishedState') {
         Object.defineProperty(updatedUser, key, {
           value: value[key as keyof User] as ValueOf<User>,
           writable: true,

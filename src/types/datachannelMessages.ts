@@ -34,6 +34,10 @@ export interface HandNotification extends BaseData {
   streamName: string;
 }
 
+export interface stopPlayingStream extends BaseData {
+  streamToPause: string;
+}
+
 /*  */
 interface ObjInfoRequested {
   to: string;

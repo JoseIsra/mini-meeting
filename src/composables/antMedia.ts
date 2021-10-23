@@ -13,7 +13,10 @@ import {
 import { useHandleParticipants } from '@/composables/participants';
 import { useHandleMessage } from '@/composables/chat';
 import { useToogleFunctions } from '@/composables';
-import { HandNotification } from '@/types/datachannelMessages';
+import {
+  HandNotification,
+  stopPlayingStream,
+} from '@/types/datachannelMessages';
 import { useRoom } from '@/composables/room';
 import { PERMISSION_STATUS } from '@/utils/enums';
 import { notifyWithAction } from '@/utils/notify';
@@ -42,6 +45,8 @@ import {
   Notification,
 } from '@/types/datachannelMessages';
 
+import { useStreams } from '@/composables/streams';
+
 const webRTCInstance = ref<WebRTCAdaptor>({} as WebRTCAdaptor);
 
 const {
@@ -56,6 +61,14 @@ const {
   setLocalVideoBlock,
   setDenied,
 } = useUserMe();
+
+const {
+  streams,
+  addStream,
+  updateStreamById,
+  findStreamById,
+  removeStreamById,
+} = useStreams();
 
 const { setIsLoadingOrError, setLoadingOrErrorMessage, setExistRoom } =
   useAuthState();
@@ -80,6 +93,7 @@ const {
   updateParticipantById,
   setEveryParticipantActions,
   setParticipantActions,
+  findParticipantById,
 } = useHandleParticipants();
 
 const { setUserMessage, deleteLoadingMessage } = useHandleMessage();
@@ -109,88 +123,6 @@ const { setScreenShareIconState } = useActions();
 
 const remotePlayer = ref<videojs.Player>({} as videojs.Player);
 
-/* interface ObjInfoRequested {
-  to: string;
-  from: string;
-}
-
-interface Data {
-  streamId: string;
-  notificationType: string;
-  eventType: string;
-}
-
-interface ObjRemoteUserInfo extends ObjInfoRequested {
-  eventType: string;
-  userInfo: User;
-  participantsInRoom: Participant[];
-}
-
-interface ObjKickedEvent {
-  eventType: string;
-  to: string;
-}
-interface VideoID {
-  playerId: string;
-}
-interface ExternalVideoObject {
-  eventType?: string;
-  urlContent?: string;
-  remoteInstance?: VideoID | string | HTMLVideoElement;
-  currentTime?: number;
-  fullScreenMode?: boolean;
-}
-
-interface ObjBlockParticipantAction {
-  id: string;
-  streamId: string;
-  participantId: string;
-  eventType: string;
-  action: number;
-  value: boolean;
-}
-
-interface ObjBlockEveryoneAction {
-  id: string;
-  streamId: string;
-  eventType: string;
-  action: number;
-  value: boolean;
-}
-
-interface ObjAnswerPermission {
-  id: string;
-  participantId: string;
-  eventType: string;
-  value: boolean;
-}
-
-interface ObjSetFullScreen {
-  id: string;
-  eventType: string;
-  mode: string;
-  participant: User;
-}
-
-interface backgroundInfo {
-  id: string;
-  url: string;
-}
-
-interface backgroundSize {
-  maximized: boolean;
-}
-
-interface ObjUserLeavingMessageParsed {
-  id: string;
-  fractalUserId: string;
-  userId: string;
-}
-
-interface ObjRecordingStopParsed {
-  state: Record<string, string>;
-} */
-
 export function useInitWebRTC() {
   const joinRoom = (roomId: string, streamId: string) => {
     webRTCInstance.value.joinRoom?.(roomId, streamId, 'legacy');
@@ -216,6 +148,8 @@ export function useInitWebRTC() {
 
   const removeRemoteVideo = (streamId: string) => {
     deleteParticipantById(streamId);
+    removeStreamById(streamId);
+    updateStreamById(streamId, { isBeingPlayed: false });
     console.log('removing participant 🛕');
   };
 
@@ -243,9 +177,8 @@ export function useInitWebRTC() {
           user.isCameraOn = false;
           user.isVideoActivated = false;
           /*  */
-          if (!user.isMicOn) {
-            user.isBeingPlayed = false;
-          }
+          if (!user?.isHost && !user?.isMicOn)
+            updateStreamById(user?.id as string, { isBeingPlayed: false });
         }
       },
       SCREEN_SHARING_ON: function () {
@@ -265,9 +198,8 @@ export function useInitWebRTC() {
           user.isScreenSharing = false;
           user.isVideoActivated = false;
           /*  */
-          if (!user.isMicOn) {
-            user.isBeingPlayed = false;
-          }
+          if (!user?.isHost && !user?.isMicOn)
+            updateStreamById(user?.id as string, { isBeingPlayed: false });
         }
       },
       MIC_UNMUTED: function () {
@@ -284,13 +216,8 @@ export function useInitWebRTC() {
         );
         if (user) {
           user.isMicOn = false;
-          if (
-            !user.isVideoActivated &&
-            !user.isCameraOn &&
-            !user.isScreenSharing
-          ) {
-            user.isBeingPlayed = false;
-          }
+          if (!user?.isHost && !user?.isVideoActivated)
+            updateStreamById(user?.id as string, { isBeingPlayed: false });
         }
       },
       RECORDING_STARTED: function () {
@@ -520,12 +447,12 @@ export function useInitWebRTC() {
         } else if (info == 'streamInformation') {
           console.debug('stream information received');
         } else if (info == 'roomInformation') {
-          for (const playedStream of playedStreams.value) {
+          /* for (const playedStream of playedStreams.value) {
             if (!obj.streams.includes(playedStream)) {
               const elementIndex = playedStreams.value.indexOf(playedStream);
               playedStreams.value.splice(elementIndex, 1);
             }
-          }
+          } */
 
           for (const str of obj.streams) {
             /* const participant = participants.value.filter(
@@ -550,20 +477,59 @@ export function useInitWebRTC() {
               }
             } */
 
-            if (!playedStreams.value.includes(str) && !isMerge) {
-              console.debug('⭐⭐⭐ trying to play: ', str);
+            if (!isMerge) {
               try {
-                playedStreams.value.push(str);
-                webRTCInstance.value.play?.(
-                  str,
-                  playToken,
-                  roomId,
-                  undefined,
-                  undefined,
-                  undefined
-                );
+                //playedStreams.value.push(str);
+
+                const streamFound = findStreamById(str);
+                if (streamFound) {
+                  if (!streamFound.isBeingPlayed) {
+                    console.debug('⭐⭐⭐ trying to play: ', str);
+                    /* setTimeout(() => { */
+                    webRTCInstance.value.play?.(
+                      str,
+                      playToken,
+                      roomId,
+                      undefined,
+                      undefined,
+                      undefined
+                    );
+                    /* }, 500); */
+                    //updateStreamById(str, { isBeingPlayed: true });
+                    /* addStream({ id: str }); */
+                  }
+                } else {
+                  webRTCInstance.value.play?.(
+                    str,
+                    playToken,
+                    roomId,
+                    undefined,
+                    undefined,
+                    undefined
+                  );
+                  addStream({ id: str });
+                }
               } catch (e) {
+                updateStreamById(str, { isBeingPlayed: false });
                 console.error(e);
+              }
+            }
+          }
+
+          for (const stream of streams) {
+            if (
+              !obj.streams.includes(stream.id as string) &&
+              userMe.id !== stream.id
+            ) {
+              if (stream.isBeingPlayed) {
+                webRTCInstance.value.stop(stream.id as string);
+                updateStreamById(stream.id as string, { isBeingPlayed: false });
+                sendData(roomState.hostId, {
+                  evenType: 'STOP_PLAYING_STREAM',
+                  from: userMe.id,
+                  to: 'ALL',
+                  streamToPause: stream.id,
+                });
               }
             }
           }
@@ -661,8 +627,16 @@ export function useInitWebRTC() {
                       window.xprops?.logUserExits?.(offlineParticipants);
                   })
                   .catch((e) => console.log(e));
-              }, 5000);
+              }, 3500);
             }
+          }
+
+          /* Cuando termine la conexión debe colocar el isBeingPlayed */
+          const streamFound = findStreamById(user);
+          if (streamFound) {
+            updateStreamById(user, { isBeingPlayed: true });
+          } else {
+            addStream({ id: user, isBeingPlayed: true });
           }
 
           if (
@@ -1213,6 +1187,13 @@ export function useInitWebRTC() {
               userLeavingMsgParsed.fractalUserId,
               LOG_TYPE.OUT
             );
+          } else if (eventType === 'STOP_PLAYING_STREAM') {
+            const { streamToPause } = JSON.parse(baseData) as stopPlayingStream;
+            const stream = findStreamById(streamToPause);
+            if (!stream?.isBeingPlayed) {
+              webRTCInstance.value.stop(streamToPause);
+              updateStreamById(streamToPause, { isBeingPlayed: false });
+            }
           }
         }
       },
@@ -1312,7 +1293,7 @@ export function useInitWebRTC() {
           );
         }
 
-        console.error(errorMessage, '#️⃣');
+        console.error(errorMessage, error, message, '#️⃣');
         //alert(errorMessage);
       },
     });

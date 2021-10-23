@@ -20,6 +20,13 @@ export function useHandleParticipants() {
     );
   };
 
+  const findParticipantById = (id: string) => {
+    const participantFound = participants.value.find(
+      (participant) => participant.id === id
+    );
+    return participantFound;
+  };
+
   const deleteAllParticipants = () => {
     participants.value.splice(0, 1);
   };
@@ -115,5 +122,6 @@ export function useHandleParticipants() {
     admittedParticipants,
     waitingParticipants,
     updateParticipantDenied,
+    findParticipantById,
   };
 }

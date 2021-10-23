@@ -33,8 +33,8 @@ export interface HandNotification extends BaseData {
   id: string;
   streamName: string;
 }
-/*  */
 
+/*  */
 interface ObjInfoRequested {
   to: string;
   from: string;

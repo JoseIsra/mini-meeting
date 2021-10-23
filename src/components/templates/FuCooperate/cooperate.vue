@@ -437,6 +437,8 @@ export default defineComponent({
 
       participants.value = [];
     }; */
+    const waitFor = (delay: number) =>
+      new Promise((resolve) => setTimeout(resolve, delay));
 
     const checkRoom = async (roomId: string) => {
       const request = new Request(
@@ -450,6 +452,8 @@ export default defineComponent({
       );
 
       const res = await fetch(request);
+
+      await waitFor(1300); //Solo está para que le de tiempo al host para eliminar los participantes que no están. Por ej, si un usuario recarga la página para que no aparezca repetido.
 
       return {
         status: res.status,

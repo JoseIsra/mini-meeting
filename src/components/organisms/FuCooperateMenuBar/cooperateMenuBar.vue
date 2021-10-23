@@ -36,7 +36,7 @@
           round
           :class="[
             'a-menuBar__icon',
-            { active: userMe.isMicOn && userMe.isPublishing },
+            { active: userMe.micPublishedState == 1 },
           ]"
           :icon="
             userMe.micPublishedState == 1
@@ -45,6 +45,7 @@
               ? iconsPeriferics.mic.loadingState
               : iconsPeriferics.mic.offState
           "
+          :disable="userMe.isPublishing == 2"
           size="0.7rem"
           @click="toggleMIC"
         >
@@ -64,7 +65,7 @@
           round
           :class="[
             'a-menuBar__icon',
-            { active: userMe.isCameraOn && userMe.isPublishing },
+            { active: userMe.cameraPublishedState == 1 },
           ]"
           :icon="
             userMe.cameraPublishedState == 1
@@ -73,6 +74,7 @@
               ? iconsPeriferics.camera.loadingState
               : iconsPeriferics.camera.offState
           "
+          :disable="userMe.isPublishing == 2"
           size="0.7rem"
           @click="toggleCamera"
         >
@@ -307,7 +309,8 @@ export default defineComponent({
 
     let { isSidebarRender, setSidebarState } = useSidebarToogle();
 
-    const { userMe, setMicState, setVideoActivatedState } = useUserMe();
+    const { userMe, setMicState, setVideoActivatedState, updateUserMe } =
+      useUserMe();
 
     let handNotificationActive = ref(false);
     const canSeeActionsMenu = ref(userMe.roleId === 0);

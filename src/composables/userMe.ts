@@ -1,6 +1,8 @@
 import { reactive, computed } from 'vue';
 
-import { User, UpdatedUserfields } from '@/types/user';
+import { User } from '@/types/user';
+import { ValueOf } from '@/types';
+import _ from 'lodash';
 
 // blocked: some functionalities blocked (mic, screen, camera)
 // Role id: 'Admin|0' ; 'participant|1';
@@ -8,16 +10,31 @@ import { User, UpdatedUserfields } from '@/types/user';
 const userState = {} as User;
 const pinnedStream = {} as MediaStream;
 
-const userMe = reactive(userState);
+const userMe = reactive<User>(userState);
 const pinnedUserStream = reactive(pinnedStream);
 
 export function useUserMe() {
-  const setUserMe = (value: User) => {
+  const setUserMe = (value: Partial<User>) => {
     Object.assign(userState, value);
   };
 
-  const updateUserMe = (value: UpdatedUserfields) => {
-    Object.assign(userMe, { ...userMe, ...value });
+  const updateUserMe = (value: Partial<User>) => {
+    const updatedUser = _.cloneDeep(userMe);
+    Object.keys(value).forEach((key: string) => {
+      if (
+        key != 'cameraPublishedState' &&
+        key != 'micPublishedState' &&
+        userMe.hasOwnProperty(key)
+      ) {
+        Object.defineProperty(updatedUser, key, {
+          value: value[key as keyof User] as ValueOf<User>,
+          writable: true,
+          enumerable: true,
+          configurable: true,
+        });
+      }
+    });
+    Object.assign(userMe, updatedUser);
   };
 
   userMe.cameraPublishedState = computed(() =>

@@ -133,7 +133,7 @@
     </div>
     <!--  -->
     <div
-      class="a-userVideo__more"
+      class="a-userVideo__box --moreUsers"
       v-show="
         $q.screen.lt.md
           ? admittedParticipants.length > 1

@@ -89,7 +89,7 @@ export default defineComponent({
         remoteInstance: userMe.videoInstance,
         eventType: 'REMOVE_EXTERNAL_VIDEO',
       });
-      videojs(userMe.videoInstance?.playerId as string).dispose();
+      videojs(userMe.videoInstance?.playerId).dispose();
       setFullScreen('none', false);
       updateUserMe({
         ...userMe,

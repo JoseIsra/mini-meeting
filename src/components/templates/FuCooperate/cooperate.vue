@@ -181,8 +181,6 @@ export default defineComponent({
       /* setCameraIconState(true); */
     }
 
-    const isPublishing = isHost ? 1 : 0;
-
     setUserMe({
       id: streamId,
       name: streamName,
@@ -206,7 +204,7 @@ export default defineComponent({
       existVideo: false,
       isRecording: false,
       isHost,
-      isPublishing,
+      isPublishing: isHost ? 1 : 0,
     });
 
     /* setMicIconState(isMicLocked ? false : isMicOn); */
@@ -342,10 +340,10 @@ export default defineComponent({
             setScreenState(false);
             setIDButtonSelected('');
             resetDesktop();
-            sendNotificationEvent('SCREEN_SHARING_OFF', roomState.hostId);
             if (!userMe.isHost && !userMe.isMicOn && !userMe.isCameraOn) {
               updateUserMe({ isPublishing: 0 });
               stopPublishing(userMe.id);
+              sendNotificationEvent('SCREEN_SHARING_OFF', roomState.hostId);
             }
           } else {
             updateUserMe({ isPublishing: 2 });
@@ -373,7 +371,6 @@ export default defineComponent({
           console.log(userMe.stream, '⭕⭕⭕');
           sendNotificationEvent('CAM_TURNED_ON', roomState.hostId);
         } else {
-          sendNotificationEvent('CAM_TURNED_ON', roomState.hostId);
           updateUserMe({ isPublishing: 2 });
           publish(userMe.id, undefined, undefined, undefined, userMe.name);
 
@@ -384,6 +381,7 @@ export default defineComponent({
               /* setCameraIconState(true); */
               setCameraState(true);
               turnOnLocalCamera(streamId);
+              sendNotificationEvent('CAM_TURNED_ON', roomState.hostId);
               console.log(userMe.stream, '⭕⭕⭕');
             }
           }, 1000);
@@ -470,7 +468,9 @@ export default defineComponent({
             roomState.startDate
           );
           if (haveStarted || roleId === 0) {
+            /* if (userMe.isHost) { */
             setExistRoom(true);
+            /* } */
             createInstance(
               roomId,
               streamId,

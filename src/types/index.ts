@@ -18,6 +18,8 @@ export type Scalars = {
   Date: Date;
 };
 
+export type ValueOf<T> = T[keyof T];
+
 export type Maybe<T> = T | null;
 
 export type B2 = {

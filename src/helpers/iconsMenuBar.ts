@@ -6,26 +6,28 @@ import {
 
 const { screenMinimized } = useScreen();
 
-export const iconsPeriferics = [
-  {
+export const iconsPeriferics = {
+  mic: {
     id: '1',
     onState: 'mic',
     offState: 'mic_off',
+    loadingState: 'fas fa-spinner',
     active: false,
     toolTipMessage: 'Habilitar audio',
     toolTipSecondMessage: 'Deshabilitar audio',
     interaction: INTERACTION_TYPE_MENU_BAR.MIC,
   },
-  {
+  camera: {
     id: '2',
     onState: 'videocam',
     offState: 'videocam_off',
+    loadingState: 'fas fa-spinner',
     active: false,
     toolTipMessage: 'Habilitar webcam',
     toolTipSecondMessage: 'Deshabilitar webcam',
     interaction: INTERACTION_TYPE_MENU_BAR.WEBCAM,
   },
-];
+};
 
 export const iconsFunctions = [
   {

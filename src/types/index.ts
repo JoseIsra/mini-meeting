@@ -1,32 +1,8 @@
-import { User } from '@/composables/userMe';
-
+import { User } from '@/types/user';
 interface SoundGainType {
   gain: {
     value: number;
   };
-}
-
-export interface Participant {
-  id?: string;
-  name?: string;
-  avatar?: string;
-  stream?: MediaStream;
-  isCameraOn?: boolean;
-  isMicOn?: boolean;
-  isScreenSharing?: boolean;
-  isVideoActivated?: boolean;
-  isMicBlocked?: boolean;
-  isCameraBlocked?: boolean;
-  isScreenShareBlocked?: boolean;
-  fractalUserId?: string;
-  denied?: number;
-  existVideo?: boolean;
-  urlOfVideo?: string;
-  videoInstance?: HTMLMediaElement & { playerId: string };
-  currentTime?: number;
-  isPlayingVideo?: boolean;
-  isRecording?: boolean;
-  roleId?: number;
 }
 
 export type Scalars = {
@@ -41,6 +17,8 @@ export type Scalars = {
    */
   Date: Date;
 };
+
+export type ValueOf<T> = T[keyof T];
 
 export type Maybe<T> = T | null;
 
@@ -67,6 +45,7 @@ export interface Icons {
   id: string;
   onState: string;
   offState: string;
+  loadingState?: string;
   active: boolean;
   toolTipMessage: string;
   toolTipSecondMessage?: string;

@@ -4,6 +4,7 @@ export enum REASON_TO_LEAVE_ROOM {
   I_CLOSE_ROOM,
   JUST_LEAVE,
   KICKED_BY_MODERATOR,
+  BY_HOST_LEFT,
 }
 
 export enum USER_ROLE {

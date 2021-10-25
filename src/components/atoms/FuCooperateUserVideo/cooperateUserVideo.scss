@@ -7,19 +7,13 @@
   display: flex;
   align-items: center;
   // justify-content: center;
-  gap: 1.5%;
+  /* gap: 1.5%; */
   z-index: 3;
-
-  &__more {
-    color: white;
-    padding: 5px 15px;
-    display: flex;
-    justify-content: center;
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 10px;
-  }
+  padding: 10px 10px;
 
   &__box {
+    margin: 0 10px;
+
     position: relative;
     border-radius: 10px;
 
@@ -103,6 +97,12 @@
       height: 100%;
       object-fit: cover;
       min-height: 100px;
+    }
+
+    &.--moreUsers {
+      color: white;
+      font-size: x-large;
+      font-weight: bolder;
     }
   }
 }

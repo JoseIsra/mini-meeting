@@ -1,51 +1,8 @@
-import { reactive } from 'vue';
+import { reactive, computed } from 'vue';
 
-export interface User {
-  id: string;
-  name: string;
-  avatar: string;
-  isCameraOn: boolean;
-  isMicOn: boolean;
-  isScreenSharing: boolean;
-  isVideoActivated: boolean;
-  roleId: number;
-  isMicBlocked: boolean;
-  isCameraBlocked: boolean;
-  isScreenShareBlocked: boolean;
-  stream?: MediaStream;
-  fractalUserId: string;
-  denied: number;
-  existVideo?: boolean;
-  urlOfVideo?: string;
-  videoInstance?: HTMLMediaElement & { playerId: string };
-  currentTime?: number;
-  isPlayingVideo?: boolean;
-  isRecording: boolean;
-  isHost: boolean;
-  cameraId?: string;
-  micId?: string;
-}
-
-export interface UpdatedUserfields {
-  id?: string;
-  name?: string;
-  avatar?: string;
-  isCameraOn?: boolean;
-  isMicOn?: boolean;
-  isScreenSharing?: boolean;
-  isVideoActivated?: boolean;
-  stream?: MediaStream;
-  fractalUserId?: string;
-  existVideo?: boolean;
-  urlOfVideo?: string;
-  videoInstance?: HTMLMediaElement & { playerId: string };
-  currentTime?: number;
-  isPlayingVideo?: boolean;
-  isRecording?: boolean;
-  isHost?: boolean;
-  cameraId?: string;
-  micId?: string;
-}
+import { User } from '@/types/user';
+import { ValueOf } from '@/types';
+import _ from 'lodash';
 
 // blocked: some functionalities blocked (mic, screen, camera)
 // Role id: 'Admin|0' ; 'participant|1';
@@ -53,17 +10,44 @@ export interface UpdatedUserfields {
 const userState = {} as User;
 const pinnedStream = {} as MediaStream;
 
-const userMe = reactive(userState);
+const userMe = reactive<User>(userState);
 const pinnedUserStream = reactive(pinnedStream);
 
 export function useUserMe() {
-  const setUserMe = (value: User) => {
+  const setUserMe = (value: Partial<User>) => {
     Object.assign(userState, value);
   };
 
-  const updateUserMe = (value: UpdatedUserfields) => {
-    Object.assign(userMe, { ...userMe, ...value });
+  const updateUserMe = (value: Partial<User>) => {
+    const updatedUser = _.cloneDeep(userMe);
+    Object.keys(value).forEach((key: string) => {
+      if (key != 'cameraPublishedState' && key != 'micPublishedState') {
+        Object.defineProperty(updatedUser, key, {
+          value: value[key as keyof User] as ValueOf<User>,
+          writable: true,
+          enumerable: true,
+          configurable: true,
+        });
+      }
+    });
+    Object.assign(userMe, updatedUser);
   };
+
+  userMe.cameraPublishedState = computed(() =>
+    userMe.isCameraOn && userMe.isPublishing == 1
+      ? 1
+      : userMe.isPublishing == 2 && userMe.isCameraOn
+      ? 2
+      : 0
+  );
+
+  userMe.micPublishedState = computed(() =>
+    userMe.isMicOn && userMe.isPublishing == 1
+      ? 1
+      : userMe.isPublishing == 2 && userMe.isMicOn
+      ? 2
+      : 0
+  );
 
   const setMicState = (value: boolean) => {
     userMe.isMicOn = value;

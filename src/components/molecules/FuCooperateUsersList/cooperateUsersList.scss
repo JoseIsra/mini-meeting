@@ -70,7 +70,6 @@
         min-width: 50px;
         height: 100%;
         margin: 0 0.8rem 0 0.5rem;
-
         height: 100%;
         &__image {
           height: 100%;
@@ -83,6 +82,39 @@
           right: -6px;
 
           opacity: 1;
+        }
+        @keyframes earthMovement {
+          0% {
+            transform: scale(1, 1) translateY(0);
+          }
+          10% {
+            transform: scale(1.1, 0.9) translateY(0);
+          }
+          30% {
+            transform: scale(0.9, 1.1) translateY(-12px);
+          }
+          50% {
+            transform: scale(1.05, 0.95) translateY(0);
+          }
+          57% {
+            transform: scale(1, 1) translateY(-2px);
+          }
+          64% {
+            transform: scale(1, 1) translateY(0);
+          }
+          100% {
+            transform: scale(1, 1) translateY(0);
+          }
+        }
+        &__handIcon {
+          border-radius: 50%;
+          width: 45px;
+          height: 45px;
+          border: 1px solid rgba(255, 255, 255, 0.5);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          animation: earthMovement 2s infinite ease;
         }
       }
 

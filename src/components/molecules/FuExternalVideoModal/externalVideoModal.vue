@@ -29,7 +29,6 @@ import { useExternalVideo } from '@/composables/external-video';
 import { useToogleFunctions } from '@/composables';
 import { errorMessage } from '@/utils/notify';
 import { useInitWebRTC } from '@/composables/antMedia';
-import { useUserMe } from '@/composables/userMe';
 import { useRoom } from '@/composables/room';
 
 export default defineComponent({
@@ -39,7 +38,6 @@ export default defineComponent({
     let inputURL = ref('');
     const { updateExternalVideoState, externalVideo } = useExternalVideo();
     const { sendData } = useInitWebRTC();
-    const { userMe } = useUserMe();
     const { setFullScreen } = useToogleFunctions();
     const regexYoutube = /^(https?\:\/\/)?(www\.youtube\.com|youtu\.?be)\/.+$/;
     const { roomState } = useRoom();

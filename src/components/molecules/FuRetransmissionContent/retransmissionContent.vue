@@ -58,7 +58,6 @@ export default defineComponent({
     const { userMe } = useUserMe();
     const moreContent = ref(true);
     // const layout = ref(false);
-
     const endpoint = ref('');
     const key = ref('');
 
@@ -85,6 +84,7 @@ export default defineComponent({
       }
       document.cookie = name + '=' + (value || '') + expires + '; path=/';
     }
+
     function getCookie(name: string) {
       var nameEQ = name + '=';
       var ca = document.cookie.split(';');
@@ -95,6 +95,7 @@ export default defineComponent({
       }
       return null;
     }
+
     function eraseCookie(name: string) {
       document.cookie =
         name + '=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';

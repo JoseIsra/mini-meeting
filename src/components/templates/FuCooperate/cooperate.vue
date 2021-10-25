@@ -208,7 +208,6 @@ export default defineComponent({
           ? PERMISSION_STATUS.asked
           : PERMISSION_STATUS.admitted
         : PERMISSION_STATUS.admitted,
-      existVideo: false,
       isRecording: false,
       isHost,
       cameraId,

@@ -1,26 +1,20 @@
 import { reactive } from 'vue';
 import videojs from 'video.js';
+import { ExternalVideoObject } from '@/types/datachannelMessages';
 
-interface ExternalVideo {
-  urlVideo?: string;
-  videoOnRoom?: boolean;
-  isVideoPlaying?: boolean;
-  videoCurrentTime?: number;
-}
-
-const externalVideo = reactive<ExternalVideo>({
+const externalVideo = reactive<ExternalVideoObject>({
   urlVideo: '',
   videoOnRoom: false,
-  isVideoPlaying: true,
+  isVideoPlaying: false,
   videoCurrentTime: 0,
+  remoteInstance: {} as HTMLVideoElement,
 });
 
 const playerObject = reactive({} as videojs.Player);
-const videoPlayerTest = reactive({} as HTMLMediaElement & { playerId: string });
 const optionsPlayerTest = reactive({} as videojs.PlayerOptions);
 
 export function useExternalVideo() {
-  const updateExternalVideoState = (state: ExternalVideo) => {
+  const updateExternalVideoState = (state: ExternalVideoObject) => {
     Object.assign(externalVideo, { ...externalVideo, ...state });
   };
 
@@ -28,17 +22,11 @@ export function useExternalVideo() {
     Object.assign(optionsPlayerTest, value);
   };
 
-  const setVideoInstance = (value: HTMLMediaElement) => {
-    Object.assign(videoPlayerTest, value);
-  };
-
   return {
     externalVideo,
     playerObject,
     setvideoOptions,
-    videoPlayerTest,
     optionsPlayerTest,
     updateExternalVideoState,
-    setVideoInstance,
   };
 }

@@ -1,3 +1,4 @@
+import { Room } from '@/composables/room';
 import { User } from './user';
 
 export interface BaseMessage {
@@ -48,6 +49,8 @@ export interface ObjRemoteUserInfo extends ObjInfoRequested {
   eventType: string;
   userInfo: User;
   participantsInRoom: User[];
+  externalVideoInfo?: ExternalVideoObject;
+  roomInfo: Room;
 }
 
 export interface ObjKickedEvent {
@@ -59,10 +62,12 @@ export interface VideoID {
 }
 export interface ExternalVideoObject {
   eventType?: string;
-  urlContent?: string;
+  urlVideo?: string;
   remoteInstance?: VideoID | string | HTMLVideoElement;
-  currentTime?: number;
+  videoCurrentTime?: number;
   fullScreenMode?: boolean;
+  videoOnRoom?: boolean;
+  isVideoPlaying?: boolean;
 }
 
 export interface ObjBlockParticipantAction {

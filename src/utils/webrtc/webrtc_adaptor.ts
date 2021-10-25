@@ -1372,7 +1372,7 @@ export class WebRTCAdaptor {
         };
 
         if (this.debug) {
-          console.log('sending ice candiate for stream Id ' + streamId);
+          console.log('sending ice candidate for stream Id ' + streamId);
           console.log(JSON.stringify(event.candidate));
         }
         this.webSocketAdaptor.send(JSON.stringify(jsCmd));

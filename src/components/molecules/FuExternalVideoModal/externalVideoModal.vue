@@ -1,39 +1,50 @@
 <template>
-  <q-card class="m-external">
-    <q-card-section class="m-external__content" tag="div">
-      <p class="m-external__content__message">Compartir video externo</p>
-      <q-input
-        outlined
+  <section class="m-external">
+    <p class="m-external__message">
+      Agrega el link de un video en YouTube y compártelo con todos los
+      participantes
+    </p>
+    <form class="m-external__content">
+      <input
+        v-show="!externalVideo.videoOnRoom"
+        class="m-external__content__input"
         v-model="inputURL"
-        color="grey-4"
-        label-color="grey-1"
-        label="URL de video externo"
-        :input-style="{ color: '#fffffe' }"
+        placeholder="URL DEL VIDEO"
       />
-    </q-card-section>
-    <q-card-section class="m-external__actions">
+      <p v-show="externalVideo.videoOnRoom" class="m-external__content__hint">
+        Hay un video compartiéndose actualmente
+      </p>
       <q-btn
-        class="m-external__actions__btn"
-        label="Compartir video"
+        :class="[
+          'm-external__content__btn --share',
+          { '--disable': !inputURL },
+          { '--removeVideo': externalVideo.videoOnRoom },
+        ]"
+        :label="labelExternalVideoBtn"
         no-caps
-        :disable="!inputURL"
-        @click="stablishURL"
+        :disable="!externalVideo.videoOnRoom ? !inputURL : false"
+        v-on="
+          !externalVideo.videoOnRoom
+            ? { click: stablishURL }
+            : { click: removeVideoOnRoom }
+        "
       />
-    </q-card-section>
-  </q-card>
+    </form>
+  </section>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
+import { defineComponent, ref, computed } from 'vue';
 import { useExternalVideo } from '@/composables/external-video';
 import { useToogleFunctions } from '@/composables';
-import { errorMessage } from '@/utils/notify';
+import { errorMessage, successMessage } from '@/utils/notify';
 import { useInitWebRTC } from '@/composables/antMedia';
 import { useRoom } from '@/composables/room';
+import videojs from 'video.js';
+import { VideoID } from '@/types/datachannelMessages';
 
 export default defineComponent({
   name: 'FuExternalVideoModal',
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   setup(_prop, { emit }) {
     let inputURL = ref('');
     const { updateExternalVideoState, externalVideo } = useExternalVideo();
@@ -55,15 +66,41 @@ export default defineComponent({
         });
         setFullScreen('video', true);
         sendData(roomState.hostId, URLData);
-        emit('hide-modal');
+        emit('init-external-video');
+        successMessage('Video externo agregado');
         return;
       }
       errorMessage('El URL insertado no es correcto');
     };
 
+    const labelExternalVideoBtn = computed(() => {
+      return externalVideo.videoOnRoom ? 'Quitar video' : 'Compartir video';
+    });
+
+    const removeVideoOnRoom = () => {
+      sendData(roomState.hostId, {
+        remoteInstance: externalVideo.remoteInstance,
+        eventType: 'REMOVE_EXTERNAL_VIDEO',
+      });
+      videojs((externalVideo.remoteInstance as VideoID).playerId).dispose();
+      setFullScreen('none', false);
+      updateExternalVideoState({
+        ...externalVideo,
+        videoOnRoom: false,
+        urlVideo: '',
+        isVideoPlaying: false,
+        videoCurrentTime: 0,
+        remoteInstance: {} as HTMLMediaElement & { playerId: string },
+      });
+      successMessage('Video externo removido');
+    };
+
     return {
       stablishURL,
       inputURL,
+      labelExternalVideoBtn,
+      removeVideoOnRoom,
+      externalVideo,
     };
   },
 });

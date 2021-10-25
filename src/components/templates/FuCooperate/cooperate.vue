@@ -168,11 +168,13 @@ export default defineComponent({
     let bgInfo = window?.xprops?.bgInfo || {
       url: 'https://encrypted.fractalup.com/file/MainPublic/fractalup_assets/landing/main.png',
       maximized: false,
+      allowResetBg: false,
     };
     if (window?.xprops?.bgInfo?.url === '' || !window?.xprops?.bgInfo?.url) {
       bgInfo = {
         url: 'https://encrypted.fractalup.com/file/MainPublic/fractalup_assets/landing/main.png',
         maximized: false,
+        allowResetBg: false,
       };
     }
 

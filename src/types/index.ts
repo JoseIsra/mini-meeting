@@ -127,3 +127,23 @@ export interface lockAction {
   camera: number;
   screenshare: number;
 }
+
+export interface SocialMedia {
+  facebook: string;
+  youtube: string;
+  rtmp: string;
+}
+
+export interface SocialMediaMethod {
+  facebook: () => void;
+  youtube: () => void;
+  rtmp: () => void;
+}
+
+export interface IStreamServiceObject extends SocialMedia {
+  labelBtn?: SocialMedia;
+  iconBtn?: SocialMedia;
+  closeTransmissionLabelBtn?: SocialMedia;
+  stopStreamingIconBtn?: SocialMedia;
+  transmissionMethods?: SocialMediaMethod;
+}

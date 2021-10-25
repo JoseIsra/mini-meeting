@@ -8,6 +8,7 @@ interface B2Info {
 export interface BgInfo {
   url: string;
   maximized: boolean;
+  allowResetBg: boolean;
 }
 
 export interface ZoidProps {

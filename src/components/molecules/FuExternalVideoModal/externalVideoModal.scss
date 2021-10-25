@@ -1,26 +1,54 @@
 .m-external {
-  width: 530px;
+  width: 100%;
   height: auto;
-  background-color: #202125;
-  max-width: 800px;
-  border-radius: 10px;
-  &__content {
-    &__message {
-      color: #fffffe;
-      font-size: clamp(0.8rem, 2.5vw, 1.1rem);
-      font-weight: bolder;
-    }
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  &__message {
+    color: #fffffe;
+    margin: 0;
   }
-  &__actions {
-    &__btn {
+  &__content {
+    margin: 0.5rem 0;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    width: 100%;
+    flex-wrap: wrap;
+    &__input {
       padding: 10px;
-      margin-left: 30px;
-      width: calc(100% - 60px);
-      font-size: clamp(0.7rem, 2.5vw, 0.8rem);
-      color: #fffffe;
-      font-weight: bolder;
-      border-radius: 7px;
-      background-color: rgba(49, 90, 165, 0.931);
+      border-radius: 5px;
+      background-color: #2f3136;
+      color: #8e9297;
+      text-align: center;
+      outline: none;
+      margin: 0.5rem 0;
+      border: none;
+      flex: 0.6;
+    }
+    &__hint {
+      flex: 0.6;
+      border-radius: 5px;
+      background-color: #2f3136;
+      color: #8e9297;
+      margin: 0;
+      text-align: center;
+    }
+    &__btn {
+      flex: 0.3;
+      &.--share {
+        color: #009bff;
+        border: 1px solid #009bf4;
+      }
+      &.--disable {
+        color: rgba(#009bff, 0.4);
+        border: 1px solid rgba(#009bff, 0.4);
+      }
+      &.--removeVideo {
+        border: 1px solid #cd3636;
+        color: #ff7777;
+      }
     }
   }
 }

@@ -228,6 +228,9 @@
         bottom="120%"
       />
     </section>
+    <q-dialog v-model="openAdminPanel">
+      <fu-admin-panel />
+    </q-dialog>
   </div>
 </template>
 
@@ -247,6 +250,7 @@ import { useInitWebRTC } from '@/composables/antMedia';
 import { useScreen } from '@/composables/screen';
 import { useActions } from '@/composables/actions';
 import { useHandleParticipants } from '@/composables/participants';
+import FuAdminPanel from 'organisms/FuAdminPanel';
 import { useRoom } from '@/composables/room';
 
 export default defineComponent({
@@ -265,6 +269,7 @@ export default defineComponent({
   components: {
     FuCooperateMenu,
     FuCooperateNetworkInfo,
+    FuAdminPanel,
   },
   setup(props) {
     const { sendData } = useInitWebRTC();
@@ -314,7 +319,7 @@ export default defineComponent({
     let handNotificationActive = ref(false);
     const canSeeActionsMenu = ref(userMe.roleId === 0);
     const activeHandBadge = ref(false);
-
+    const openAdminPanel = ref(false);
     //**********************++FUNCIONES ********************** */
     const toogleChat = () => {
       if (!isSidebarRender.value) {
@@ -425,13 +430,14 @@ export default defineComponent({
 
     const handleMenuPosition = (ubication?: string) => {
       if (ubication == 'actions') {
-        isActions.value = true;
-        isOptions.value = false;
+        // isActions.value = true;
+        // isOptions.value = false;
+        openAdminPanel.value = !openAdminPanel.value;
       } else {
         isActions.value = false;
         isOptions.value = true;
+        openOptionsMenu(!functionsOnMenuBar.renderPopupMenu);
       }
-      openOptionsMenu(!functionsOnMenuBar.renderPopupMenu);
     };
 
     const handleFunctionSelected = (interaction?: string, ID?: string) => {
@@ -508,6 +514,7 @@ export default defineComponent({
       toggleCamera,
       toggleMIC,
       iconsPeriferics,
+      openAdminPanel,
     };
   },
 });

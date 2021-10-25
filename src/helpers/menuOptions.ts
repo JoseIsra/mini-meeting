@@ -154,3 +154,42 @@ export const chatMenuIcon = [
     interaction: INTERACTION_TYPE_MENU_OPTIONS.CLEARCHAT,
   },
 ];
+
+export const adminPanelOptions = [
+  {
+    id: '1',
+    description: 'General',
+    iconName: 'fas fa-cog',
+    important: false,
+  },
+  {
+    id: '2',
+    description: 'Administrador',
+    iconName: 'toggle_on',
+    important: false,
+  },
+  {
+    id: '3',
+    description: 'Retransmisión',
+    iconName: 'live_tv',
+    important: false,
+  },
+];
+
+export const componentList = [
+  {
+    id: '1',
+    name: 'fu-general-panel',
+    respondToOption: 'General',
+  },
+  {
+    id: '2',
+    name: 'fu-participant-periferic-panel',
+    respondToOption: 'Administrador',
+  },
+  {
+    id: '3',
+    name: 'fu-retransmission-panel',
+    respondToOption: 'Retransmisión',
+  },
+];

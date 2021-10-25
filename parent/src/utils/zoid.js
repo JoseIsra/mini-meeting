@@ -1,33 +1,7 @@
-import { AsyncComponent, Component } from "vue";
-import { VueConstructor } from "vue/types/umd";
 import * as zoid from "zoid/dist/zoid.frameworks";
+import Vue from "vue";
 
-interface zoidAttributes {
-  iframe: Record<string, string>;
-}
-
-interface zoidOptions {
-  tag: string;
-  url: string;
-  dimensions: Record<string, string>;
-  attributes: zoidAttributes;
-  props: unknown;
-}
-
-interface zoidType {
-  create: (options: zoidOptions) => zoidCreated;
-}
-
-interface zoidCreated {
-  driver: (
-    framework: string,
-    Vue: VueConstructor<Vue>
-  ) =>
-    | Component<unknown, unknown, unknown, unknown>
-    | AsyncComponent<unknown, unknown, unknown, unknown>;
-}
-
-const FractalUpCooperate: zoidCreated = (zoid as zoidType).create({
+const FractalUpCooperate = zoid.create({
   tag: "fractalup-cooperate",
   url: "https://localhost:8081",
   dimensions: {
@@ -102,4 +76,6 @@ const FractalUpCooperate: zoidCreated = (zoid as zoidType).create({
   },
 });
 
-export default FractalUpCooperate;
+const FractalUpCooperateInstance = FractalUpCooperate.driver("vue", Vue);
+
+export default FractalUpCooperateInstance;

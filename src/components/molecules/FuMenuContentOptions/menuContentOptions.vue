@@ -93,7 +93,7 @@ export default defineComponent({
     const optionsMethodsObject = reactive<OptionsClickMethods>({
       LEAVE: () => {
         participants.value.length > 0
-          ? window.xprops?.handleLeaveCall?.(REASON_TO_LEAVE_ROOM.BY_MYSELF)
+          ? window.xprops?.handleLeaveCall?.(REASON_TO_LEAVE_ROOM.JUST_LEAVE)
           : window.xprops?.handleLeaveCall?.(
               REASON_TO_LEAVE_ROOM.I_CLOSE_ROOM,
               []

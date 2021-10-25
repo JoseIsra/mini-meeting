@@ -1,5 +1,6 @@
 import { useInitWebRTC } from '@/composables/antMedia';
 import { useHandleParticipants } from '@/composables/participants';
+import { useRoom } from '@/composables/room';
 import { useUserMe } from '@/composables/userMe';
 import { Notify } from 'quasar';
 import { PERMISSION_STATUS } from '../enums';
@@ -8,6 +9,7 @@ const { sendData } = useInitWebRTC();
 const { userMe } = useUserMe();
 
 const { updateParticipantDenied } = useHandleParticipants();
+const { roomState } = useRoom();
 
 export interface notifyAction {
   label: string;
@@ -37,7 +39,7 @@ export const notifyWithAction = (name: string, id: string): void => {
         label: 'Denegar',
         color: 'grey',
         handler: () => {
-          sendData(userMe.id, {
+          sendData(roomState.hostId, {
             id: '',
             participantId: id,
             eventType: 'ANSWER_PERMISSION',
@@ -51,7 +53,7 @@ export const notifyWithAction = (name: string, id: string): void => {
         label: 'Permitir',
         color: 'white',
         handler: () => {
-          sendData(userMe.id, {
+          sendData(roomState.hostId, {
             id: '',
             participantId: id,
             eventType: 'ANSWER_PERMISSION',

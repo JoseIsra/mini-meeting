@@ -54,7 +54,7 @@ export default defineComponent({
     const { recordingStream, stopRecordingStream } = useInitMerge();
     const { sendNotificationEvent } = useInitWebRTC();
     // const { participants } = useHandleParticipants();
-    const { userMe, updateUserMe } = useUserMe();
+    const { userMe } = useUserMe();
 
     const { roomState, updateRoom } = useRoom();
     /* const { admittedParticipants } = useHandleParticipants(); */

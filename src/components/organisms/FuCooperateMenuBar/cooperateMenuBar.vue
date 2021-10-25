@@ -45,7 +45,7 @@
               ? iconsPeriferics.mic.loadingState
               : iconsPeriferics.mic.offState
           "
-          :disable="userMe.isPublishing == 2"
+          :disable="userMe.isPublishing == 2 || userMe.isMicBlocked"
           size="0.7rem"
           @click="toggleMIC"
         >
@@ -60,6 +60,7 @@
             </label>
           </q-tooltip> -->
         </q-btn>
+
         <q-btn
           flat
           round
@@ -74,7 +75,7 @@
               ? iconsPeriferics.camera.loadingState
               : iconsPeriferics.camera.offState
           "
-          :disable="userMe.isPublishing == 2"
+          :disable="userMe.isPublishing == 2 || userMe.isCameraBlocked"
           size="0.7rem"
           @click="toggleCamera"
         >
@@ -454,6 +455,10 @@ export default defineComponent({
     };
 
     const disableAction = (action: Icons) => {
+      if (userMe.isPublishing == 2) {
+        return true;
+      }
+
       if (action.onState === 'mic' && userMe.isMicBlocked) {
         return true;
       }

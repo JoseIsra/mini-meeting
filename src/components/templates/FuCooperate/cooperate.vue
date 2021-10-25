@@ -127,6 +127,11 @@ export default defineComponent({
 
     const isMicLocked = window.xprops?.isMicLocked || false;
 
+    console.log(isMicLocked);
+    const cameraId =
+      window.xprops?.cameraId || (route.query.cameraId as string);
+    const micId = window.xprops?.micId || (route.query.micId as string);
+
     const isCameraLocked = window.xprops?.isCameraLocked || false;
 
     const isScreenShareLocked = window.xprops?.isScreenShareLocked || false;
@@ -205,6 +210,8 @@ export default defineComponent({
         : PERMISSION_STATUS.admitted,
       isRecording: false,
       isHost,
+      cameraId,
+      micId,
       isPublishing: isHost ? 1 : 0,
     });
 

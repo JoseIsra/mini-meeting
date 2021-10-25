@@ -63,13 +63,14 @@ export const menuOptions = {
       description: 'Desplegar a pantalla completa',
       important: false,
     },
+    */
     {
       id: '2',
       iconName: 'settings',
-      description: 'Abrir configuración',
+      description: 'Configuración de dispositivos',
       important: false,
+      interaction: INTERACTION_TYPE_MENU_OPTIONS.DEVICECONFIGURATION,
     },
-   */
     {
       id: '3',
       iconName: 'info',

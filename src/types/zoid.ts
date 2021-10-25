@@ -32,6 +32,8 @@ export interface ZoidProps {
   hostId?: string;
   setHostId?: (userId: string) => void;
   startDate?: string;
+  cameraId?: string;
+  micId?: string;
   handleLeaveCall?: (
     arg: number,
     remainingParticipantsFractalUserIds?: string[]

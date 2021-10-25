@@ -1312,6 +1312,8 @@ export function useInitWebRTC() {
         webRTCInstance.value.switchVideoCameraCapture?.(streamId, cameraId);
       })
       .catch((err) => console.log(err)); */
+    webRTCInstance.value.switchVideoCameraCapture?.(streamId, userMe.cameraId);
+    console.log(userMe.cameraId, '📸📸');
     // webRTCInstance.value.switchVideoCameraCapture?.(streamId, userMe.cameraId);
     webRTCInstance.value.turnOnLocalCamera?.(streamId);
   };

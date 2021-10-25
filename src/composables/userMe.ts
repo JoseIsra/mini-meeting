@@ -74,7 +74,7 @@ export function useUserMe() {
   };
 
   // const setCameraDevice = (value: string) => {
-  //   userMe.cameraDeviceId = value;
+  //   userMe.cameraId = value;
   // };
 
   const setVideoActivatedState = (value: boolean) => {

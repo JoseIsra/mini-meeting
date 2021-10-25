@@ -29,8 +29,16 @@ export interface Notification extends BaseData {
   notificationType: string;
 }
 
-/*  */
+export interface HandNotification extends BaseData {
+  id: string;
+  streamName: string;
+}
 
+export interface stopPlayingStream extends BaseData {
+  streamToPause: string;
+}
+
+/*  */
 interface ObjInfoRequested {
   to: string;
   from: string;

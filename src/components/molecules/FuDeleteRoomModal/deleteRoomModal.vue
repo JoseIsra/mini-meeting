@@ -29,7 +29,7 @@ import { defineComponent } from 'vue';
 import { useUserMe } from '@/composables/userMe';
 import { useRoom } from '@/composables/room';
 import { useInitWebRTC } from '@/composables/antMedia';
-import { Participant } from '@/types/participant';
+import { User } from '@/types/user';
 import { REASON_TO_LEAVE_ROOM } from '@/utils/enums';
 import { useHandleParticipants } from '@/composables/participants';
 export default defineComponent({
@@ -46,7 +46,7 @@ export default defineComponent({
           sendData(roomState.hostId, { eventType: 'KICK', to: 'all' });
 
           const remainingParticipantsFractalUserIds = participants.value.reduce(
-            (newArray: string[], participant: Participant) => {
+            (newArray: string[], participant: Partial<User>) => {
               newArray.push(participant.fractalUserId as string);
               return newArray;
             },

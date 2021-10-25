@@ -4,7 +4,7 @@ import { useUserMe } from '@/composables/userMe';
 import { User } from '@/types/user';
 import { useAuthState } from '@/composables/auth';
 import { objWebRTC } from '@/types/index';
-import { Participant } from '@/types/participant';
+
 import {
   REASON_TO_LEAVE_ROOM,
   LOCK_ACTION_TYPE,
@@ -12,7 +12,11 @@ import {
 } from '@/utils/enums';
 import { useHandleParticipants } from '@/composables/participants';
 import { useHandleMessage } from '@/composables/chat';
-import { HandNotification, useToogleFunctions } from '@/composables';
+import { useToogleFunctions } from '@/composables';
+import {
+  HandNotification,
+  stopPlayingStream,
+} from '@/types/datachannelMessages';
 import { useRoom } from '@/composables/room';
 import { PERMISSION_STATUS } from '@/utils/enums';
 import { notifyWithAction } from '@/utils/notify';
@@ -41,6 +45,8 @@ import {
   Notification,
 } from '@/types/datachannelMessages';
 
+import { useStreams } from '@/composables/streams';
+
 const webRTCInstance = ref<WebRTCAdaptor>({} as WebRTCAdaptor);
 
 const {
@@ -55,6 +61,14 @@ const {
   setLocalVideoBlock,
   setDenied,
 } = useUserMe();
+
+const {
+  streams,
+  addStream,
+  updateStreamById,
+  findStreamById,
+  removeStreamById,
+} = useStreams();
 
 const { setIsLoadingOrError, setLoadingOrErrorMessage, setExistRoom } =
   useAuthState();
@@ -79,6 +93,7 @@ const {
   updateParticipantById,
   setEveryParticipantActions,
   setParticipantActions,
+  findParticipantById,
 } = useHandleParticipants();
 
 const { setUserMessage, deleteLoadingMessage } = useHandleMessage();
@@ -128,6 +143,8 @@ export function useInitWebRTC() {
 
   const removeRemoteVideo = (streamId: string) => {
     deleteParticipantById(streamId);
+    removeStreamById(streamId);
+    updateStreamById(streamId, { isBeingPlayed: false });
     console.log('removing participant 🛕');
   };
 
@@ -142,9 +159,7 @@ export function useInitWebRTC() {
         const user = participants.value.find(
           (participant) => participant.id === streamId
         );
-        console.log(user);
         if (user) {
-          console.log(user);
           user.isCameraOn = true;
           user.isVideoActivated = true;
         }
@@ -157,9 +172,8 @@ export function useInitWebRTC() {
           user.isCameraOn = false;
           user.isVideoActivated = false;
           /*  */
-          if (!user.isMicOn) {
-            user.isBeingPlayed = false;
-          }
+          if (!user?.isHost && !user?.isMicOn)
+            updateStreamById(user?.id as string, { isBeingPlayed: false });
         }
       },
       SCREEN_SHARING_ON: function () {
@@ -179,9 +193,8 @@ export function useInitWebRTC() {
           user.isScreenSharing = false;
           user.isVideoActivated = false;
           /*  */
-          if (!user.isMicOn) {
-            user.isBeingPlayed = false;
-          }
+          if (!user?.isHost && !user?.isMicOn)
+            updateStreamById(user?.id as string, { isBeingPlayed: false });
         }
       },
       MIC_UNMUTED: function () {
@@ -198,46 +211,23 @@ export function useInitWebRTC() {
         );
         if (user) {
           user.isMicOn = false;
-          if (
-            !user.isVideoActivated &&
-            !user.isCameraOn &&
-            !user.isScreenSharing
-          ) {
-            user.isBeingPlayed = false;
-          }
+          if (!user?.isHost && !user?.isVideoActivated)
+            updateStreamById(user?.id as string, { isBeingPlayed: false });
         }
       },
       RECORDING_STARTED: function () {
         updateRoom({ isBeingRecorded: true });
       },
       RECORDING_STOPPED: function () {
-        /* updateRoom({ isBeingRecorded: false });
-        const stateParsed = JSON.parse(baseData) as ObjRecordingStopParsed;
-
-        if (stateParsed?.state?.to === userMe.id)
-          window.xprops?.handleStopRecording?.(roomState.recordingUrl); */
+        updateRoom({ isBeingRecorded: false });
+      },
+      DEFAULT: function () {
+        console.log('DEFAULT');
       },
     };
     return (
-      notificationHandler[notificationType] ||
-      notificationHandler[notificationType]
+      notificationHandler[notificationType] || notificationHandler['default']
     )();
-    /* console.log(obj);
-    const notificationEvent = JSON.parse(obj.data) as Record<string, string>;
-    if (notificationEvent != null && typeof notificationEvent == 'object') {
-      const eventStreamId = notificationEvent.streamId;
-      const eventTyp = notificationEvent.eventType;
-
-      if (eventTyp == 'CAM_TURNED_OFF') {
-        console.log('Camera turned off for : ', eventStreamId);
-      } else if (eventTyp == 'CAM_TURNED_ON') {
-        console.log('Camera turned on for : ', eventStreamId);
-      } else if (eventTyp == 'MIC_MUTED') {
-        console.log('Microphone muted for : ', eventStreamId);
-      } else if (eventTyp == 'MIC_UNMUTED') {
-        console.log('Microphone unmuted for : ', eventStreamId);
-      }
-    } */
   };
 
   const leaveRoom = (roomId: string) => {
@@ -334,14 +324,7 @@ export function useInitWebRTC() {
       dataChannelEnabled: true,
       callback: (info: string, obj: objWebRTC) => {
         if (info == 'initialized') {
-          console.log('initialized');
-
-          if (!userMe.isCameraOn) {
-            webRTCInstance.value.turnOffLocalCamera?.(streamId);
-          }
-          if (!userMe.isMicOn) {
-            muteLocalMic();
-          }
+          console.debug('initialized');
 
           const localStream = webRTCInstance.value.getLocalStream?.();
 
@@ -349,6 +332,13 @@ export function useInitWebRTC() {
 
           joinRoom(roomId, streamId);
         } else if (info == 'joinedTheRoom') {
+          if (!userMe.isCameraOn) {
+            webRTCInstance.value.turnOffLocalCamera?.(streamId);
+          }
+          if (!userMe.isMicOn) {
+            muteLocalMic();
+          }
+
           window.addEventListener('unload', () => {
             /* sendData(roomState.hostId, {
               eventType: 'USER_LEAVING',
@@ -357,15 +347,15 @@ export function useInitWebRTC() {
             }); */
 
             //TODO: Pass this when user leave in fetch
-            if (roomState.pinnedUser?.id === userMe.id) {
+            /* if (roomState.pinnedUser?.id === userMe.id) {
               sendData(roomState.hostId, {
                 eventType: 'SET_FULL_SCREEN',
                 mode: 'none',
               });
-            }
+            } */
 
             //TODO: Pass this when user leave in fetch
-            if (userMe.isRecording) {
+            /* if (userMe.isRecording) {
               const idUserGoingToStopRec =
                 admittedParticipants.value.filter(
                   (participant) => participant.roleId === 0
@@ -375,7 +365,7 @@ export function useInitWebRTC() {
                 sendNotificationEvent('RECORDING_STOPPED', userMe.id, {
                   to: idUserGoingToStopRec,
                 });
-            }
+            } */
 
             try {
               leaveRoom(roomId);
@@ -384,8 +374,6 @@ export function useInitWebRTC() {
               console.log(e);
             }
           });
-
-          const streamId = obj.streamId;
 
           if (userMe.isHost) {
             publish(
@@ -422,6 +410,9 @@ export function useInitWebRTC() {
           }
         } else if (info == 'publish_started') {
           console.debug('publish started');
+          if (userMe.isHost) {
+            updateUserMe({ isPublishing: 1 });
+          }
         } else if (info == 'publish_finished') {
           console.debug('publish finished');
         } else if (info == 'screen_share_stopped') {
@@ -453,12 +444,12 @@ export function useInitWebRTC() {
         } else if (info == 'streamInformation') {
           console.debug('stream information received');
         } else if (info == 'roomInformation') {
-          for (const playedStream of playedStreams.value) {
+          /* for (const playedStream of playedStreams.value) {
             if (!obj.streams.includes(playedStream)) {
               const elementIndex = playedStreams.value.indexOf(playedStream);
               playedStreams.value.splice(elementIndex, 1);
             }
-          }
+          } */
 
           for (const str of obj.streams) {
             /* const participant = participants.value.filter(
@@ -483,17 +474,60 @@ export function useInitWebRTC() {
               }
             } */
 
-            if (!playedStreams.value.includes(str) && !isMerge) {
-              console.debug('⭐⭐⭐ trying to play: ', str);
-              playedStreams.value.push(str);
-              webRTCInstance.value.play?.(
-                str,
-                playToken,
-                roomId,
-                undefined,
-                undefined,
-                undefined
-              );
+            if (!isMerge) {
+              try {
+                //playedStreams.value.push(str);
+
+                const streamFound = findStreamById(str);
+                if (streamFound) {
+                  if (!streamFound.isBeingPlayed) {
+                    console.debug('⭐⭐⭐ trying to play: ', str);
+                    /* setTimeout(() => { */
+                    webRTCInstance.value.play?.(
+                      str,
+                      playToken,
+                      roomId,
+                      undefined,
+                      undefined,
+                      undefined
+                    );
+                    /* }, 500); */
+                    //updateStreamById(str, { isBeingPlayed: true });
+                    /* addStream({ id: str }); */
+                  }
+                } else {
+                  webRTCInstance.value.play?.(
+                    str,
+                    playToken,
+                    roomId,
+                    undefined,
+                    undefined,
+                    undefined
+                  );
+                  addStream({ id: str });
+                }
+              } catch (e) {
+                updateStreamById(str, { isBeingPlayed: false });
+                console.error(e);
+              }
+            }
+          }
+
+          for (const stream of streams) {
+            if (
+              !obj.streams.includes(stream.id as string) &&
+              userMe.id !== stream.id
+            ) {
+              if (stream.isBeingPlayed) {
+                webRTCInstance.value.stop(stream.id as string);
+                updateStreamById(stream.id as string, { isBeingPlayed: false });
+                sendData(roomState.hostId, {
+                  evenType: 'STOP_PLAYING_STREAM',
+                  from: userMe.id,
+                  to: 'ALL',
+                  streamToPause: stream.id,
+                });
+              }
             }
           }
         } else if (info == 'data_channel_opened') {
@@ -547,6 +581,22 @@ export function useInitWebRTC() {
                           id: participant.id,
                           fractalUserId: participant.fractalUserId,
                         });
+                        if (roomState.pinnedUser?.id === participant.id) {
+                          sendData(roomState.hostId, {
+                            eventType: 'SET_FULL_SCREEN',
+                            mode: 'none',
+                          });
+                        }
+                        if (participant.isRecording) {
+                          updateRoom({ isBeingRecorded: false });
+                          sendNotificationEvent(
+                            'RECORDING_STOPPED',
+                            roomState.hostId
+                          );
+                          window.xprops?.handleStopRecording?.(
+                            roomState.recordingUrl
+                          );
+                        }
                       }
                     }
 
@@ -574,8 +624,16 @@ export function useInitWebRTC() {
                       window.xprops?.logUserExits?.(offlineParticipants);
                   })
                   .catch((e) => console.log(e));
-              }, 5000);
+              }, 3500);
             }
+          }
+
+          /* Cuando termine la conexión debe colocar el isBeingPlayed */
+          const streamFound = findStreamById(user);
+          if (streamFound) {
+            updateStreamById(user, { isBeingPlayed: true });
+          } else {
+            addStream({ id: user, isBeingPlayed: true });
           }
 
           if (
@@ -589,7 +647,7 @@ export function useInitWebRTC() {
             );
 
             //PIDE INFORMACIÓN DE LOS PARTICIPANTES Y LA SALA SOLO AL HOST PERO TAMBIÉN ENVIA SU PROPIA DATA
-
+            /* setTimeout(() => { */
             webRTCInstance.value.sendData?.(
               roomState.hostId,
               JSON.stringify({
@@ -599,7 +657,10 @@ export function useInitWebRTC() {
                 userInfo: userMe,
               })
             );
+            /* }, 1000); */
           }
+
+          //Si no es el host y el canal que se ha abierto es el del mismo usuario cuando empiece a hacer el publish de su stream se actualizará su campo de isPublishing
           if (user === userMe.id && !userMe.isHost) {
             updateUserMe({ isPublishing: 1 });
           }
@@ -655,8 +716,9 @@ export function useInitWebRTC() {
           //console.log(obj);
           const baseMessage = obj as BaseMessage;
           const baseData = baseMessage.data;
+          const baseDataParsed = JSON.parse(baseData) as BaseData;
 
-          const { eventType } = JSON.parse(baseData) as BaseData;
+          const { eventType } = baseDataParsed;
 
           if (eventType === 'CHAT_MESSAGE') {
             const chatMessageParsed = JSON.parse(baseData) as Message;
@@ -680,7 +742,7 @@ export function useInitWebRTC() {
             ) as HandNotification;
             addHandNotificationInfo(handNotificationParsed);
           } else if (eventType === 'NOHAND') {
-            //removeHandNotification(objParsed.streamId);
+            removeHandNotification(baseDataParsed.from);
           } else if (
             eventType === 'NEW_USER:PARTICIPANTS_IN_ROOM_INFO_REQUEST'
           ) {
@@ -738,7 +800,7 @@ export function useInitWebRTC() {
               obj.data
             ) as ObjRemoteUserInfo;
 
-            const newUser: Participant = {
+            const newUser = {
               id: remoteUserInfoParsed.userInfo.id,
               avatar: remoteUserInfoParsed.userInfo.avatar,
               name: remoteUserInfoParsed.userInfo.name,
@@ -807,6 +869,10 @@ export function useInitWebRTC() {
               } */
               /* } */
             }
+            /* if (!userMe.isHost) {
+              setIsLoadingOrError(false);
+              setExistRoom(true);
+            } */
           } else if (eventType === 'USER_INFO_FINISH') {
             const remoteUserInfoParsed = JSON.parse(
               obj.data
@@ -1077,13 +1143,6 @@ export function useInitWebRTC() {
             const externalVideoInfo = JSON.parse(
               obj.data
             ) as ExternalVideoObject;
-            updateExternalVideoState({
-              ...externalVideo,
-              videoOnRoom: false,
-              urlVideo: '',
-              isVideoPlaying: false,
-              videoCurrentTime: 0,
-            });
             removeVideoShared(externalVideoInfo);
           } else if (eventType === 'UPDATE_ROOM_BG') {
             const bgData = JSON.parse(obj.data) as backgroundInfo;
@@ -1111,6 +1170,13 @@ export function useInitWebRTC() {
               userLeavingMsgParsed.fractalUserId,
               LOG_TYPE.OUT
             );
+          } else if (eventType === 'STOP_PLAYING_STREAM') {
+            const { streamToPause } = JSON.parse(baseData) as stopPlayingStream;
+            const stream = findStreamById(streamToPause);
+            if (!stream?.isBeingPlayed) {
+              webRTCInstance.value.stop(streamToPause);
+              updateStreamById(streamToPause, { isBeingPlayed: false });
+            }
           }
         }
       },
@@ -1124,11 +1190,19 @@ export function useInitWebRTC() {
           error.indexOf('publishTimeoutError') != -1 &&
           roomTimerId.value != null
         ) {
-          clearInterval(roomTimerId.value as NodeJS.Timeout);
-          const errorMessage =
-            'Error al publicar stream: Parece que su conexión es lenta, Por favor, recargue la página';
-          setLoadingOrErrorMessage(errorMessage);
-          setExistRoom(false);
+          if (participants.value.length <= 0) {
+            clearInterval(roomTimerId.value as NodeJS.Timeout);
+            const errorMessage =
+              'Error al publicar stream: Parece que su conexión es lenta, Por favor, recargue la página';
+            setLoadingOrErrorMessage(errorMessage);
+            setExistRoom(false);
+          } else {
+            //Si hubo un error al publicar vuelve a intentarlo
+            console.debug(
+              'There was an error publishing the stream. Trying again...'
+            );
+            publish(userMe.id, undefined, undefined, undefined, userMe.name);
+          }
         }
 
         console.log('error callback: ' + JSON.stringify(error));
@@ -1202,7 +1276,7 @@ export function useInitWebRTC() {
           );
         }
 
-        console.error(errorMessage, '#️⃣');
+        console.error(errorMessage, error, message, '#️⃣');
         //alert(errorMessage);
       },
     });

@@ -36,7 +36,7 @@
           round
           :class="[
             'a-menuBar__icon',
-            { active: userMe.isMicOn && userMe.isPublishing },
+            { active: userMe.micPublishedState == 1 },
           ]"
           :icon="
             userMe.micPublishedState == 1
@@ -45,6 +45,7 @@
               ? iconsPeriferics.mic.loadingState
               : iconsPeriferics.mic.offState
           "
+          :disable="userMe.isPublishing == 2"
           size="0.7rem"
           @click="toggleMIC"
         >
@@ -64,7 +65,7 @@
           round
           :class="[
             'a-menuBar__icon',
-            { active: userMe.isCameraOn && userMe.isPublishing },
+            { active: userMe.cameraPublishedState == 1 },
           ]"
           :icon="
             userMe.cameraPublishedState == 1
@@ -73,6 +74,7 @@
               ? iconsPeriferics.camera.loadingState
               : iconsPeriferics.camera.offState
           "
+          :disable="userMe.isPublishing == 2"
           size="0.7rem"
           @click="toggleCamera"
         >
@@ -379,19 +381,20 @@ export default defineComponent({
     const toogleHandUp = () => {
       const riseHand = {
         id: nanoid(),
-        streamId: userMe.id,
+        to: 'ALL',
+        from: userMe.id,
         streamName: userMe.name,
         eventType: 'HAND',
       };
       if (
         functionsOnMenuBar.handNotificationInfo.some(
-          (notific) => notific.streamId === riseHand.streamId
+          (notific) => notific.from === riseHand.from
         )
       ) {
         const downHand = { ...riseHand, eventType: 'NOHAND' };
         sendData(roomState.hostId, downHand);
         handNotificationActive.value = false;
-        removeHandNotification(downHand.streamId);
+        removeHandNotification(downHand.from);
         return;
       }
       handNotificationActive.value = true;

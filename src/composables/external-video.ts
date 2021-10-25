@@ -11,7 +11,6 @@ const externalVideo = reactive<ExternalVideoObject>({
 });
 
 const playerObject = reactive({} as videojs.Player);
-const videoPlayerTest = reactive({} as HTMLMediaElement & { playerId: string });
 const optionsPlayerTest = reactive({} as videojs.PlayerOptions);
 
 export function useExternalVideo() {
@@ -27,7 +26,6 @@ export function useExternalVideo() {
     externalVideo,
     playerObject,
     setvideoOptions,
-    videoPlayerTest,
     optionsPlayerTest,
     updateExternalVideoState,
   };

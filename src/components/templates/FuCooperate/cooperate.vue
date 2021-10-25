@@ -52,6 +52,8 @@ import { useRoom } from '@/composables/room';
 import { useToogleFunctions } from '@/composables';
 import moment from 'moment';
 
+import { RoomApiBody } from '@/types/antmediaApi';
+
 export default defineComponent({
   name: 'FuTCooperate',
   components: {
@@ -181,8 +183,6 @@ export default defineComponent({
       /* setCameraIconState(true); */
     }
 
-    const isPublishing = isHost ? 1 : 0;
-
     setUserMe({
       id: streamId,
       name: streamName,
@@ -205,7 +205,7 @@ export default defineComponent({
         : PERMISSION_STATUS.admitted,
       isRecording: false,
       isHost,
-      isPublishing,
+      isPublishing: isHost ? 1 : 0,
     });
 
     /* setMicIconState(isMicLocked ? false : isMicOn); */
@@ -341,10 +341,10 @@ export default defineComponent({
             setScreenState(false);
             setIDButtonSelected('');
             resetDesktop();
-            sendNotificationEvent('SCREEN_SHARING_OFF', roomState.hostId);
             if (!userMe.isHost && !userMe.isMicOn && !userMe.isCameraOn) {
               updateUserMe({ isPublishing: 0 });
               stopPublishing(userMe.id);
+              sendNotificationEvent('SCREEN_SHARING_OFF', roomState.hostId);
             }
           } else {
             updateUserMe({ isPublishing: 2 });
@@ -372,7 +372,6 @@ export default defineComponent({
           console.log(userMe.stream, '⭕⭕⭕');
           sendNotificationEvent('CAM_TURNED_ON', roomState.hostId);
         } else {
-          sendNotificationEvent('CAM_TURNED_ON', roomState.hostId);
           updateUserMe({ isPublishing: 2 });
           publish(userMe.id, undefined, undefined, undefined, userMe.name);
 
@@ -383,6 +382,7 @@ export default defineComponent({
               /* setCameraIconState(true); */
               setCameraState(true);
               turnOnLocalCamera(streamId);
+              sendNotificationEvent('CAM_TURNED_ON', roomState.hostId);
               console.log(userMe.stream, '⭕⭕⭕');
             }
           }, 1000);
@@ -436,6 +436,8 @@ export default defineComponent({
 
       participants.value = [];
     }; */
+    const waitFor = (delay: number) =>
+      new Promise((resolve) => setTimeout(resolve, delay));
 
     const checkRoom = async (roomId: string) => {
       const request = new Request(
@@ -450,37 +452,44 @@ export default defineComponent({
 
       const res = await fetch(request);
 
+      await waitFor(1300); //Solo está para que le de tiempo al host para eliminar los participantes que no están. Por ej, si un usuario recarga la página para que no aparezca repetido.
+
       return {
         status: res.status,
         message: res.statusText,
         body:
           res.status === 200
-            ? ((await res.json()) as Record<string, string>)
-            : '',
+            ? ((await res.json()) as RoomApiBody)
+            : ({} as RoomApiBody),
       };
     };
 
     onMounted(async () => {
       if (roomId) {
-        const { status } = await checkRoom(roomId);
+        const { status, body } = await checkRoom(roomId);
         if (status === 200) {
           const nowTime = moment().format('YYYY-MM-DD HH:mm');
           const haveStarted = moment(nowTime).isSameOrAfter(
             roomState.startDate
           );
           if (haveStarted || roleId === 0) {
-            setExistRoom(true);
-            createInstance(
-              roomId,
-              streamId,
-              streamName,
-              publishToken,
-              playToken,
-              subscriberId,
-              subscriberCode
-            );
+            //El host puede ingresar a la reunión aún si no ha iniciado (Según la db de fractal).
+            if (!body.roomStreamList.includes(userMe.id)) {
+              setExistRoom(true);
+              createInstance(
+                roomId,
+                streamId,
+                streamName,
+                publishToken,
+                playToken,
+                subscriberId,
+                subscriberCode
+              );
+            } else {
+              setLoadingOrErrorMessage('Ya te encuentras en la reunión');
+            }
           } else {
-            setLoadingOrErrorMessage('This room have not started!');
+            setLoadingOrErrorMessage('La conferencia aún no ha iniciado');
           }
 
           // To review
@@ -507,7 +516,7 @@ export default defineComponent({
       //   subscriberCode
       // );
       if (userMe.isHost) {
-        console.log(
+        console.debug(
           'asistencia registrada (login) con el siguiente id: ',
           userMe.fractalUserId
         );

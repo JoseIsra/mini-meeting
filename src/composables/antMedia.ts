@@ -257,7 +257,9 @@ export function useInitWebRTC() {
     const pc_config = {
       iceServers: [
         {
-          urls: 'stun:stun1.l.google.com:19302',
+          urls: 'stun:40.117.182.253:3478',
+          username: 'fuantmedia',
+          credential: 'fuantmedia',
         },
       ],
     };

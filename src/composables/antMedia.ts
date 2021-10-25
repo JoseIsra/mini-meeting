@@ -19,7 +19,11 @@ import {
 } from '@/types/datachannelMessages';
 import { useRoom } from '@/composables/room';
 import { PERMISSION_STATUS } from '@/utils/enums';
-import { notifyWithAction } from '@/utils/notify';
+import {
+  notifyWithAction,
+  successMessage,
+  warningMessage,
+} from '@/utils/notify';
 import { useExternalVideo } from './external-video';
 import videojs from 'video.js';
 import { useActions } from '@/composables/actions';
@@ -214,9 +218,11 @@ export function useInitWebRTC() {
       },
       RECORDING_STARTED: function () {
         updateRoom({ isBeingRecorded: true });
+        warningMessage('Iniciando grabación de la sala');
       },
       RECORDING_STOPPED: function () {
         updateRoom({ isBeingRecorded: false });
+        warningMessage('Grabación de la sala terminada');
       },
       DEFAULT: function () {
         console.log('DEFAULT');
@@ -776,6 +782,7 @@ export function useInitWebRTC() {
                       to: infoRequestParsed.from,
                       participantsInRoom,
                       externalVideoInfo: { ...externalVideo },
+                      roomInfo: { ...roomState },
                     })
                   );
                 } catch (e) {
@@ -849,11 +856,16 @@ export function useInitWebRTC() {
                 }
               );
 
+              if (remoteUserInfoParsed.roomInfo.isBeingRecorded as boolean) {
+                updateRoom({ isBeingRecorded: true });
+                warningMessage('Se está grabando la sesión');
+              }
               if (remoteUserInfoParsed.externalVideoInfo?.videoOnRoom) {
                 initRemotePlayerInstance(
                   remoteUserInfoParsed.externalVideoInfo
                 );
               }
+
               /* if ( 
                 userMe.roleId === 0 &&
                 remoteUserInfoParsed.userInfo.denied === 0 &&
@@ -870,44 +882,6 @@ export function useInitWebRTC() {
               setIsLoadingOrError(false);
               setExistRoom(true);
             } */
-          } else if (eventType === 'USER_INFO_FINISH') {
-            const remoteUserInfoParsed = JSON.parse(
-              obj.data
-            ) as ObjRemoteUserInfo;
-
-            if (remoteUserInfoParsed.to === userMe.id) {
-              const user = participants.value.find(
-                (participant) =>
-                  participant.id === remoteUserInfoParsed.userInfo.id
-              );
-              if (user) {
-                console.log('Usuario encontrado: ', user);
-
-                user.avatar = remoteUserInfoParsed.userInfo.avatar;
-                user.name = remoteUserInfoParsed.userInfo.name;
-                user.isCameraOn = remoteUserInfoParsed.userInfo.isCameraOn;
-                user.isMicOn = remoteUserInfoParsed.userInfo.isMicOn;
-                user.isScreenSharing =
-                  remoteUserInfoParsed.userInfo.isScreenSharing;
-                user.isVideoActivated =
-                  remoteUserInfoParsed.userInfo.isVideoActivated;
-                user.isMicBlocked = remoteUserInfoParsed.userInfo.isMicBlocked;
-                user.isCameraBlocked =
-                  remoteUserInfoParsed.userInfo.isCameraBlocked;
-                user.isScreenShareBlocked =
-                  remoteUserInfoParsed.userInfo.isScreenShareBlocked;
-                user.fractalUserId =
-                  remoteUserInfoParsed.userInfo.fractalUserId;
-                user.denied = remoteUserInfoParsed.userInfo.denied;
-                user.isRecording = remoteUserInfoParsed.userInfo.isRecording;
-                user.roleId = remoteUserInfoParsed.userInfo.roleId;
-
-                /*  window.xprops?.addUserLogToState?.(
-                  user.fractalUserId,
-                  LOG_TYPE.IN
-                ); */
-              }
-            }
           } else if (eventType === 'KICK') {
             const kickedEvent = JSON.parse(obj.data) as ObjKickedEvent;
             if (kickedEvent.to === 'all') {

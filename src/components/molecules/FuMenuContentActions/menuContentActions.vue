@@ -43,6 +43,7 @@ import { useExternalVideo } from '@/composables/external-video';
 import { useInitWebRTC } from '@/composables/antMedia';
 import { useUserMe } from '@/composables/userMe';
 import videojs from 'video.js';
+import { useRoom } from '@/composables/room';
 
 export default defineComponent({
   name: 'FuMenuContentActions',
@@ -59,6 +60,7 @@ export default defineComponent({
       useExternalVideo();
     const { sendData } = useInitWebRTC();
     const { userMe, updateUserMe } = useUserMe();
+    const { roomState } = useRoom();
 
     const executeAction = (interaction: string) => {
       openOptionsMenu(false);
@@ -83,11 +85,11 @@ export default defineComponent({
         videoCurrentTime: 0,
       });
       setVideoInstance({} as HTMLMediaElement & { playerId: string });
-      sendData(userMe.id, {
+      sendData(roomState.hostId, {
         remoteInstance: userMe.videoInstance,
         eventType: 'REMOVE_EXTERNAL_VIDEO',
       });
-      videojs(userMe.videoInstance?.playerId as string).dispose();
+      videojs(userMe.videoInstance?.playerId).dispose();
       setFullScreen('none', false);
       updateUserMe({
         ...userMe,

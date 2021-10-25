@@ -133,7 +133,7 @@
     </div>
     <!--  -->
     <div
-      class="a-userVideo__more"
+      class="a-userVideo__box --moreUsers"
       v-show="
         $q.screen.lt.md
           ? admittedParticipants.length > 1
@@ -165,7 +165,8 @@
 <script lang="ts">
 import { defineComponent, ref, computed } from 'vue';
 import { useToogleFunctions } from '@/composables';
-import { User, useUserMe } from '@/composables/userMe';
+import { useUserMe } from '@/composables/userMe';
+import { User } from '@/types/user';
 import { useHandleParticipants } from '@/composables/participants';
 import { useQuasar } from 'quasar';
 import { useScreen } from '@/composables/screen';

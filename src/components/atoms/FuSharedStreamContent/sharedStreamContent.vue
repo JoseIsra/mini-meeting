@@ -288,8 +288,8 @@ export default defineComponent({
       emit('close-room-info-card');
     };
 
-    watch(localMaximized, (value) => {
-      sendData(userMe.id, {
+    /* watch(roomState, (value) => {
+      sendData(roomState.hostId, {
         eventType: 'UPDATE_ROOM_SIZE',
         maximized: value,
       });
@@ -297,7 +297,7 @@ export default defineComponent({
       updateBgSize(value);
 
       window.xprops?.setBackgroundInfo?.(roomState.bgInfo.url, value);
-    });
+    }); */
 
     return {
       sharedLinkOnInput,

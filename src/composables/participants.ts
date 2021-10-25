@@ -1,14 +1,16 @@
 import { ref, computed } from 'vue';
-import { Participant } from '@/types';
+
 import { LOCK_ACTION_TYPE, PERMISSION_STATUS, USER_ROLE } from '@/utils/enums';
 import _ from 'lodash';
+import { User } from '@/types/user';
 
-const participants = ref<Participant[]>([]);
+const participants = ref<Partial<User>[]>([]);
 
 export function useHandleParticipants() {
-  const addParticipants = (value: Participant) => {
+  const addParticipant = (value: Partial<User>) => {
     const newParticipants = _.cloneDeep(participants.value);
-    participants.value = [value, ...newParticipants];
+    newParticipants.push(value);
+    participants.value = newParticipants;
   };
 
   const deleteParticipantById = (id: string) => {
@@ -18,8 +20,25 @@ export function useHandleParticipants() {
     );
   };
 
+  const findParticipantById = (id: string) => {
+    const participantFound = participants.value.find(
+      (participant) => participant.id === id
+    );
+    return participantFound;
+  };
+
   const deleteAllParticipants = () => {
     participants.value.splice(0, 1);
+  };
+
+  const updateParticipantById = (id: string, fields: Partial<User>) => {
+    const newParticipants = _.cloneDeep(participants.value);
+    const participantFound = newParticipants.find(
+      (participant) => participant.id == id
+    );
+    fields.stream = participantFound?.stream; //For not replacing the stream
+    Object.assign(participantFound, fields);
+    participants.value = newParticipants;
   };
 
   const setParticipantActions = (
@@ -94,7 +113,8 @@ export function useHandleParticipants() {
 
   return {
     deleteAllParticipants,
-    addParticipants,
+    updateParticipantById,
+    addParticipant,
     deleteParticipantById,
     participants,
     setParticipantActions,
@@ -102,5 +122,6 @@ export function useHandleParticipants() {
     admittedParticipants,
     waitingParticipants,
     updateParticipantDenied,
+    findParticipantById,
   };
 }

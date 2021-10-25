@@ -30,6 +30,7 @@ import { useToogleFunctions } from '@/composables';
 import { errorMessage } from '@/utils/notify';
 import { useInitWebRTC } from '@/composables/antMedia';
 import { useUserMe } from '@/composables/userMe';
+import { useRoom } from '@/composables/room';
 
 export default defineComponent({
   name: 'FuExternalVideoModal',
@@ -41,6 +42,7 @@ export default defineComponent({
     const { userMe } = useUserMe();
     const { setFullScreen } = useToogleFunctions();
     const regexYoutube = /^(https?\:\/\/)?(www\.youtube\.com|youtu\.?be)\/.+$/;
+    const { roomState } = useRoom();
 
     const stablishURL = () => {
       if (regexYoutube.test(inputURL.value)) {
@@ -54,7 +56,7 @@ export default defineComponent({
           urlVideo: inputURL.value,
         });
         setFullScreen('video', true);
-        sendData(userMe.id, URLData);
+        sendData(roomState.hostId, URLData);
         emit('hide-modal');
         return;
       }

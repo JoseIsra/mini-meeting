@@ -21,7 +21,7 @@ interface WebRTCInitialValues {
   dataChannelEnabled?: boolean;
   callback?: unknown;
   callbackError?: unknown;
-  initCameraState?: boolean;
+  onlyDataChannel?: boolean;
 }
 
 class ReceivingMessage {

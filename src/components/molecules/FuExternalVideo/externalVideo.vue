@@ -42,6 +42,7 @@ import { useInitWebRTC } from '@/composables/antMedia';
 import { useUserMe } from '@/composables/userMe';
 import { useScreen } from '@/composables/screen';
 import { useQuasar } from 'quasar';
+import { useRoom } from '@/composables/room';
 
 export default defineComponent({
   name: 'FuExternalVideo',
@@ -79,6 +80,8 @@ export default defineComponent({
       ],
     });
 
+    const { roomState } = useRoom();
+
     onMounted(() => {
       window.addEventListener('orientationchange', handleOrientationChange);
       player.value = videojs(
@@ -111,7 +114,7 @@ export default defineComponent({
           });
           player.value.controlBar.on('mouseup', () => {
             setTimeout(() => {
-              sendData(userMe.id, {
+              sendData(roomState.hostId, {
                 remoteInstance: videoPlayer.value,
                 currentTime: calculateCurrentSelectedTime.value,
                 eventType: 'UPDATE_VIDEOTIME',
@@ -129,7 +132,7 @@ export default defineComponent({
       });
       showPlayButton.value = false;
       void player.value.play();
-      sendData(userMe.id, {
+      sendData(roomState.hostId, {
         remoteInstance: videoPlayer.value,
         eventType: 'PLAYING_VIDEO',
       });
@@ -141,7 +144,7 @@ export default defineComponent({
         isPlayingVideo: false,
       });
       showPlayButton.value = true;
-      sendData(userMe.id, {
+      sendData(roomState.hostId, {
         remoteInstance: videoPlayer.value,
         eventType: 'PAUSE_VIDEO',
       });

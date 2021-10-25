@@ -128,8 +128,6 @@ export function useInitWebRTC() {
     webRTCInstance.value.joinRoom?.(roomId, streamId, 'legacy');
   };
 
-  const playedStreams = ref<string[]>([]);
-
   const publish = (
     streamId: string,
     token?: string,
@@ -147,9 +145,8 @@ export function useInitWebRTC() {
   };
 
   const removeRemoteVideo = (streamId: string) => {
-    deleteParticipantById(streamId);
     removeStreamById(streamId);
-    updateStreamById(streamId, { isBeingPlayed: false });
+    deleteParticipantById(streamId);
     console.log('removing participant 🛕');
   };
 
@@ -564,6 +561,29 @@ export function useInitWebRTC() {
                     const currentParticipants = body.roomStreamList;
                     const offlineParticipants: string[] = [];
                     for (const participant of participants.value) {
+                      for (const participant of admittedParticipants.value) {
+                        if (
+                          currentParticipants.includes(
+                            participant.id as string
+                          ) &&
+                          !participant.hasLogJoin
+                        ) {
+                          console.log(
+                            'asistencia registrada (login) con el siguiente id: ',
+                            participant?.fractalUserId
+                          );
+                          window.xprops?.logJoined?.(
+                            participant?.fractalUserId as string
+                          );
+                          updateParticipantById(participant?.id as string, {
+                            hasLogJoin: true,
+                          });
+                        }
+                      }
+
+                      if (offlineParticipants.length > 0)
+                        window.xprops?.logUserExits?.(offlineParticipants);
+
                       if (
                         !currentParticipants.includes(participant.id as string)
                       ) {
@@ -578,13 +598,14 @@ export function useInitWebRTC() {
                           );
                         }
                         /*  */
-                        removeRemoteVideo(participant.id as string);
+                        /* Senddata debe estar antes del removeRemoteVideo para que pueda enviar la información del usuario a eliminar */
                         sendData(roomState.hostId, {
                           eventType: 'USER_LEAVING',
                           id: participant.id,
                           fractalUserId: participant.fractalUserId,
                         });
-                        if (roomState.pinnedUser?.id === participant.id) {
+
+                        /* if (roomState.pinnedUser?.id === participant.id) {
                           sendData(roomState.hostId, {
                             eventType: 'SET_FULL_SCREEN',
                             mode: 'none',
@@ -599,32 +620,10 @@ export function useInitWebRTC() {
                           window.xprops?.handleStopRecording?.(
                             roomState.recordingUrl
                           );
-                        }
+                        } */
+                        removeRemoteVideo(participant.id as string);
                       }
                     }
-
-                    for (const participant of admittedParticipants.value) {
-                      if (
-                        currentParticipants.includes(
-                          participant.id as string
-                        ) &&
-                        !participant.hasLogJoin
-                      ) {
-                        console.log(
-                          'asistencia registrada (login) con el siguiente id: ',
-                          participant?.fractalUserId
-                        );
-                        window.xprops?.logJoined?.(
-                          participant?.fractalUserId as string
-                        );
-                        updateParticipantById(participant?.id as string, {
-                          hasLogJoin: true,
-                        });
-                      }
-                    }
-
-                    if (offlineParticipants.length > 0)
-                      window.xprops?.logUserExits?.(offlineParticipants);
                   })
                   .catch((e) => console.log(e));
               }, 3500);
@@ -1168,11 +1167,10 @@ export function useInitWebRTC() {
             const bgData = JSON.parse(obj.data) as backgroundSize;
             updateBgSize(bgData.maximized);
           } else if (eventType === 'USER_LEAVING') {
+            console.log('user_leaving message received');
             const userLeavingMsgParsed = JSON.parse(
               obj.data
             ) as ObjUserLeavingMessageParsed;
-
-            removeRemoteVideo(userLeavingMsgParsed.id);
 
             console.log('USER LEAVING', '🚀🚀🚀');
 
@@ -1187,6 +1185,8 @@ export function useInitWebRTC() {
               userLeavingMsgParsed.fractalUserId,
               LOG_TYPE.OUT
             );
+
+            removeRemoteVideo(userLeavingMsgParsed.id);
           } else if (eventType === 'STOP_PLAYING_STREAM') {
             const { streamToPause } = JSON.parse(baseData) as stopPlayingStream;
             const stream = findStreamById(streamToPause);

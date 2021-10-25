@@ -314,8 +314,7 @@ export default defineComponent({
 
     let { isSidebarRender, setSidebarState } = useSidebarToogle();
 
-    const { userMe, setMicState, setVideoActivatedState, updateUserMe } =
-      useUserMe();
+    const { userMe, setMicState, setVideoActivatedState } = useUserMe();
 
     let handNotificationActive = ref(false);
     const canSeeActionsMenu = ref(userMe.roleId === 0);

@@ -54,7 +54,7 @@ export default defineComponent({
     const { recordingStream, stopRecordingStream } = useInitMerge();
     const { sendNotificationEvent } = useInitWebRTC();
     // const { participants } = useHandleParticipants();
-    const { userMe, updateUserMe } = useUserMe();
+    const { userMe } = useUserMe();
 
     const { roomState, updateRoom } = useRoom();
     /* const { admittedParticipants } = useHandleParticipants(); */
@@ -73,7 +73,7 @@ export default defineComponent({
     };
 
     const startRecording = () => {
-      updateUserMe({ isRecording: true });
+      updateRoom({ isBeingRecorded: true });
 
       window.xprops?.handleStartRecording?.();
       /* watchParticipants.value = watch(
@@ -114,8 +114,7 @@ export default defineComponent({
 
     const stopRecording = () => {
       /* watchParticipants.value?.(); */
-      updateUserMe({ isRecording: false });
-      warningMessage('Grabación terminada');
+      updateRoom({ isBeingRecorded: false });
       isRecording.value = false;
       recordTime.value = '00:00:00';
       clearInterval(interval.value);

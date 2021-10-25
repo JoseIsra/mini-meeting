@@ -29,7 +29,6 @@ export interface Notification extends BaseData {
   notificationType: string;
 }
 
-
 /*  */
 
 interface ObjInfoRequested {
@@ -41,6 +40,7 @@ export interface ObjRemoteUserInfo extends ObjInfoRequested {
   eventType: string;
   userInfo: User;
   participantsInRoom: User[];
+  externalVideoInfo?: ExternalVideoObject;
 }
 
 export interface ObjKickedEvent {
@@ -52,10 +52,12 @@ export interface VideoID {
 }
 export interface ExternalVideoObject {
   eventType?: string;
-  urlContent?: string;
+  urlVideo?: string;
   remoteInstance?: VideoID | string | HTMLVideoElement;
-  currentTime?: number;
+  videoCurrentTime?: number;
   fullScreenMode?: boolean;
+  videoOnRoom?: boolean;
+  isVideoPlaying?: boolean;
 }
 
 export interface ObjBlockParticipantAction {

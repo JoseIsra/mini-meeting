@@ -14,11 +14,6 @@ export interface User {
   isScreenShareBlocked: boolean;
   fractalUserId: string;
   denied: number;
-  existVideo?: boolean;
-  urlOfVideo?: string;
-  videoInstance?: HTMLMediaElement & { playerId: string };
-  currentTime?: number;
-  isPlayingVideo?: boolean;
   isRecording: boolean;
   roleId: number;
   isBeingPlayed?: boolean; //For other participants
@@ -43,11 +38,6 @@ export interface UpdatedUserfields {
   isScreenShareBlocked?: boolean;
   fractalUserId?: string;
   denied?: number;
-  existVideo?: boolean;
-  urlOfVideo?: string;
-  videoInstance?: HTMLMediaElement & { playerId: string };
-  currentTime?: number;
-  isPlayingVideo?: boolean;
   isRecording?: boolean;
   roleId?: number;
   isBeingPlayed?: boolean; //For other participants

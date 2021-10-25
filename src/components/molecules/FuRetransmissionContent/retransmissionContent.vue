@@ -166,7 +166,6 @@ export default defineComponent({
         isPlayMode: false,
         debug: true,
         dataChannelEnabled: true,
-        initCameraState: false,
         callback: (info: string, obj: objWebRTC) => {
           if (info == 'initialized') {
             joinRoom(roomId);

@@ -1411,11 +1411,8 @@ export function useInitWebRTC() {
     muteLocalMic,
     sendNotificationEvent,
     justTurnOnLocalCamera,
-<<<<<<< HEAD
     switchAudioInputSource,
-=======
     publish,
     stopPublishing,
->>>>>>> 8062a4a70176072d3281fe6e9c61daf2e7a1b162
   };
 }

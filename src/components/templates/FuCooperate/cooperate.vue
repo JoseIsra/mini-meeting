@@ -211,12 +211,9 @@ export default defineComponent({
       existVideo: false,
       isRecording: false,
       isHost,
-<<<<<<< HEAD
       cameraId,
       micId,
-=======
       isPublishing: isHost ? 1 : 0,
->>>>>>> 8062a4a70176072d3281fe6e9c61daf2e7a1b162
     });
 
     /* setMicIconState(isMicLocked ? false : isMicOn); */

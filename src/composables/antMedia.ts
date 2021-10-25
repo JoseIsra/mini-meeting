@@ -274,14 +274,12 @@ export function useInitWebRTC() {
       void remotePlayer.value.pause();
     };
     const updateVideoTime = (arg: ExternalVideoObject) => {
-      console.log('actualizando video mijo', arg);
       remotePlayer.value = videojs((arg.remoteInstance as VideoID).playerId);
       //actualizar el video
       void remotePlayer.value.currentTime(arg.videoCurrentTime as number);
     };
 
     const initRemotePlayerInstance = (arg: ExternalVideoObject) => {
-      console.log('intento de iniciar player remoto con', arg);
       setFullScreen('video', true);
       updateExternalVideoState({
         ...externalVideo,
@@ -300,17 +298,16 @@ export function useInitWebRTC() {
     };
 
     const removeVideoShared = (arg: ExternalVideoObject) => {
-      console.log('INTENTO DEREMOVER VIDEO REMOTO AMIGO 🤔', arg);
       remotePlayer.value = videojs((arg.remoteInstance as VideoID).playerId);
       videojs((arg.remoteInstance as VideoID).playerId).dispose();
       setFullScreen('none', false);
-
       updateExternalVideoState({
         ...externalVideo,
+        videoOnRoom: false,
         urlVideo: '',
         remoteInstance: {} as HTMLMediaElement & { playerId: string },
-        videoCurrentTime: 0,
         isVideoPlaying: false,
+        videoCurrentTime: 0,
       });
     };
 
@@ -641,7 +638,7 @@ export function useInitWebRTC() {
             !userMe.isHost &&
             user === roomState.hostId
           ) {
-            console.log(
+            console.debug(
               '⭐ SENDING REQUEST FOR INFO OF PARTICIPANTS IN ROOM',
               obj
             );
@@ -796,6 +793,7 @@ export function useInitWebRTC() {
             }
 
             /* Todos lo añaden al participante */
+
             const remoteUserInfoParsed = JSON.parse(
               obj.data
             ) as ObjRemoteUserInfo;
@@ -832,14 +830,13 @@ export function useInitWebRTC() {
               obj.data
             ) as ObjRemoteUserInfo;
             //Recieving info from another user if is for me
+
             if (remoteUserInfoParsed.to === userMe.id) {
-              // importante
               remoteUserInfoParsed.participantsInRoom.forEach(
                 (participantInRoom) => {
                   const findVal = participants.value.find(
                     (participant) => participant.id === participantInRoom.id
                   );
-
                   const exist = !!findVal;
                   if (exist) {
                     updateParticipantById(
@@ -852,12 +849,13 @@ export function useInitWebRTC() {
                   }
                 }
               );
+
               if (remoteUserInfoParsed.externalVideoInfo?.videoOnRoom) {
                 initRemotePlayerInstance(
                   remoteUserInfoParsed.externalVideoInfo
                 );
               }
-              /* if (
+              /* if ( 
                 userMe.roleId === 0 &&
                 remoteUserInfoParsed.userInfo.denied === 0 &&
                 !roomState.roomRestriction
@@ -904,6 +902,7 @@ export function useInitWebRTC() {
                 user.denied = remoteUserInfoParsed.userInfo.denied;
                 user.isRecording = remoteUserInfoParsed.userInfo.isRecording;
                 user.roleId = remoteUserInfoParsed.userInfo.roleId;
+
                 /*  window.xprops?.addUserLogToState?.(
                   user.fractalUserId,
                   LOG_TYPE.IN
@@ -1300,16 +1299,27 @@ export function useInitWebRTC() {
   };
 
   //TODO: Get the device id in the websocket as it works in remotePlayer.html
-  const switchVideoCameraCapture = (streamId: string) => {
-    let cameraId: string;
-    navigator.mediaDevices
-      .enumerateDevices()
-      .then((devices) => {
-        const filtrado = devices.filter((x) => x.kind === 'videoinput')[0];
-        cameraId = filtrado.deviceId;
-        webRTCInstance.value.switchVideoCameraCapture?.(streamId, cameraId);
-      })
-      .catch((err) => console.log(err));
+  const switchVideoCameraCapture = (streamId: string, cameraId: string) => {
+    webRTCInstance.value.switchVideoCameraCapture?.(streamId, cameraId);
+    // let cameraId: string;
+    // navigator.mediaDevices
+    //   .enumerateDevices()
+    //   .then((devices) => {
+    //     const filtrado = devices.filter((x) => x.kind === 'videoinput')[0];
+    //     cameraId = filtrado.deviceId;
+    //   })
+    //   .catch((err) => console.log(err));
+  };
+  const switchAudioInputSource = (streamId: string, microId: string) => {
+    webRTCInstance.value.switchAudioInputSource?.(streamId, microId);
+    // let microId: string;
+    // navigator.mediaDevices
+    //   .enumerateDevices()
+    //   .then((devices) => {
+    //     const filtrado = devices.filter((x) => x.kind === 'audioinput')[0];
+    //     microId = filtrado.deviceId;
+    //   })
+    //   .catch((err) => console.log(err));
   };
 
   const resetDesktop = () => {
@@ -1317,10 +1327,21 @@ export function useInitWebRTC() {
   };
 
   const turnOnLocalCamera = (streamId: string) => {
+    /* navigator.mediaDevices
+      .enumerateDevices()
+      .then((devices) => {
+        console.log(devices);
+        const filtrado = devices.filter((x) => x.kind === 'videoinput')[0];
+        cameraId = filtrado.deviceId;
+        webRTCInstance.value.switchVideoCameraCapture?.(streamId, cameraId);
+      })
+      .catch((err) => console.log(err)); */
+    // webRTCInstance.value.switchVideoCameraCapture?.(streamId, userMe.cameraId);
     webRTCInstance.value.turnOnLocalCamera?.(streamId);
   };
 
   const unmuteLocalMic = () => {
+    //webRTCInstance.value.switchAudioInputSource(userMe.id, userMe.micId);
     webRTCInstance.value.unmuteLocalMic?.();
   };
 
@@ -1370,6 +1391,7 @@ export function useInitWebRTC() {
     muteLocalMic,
     sendNotificationEvent,
     justTurnOnLocalCamera,
+    switchAudioInputSource,
     publish,
     stopPublishing,
   };

@@ -25,6 +25,12 @@
           />
         </div>
       </fieldset>
+      <fieldset class="m-generalPanel__externalVideo">
+        <legend class="m-generalPanel__externalVideo__text --mainTitle">
+          Video externo
+        </legend>
+        <fu-external-video-modal />
+      </fieldset>
       <fieldset class="m-generalPanel__bgBox">
         <legend class="m-generalPanel__bgBox__text --mainTitle">
           Fondo de Cooperate
@@ -85,10 +91,11 @@ import backblazeService from '@/services/backblaze';
 import { useUserMe } from '@/composables/userMe';
 import { errorMessage, successMessage } from '@/utils/notify';
 const { uploadFileToBackblaze } = backblazeService;
+import FuExternalVideoModal from 'molecules/FuExternalVideoModal';
 
 export default defineComponent({
   name: 'FuGeneralPanel',
-  components: { FuFileCatcherCooperate },
+  components: { FuFileCatcherCooperate, FuExternalVideoModal },
   setup() {
     const { roomState, updateBgUrl, updateBgSize, updateAllowResetBg } =
       useRoom();

@@ -248,7 +248,7 @@ export default defineComponent({
         fileName,
       };
       setUserMessage(userLocalMessage);
-      sendData(userMe.id, userLocalMessage);
+      sendData(roomState.hostId, userLocalMessage);
       userInput.value = '';
     };
 

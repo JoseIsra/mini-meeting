@@ -47,7 +47,7 @@
         <div class="o-panel__body__contentOptions__externalContainer">
           <div class="o-panel__body__contentOptions__innerContainer">
             <component
-              v-for="compo in componentList"
+              v-for="compo in mycomponents"
               :key="compo.id"
               :is="compo.name"
               v-show="compo.respondToOption == panelSelected.description"
@@ -106,7 +106,6 @@ export default defineComponent({
       selectPanel,
       panelSelected,
       mycomponents,
-      componentList,
       moveToLeft,
       returnToPanelOptions,
     };

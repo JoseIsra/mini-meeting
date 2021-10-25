@@ -2,20 +2,24 @@
   <div class="a-menuBar">
     <section class="a-menuBar__box">
       <aside class="a-menuBar__periferics">
-        <q-btn
+        <!-- <q-btn
           flat
           round
           :class="['a-menuBar__icon', { active: icon.active }]"
           v-for="icon in periferics"
           :key="icon.id"
-          :icon="icon.active ? icon.onState : icon.offState"
+          :icon="
+            userMe.isMicOn && userMe.isPublishing == 1
+              ? icon.onState
+              : userMe.isPublishing == 2
+              ? icon.loadingState
+              : icon.offState
+          "
           size="0.7rem"
           :disable="disableAction(icon)"
-          @click="
-            icon.active = !icon.active;
-            tooglePeriferic(icon?.interaction);
-          "
+          @click="tooglePeriferic(icon?.interaction)"
         >
+          {{ userMe.isPublishing }}
           <q-tooltip class="bg-grey-10" v-if="!icon.active">
             <label class="a-menuBar__icon__tooltip">
               {{ icon.toolTipMessage }}
@@ -26,6 +30,64 @@
               {{ icon.toolTipSecondMessage }}
             </label>
           </q-tooltip>
+        </q-btn> -->
+        <q-btn
+          flat
+          round
+          :class="[
+            'a-menuBar__icon',
+            { active: userMe.micPublishedState == 1 },
+          ]"
+          :icon="
+            userMe.micPublishedState == 1
+              ? iconsPeriferics.mic.onState
+              : userMe.micPublishedState == 2
+              ? iconsPeriferics.mic.loadingState
+              : iconsPeriferics.mic.offState
+          "
+          :disable="userMe.isPublishing == 2"
+          size="0.7rem"
+          @click="toggleMIC"
+        >
+          <!-- <q-tooltip class="bg-grey-10" v-if="!icon.active">
+            <label class="a-menuBar__icon__tooltip">
+              {{ icon.toolTipMessage }}
+            </label>
+          </q-tooltip>
+          <q-tooltip class="bg-grey-10" v-if="icon.active">
+            <label class="a-menuBar__icon__tooltip">
+              {{ icon.toolTipSecondMessage }}
+            </label>
+          </q-tooltip> -->
+        </q-btn>
+        <q-btn
+          flat
+          round
+          :class="[
+            'a-menuBar__icon',
+            { active: userMe.cameraPublishedState == 1 },
+          ]"
+          :icon="
+            userMe.cameraPublishedState == 1
+              ? iconsPeriferics.camera.onState
+              : userMe.cameraPublishedState == 2
+              ? iconsPeriferics.camera.loadingState
+              : iconsPeriferics.camera.offState
+          "
+          :disable="userMe.isPublishing == 2"
+          size="0.7rem"
+          @click="toggleCamera"
+        >
+          <!-- <q-tooltip class="bg-grey-10" v-if="!icon.active">
+            <label class="a-menuBar__icon__tooltip">
+              {{ icon.toolTipMessage }}
+            </label>
+          </q-tooltip>
+          <q-tooltip class="bg-grey-10" v-if="icon.active">
+            <label class="a-menuBar__icon__tooltip">
+              {{ icon.toolTipSecondMessage }}
+            </label>
+          </q-tooltip> -->
         </q-btn>
       </aside>
       <div class="a-menuBar__functions">
@@ -177,6 +239,8 @@ import { defineComponent, ref, reactive } from 'vue';
 import FuCooperateMenu from 'molecules/FuCooperateMenu';
 import { Icons, Periferics, Functionalities } from '@/types';
 
+import { iconsPeriferics } from '@/helpers/iconsMenuBar';
+
 import { useToogleFunctions, useSidebarToogle } from '@/composables';
 import { useUserMe } from '@/composables/userMe';
 import { nanoid } from 'nanoid';
@@ -187,6 +251,7 @@ import { useScreen } from '@/composables/screen';
 import { useActions } from '@/composables/actions';
 import { useHandleParticipants } from '@/composables/participants';
 import FuAdminPanel from 'organisms/FuAdminPanel';
+import { useRoom } from '@/composables/room';
 
 export default defineComponent({
   name: 'FuCooperateMenuBar',
@@ -209,9 +274,11 @@ export default defineComponent({
   setup(props) {
     const { sendData } = useInitWebRTC();
 
-    const { periferics, functions, options } = useActions();
+    const { functions, options } = useActions();
 
     const { waitingParticipants } = useHandleParticipants();
+
+    const { roomState } = useRoom();
 
     let openNetworkConfig = ref(false);
     const objectPeriferics = reactive<Periferics>({
@@ -247,7 +314,8 @@ export default defineComponent({
 
     let { isSidebarRender, setSidebarState } = useSidebarToogle();
 
-    const { userMe, setMicState, setVideoActivatedState } = useUserMe();
+    const { userMe, setMicState, setVideoActivatedState, updateUserMe } =
+      useUserMe();
 
     let handNotificationActive = ref(false);
     const canSeeActionsMenu = ref(userMe.roleId === 0);
@@ -319,23 +387,24 @@ export default defineComponent({
     const toogleHandUp = () => {
       const riseHand = {
         id: nanoid(),
-        streamId: userMe.id,
+        to: 'ALL',
+        from: userMe.id,
         streamName: userMe.name,
         eventType: 'HAND',
       };
       if (
         functionsOnMenuBar.handNotificationInfo.some(
-          (notific) => notific.streamId === riseHand.streamId
+          (notific) => notific.from === riseHand.from
         )
       ) {
         const downHand = { ...riseHand, eventType: 'NOHAND' };
-        sendData(userMe.id, downHand);
+        sendData(roomState.hostId, downHand);
         handNotificationActive.value = false;
-        removeHandNotification(downHand.streamId);
+        removeHandNotification(downHand.from);
         return;
       }
       handNotificationActive.value = true;
-      sendData(userMe.id, riseHand);
+      sendData(roomState.hostId, riseHand);
       addHandNotificationInfo(riseHand);
     };
 
@@ -423,7 +492,6 @@ export default defineComponent({
     };
 
     return {
-      periferics,
       userMe,
       functions,
       options,
@@ -444,6 +512,9 @@ export default defineComponent({
       canSeeActionsMenu,
       waitingParticipants,
       activeHandBadge,
+      toggleCamera,
+      toggleMIC,
+      iconsPeriferics,
       openAdminPanel,
     };
   },

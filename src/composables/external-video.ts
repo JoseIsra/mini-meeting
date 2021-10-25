@@ -11,7 +11,7 @@ interface ExternalVideo {
 const externalVideo = reactive<ExternalVideo>({
   urlVideo: '',
   videoOnRoom: false,
-  isVideoPlaying: true,
+  isVideoPlaying: false,
   videoCurrentTime: 0,
 });
 

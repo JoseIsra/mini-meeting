@@ -32,15 +32,21 @@
           { '--facebook': streamService == 'facebook' },
           { '--youtube': streamService == 'youtube' },
           { '--rtmp': streamService == 'rtmp' },
+          {
+            '--stopFacebook':
+              streamService == 'facebook' && roomState.fbTransmission,
+          },
+          {
+            '--stopYoutube':
+              streamService == 'youtube' && roomState.ytTransmission,
+          },
+          {
+            '--stopRTMP': streamService == 'rtmp' && roomState.rtmpTransmission,
+          },
         ]"
-        :ripple="false"
         :label="labelStreamingBtn"
         :icon="iconBtnStreaming"
-        v-on="
-          !isStreaming
-            ? { click: handleStartTransmission }
-            : { click: handleEndTransmission }
-        "
+        @click="handleDifferentTransmissions"
       />
     </q-card-section>
   </q-card>
@@ -48,32 +54,10 @@
 
 <script lang="ts">
 /* eslint-disable @typescript-eslint/no-unsafe-call */
-
 import { defineComponent, ref, computed, onMounted, reactive } from 'vue';
 import { useUserMe } from '@/composables/userMe';
-
-interface SocialMedia {
-  facebook: string;
-  youtube: string;
-  rtmp: string;
-}
-
-interface SocialMediaMethod {
-  facebook: () => void;
-  youtube: () => void;
-  rtmp: () => void;
-}
-
-interface IStreamServiceObject extends SocialMedia {
-  labelBtn?: SocialMedia;
-  iconBtn?: SocialMedia;
-  closeTransmissionLabelBtn?: SocialMedia;
-  stopStreamingIconBtn?: SocialMedia;
-  transmissionMethods?: SocialMediaMethod;
-}
-//TODO: AL PARECER LOS BOOLEANOS PARA CONTROLAR QUÉ SERVICIO DE STREAM SE USA
-//DEBE SER ESPECÍFICO PARA CADA SERVICIO SI ES QUE SE VA A TRANSMITIR SIMULTANEAMENTE
-// EN DIFERENTES SERVICIOS
+import { useRoom } from '@/composables/room';
+import { IStreamServiceObject, SocialMedia } from '@/types';
 export default defineComponent({
   name: 'FuRetransmissionContent',
   props: {
@@ -85,7 +69,7 @@ export default defineComponent({
     const { userMe } = useUserMe();
     const moreContent = ref(true);
     // const layout = ref(false);
-
+    const { roomState, updateRoom } = useRoom();
     const endpoint = ref('');
     const key = ref('');
 
@@ -118,9 +102,9 @@ export default defineComponent({
         rtmp: 'Detener transmisión en RTMP',
       },
       transmissionMethods: {
-        facebook: () => facebookInitStreaming(),
-        youtube: () => ytInitStreaming(),
-        rtmp: () => rtmpInitStreaming(),
+        facebook: () => facebook_transmission_controller(),
+        youtube: () => youtube_transmission_controller(),
+        rtmp: () => rtmp_transmission_controller(),
       },
     });
 
@@ -145,7 +129,15 @@ export default defineComponent({
     });
 
     const labelStreamingBtn = computed(() => {
-      return !isStreaming.value
+      return !roomState.fbTransmission && props.streamService == 'facebook' //si no en fb
+        ? streamServiceObject.labelBtn?.[
+            props.streamService as keyof SocialMedia
+          ]
+        : !roomState.ytTransmission && props.streamService == 'youtube'
+        ? streamServiceObject.labelBtn?.[
+            props.streamService as keyof SocialMedia
+          ]
+        : !roomState.rtmpTransmission && props.streamService == 'rtmp'
         ? streamServiceObject.labelBtn?.[
             props.streamService as keyof SocialMedia
           ]
@@ -155,7 +147,15 @@ export default defineComponent({
     });
 
     const iconBtnStreaming = computed(() => {
-      return !isStreaming.value
+      return !roomState.fbTransmission && props.streamService == 'facebook' //si no en fb
+        ? streamServiceObject.iconBtn?.[
+            props.streamService as keyof SocialMedia
+          ]
+        : !roomState.ytTransmission && props.streamService == 'youtube'
+        ? streamServiceObject.iconBtn?.[
+            props.streamService as keyof SocialMedia
+          ]
+        : !roomState.rtmpTransmission && props.streamService == 'rtmp'
         ? streamServiceObject.iconBtn?.[
             props.streamService as keyof SocialMedia
           ]
@@ -165,17 +165,64 @@ export default defineComponent({
     });
 
     //***************COOL FUNCTIONS  */
-
-    const facebookInitStreaming = () => {
-      console.log('as');
+    // > general controller for all types of tranmissions
+    const handleDifferentTransmissions = () => {
+      streamServiceObject?.transmissionMethods?.[
+        props.streamService as keyof SocialMedia
+      ]();
     };
 
-    const ytInitStreaming = () => {
+    const initFbTransmission = () => {
+      updateRoom({ fbTransmission: true });
+      console.log('go faceboook');
+    };
+    const endFbTransmission = () => {
+      console.log('terminando de fb');
+      updateRoom({ fbTransmission: false });
+    };
+
+    const facebook_transmission_controller = () => {
+      if (roomState.fbTransmission) {
+        endFbTransmission();
+      } else {
+        initFbTransmission();
+      }
+    };
+
+    const initYouTubeTransmission = () => {
+      updateRoom({ ytTransmission: true });
+      console.log('Iniciando en youtube');
+    };
+    const endYouTubeTransmission = () => {
+      console.log('terminando en youtube...');
+      updateRoom({ ytTransmission: false });
+    };
+    const youtube_transmission_controller = () => {
       console.log('youtube');
+      if (roomState.ytTransmission) {
+        endYouTubeTransmission();
+      } else {
+        initYouTubeTransmission();
+      }
     };
 
-    const rtmpInitStreaming = () => {
-      console.log('holtymoly');
+    const initRTMPTransmission = () => {
+      console.log('INICIANDO RTMP 📽️');
+      updateRoom({ rtmpTransmission: true });
+    };
+
+    const endRTMPTransmission = () => {
+      console.log('TERMINANDO RTMP 📽️');
+      updateRoom({ rtmpTransmission: false });
+    };
+
+    const rtmp_transmission_controller = () => {
+      console.log('RTMP OBS GO 📽️');
+      if (roomState.rtmpTransmission) {
+        endRTMPTransmission();
+      } else {
+        initRTMPTransmission();
+      }
     };
 
     function setCookie(name: string, value: string, days: number) {
@@ -280,6 +327,8 @@ export default defineComponent({
       fbStreaming,
       ytStreaming,
       rtmpStreaming,
+      handleDifferentTransmissions,
+      roomState,
     };
   },
 });

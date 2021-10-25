@@ -53,6 +53,12 @@
       &.--rtmp {
         background-color: black;
       }
+      &.--stopFacebook,
+      &.--stopYoutube,
+      &.--stopRTMP {
+        color: #212121;
+        background-color: #8e9297;
+      }
     }
   }
 }

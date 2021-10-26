@@ -133,7 +133,7 @@
             v-if="notificateHandUp(userMe.id)"
             name="front_hand"
             class="m-list__content__userBox__avatar__handIcon"
-            size="25px"
+            size="20px"
           />
           <q-img
             v-else
@@ -311,7 +311,7 @@
           <q-icon
             v-if="notificateHandUp(participant.id)"
             name="front_hand"
-            size="25px"
+            size="20px"
             class="m-list__content__userBox__avatar__handIcon"
           />
           <q-img

@@ -13,9 +13,9 @@
     :toggleLockAction="toggleLockAction"
     sharedLink="sharedLinkTest"
     classroomId="1"
-    :isMicLocked="isMicLocked"
-    :isCameraLocked="isCameraLocked"
-    :isScreenShareLocked="isScreenShareLocked"
+    :isMicLocked="actions.mic === 1"
+    :isCameraLocked="actions.camera === 1"
+    :isScreenShareLocked="actions.screenshare === 1"
     :getB2Info="getB2Info"
     :roleId="roleId"
     :roomRestriction="0"
@@ -60,10 +60,9 @@ export default {
       isHost: this.$route.query.isHost == "true" || false,
       roleId: parseInt(this.$route.query.roleId) || 0,
       roomId: this.$route.query.roomId || "room16",
-      isMicLocked: JSON.parse(localStorage.actions).mic === 1 ?? false,
-      isCameraLocked: JSON.parse(localStorage.actions).camera === 1 ?? false,
-      isScreenShareLocked:
-        JSON.parse(localStorage.actions).screenshare === 1 ?? false,
+      actions: localStorage.actions
+        ? JSON.parse(localStorage.actions)
+        : { mic: 0, camera: 0, screenshare: 0 },
     };
   },
   methods: {

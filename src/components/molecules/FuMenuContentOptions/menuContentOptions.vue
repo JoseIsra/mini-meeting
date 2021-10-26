@@ -80,7 +80,6 @@ import FuDeviceConfigurationModal from 'molecules/FuDeviceConfigurationModal';
 interface OptionsClickMethods {
   LEAVE: () => void;
   END: () => void;
-  ROOMDETAILS: () => void;
   DEVICECONFIGURATION: () => void;
 }
 export default defineComponent({
@@ -89,7 +88,7 @@ export default defineComponent({
   setup() {
     const options = ref<MenuOptions>(menuOptions);
     let openModal = ref(false);
-    const { watchInfoRoomCard, openOptionsMenu } = useToogleFunctions();
+    const { openOptionsMenu } = useToogleFunctions();
     const { participants } = useHandleParticipants();
 
     const { userMe } = useUserMe();
@@ -108,7 +107,6 @@ export default defineComponent({
         }
       },
       END: () => openModalWithName('delete-card'),
-      ROOMDETAILS: () => openInfoRoomCard(),
       DEVICECONFIGURATION: () => openModalWithName('configuration-card'),
     });
     const cardContent = ref('');
@@ -116,10 +114,6 @@ export default defineComponent({
     const openModalWithName = (modalName: string) => {
       openModal.value = true;
       cardContent.value = modalName;
-    };
-
-    const openInfoRoomCard = () => {
-      watchInfoRoomCard(true);
     };
 
     const handleOptionSelected = (interaction?: string) => {

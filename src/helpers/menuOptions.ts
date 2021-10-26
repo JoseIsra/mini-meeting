@@ -32,13 +32,13 @@ export const menuOptions = {
       important: false,
       interaction: INTERACTION_TYPE_MENU_OPTIONS.DEVICECONFIGURATION,
     },
-    {
-      id: '3',
-      iconName: 'info',
-      description: 'Detalles de la reunión',
-      important: false,
-      interaction: INTERACTION_TYPE_MENU_OPTIONS.ROOMDETAILS,
-    },
+    // {
+    //   id: '3',
+    //   iconName: 'info',
+    //   description: 'Detalles de la reunión',
+    //   important: false,
+    //   interaction: INTERACTION_TYPE_MENU_OPTIONS.ROOMDETAILS,
+    // },
   ],
   secondSection: [
     /* {

@@ -52,8 +52,8 @@ export default defineComponent({
     let posterClass = ref(false);
     const calculateCurrentSelectedTime = ref(0);
     const { sendData } = useInitWebRTC();
-    const { userMe, updateUserMe } = useUserMe();
-    const { externalVideo, setvideoOptions, setVideoInstance } =
+    const { userMe } = useUserMe();
+    const { externalVideo, setvideoOptions, updateExternalVideoState } =
       useExternalVideo();
     const videoPlayer = ref({} as HTMLMediaElement & { playerId: string });
     const player = ref<videojs.Player>({} as videojs.Player);
@@ -90,21 +90,19 @@ export default defineComponent({
         function onPlayerReady() {
           showPlayButton.value = true;
           setvideoOptions(optionsForPlayer as videojs.PlayerOptions);
-          setVideoInstance(videoPlayer.value);
-          updateUserMe({
-            ...userMe,
-            existVideo: externalVideo.videoOnRoom,
-            urlOfVideo: externalVideo.urlVideo,
-            videoInstance: videoPlayer.value,
+          updateExternalVideoState({
+            ...externalVideo,
+            remoteInstance: videoPlayer.value,
           });
           player.value.on('pause', handlePause);
           player.value.on('play', handlePlaying);
           player.value.on('timeupdate', () => {
             calculateCurrentSelectedTime.value =
               player.value.duration() - player.value.remainingTime();
-            updateUserMe({
-              ...userMe,
-              currentTime: player.value.currentTime(),
+
+            updateExternalVideoState({
+              ...externalVideo,
+              videoCurrentTime: player.value.currentTime(),
             });
           });
           player.value.on('ready', () => {
@@ -116,7 +114,7 @@ export default defineComponent({
             setTimeout(() => {
               sendData(roomState.hostId, {
                 remoteInstance: videoPlayer.value,
-                currentTime: calculateCurrentSelectedTime.value,
+                videoCurrentTime: calculateCurrentSelectedTime.value,
                 eventType: 'UPDATE_VIDEOTIME',
               });
             }, 500);
@@ -126,10 +124,11 @@ export default defineComponent({
     });
 
     const handlePlaying = () => {
-      updateUserMe({
-        ...userMe,
-        isPlayingVideo: true,
+      updateExternalVideoState({
+        ...externalVideo,
+        isVideoPlaying: true,
       });
+
       showPlayButton.value = false;
       void player.value.play();
       sendData(roomState.hostId, {
@@ -139,9 +138,9 @@ export default defineComponent({
     };
 
     const handlePause = () => {
-      updateUserMe({
-        ...userMe,
-        isPlayingVideo: false,
+      updateExternalVideoState({
+        ...externalVideo,
+        isVideoPlaying: false,
       });
       showPlayButton.value = true;
       sendData(roomState.hostId, {

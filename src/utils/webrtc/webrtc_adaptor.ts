@@ -1090,7 +1090,6 @@ export class WebRTCAdaptor {
     } else {
       console.warn('There is no audio track in local stream');
     }
-
     if (typeof deviceId != 'undefined') {
       if (this.mediaConstraints.audio !== true)
         this.mediaConstraints.audio.deviceId = deviceId;
@@ -1124,13 +1123,13 @@ export class WebRTCAdaptor {
         this.mediaConstraints.video = { deviceId: { exact: deviceId } };
       }
     }
-    // this.setVideoCameraSource(
-    //   streamId,
-    //   { audio: true, video: false },
-    //   null,
-    //   true,
-    //   deviceId
-    // );
+    this.setVideoCameraSource(
+      streamId,
+      this.mediaConstraints,
+      null,
+      true,
+      deviceId
+    );
   }
 
   switchDesktopCaptureWithCamera(streamId) {
@@ -1373,7 +1372,7 @@ export class WebRTCAdaptor {
         };
 
         if (this.debug) {
-          console.log('sending ice candiate for stream Id ' + streamId);
+          console.log('sending ice candidate for stream Id ' + streamId);
           console.log(JSON.stringify(event.candidate));
         }
         this.webSocketAdaptor.send(JSON.stringify(jsCmd));

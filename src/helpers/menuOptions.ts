@@ -16,45 +16,6 @@ export interface MenuOptions {
   fourthSection: Options[];
 }
 
-export const menuActions = [
-  // {
-  //   id: '1',
-  //   iconName: 'format_list_bulleted',
-  //   description: 'Iniciar una encuesta',
-  //   important: false,
-  // },
-  // {
-  //   id: '2',
-  //   iconName: 'monitor',
-  //   description: 'Gestionar presentaciones',
-  //   important: false,
-  // },
-  {
-    id: '3',
-    iconName: 'videocam',
-    description: 'Compartir un video externo',
-    secondDescription: 'Dejar de compartir video externo',
-    important: false,
-    interaction: INTERACTION_TYPE_MENU_OPTIONS.EXTERNALVIDEO,
-    active: false,
-  },
-  // {
-  //   id: '4',
-  //   iconName: 'person',
-  //   description: 'Seleccionar usuario aleatoriamente',
-  //   important: false,
-  // },
-  {
-    id: '5',
-    iconName: 'fas fa-satellite-dish',
-    description: 'Retransmitir en redes sociales',
-    secondDescription: 'Retransmitir en redes sociales',
-    important: false,
-    active: false,
-    interaction: INTERACTION_TYPE_MENU_OPTIONS.RETRANSMISSION,
-  },
-];
-
 export const menuOptions = {
   firstSection: [
     /* {
@@ -63,13 +24,14 @@ export const menuOptions = {
       description: 'Desplegar a pantalla completa',
       important: false,
     },
+    */
     {
       id: '2',
       iconName: 'settings',
-      description: 'Abrir configuración',
+      description: 'Configuración de dispositivos',
       important: false,
+      interaction: INTERACTION_TYPE_MENU_OPTIONS.DEVICECONFIGURATION,
     },
-   */
     {
       id: '3',
       iconName: 'info',
@@ -151,5 +113,44 @@ export const chatMenuIcon = [
     description: 'Borrar todos los mensajes solo para mí',
     important: false,
     interaction: INTERACTION_TYPE_MENU_OPTIONS.CLEARCHAT,
+  },
+];
+
+export const adminPanelOptions = [
+  {
+    id: '1',
+    description: 'General',
+    iconName: 'fas fa-cog',
+    important: false,
+  },
+  {
+    id: '2',
+    description: 'Administrador',
+    iconName: 'toggle_on',
+    important: false,
+  },
+  {
+    id: '3',
+    description: 'Retransmisión',
+    iconName: 'live_tv',
+    important: false,
+  },
+];
+
+export const componentList = [
+  {
+    id: '1',
+    name: 'fu-general-panel',
+    respondToOption: 'General',
+  },
+  {
+    id: '2',
+    name: 'fu-participant-periferic-panel',
+    respondToOption: 'Administrador',
+  },
+  {
+    id: '3',
+    name: 'fu-retransmission-panel',
+    respondToOption: 'Retransmisión',
   },
 ];

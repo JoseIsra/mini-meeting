@@ -33,14 +33,6 @@
       muted
       playsinline
     ></video>
-    <video
-      v-show="false"
-      id="localVideo3"
-      class="a-userVideo__box__stream"
-      autoplay
-      muted
-      playsinline
-    ></video>
   </div>
 </template>
 
@@ -135,6 +127,11 @@ export default defineComponent({
 
     const isMicLocked = window.xprops?.isMicLocked || false;
 
+    console.log(isMicLocked);
+    const cameraId =
+      window.xprops?.cameraId || (route.query.cameraId as string);
+    const micId = window.xprops?.micId || (route.query.micId as string);
+
     const isCameraLocked = window.xprops?.isCameraLocked || false;
 
     const isScreenShareLocked = window.xprops?.isScreenShareLocked || false;
@@ -171,11 +168,13 @@ export default defineComponent({
     let bgInfo = window?.xprops?.bgInfo || {
       url: 'https://encrypted.fractalup.com/file/MainPublic/fractalup_assets/landing/main.png',
       maximized: false,
+      allowResetBg: false,
     };
     if (window?.xprops?.bgInfo?.url === '' || !window?.xprops?.bgInfo?.url) {
       bgInfo = {
         url: 'https://encrypted.fractalup.com/file/MainPublic/fractalup_assets/landing/main.png',
         maximized: false,
+        allowResetBg: false,
       };
     }
 
@@ -211,9 +210,10 @@ export default defineComponent({
           ? PERMISSION_STATUS.asked
           : PERMISSION_STATUS.admitted
         : PERMISSION_STATUS.admitted,
-      existVideo: false,
       isRecording: false,
       isHost,
+      cameraId,
+      micId,
       isPublishing: isHost ? 1 : 0,
     });
 

@@ -21,6 +21,9 @@ export interface Room {
   pinnedUserId?: string;
   bgInfo: BgInfo;
   hostId: string;
+  fbTransmission?: boolean;
+  ytTransmission?: boolean;
+  rtmpTransmission?: boolean;
 }
 
 export interface UpdatedRoomFields {
@@ -40,6 +43,9 @@ export interface UpdatedRoomFields {
   pinnedUserId?: string;
   bgInfo?: BgInfo;
   hostId?: string;
+  fbTransmission?: boolean;
+  ytTransmission?: boolean;
+  rtmpTransmission?: boolean;
 }
 
 export interface participantOnWait {
@@ -77,6 +83,9 @@ export function useRoom() {
   const updateBgSize = (maximized: boolean) =>
     (roomState.bgInfo.maximized = maximized);
 
+  const updateAllowResetBg = (value: boolean) =>
+    (roomState.bgInfo.allowResetBg = value);
+
   return {
     roomState,
     updateRoom,
@@ -88,5 +97,6 @@ export function useRoom() {
     updateFocus,
     updateBgUrl,
     updateBgSize,
+    updateAllowResetBg,
   };
 }

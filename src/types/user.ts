@@ -14,11 +14,6 @@ export interface User {
   isScreenShareBlocked: boolean;
   fractalUserId: string;
   denied: number;
-  existVideo: boolean;
-  urlOfVideo: string;
-  videoInstance: HTMLMediaElement & { playerId: string };
-  currentTime: number;
-  isPlayingVideo: boolean;
   isRecording: boolean;
   roleId: number;
   isHost: boolean;
@@ -26,4 +21,6 @@ export interface User {
   cameraPublishedState: ComputedRef; // For my own user
   micPublishedState: ComputedRef; //  For my own user
   hasLogJoin: boolean; // Specially for others users because mine just log one time
+  cameraId: string;
+  micId: string;
 }

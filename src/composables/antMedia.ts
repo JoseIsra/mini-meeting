@@ -649,7 +649,6 @@ export function useInitWebRTC() {
               '⭐ SENDING REQUEST FOR INFO OF PARTICIPANTS IN ROOM',
               obj
             );
-
             //PIDE INFORMACIÓN DE LOS PARTICIPANTES Y LA SALA SOLO AL HOST PERO TAMBIÉN ENVIA SU PROPIA DATA
             /* setTimeout(() => { */
             webRTCInstance.value.sendData?.(
@@ -761,6 +760,7 @@ export function useInitWebRTC() {
                 'from:',
                 userMe.id
               );
+
               try {
                 //PONE EL OBJETO DE STREAM COMO NULO PARA QUE NO GASTE ESPACIO EN EL MENSAJE QUE IRÁ POR EL DATA CHANNEL YA QUE NO SE NECESITA ENVIAR POR AQUṔI
                 const modifiedUserMe = _.cloneDeep(userMe);
@@ -821,6 +821,8 @@ export function useInitWebRTC() {
               denied: remoteUserInfoParsed.userInfo.denied,
               isRecording: remoteUserInfoParsed.userInfo.isRecording,
               fractalUserId: remoteUserInfoParsed.userInfo.fractalUserId,
+              roleId: remoteUserInfoParsed.userInfo.roleId,
+              isHost: remoteUserInfoParsed.userInfo.isHost,
               hasLogJoin: false,
             };
 
@@ -929,6 +931,9 @@ export function useInitWebRTC() {
                 resetDesktop();
                 sendNotificationEvent('SCREEN_SHARING_OFF', userMe.id);
                 setScreenShareIconState(!value);
+
+                updateUserMe({ isPublishing: 0 });
+                stopPublishing(userMe.id);
               }
             } else if (action === LOCK_ACTION_TYPE.Mic) {
               // setMicBlock(value);
@@ -940,6 +945,14 @@ export function useInitWebRTC() {
                 setMicState(!value);
                 muteLocalMic();
                 sendNotificationEvent('MIC_MUTED', userMe.id);
+
+                if (
+                  userMe.isCameraOn === false &&
+                  userMe.isScreenSharing === false
+                ) {
+                  updateUserMe({ isPublishing: 0 });
+                  stopPublishing(userMe.id);
+                }
               }
             } else if (action === LOCK_ACTION_TYPE.Camera) {
               // setVideoBlock(value);
@@ -952,6 +965,14 @@ export function useInitWebRTC() {
                 setVideoActivatedState(!value);
                 turnOffLocalCamera(userMe.id);
                 sendNotificationEvent('CAM_TURNED_OFF', userMe.id);
+
+                if (
+                  userMe.isMicOn === false &&
+                  userMe.isScreenSharing === false
+                ) {
+                  updateUserMe({ isPublishing: 0 });
+                  stopPublishing(userMe.id);
+                }
               }
             } else if (action === LOCK_ACTION_TYPE.Screen) {
               // setScreenShareBlock(value);
@@ -964,6 +985,11 @@ export function useInitWebRTC() {
                 setVideoActivatedState(!value);
                 resetDesktop();
                 sendNotificationEvent('SCREEN_SHARING_OFF', userMe.id);
+
+                if (userMe.isMicOn === false && userMe.isCameraOn === false) {
+                  updateUserMe({ isPublishing: 0 });
+                  stopPublishing(userMe.id);
+                }
               }
             }
           } else if (eventType === 'SET_EVERYONE_ACTION') {
@@ -998,27 +1024,54 @@ export function useInitWebRTC() {
                 resetDesktop();
                 sendNotificationEvent('SCREEN_SHARING_OFF', userMe.id);
                 setScreenShareIconState(!value);
+
+                updateUserMe({ isPublishing: 0 });
+                stopPublishing(userMe.id);
               }
             } else if (action === LOCK_ACTION_TYPE.Mic) {
               setRoomMicState(value);
               setEveryParticipantActions(LOCK_ACTION_TYPE.Mic, value);
 
-              if (value) {
-                /* setMicIconState(!value); */
-                setMicState(!value);
-                muteLocalMic();
-                sendNotificationEvent('MIC_MUTED', userMe.id);
+              if (userMe.roleId === USER_ROLE.REGULAR_PARTICIPANT) {
+                setLocalMicBlock(value);
+
+                if (value) {
+                  /* setMicIconState(!value); */
+                  setMicState(!value);
+                  muteLocalMic();
+                  sendNotificationEvent('MIC_MUTED', userMe.id);
+
+                  if (
+                    userMe.isCameraOn === false &&
+                    userMe.isScreenSharing === false
+                  ) {
+                    updateUserMe({ isPublishing: 0 });
+                    stopPublishing(userMe.id);
+                  }
+                }
               }
             } else if (action === LOCK_ACTION_TYPE.Camera) {
               setRoomCameraState(value);
               setEveryParticipantActions(LOCK_ACTION_TYPE.Camera, value);
 
-              if (value) {
-                /* setCameraIconState(!value); */
-                setCameraState(!value);
-                setVideoActivatedState(!value);
-                turnOffLocalCamera(userMe.id);
-                sendNotificationEvent('CAM_TURNED_OFF', userMe.id);
+              if (userMe.roleId === USER_ROLE.REGULAR_PARTICIPANT) {
+                setLocalVideoBlock(value);
+
+                if (value) {
+                  /* setCameraIconState(!value); */
+                  setCameraState(!value);
+                  setVideoActivatedState(!value);
+                  turnOffLocalCamera(userMe.id);
+                  sendNotificationEvent('CAM_TURNED_OFF', userMe.id);
+
+                  if (
+                    userMe.isMicOn === false &&
+                    userMe.isScreenSharing === false
+                  ) {
+                    updateUserMe({ isPublishing: 0 });
+                    stopPublishing(userMe.id);
+                  }
+                }
               }
             } else if (action === LOCK_ACTION_TYPE.Screen) {
               setRoomScreenShareState(value);
@@ -1026,14 +1079,19 @@ export function useInitWebRTC() {
 
               if (userMe.roleId === USER_ROLE.REGULAR_PARTICIPANT) {
                 setLocalScreenShareBlock(value);
-              }
 
-              if (value && userMe.roleId === USER_ROLE.REGULAR_PARTICIPANT) {
-                setScreenShareIconState(!value);
-                setScreenState(!value);
-                setVideoActivatedState(!value);
-                resetDesktop();
-                sendNotificationEvent('SCREEN_SHARING_OFF', userMe.id);
+                if (value) {
+                  setScreenShareIconState(!value);
+                  setScreenState(!value);
+                  setVideoActivatedState(!value);
+                  resetDesktop();
+                  sendNotificationEvent('SCREEN_SHARING_OFF', userMe.id);
+
+                  if (userMe.isMicOn === false && userMe.isCameraOn === false) {
+                    updateUserMe({ isPublishing: 0 });
+                    stopPublishing(userMe.id);
+                  }
+                }
               }
             }
           } else if (eventType === 'ANSWER_PERMISSION') {
@@ -1279,6 +1337,7 @@ export function useInitWebRTC() {
 
   //TODO: Get the device id in the websocket as it works in remotePlayer.html
   const switchVideoCameraCapture = (streamId: string, cameraId: string) => {
+    console.log('FUENTE DE CAMARA', cameraId);
     webRTCInstance.value.switchVideoCameraCapture?.(streamId, cameraId);
     // let cameraId: string;
     // navigator.mediaDevices
@@ -1290,6 +1349,7 @@ export function useInitWebRTC() {
     //   .catch((err) => console.log(err));
   };
   const switchAudioInputSource = (streamId: string, microId: string) => {
+    console.log('fuente de audio', microId);
     webRTCInstance.value.switchAudioInputSource?.(streamId, microId);
     // let microId: string;
     // navigator.mediaDevices
@@ -1315,8 +1375,6 @@ export function useInitWebRTC() {
         webRTCInstance.value.switchVideoCameraCapture?.(streamId, cameraId);
       })
       .catch((err) => console.log(err)); */
-    webRTCInstance.value.switchVideoCameraCapture?.(streamId, userMe.cameraId);
-    console.log(userMe.cameraId, '📸📸');
     // webRTCInstance.value.switchVideoCameraCapture?.(streamId, userMe.cameraId);
     webRTCInstance.value.turnOnLocalCamera?.(streamId);
   };

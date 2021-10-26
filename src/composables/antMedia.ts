@@ -929,6 +929,9 @@ export function useInitWebRTC() {
                 resetDesktop();
                 sendNotificationEvent('SCREEN_SHARING_OFF', userMe.id);
                 setScreenShareIconState(!value);
+
+                updateUserMe({ isPublishing: 0 });
+                stopPublishing(userMe.id);
               }
             } else if (action === LOCK_ACTION_TYPE.Mic) {
               // setMicBlock(value);
@@ -940,6 +943,14 @@ export function useInitWebRTC() {
                 setMicState(!value);
                 muteLocalMic();
                 sendNotificationEvent('MIC_MUTED', userMe.id);
+
+                if (
+                  userMe.isCameraOn === false &&
+                  userMe.isScreenSharing === false
+                ) {
+                  updateUserMe({ isPublishing: 0 });
+                  stopPublishing(userMe.id);
+                }
               }
             } else if (action === LOCK_ACTION_TYPE.Camera) {
               // setVideoBlock(value);
@@ -952,6 +963,14 @@ export function useInitWebRTC() {
                 setVideoActivatedState(!value);
                 turnOffLocalCamera(userMe.id);
                 sendNotificationEvent('CAM_TURNED_OFF', userMe.id);
+
+                if (
+                  userMe.isMicOn === false &&
+                  userMe.isScreenSharing === false
+                ) {
+                  updateUserMe({ isPublishing: 0 });
+                  stopPublishing(userMe.id);
+                }
               }
             } else if (action === LOCK_ACTION_TYPE.Screen) {
               // setScreenShareBlock(value);
@@ -964,6 +983,11 @@ export function useInitWebRTC() {
                 setVideoActivatedState(!value);
                 resetDesktop();
                 sendNotificationEvent('SCREEN_SHARING_OFF', userMe.id);
+
+                if (userMe.isMicOn === false && userMe.isCameraOn === false) {
+                  updateUserMe({ isPublishing: 0 });
+                  stopPublishing(userMe.id);
+                }
               }
             }
           } else if (eventType === 'SET_EVERYONE_ACTION') {
@@ -998,6 +1022,9 @@ export function useInitWebRTC() {
                 resetDesktop();
                 sendNotificationEvent('SCREEN_SHARING_OFF', userMe.id);
                 setScreenShareIconState(!value);
+
+                updateUserMe({ isPublishing: 0 });
+                stopPublishing(userMe.id);
               }
             } else if (action === LOCK_ACTION_TYPE.Mic) {
               setRoomMicState(value);
@@ -1011,6 +1038,14 @@ export function useInitWebRTC() {
                   setMicState(!value);
                   muteLocalMic();
                   sendNotificationEvent('MIC_MUTED', userMe.id);
+
+                  if (
+                    userMe.isCameraOn === false &&
+                    userMe.isScreenSharing === false
+                  ) {
+                    updateUserMe({ isPublishing: 0 });
+                    stopPublishing(userMe.id);
+                  }
                 }
               }
             } else if (action === LOCK_ACTION_TYPE.Camera) {
@@ -1026,6 +1061,14 @@ export function useInitWebRTC() {
                   setVideoActivatedState(!value);
                   turnOffLocalCamera(userMe.id);
                   sendNotificationEvent('CAM_TURNED_OFF', userMe.id);
+
+                  if (
+                    userMe.isMicOn === false &&
+                    userMe.isScreenSharing === false
+                  ) {
+                    updateUserMe({ isPublishing: 0 });
+                    stopPublishing(userMe.id);
+                  }
                 }
               }
             } else if (action === LOCK_ACTION_TYPE.Screen) {
@@ -1041,6 +1084,11 @@ export function useInitWebRTC() {
                   setVideoActivatedState(!value);
                   resetDesktop();
                   sendNotificationEvent('SCREEN_SHARING_OFF', userMe.id);
+
+                  if (userMe.isMicOn === false && userMe.isCameraOn === false) {
+                    updateUserMe({ isPublishing: 0 });
+                    stopPublishing(userMe.id);
+                  }
                 }
               }
             }

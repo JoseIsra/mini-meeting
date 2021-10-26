@@ -1249,6 +1249,9 @@ export function useInitWebRTC() {
           setLoadingOrErrorMessage(
             'Error desconocido. Por favor, verifique que sus dispositivos no estén siendo usados por otra aplicación'
           );
+        } else if (error.indexOf('notSetRemoteDescription') !== -1) {
+          setExistRoom(false);
+          setLoadingOrErrorMessage('Error: Su dispositivo no es compatible');
         }
 
         console.error(errorMessage, error, message, '#️⃣');

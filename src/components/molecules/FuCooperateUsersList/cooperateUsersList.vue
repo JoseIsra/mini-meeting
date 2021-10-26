@@ -30,11 +30,7 @@
     </header>
     <main class="m-list__content">
       <div class="m-list__content__actions" v-show="userMe.roleId === 0">
-        <span>
-          {{
-            isEveryoneActionsBlocked ? 'Liberar acciones ' : 'Limitar acciones'
-          }}
-        </span>
+        <span> Acciones sala </span>
 
         <q-btn
           :icon="isEveryoneMicBlocked ? 'mic_off' : 'mic'"
@@ -110,7 +106,6 @@
           :icon="isEveryoneActionsBlocked ? 'fas fa-lock' : 'fas fa-lock-open'"
           @click="handleEveryoneActions(LOCK_ACTION_TYPE.All)"
           size="10px"
-          :disable="!admittedParticipants.length > 0"
         >
           <q-tooltip
             class="bg-grey-10"
@@ -322,11 +317,11 @@
           />
 
           <q-avatar
-            v-show="participant.roleId === 0"
+            v-show="participant.roleId !== 1"
             class="m-list__content__userBox__avatar__token"
             color="blue-8"
             text-color="white"
-            icon="fas fa-user-shield"
+            :icon="participant.isHost ? 'fas fa-crown' : 'fas fa-user-shield'"
             size="18px"
           />
         </aside>
@@ -834,9 +829,9 @@ export default defineComponent({
         if (isEveryoneActionsBlocked.value) {
           setEveryParticipantActions(action, false);
 
-          /* setRoomMicState(false);
+          setRoomMicState(false);
           setRoomCameraState(false);
-          setRoomScreenShareState(false); */
+          setRoomScreenShareState(false);
 
           sendData(roomState.hostId, {
             ...blockActions,
@@ -845,16 +840,16 @@ export default defineComponent({
           });
 
           window.xprops?.toggleLockAction?.({
-            mic: 0,
-            camera: 0,
-            screenshare: 0,
+            mic: Number(false),
+            camera: Number(false),
+            screenshare: Number(false),
           });
         } else {
           setEveryParticipantActions(action, true);
 
-          /* setRoomMicState(true);
+          setRoomMicState(true);
           setRoomCameraState(true);
-          setRoomScreenShareState(true); */
+          setRoomScreenShareState(true);
 
           sendData(roomState.hostId, {
             ...blockActions,
@@ -863,16 +858,17 @@ export default defineComponent({
           });
 
           window.xprops?.toggleLockAction?.({
-            mic: 1,
-            camera: 1,
-            screenshare: 1,
+            mic: Number(true),
+            camera: Number(true),
+            screenshare: Number(true),
           });
         }
       } else if (action === LOCK_ACTION_TYPE.Mic) {
+
         if (isEveryoneMicBlocked.value) {
           setEveryParticipantActions(action, false);
 
-          /* setRoomMicState(false); */
+          setRoomMicState(false);
 
           sendData(roomState.hostId, {
             ...blockActions,
@@ -881,14 +877,14 @@ export default defineComponent({
           });
 
           window.xprops?.toggleLockAction?.({
-            mic: 0,
+            mic: Number(false),
             camera: Number(roomState.isCameraBlocked),
             screenshare: Number(roomState.isScreenShareBlocked),
           });
         } else {
           setEveryParticipantActions(action, true);
 
-          /* setRoomMicState(true); */
+          setRoomMicState(true);
 
           sendData(roomState.hostId, {
             ...blockActions,
@@ -897,16 +893,17 @@ export default defineComponent({
           });
 
           window.xprops?.toggleLockAction?.({
-            mic: 1,
+            mic: Number(true),
             camera: Number(roomState.isCameraBlocked),
             screenshare: Number(roomState.isScreenShareBlocked),
           });
         }
       } else if (action === LOCK_ACTION_TYPE.Camera) {
+
         if (isEveryoneVideoBlocked.value) {
           setEveryParticipantActions(action, false);
 
-          /* setRoomCameraState(false); */
+          setRoomCameraState(false);
 
           sendData(roomState.hostId, {
             ...blockActions,
@@ -916,13 +913,13 @@ export default defineComponent({
 
           window.xprops?.toggleLockAction?.({
             mic: Number(roomState.isMicBlocked),
-            camera: 0,
+            camera: Number(false),
             screenshare: Number(roomState.isScreenShareBlocked),
           });
         } else {
           setEveryParticipantActions(action, true);
 
-          /* setRoomCameraState(true); */
+          setRoomCameraState(true);
 
           sendData(roomState.hostId, {
             ...blockActions,
@@ -932,15 +929,16 @@ export default defineComponent({
 
           window.xprops?.toggleLockAction?.({
             mic: Number(roomState.isMicBlocked),
-            camera: 1,
+            camera: Number(true),
             screenshare: Number(roomState.isScreenShareBlocked),
           });
         }
       } else if (action === LOCK_ACTION_TYPE.Screen) {
+
         if (isEveryoneScreenShareBlocked.value) {
           setEveryParticipantActions(action, false);
 
-          /* setRoomScreenShareState(false); */
+          setRoomScreenShareState(false);
 
           sendData(roomState.hostId, {
             ...blockActions,
@@ -951,12 +949,12 @@ export default defineComponent({
           window.xprops?.toggleLockAction?.({
             mic: Number(roomState.isMicBlocked),
             camera: Number(roomState.isCameraBlocked),
-            screenshare: 0,
+            screenshare: Number(false),
           });
         } else {
           setEveryParticipantActions(action, true);
 
-          /* setRoomScreenShareState(true); */
+          setRoomScreenShareState(true);
 
           sendData(roomState.hostId, {
             ...blockActions,
@@ -967,7 +965,7 @@ export default defineComponent({
           window.xprops?.toggleLockAction?.({
             mic: Number(roomState.isMicBlocked),
             camera: Number(roomState.isCameraBlocked),
-            screenshare: 1,
+            screenshare: Number(true),
           });
         }
       }
@@ -1053,8 +1051,7 @@ export default defineComponent({
       roomState,
       closeUserListPanel,
       participantActionsToolTip,
-      notificateHandUp,
-    };
+      notificateHandUp,    };
   },
 });
 </script>

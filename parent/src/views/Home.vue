@@ -13,9 +13,9 @@
     :toggleLockAction="toggleLockAction"
     sharedLink="sharedLinkTest"
     classroomId="1"
-    :isCameraLocked="false"
-    :isScreenShareLocked="false"
-    :isMicLocked="false"
+    :isMicLocked="actions.mic === 1"
+    :isCameraLocked="actions.camera === 1"
+    :isScreenShareLocked="actions.screenshare === 1"
     :getB2Info="getB2Info"
     :roleId="roleId"
     :roomRestriction="0"
@@ -60,6 +60,9 @@ export default {
       isHost: this.$route.query.isHost == "true" || false,
       roleId: parseInt(this.$route.query.roleId) || 0,
       roomId: this.$route.query.roomId || "room16",
+      actions: localStorage.actions
+        ? JSON.parse(localStorage.actions)
+        : { mic: 0, camera: 0, screenshare: 0 },
     };
   },
   methods: {
@@ -82,6 +85,7 @@ export default {
     },
     toggleLockAction: function (options) {
       console.log("⭐ toggle log action with params", options);
+      window.localStorage.actions = JSON.stringify(options);
     },
     getB2Info: async function () {
       const myQuery = `

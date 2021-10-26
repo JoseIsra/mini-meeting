@@ -1279,6 +1279,7 @@ export function useInitWebRTC() {
 
   //TODO: Get the device id in the websocket as it works in remotePlayer.html
   const switchVideoCameraCapture = (streamId: string, cameraId: string) => {
+    console.log('FUENTE DE CAMARA', cameraId);
     webRTCInstance.value.switchVideoCameraCapture?.(streamId, cameraId);
     // let cameraId: string;
     // navigator.mediaDevices
@@ -1290,6 +1291,7 @@ export function useInitWebRTC() {
     //   .catch((err) => console.log(err));
   };
   const switchAudioInputSource = (streamId: string, microId: string) => {
+    console.log('fuente de audio', microId);
     webRTCInstance.value.switchAudioInputSource?.(streamId, microId);
     // let microId: string;
     // navigator.mediaDevices
@@ -1315,8 +1317,6 @@ export function useInitWebRTC() {
         webRTCInstance.value.switchVideoCameraCapture?.(streamId, cameraId);
       })
       .catch((err) => console.log(err)); */
-    webRTCInstance.value.switchVideoCameraCapture?.(streamId, userMe.cameraId);
-    console.log(userMe.cameraId, '📸📸');
     // webRTCInstance.value.switchVideoCameraCapture?.(streamId, userMe.cameraId);
     webRTCInstance.value.turnOnLocalCamera?.(streamId);
   };

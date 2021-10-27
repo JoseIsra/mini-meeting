@@ -1105,7 +1105,7 @@ export function useInitWebRTC() {
 
             if (userMe.id === participantId) {
               if (value) {
-                setRoomRestriction(false);
+                // setRoomRestriction(0);
                 setDenied(PERMISSION_STATUS.admitted);
               } else {
                 setDenied(PERMISSION_STATUS.denied);

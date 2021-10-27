@@ -13,7 +13,7 @@ export interface Room {
   isMicBlocked: boolean;
   isCameraBlocked: boolean;
   isScreenShareBlocked: boolean;
-  roomRestriction: boolean;
+  roomRestriction: number;
   // bgUrl?: string;
   // bgMaximixed: boolean;
   startDate: string;
@@ -35,7 +35,7 @@ export interface UpdatedRoomFields {
   isMicBlocked?: boolean;
   isCameraBlocked?: boolean;
   isScreenShareBlocked?: boolean;
-  roomRestriction?: boolean;
+  roomRestriction?: number;
   // bgUrl?: string;
   // bgMaximixed: boolean;
   startDate?: string;
@@ -65,7 +65,7 @@ export function useRoom() {
     Object.assign(roomState, { ...roomState, ...value });
   };
 
-  const setRoomRestriction = (state: boolean) =>
+  const setRoomRestriction = (state: number) =>
     (roomState.roomRestriction = state);
 
   const setRoomMicState = (state: boolean) => (roomState.isMicBlocked = state);

@@ -131,6 +131,12 @@ export default defineComponent({
             });
           }
         }
+
+        console.debug(board.value.getObjects());
+        
+        window.xprops?.updateBoardObjects?.(
+          JSON.stringify(board.value.getObjects())
+        );
       });
 
       board.value.on('object:modified', (options) => {

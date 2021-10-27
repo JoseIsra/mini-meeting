@@ -52,7 +52,7 @@
       "
     />
 
-    <fu-board />
+    <fu-board v-if="boardState" />
 
     <fu-full-screen v-if="isFullScreen" />
 

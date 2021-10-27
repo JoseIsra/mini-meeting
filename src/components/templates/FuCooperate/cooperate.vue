@@ -127,7 +127,6 @@ export default defineComponent({
 
     const isMicLocked = window.xprops?.isMicLocked || false;
 
-    console.log(isMicLocked);
     const cameraId =
       window.xprops?.cameraId || (route.query.cameraId as string);
     const micId = window.xprops?.micId || (route.query.micId as string);
@@ -181,6 +180,10 @@ export default defineComponent({
     const userPinnedZoid = (window?.xprops?.pinnedUser as string) || '';
 
     const isBeingRecorded = window?.xprops?.isBeingRecorded || false;
+
+    const boardObjects = window?.xprops?.boardObjects || '';
+
+    console.debug('Board: ', boardObjects);
 
     const { setIDButtonSelected, setFullScreen } = useToogleFunctions();
 
@@ -238,6 +241,7 @@ export default defineComponent({
       pinnedUserId: userPinnedZoid,
       startDate,
       hostId,
+      boardState: boardObjects === '' ? false : true,
     });
 
     /* setMicIconState(roleId === 1 ? (isMicLocked ? false : isMicOn) : isMicOn); */

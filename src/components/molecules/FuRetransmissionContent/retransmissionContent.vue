@@ -284,6 +284,9 @@ export default defineComponent({
         setCookie('key', key.value, 30);
       }
     };
+    const stopPublishing = (streamId: string) => {
+      webRTCInstance.value.stop(streamId);
+    };
 
     const endRTMPTransmission = async () => {
       console.log('TERMINANDO RTMP 📽️');
@@ -313,6 +316,9 @@ export default defineComponent({
         eraseCookie('endpoint');
         eraseCookie('key');
         updateRoom({ rtmpTransmission: false });
+
+        stopPublishing('retraId');
+        webRTCInstance.value.leaveFromRoom?.(roomId);
       }
     };
 
@@ -372,6 +378,24 @@ export default defineComponent({
       );
     };
 
+    const userMeForObs = {
+      id: 'retraId',
+      avatar: 'https://f002.backblazeb2.com/file/FractalUp/Logos/logo_azul.svg',
+      name: 'streamName',
+      isCameraOn: false,
+      isMicOn: true,
+      isScreenSharing: false,
+      isVideoActivated: true,
+      isMicBlocked: false,
+      isCameraBlocked: false,
+      isScreenShareBlocked: false,
+      denied: 1,
+      isRecording: false,
+      fractalUserId: 'retraID',
+      roleId: 1,
+      isHost: false,
+    };
+
     const initMiniWebrtc = () => {
       webRTCInstance.value = new WebRTCAdaptor({
         websocket_url: websocketURL,
@@ -389,6 +413,7 @@ export default defineComponent({
             window.addEventListener('unload', () => {
               leaveRoom?.(roomId);
             });
+            webRTCInstance.value.turnOffLocalCamera('retraId');
             publish(
               'retraId',
               publishToken,
@@ -396,10 +421,27 @@ export default defineComponent({
               subscriberCode,
               'streamName'
             );
+            webRTCInstance.value.play?.(roomState.hostId, undefined, roomId);
           } else if (info == 'newStreamAvailable') {
             console.log('new stream available MINIWEBRTC 🚀', obj);
           } else if (info == 'publish_started') {
             console.log('PUBLICANDO MINI WEBRTC', obj);
+          } else if (info == 'data_channel_opened') {
+            const streamId = obj as unknown as string;
+            console.log('dataChannelOpen with ⭐', streamId);
+            if (streamId === roomState.hostId) {
+              console.log('started retransmission channel ⭐');
+              webRTCInstance.value.sendData?.(
+                roomState.hostId,
+                JSON.stringify({
+                  eventType:
+                    'NEW_USER:PARTICIPANTS_IN_ROOM_INFO_REQUEST_AND_SEND_OWN_INFO',
+                  from: 'retraId',
+                  to: roomState.hostId,
+                  userInfo: userMeForObs,
+                })
+              );
+            }
           }
         },
         callbackError: (error: string, message: string) => {

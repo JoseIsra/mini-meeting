@@ -19,6 +19,11 @@ export enum LOCK_ACTION_TYPE {
   'Screen',
 }
 
+export enum ROOM_PRIVACY {
+  'PUBLIC',
+  'PRIVATE'
+}
+
 export enum PERMISSION_STATUS {
   'asked',
   'admitted',

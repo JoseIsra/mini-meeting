@@ -81,7 +81,7 @@ const {
   setRoomMicState,
   setRoomCameraState,
   setRoomScreenShareState,
-  setroomRestriction,
+  setRoomRestriction,
   updateFocus,
   updateBgUrl,
   updateBgSize,
@@ -110,6 +110,7 @@ const {
   isFullScreen,
   setIDButtonSelected,
   clearFullScreenObject,
+  functionsOnMenuBar,
 } = useToogleFunctions();
 
 const roomTimerId = ref<ReturnType<typeof setInterval> | null>(null);
@@ -610,6 +611,15 @@ export function useInitWebRTC() {
                           fractalUserId: participant.fractalUserId,
                         });
 
+                        const hasHandUp =
+                          functionsOnMenuBar.handNotificationInfo.find(
+                            (notific) => notific.from == participant.id
+                          );
+
+                        if (hasHandUp) {
+                          removeHandNotification(participant.id as string);
+                        }
+
                         /* if (roomState.pinnedUser?.id === participant.id) {
                           sendData(roomState.hostId, {
                             eventType: 'SET_FULL_SCREEN',
@@ -805,6 +815,17 @@ export function useInitWebRTC() {
               remoteUserInfoParsed.userInfo
             );
 
+            if (
+              userMe.roleId === 0 &&
+              remoteUserInfoParsed.userInfo.denied === 0 &&
+              !roomState.roomRestriction
+            ) {
+              notifyWithAction(
+                remoteUserInfoParsed.userInfo.name,
+                remoteUserInfoParsed.userInfo.id
+              );
+            }
+
             const newUser = {
               id: remoteUserInfoParsed.userInfo.id,
               avatar: remoteUserInfoParsed.userInfo.avatar,
@@ -868,16 +889,6 @@ export function useInitWebRTC() {
                 );
               }
 
-              /* if ( 
-                userMe.roleId === 0 &&
-                remoteUserInfoParsed.userInfo.denied === 0 &&
-                !roomState.roomRestriction
-              ) {
-                notifyWithAction(
-                  remoteUserInfoParsed.userInfo.name,
-                  remoteUserInfoParsed.userInfo.id
-                );
-              } */
               /* } */
             }
             /* if (!userMe.isHost) {
@@ -1098,17 +1109,13 @@ export function useInitWebRTC() {
             ) as ObjAnswerPermission;
 
             if (userMe.id === participantId) {
-              console.log('Respuesta para mi');
-
               if (value) {
-                setroomRestriction(0);
+                // setRoomRestriction(0);
                 setDenied(PERMISSION_STATUS.admitted);
               } else {
                 setDenied(PERMISSION_STATUS.denied);
               }
             } else {
-              console.log('Respuesta para un participante: ', participantId);
-
               updateParticipantDenied(
                 participantId,
                 value ? PERMISSION_STATUS.admitted : PERMISSION_STATUS.denied
@@ -1186,7 +1193,15 @@ export function useInitWebRTC() {
               obj.data
             ) as ObjUserLeavingMessageParsed;
 
-            console.log('USER LEAVING', '🚀🚀🚀');
+            console.debug('USER LEAVING', '🚀🚀🚀', userLeavingMsgParsed);
+
+            const hasHandUp = functionsOnMenuBar.handNotificationInfo.find(
+              (notific) => notific.from == userLeavingMsgParsed.id
+            );
+
+            if (hasHandUp) {
+              removeHandNotification(userLeavingMsgParsed.id);
+            }
 
             if (roomState.pinnedUser?.id === userLeavingMsgParsed.id) {
               updateRoom({ pinnedUser: null });

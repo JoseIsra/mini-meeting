@@ -65,7 +65,7 @@ export function useRoom() {
     Object.assign(roomState, { ...roomState, ...value });
   };
 
-  const setroomRestriction = (state: number) =>
+  const setRoomRestriction = (state: number) =>
     (roomState.roomRestriction = state);
 
   const setRoomMicState = (state: boolean) => (roomState.isMicBlocked = state);
@@ -90,7 +90,7 @@ export function useRoom() {
     roomState,
     updateRoom,
     setRoom,
-    setroomRestriction,
+    setRoomRestriction,
     setRoomMicState,
     setRoomCameraState,
     setRoomScreenShareState,

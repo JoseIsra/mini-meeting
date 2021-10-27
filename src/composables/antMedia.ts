@@ -88,6 +88,7 @@ const {
   updateFocus,
   updateBgUrl,
   updateBgSize,
+  updateBoardState,
   roomState,
 } = useRoom();
 
@@ -1219,11 +1220,12 @@ export function useInitWebRTC() {
             const { event, object } = JSON.parse(obj.data) as ObjBoardEvent;
 
             if (!object) {
-              console.log('Turn on or off');
               if (event === BOARD_EVENTS.TURN_ON) {
                 console.log('Enceder board');
+                updateBoardState(true);
               } else if (event === BOARD_EVENTS.TURN_OFF) {
                 console.log('Apagar board');
+                updateBoardState(false);
               } else if (event === BOARD_EVENTS.CLEAN) {
                 clearBoard();
               }
@@ -1239,7 +1241,7 @@ export function useInitWebRTC() {
               // }
             }
           }
-        }        
+        }
       },
       callbackError: function (
         error: string,

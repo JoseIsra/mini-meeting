@@ -11,7 +11,6 @@
       @click="handlePlaying"
     />
     <video
-      autoplay
       id="specialId"
       :class="[
         { 'vjs-poster': posterClass },
@@ -63,7 +62,6 @@ export default defineComponent({
     const { screenMinimized } = useScreen();
     const optionsForPlayer = reactive<videojs.PlayerOptions>({
       controls: canManipulateVideo.value || screenMinimized.value,
-      autoplay: true,
       bigPlayButton: false,
       responsive: true,
       controlBar: {

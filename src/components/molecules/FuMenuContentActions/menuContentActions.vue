@@ -41,8 +41,9 @@ import { useToogleFunctions } from '@/composables';
 import FuExternalVideoModal from 'molecules/FuExternalVideoModal';
 import { useExternalVideo } from '@/composables/external-video';
 import { useInitWebRTC } from '@/composables/antMedia';
-import { useUserMe } from '@/composables/userMe';
 import videojs from 'video.js';
+import { useRoom } from '@/composables/room';
+import { VideoID } from '@/types/datachannelMessages';
 
 export default defineComponent({
   name: 'FuMenuContentActions',
@@ -55,10 +56,9 @@ export default defineComponent({
     const actions = ref<Options[]>(menuActions);
     const filterContent = ref('');
     let modal = ref(false);
-    const { externalVideo, updateExternalVideoState, setVideoInstance } =
-      useExternalVideo();
+    const { externalVideo, updateExternalVideoState } = useExternalVideo();
     const { sendData } = useInitWebRTC();
-    const { userMe, updateUserMe } = useUserMe();
+    const { roomState } = useRoom();
 
     const executeAction = (interaction: string) => {
       openOptionsMenu(false);
@@ -75,27 +75,19 @@ export default defineComponent({
     });
 
     const removeVideoOnRoom = () => {
+      sendData(roomState.hostId, {
+        remoteInstance: externalVideo.remoteInstance,
+        eventType: 'REMOVE_EXTERNAL_VIDEO',
+      });
+      setFullScreen('none', false);
+      videojs((externalVideo.remoteInstance as VideoID).playerId).dispose();
       updateExternalVideoState({
         ...externalVideo,
         videoOnRoom: false,
         urlVideo: '',
         isVideoPlaying: false,
         videoCurrentTime: 0,
-      });
-      setVideoInstance({} as HTMLMediaElement & { playerId: string });
-      sendData(userMe.id, {
-        remoteInstance: userMe.videoInstance,
-        eventType: 'REMOVE_EXTERNAL_VIDEO',
-      });
-      videojs(userMe.videoInstance?.playerId as string).dispose();
-      setFullScreen('none', false);
-      updateUserMe({
-        ...userMe,
-        existVideo: false,
-        urlOfVideo: '',
-        videoInstance: {} as HTMLMediaElement & { playerId: string },
-        currentTime: 0,
-        isPlayingVideo: false,
+        remoteInstance: {} as HTMLMediaElement & { playerId: string },
       });
     };
 

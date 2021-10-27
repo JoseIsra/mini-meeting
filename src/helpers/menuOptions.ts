@@ -63,13 +63,14 @@ export const menuOptions = {
       description: 'Desplegar a pantalla completa',
       important: false,
     },
-    {
-      id: '2',
-      iconName: 'settings',
-      description: 'Abrir configuración',
-      important: false,
-    },
-   */
+    */
+    // {
+    //   id: '2',
+    //   iconName: 'settings',
+    //   description: 'Configuración de dispositivos',
+    //   important: false,
+    //   interaction: INTERACTION_TYPE_MENU_OPTIONS.DEVICECONFIGURATION,
+    // },
     {
       id: '3',
       iconName: 'info',
@@ -151,5 +152,44 @@ export const chatMenuIcon = [
     description: 'Borrar todos los mensajes solo para mí',
     important: false,
     interaction: INTERACTION_TYPE_MENU_OPTIONS.CLEARCHAT,
+  },
+];
+
+export const adminPanelOptions = [
+  {
+    id: '1',
+    description: 'General',
+    iconName: 'fas fa-cog',
+    important: false,
+  },
+  {
+    id: '2',
+    description: 'Administrador',
+    iconName: 'toggle_on',
+    important: false,
+  },
+  {
+    id: '3',
+    description: 'Retransmisión',
+    iconName: 'live_tv',
+    important: false,
+  },
+];
+
+export const componentList = [
+  {
+    id: '1',
+    name: 'fu-general-panel',
+    respondToOption: 'General',
+  },
+  {
+    id: '2',
+    name: 'fu-participant-periferic-panel',
+    respondToOption: 'Administrador',
+  },
+  {
+    id: '3',
+    name: 'fu-retransmission-panel',
+    respondToOption: 'Retransmisión',
   },
 ];

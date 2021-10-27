@@ -30,11 +30,7 @@
     </header>
     <main class="m-list__content">
       <div class="m-list__content__actions" v-show="userMe.roleId === 0">
-        <span>
-          {{
-            isEveryoneActionsBlocked ? 'Liberar acciones ' : 'Limitar acciones'
-          }}
-        </span>
+        <span> Acciones sala </span>
 
         <q-btn
           :icon="isEveryoneMicBlocked ? 'mic_off' : 'mic'"
@@ -110,7 +106,6 @@
           :icon="isEveryoneActionsBlocked ? 'fas fa-lock' : 'fas fa-lock-open'"
           @click="handleEveryoneActions(LOCK_ACTION_TYPE.All)"
           size="10px"
-          :disable="!admittedParticipants.length > 0"
         >
           <q-tooltip
             class="bg-grey-10"
@@ -129,7 +124,14 @@
       </div>
       <div class="m-list__content__userBox">
         <aside class="m-list__content__userBox__avatar">
+          <q-icon
+            v-if="notificateHandUp(userMe.id)"
+            name="front_hand"
+            class="m-list__content__userBox__avatar__handIcon"
+            size="20px"
+          />
           <q-img
+            v-else
             class="m-list__content__userBox__avatar__image"
             :src="userMe.avatar"
             alt="avatar-logo"
@@ -301,18 +303,25 @@
         :key="participant.id"
       >
         <aside class="m-list__content__userBox__avatar">
+          <q-icon
+            v-if="notificateHandUp(participant.id)"
+            name="front_hand"
+            size="20px"
+            class="m-list__content__userBox__avatar__handIcon"
+          />
           <q-img
+            v-else
             class="m-list__content__userBox__avatar__image"
             :src="participant.avatar"
             alt="avatar-logo"
           />
 
           <q-avatar
-            v-show="participant.roleId === 0"
+            v-show="participant.roleId !== 1"
             class="m-list__content__userBox__avatar__token"
             color="blue-8"
             text-color="white"
-            icon="fas fa-user-shield"
+            :icon="participant.isHost ? 'fas fa-crown' : 'fas fa-user-shield'"
             size="18px"
           />
         </aside>
@@ -601,9 +610,9 @@
 <script lang="ts">
 import { defineComponent, computed } from 'vue';
 import { useHandleParticipants } from '@/composables/participants';
-import { User, useUserMe } from '@/composables/userMe';
+import { useUserMe } from '@/composables/userMe';
+import { User } from '@/types/user';
 import { useInitWebRTC } from '@/composables/antMedia';
-import { Participant } from '@/types';
 import { LOCK_ACTION_TYPE, USER_ROLE } from '@/utils/enums';
 import { nanoid } from 'nanoid';
 import { useSidebarToogle } from '@/composables';
@@ -641,6 +650,7 @@ export default defineComponent({
       fullScreenObject,
       clearFullScreenObject,
       setIDButtonSelected,
+      functionsOnMenuBar,
     } = useToogleFunctions();
 
     const listenFullScreen = computed(() => {
@@ -663,20 +673,20 @@ export default defineComponent({
         isEveryoneScreenShareBlocked.value
     );
 
-    const isMicBlocked = (participant: Participant) =>
+    const isMicBlocked = (participant: Partial<User>) =>
       admittedParticipants.value.find((part) => part.id === participant.id)
         ?.isMicBlocked === true;
 
-    const isVideoBlocked = (participant: Participant) =>
+    const isVideoBlocked = (participant: Partial<User>) =>
       admittedParticipants.value.find((part) => part.id === participant.id)
         ?.isCameraBlocked === true;
 
-    const isScreenShareBlocked = (participant: Participant) =>
+    const isScreenShareBlocked = (participant: Partial<User>) =>
       admittedParticipants.value.find((part) => part.id === participant.id)
         ?.isScreenShareBlocked === true;
 
     const handleParticipantActions = (
-      participant: Participant,
+      participant: Partial<User>,
       action: number
     ) => {
       if (participant.roleId === USER_ROLE.ADMINISTRATOR) {
@@ -700,7 +710,7 @@ export default defineComponent({
         if (isMicBlocked(participant)) {
           setParticipantActions(participant.id as string, action, false);
 
-          sendData(userMe.id, {
+          sendData(roomState.hostId, {
             ...blockActions,
             eventType: 'SET_PARTICIPANT_ACTION',
             value: false,
@@ -708,7 +718,7 @@ export default defineComponent({
         } else {
           setParticipantActions(participant.id as string, action, true);
 
-          sendData(userMe.id, {
+          sendData(roomState.hostId, {
             ...blockActions,
             eventType: 'SET_PARTICIPANT_ACTION',
             value: true,
@@ -718,7 +728,7 @@ export default defineComponent({
         if (isVideoBlocked(participant)) {
           setParticipantActions(participant.id as string, action, false);
 
-          sendData(userMe.id, {
+          sendData(roomState.hostId, {
             ...blockActions,
             eventType: 'SET_PARTICIPANT_ACTION',
             value: false,
@@ -726,7 +736,7 @@ export default defineComponent({
         } else {
           setParticipantActions(participant.id as string, action, true);
 
-          sendData(userMe.id, {
+          sendData(roomState.hostId, {
             ...blockActions,
             eventType: 'SET_PARTICIPANT_ACTION',
             value: true,
@@ -736,7 +746,7 @@ export default defineComponent({
         if (isScreenShareBlocked(participant)) {
           setParticipantActions(participant.id as string, action, false);
 
-          sendData(userMe.id, {
+          sendData(roomState.hostId, {
             ...blockActions,
             eventType: 'SET_PARTICIPANT_ACTION',
             value: false,
@@ -744,7 +754,7 @@ export default defineComponent({
         } else {
           setParticipantActions(participant.id as string, action, true);
 
-          sendData(userMe.id, {
+          sendData(roomState.hostId, {
             ...blockActions,
             eventType: 'SET_PARTICIPANT_ACTION',
             value: true,
@@ -755,7 +765,7 @@ export default defineComponent({
 
     const participantActionsToolTip = (
       action: number,
-      participant: Participant
+      participant: Partial<User>
     ) => {
       if (participant.roleId === USER_ROLE.REGULAR_PARTICIPANT) {
         switch (action) {
@@ -823,16 +833,16 @@ export default defineComponent({
           setRoomCameraState(false);
           setRoomScreenShareState(false);
 
-          sendData(userMe.id, {
+          sendData(roomState.hostId, {
             ...blockActions,
             eventType: 'SET_EVERYONE_ACTION',
             value: false,
           });
 
           window.xprops?.toggleLockAction?.({
-            mic: 0,
-            camera: 0,
-            screenshare: 0,
+            mic: Number(false),
+            camera: Number(false),
+            screenshare: Number(false),
           });
         } else {
           setEveryParticipantActions(action, true);
@@ -841,32 +851,33 @@ export default defineComponent({
           setRoomCameraState(true);
           setRoomScreenShareState(true);
 
-          sendData(userMe.id, {
+          sendData(roomState.hostId, {
             ...blockActions,
             eventType: 'SET_EVERYONE_ACTION',
             value: true,
           });
 
           window.xprops?.toggleLockAction?.({
-            mic: 1,
-            camera: 1,
-            screenshare: 1,
+            mic: Number(true),
+            camera: Number(true),
+            screenshare: Number(true),
           });
         }
       } else if (action === LOCK_ACTION_TYPE.Mic) {
+
         if (isEveryoneMicBlocked.value) {
           setEveryParticipantActions(action, false);
 
           setRoomMicState(false);
 
-          sendData(userMe.id, {
+          sendData(roomState.hostId, {
             ...blockActions,
             eventType: 'SET_EVERYONE_ACTION',
             value: false,
           });
 
           window.xprops?.toggleLockAction?.({
-            mic: 0,
+            mic: Number(false),
             camera: Number(roomState.isCameraBlocked),
             screenshare: Number(roomState.isScreenShareBlocked),
           });
@@ -875,25 +886,26 @@ export default defineComponent({
 
           setRoomMicState(true);
 
-          sendData(userMe.id, {
+          sendData(roomState.hostId, {
             ...blockActions,
             eventType: 'SET_EVERYONE_ACTION',
             value: true,
           });
 
           window.xprops?.toggleLockAction?.({
-            mic: 1,
+            mic: Number(true),
             camera: Number(roomState.isCameraBlocked),
             screenshare: Number(roomState.isScreenShareBlocked),
           });
         }
       } else if (action === LOCK_ACTION_TYPE.Camera) {
+
         if (isEveryoneVideoBlocked.value) {
           setEveryParticipantActions(action, false);
 
           setRoomCameraState(false);
 
-          sendData(userMe.id, {
+          sendData(roomState.hostId, {
             ...blockActions,
             eventType: 'SET_EVERYONE_ACTION',
             value: false,
@@ -901,7 +913,7 @@ export default defineComponent({
 
           window.xprops?.toggleLockAction?.({
             mic: Number(roomState.isMicBlocked),
-            camera: 0,
+            camera: Number(false),
             screenshare: Number(roomState.isScreenShareBlocked),
           });
         } else {
@@ -909,7 +921,7 @@ export default defineComponent({
 
           setRoomCameraState(true);
 
-          sendData(userMe.id, {
+          sendData(roomState.hostId, {
             ...blockActions,
             eventType: 'SET_EVERYONE_ACTION',
             value: true,
@@ -917,17 +929,18 @@ export default defineComponent({
 
           window.xprops?.toggleLockAction?.({
             mic: Number(roomState.isMicBlocked),
-            camera: 1,
+            camera: Number(true),
             screenshare: Number(roomState.isScreenShareBlocked),
           });
         }
       } else if (action === LOCK_ACTION_TYPE.Screen) {
+
         if (isEveryoneScreenShareBlocked.value) {
           setEveryParticipantActions(action, false);
 
           setRoomScreenShareState(false);
 
-          sendData(userMe.id, {
+          sendData(roomState.hostId, {
             ...blockActions,
             eventType: 'SET_EVERYONE_ACTION',
             value: false,
@@ -936,14 +949,14 @@ export default defineComponent({
           window.xprops?.toggleLockAction?.({
             mic: Number(roomState.isMicBlocked),
             camera: Number(roomState.isCameraBlocked),
-            screenshare: 0,
+            screenshare: Number(false),
           });
         } else {
           setEveryParticipantActions(action, true);
 
           setRoomScreenShareState(true);
 
-          sendData(userMe.id, {
+          sendData(roomState.hostId, {
             ...blockActions,
             eventType: 'SET_EVERYONE_ACTION',
             value: true,
@@ -952,14 +965,14 @@ export default defineComponent({
           window.xprops?.toggleLockAction?.({
             mic: Number(roomState.isMicBlocked),
             camera: Number(roomState.isCameraBlocked),
-            screenshare: 1,
+            screenshare: Number(true),
           });
         }
       }
     };
 
-    const handleKickParticipant = (participant: Participant) => {
-      sendData(userMe.id, { eventType: 'KICK', to: participant.id });
+    const handleKickParticipant = (participant: Partial<User>) => {
+      sendData(roomState.hostId, { eventType: 'KICK', to: participant.id });
     };
 
     const cancelEveryoneFullScreen = () => {
@@ -967,7 +980,7 @@ export default defineComponent({
       setFullScreen('none', false);
       clearFullScreenObject();
 
-      sendData(userMe.id, {
+      sendData(roomState.hostId, {
         eventType: 'SET_FULL_SCREEN',
         mode: 'none',
       });
@@ -983,7 +996,7 @@ export default defineComponent({
         setFullScreenObject(user);
         updateFocus(user);
 
-        sendData(userMe.id, {
+        sendData(roomState.hostId, {
           eventType: 'SET_FULL_SCREEN',
           participant: user,
           mode: 'user',
@@ -1005,6 +1018,12 @@ export default defineComponent({
     const closeUserListPanel = () => {
       setSidebarState(false);
       setIDButtonSelected('');
+    };
+
+    const notificateHandUp = (userId: string) => {
+      return functionsOnMenuBar.handNotificationInfo.some(
+        (notific) => notific.from == userId
+      );
     };
 
     return {
@@ -1032,7 +1051,7 @@ export default defineComponent({
       roomState,
       closeUserListPanel,
       participantActionsToolTip,
-    };
+      notificateHandUp,    };
   },
 });
 </script>

@@ -1,5 +1,6 @@
 import { ref, reactive } from 'vue';
-import { User } from './userMe';
+import { User } from '@/types/user';
+import { HandNotification } from '@/types/datachannelMessages';
 
 interface FunctionState {
   renderChat: boolean;
@@ -17,15 +18,8 @@ interface PerifericsState {
   isMicOn: boolean;
   isCameraOn: boolean;
   isScreenShared: boolean;
-  cameraDeviceId: string;
+  cameraId: string;
   isVideoActivated: boolean;
-}
-
-export interface HandNotification {
-  id: string;
-  streamId: string;
-  streamName: string;
-  eventType: string;
 }
 
 export interface FullScreenContent<T> {
@@ -48,7 +42,7 @@ const perifericsState = {
   isMicOn: true,
   isCameraOn: false,
   isScreenShared: false,
-  cameraDeviceId: '',
+  cameraId: '',
   isVideoActivated: false,
 };
 
@@ -81,7 +75,7 @@ export function useToogleFunctions() {
   const removeHandNotification = (value: string) => {
     functionsOnMenuBar.handNotificationInfo =
       functionsOnMenuBar.handNotificationInfo.filter(
-        (notific) => notific.streamId !== value
+        (notific) => notific.from !== value
       );
   };
 
@@ -150,7 +144,7 @@ export function usePerifericsControls() {
   };
 
   const setCameraDevice = (value: string) => {
-    perifericsControl.cameraDeviceId = value;
+    perifericsControl.cameraId = value;
   };
 
   const setVideoActivatedState = (value: boolean) => {

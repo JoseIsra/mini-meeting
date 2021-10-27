@@ -42,6 +42,7 @@ import { useInitWebRTC } from '@/composables/antMedia';
 import { useUserMe } from '@/composables/userMe';
 import { useScreen } from '@/composables/screen';
 import { useQuasar } from 'quasar';
+import { useRoom } from '@/composables/room';
 
 export default defineComponent({
   name: 'FuExternalVideo',
@@ -51,8 +52,8 @@ export default defineComponent({
     let posterClass = ref(false);
     const calculateCurrentSelectedTime = ref(0);
     const { sendData } = useInitWebRTC();
-    const { userMe, updateUserMe } = useUserMe();
-    const { externalVideo, setvideoOptions, setVideoInstance } =
+    const { userMe } = useUserMe();
+    const { externalVideo, setvideoOptions, updateExternalVideoState } =
       useExternalVideo();
     const videoPlayer = ref({} as HTMLMediaElement & { playerId: string });
     const player = ref<videojs.Player>({} as videojs.Player);
@@ -79,6 +80,8 @@ export default defineComponent({
       ],
     });
 
+    const { roomState } = useRoom();
+
     onMounted(() => {
       window.addEventListener('orientationchange', handleOrientationChange);
       player.value = videojs(
@@ -87,21 +90,19 @@ export default defineComponent({
         function onPlayerReady() {
           showPlayButton.value = true;
           setvideoOptions(optionsForPlayer as videojs.PlayerOptions);
-          setVideoInstance(videoPlayer.value);
-          updateUserMe({
-            ...userMe,
-            existVideo: externalVideo.videoOnRoom,
-            urlOfVideo: externalVideo.urlVideo,
-            videoInstance: videoPlayer.value,
+          updateExternalVideoState({
+            ...externalVideo,
+            remoteInstance: videoPlayer.value,
           });
           player.value.on('pause', handlePause);
           player.value.on('play', handlePlaying);
           player.value.on('timeupdate', () => {
             calculateCurrentSelectedTime.value =
               player.value.duration() - player.value.remainingTime();
-            updateUserMe({
-              ...userMe,
-              currentTime: player.value.currentTime(),
+
+            updateExternalVideoState({
+              ...externalVideo,
+              videoCurrentTime: player.value.currentTime(),
             });
           });
           player.value.on('ready', () => {
@@ -111,9 +112,9 @@ export default defineComponent({
           });
           player.value.controlBar.on('mouseup', () => {
             setTimeout(() => {
-              sendData(userMe.id, {
+              sendData(roomState.hostId, {
                 remoteInstance: videoPlayer.value,
-                currentTime: calculateCurrentSelectedTime.value,
+                videoCurrentTime: calculateCurrentSelectedTime.value,
                 eventType: 'UPDATE_VIDEOTIME',
               });
             }, 500);
@@ -123,25 +124,26 @@ export default defineComponent({
     });
 
     const handlePlaying = () => {
-      updateUserMe({
-        ...userMe,
-        isPlayingVideo: true,
+      updateExternalVideoState({
+        ...externalVideo,
+        isVideoPlaying: true,
       });
+
       showPlayButton.value = false;
       void player.value.play();
-      sendData(userMe.id, {
+      sendData(roomState.hostId, {
         remoteInstance: videoPlayer.value,
         eventType: 'PLAYING_VIDEO',
       });
     };
 
     const handlePause = () => {
-      updateUserMe({
-        ...userMe,
-        isPlayingVideo: false,
+      updateExternalVideoState({
+        ...externalVideo,
+        isVideoPlaying: false,
       });
       showPlayButton.value = true;
-      sendData(userMe.id, {
+      sendData(roomState.hostId, {
         remoteInstance: videoPlayer.value,
         eventType: 'PAUSE_VIDEO',
       });

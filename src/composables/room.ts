@@ -1,6 +1,7 @@
 import { reactive } from 'vue';
 
-import { User } from '@/composables/userMe';
+import { User } from '@/types/user';
+
 import { BgInfo } from '@/types/zoid';
 
 export interface Room {
@@ -19,6 +20,10 @@ export interface Room {
   pinnedUser: null | User;
   pinnedUserId?: string;
   bgInfo: BgInfo;
+  hostId: string;
+  fbTransmission?: boolean;
+  ytTransmission?: boolean;
+  rtmpTransmission?: boolean;
 }
 
 export interface UpdatedRoomFields {
@@ -37,6 +42,10 @@ export interface UpdatedRoomFields {
   pinnedUser?: null | User;
   pinnedUserId?: string;
   bgInfo?: BgInfo;
+  hostId?: string;
+  fbTransmission?: boolean;
+  ytTransmission?: boolean;
+  rtmpTransmission?: boolean;
 }
 
 export interface participantOnWait {
@@ -74,6 +83,9 @@ export function useRoom() {
   const updateBgSize = (maximized: boolean) =>
     (roomState.bgInfo.maximized = maximized);
 
+  const updateAllowResetBg = (value: boolean) =>
+    (roomState.bgInfo.allowResetBg = value);
+
   return {
     roomState,
     updateRoom,
@@ -85,5 +97,6 @@ export function useRoom() {
     updateFocus,
     updateBgUrl,
     updateBgSize,
+    updateAllowResetBg,
   };
 }

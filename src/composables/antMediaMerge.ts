@@ -1,7 +1,8 @@
 import { ref } from 'vue';
 import { WebRTCAdaptor } from '@/utils/webrtc/webrtc_adaptor';
 import { useUserMe } from '@/composables/userMe';
-import { objWebRTC, Participant } from '@/types/index';
+import { objWebRTC } from '@/types/index';
+import { User } from '@/types/user';
 import { StreamMerger } from '@/utils/webrtc/stream_merger';
 // import { useHandleParticipants } from '@/composables/participants';
 
@@ -40,8 +41,8 @@ export function useInitMerge() {
   };
 
   const refreshMerge = (
-    prevParticipants: Participant[],
-    actualParticipants: Participant[]
+    prevParticipants: Partial<User>[],
+    actualParticipants: Partial<User>[]
   ) => {
     const actualIds: string[] = [];
     const prevIds: string[] = [];

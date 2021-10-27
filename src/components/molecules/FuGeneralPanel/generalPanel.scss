@@ -1,0 +1,94 @@
+.m-generalPanel {
+  &__linkBox,
+  &__bgBox,
+  &__externalVideo {
+    margin: 0.5rem 0.5rem;
+    width: calc(100% - 1rem);
+    padding: 10px;
+    border: 1px solid rgba(#fffffe, 0.07);
+    border-radius: 5px;
+    &__text {
+      color: #fffffe;
+      margin: 0;
+    }
+    .--mainTitle {
+      font-weight: bolder;
+      font-size: clamp(0.7rem, 2.5vw, 0.9rem);
+    }
+    &__actions {
+      position: relative;
+      margin: 0.5rem 0;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      // flex-wrap: wrap;
+      &__link {
+        padding: 12px;
+        flex: 0.6;
+        margin: 0;
+        color: #fffffe;
+        background-color: #2f3136;
+        border-radius: 7px;
+      }
+      &__copyBtn {
+        flex: 0.3;
+        color: #009bff;
+        border: 1px solid #009bf4;
+      }
+      .--copied {
+        color: #fffffe;
+        border: 1px solid #212121;
+      }
+    }
+  }
+  &__bgBox {
+    &__fileInfo {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 5px;
+      margin: 0.2rem 0;
+      &__name {
+        color: #fffffe;
+        margin: 0;
+        font-size: clamp(0.7rem, 2.5vw, 0.85rem);
+      }
+    }
+    &__btn {
+      &.--fileBtn,
+      &.--reset {
+        color: #009bff;
+        border: 1px solid #009bf4;
+      }
+      &.--reset {
+        position: relative;
+        top: 25px;
+        align-self: flex-start;
+      }
+      &.--off {
+        color: rgba(#009bff, 0.5);
+        border: 1px solid rgba(#009bff, 0.5);
+      }
+    }
+    &__actions {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 1.5rem 0;
+      &__check {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: #fffffe;
+        width: 100%;
+        font-size: clamp(0.6rem, 2.5vw, 0.8rem);
+      }
+      &__hint {
+        margin: 0;
+        align-self: flex-start;
+        color: gray;
+        font-size: clamp(0.5rem, 2.5vw, 0.7rem);
+      }
+    }
+  }
+}

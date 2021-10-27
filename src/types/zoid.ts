@@ -8,6 +8,7 @@ interface B2Info {
 export interface BgInfo {
   url: string;
   maximized: boolean;
+  allowResetBg: boolean;
 }
 
 export interface ZoidProps {
@@ -29,7 +30,11 @@ export interface ZoidProps {
   isBeingRecorded?: boolean;
   roomRestriction?: number;
   isHost?: boolean;
+  hostId?: string;
+  setHostId?: (userId: string) => void;
   startDate?: string;
+  cameraId?: string;
+  micId?: string;
   handleLeaveCall?: (
     arg: number,
     remainingParticipantsFractalUserIds?: string[]
@@ -38,11 +43,12 @@ export interface ZoidProps {
   toggleMinimize?: (isMinimize: boolean) => void;
   toggleLockAction?: (states: lockAction) => void;
   fractalUserId?: string;
-  logJoined?: () => void;
+  logJoined?: (fractalUserId: string) => void;
   handleStartRecording?: () => void;
   getB2Info?: () => Promise<B2Info>;
   setBackgroundInfo?: (url: string, maximized: boolean) => void;
   addUserLogToState?: (fractalUserId: string, logType: number) => void;
   setPinnedUser?: (userId: string) => void;
   pinnedUser?: string;
+  logUserExits?: (fractalUserIds: string[]) => void;
 }

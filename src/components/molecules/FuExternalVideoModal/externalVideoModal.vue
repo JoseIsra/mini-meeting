@@ -57,7 +57,7 @@ export default defineComponent({
       if (regexYoutube.test(inputURL.value)) {
         const URLData = {
           eventType: 'SHARE_EXTERNAL_VIDEO',
-          urlContent: inputURL.value,
+          urlVideo: inputURL.value,
         };
         updateExternalVideoState({
           ...externalVideo,

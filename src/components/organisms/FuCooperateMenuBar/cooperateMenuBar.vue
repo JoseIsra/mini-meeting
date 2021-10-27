@@ -169,12 +169,9 @@
           round
           color="grey-1"
           size="12px"
-          @click="
-            activeHandBadge = !activeHandBadge;
-            handleEspecialBehaviour('HANDUP');
-          "
+          @click="handleEspecialBehaviour('HANDUP')"
         >
-          <q-badge v-show="activeHandBadge" color="red" rounded floating
+          <q-badge v-show="handNotificationActive" color="red" rounded floating
             >x</q-badge
           >
         </q-btn>
@@ -319,7 +316,6 @@ export default defineComponent({
 
     let handNotificationActive = ref(false);
     const canSeeActionsMenu = ref(userMe.roleId === 0);
-    const activeHandBadge = ref(false);
     const openAdminPanel = ref(false);
     //**********************++FUNCIONES ********************** */
     const toogleChat = () => {
@@ -513,7 +509,6 @@ export default defineComponent({
       openResponsiveMenuOfFunctions,
       canSeeActionsMenu,
       waitingParticipants,
-      activeHandBadge,
       toggleCamera,
       toggleMIC,
       iconsPeriferics,

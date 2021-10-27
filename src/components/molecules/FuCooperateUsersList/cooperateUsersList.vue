@@ -864,7 +864,6 @@ export default defineComponent({
           });
         }
       } else if (action === LOCK_ACTION_TYPE.Mic) {
-
         if (isEveryoneMicBlocked.value) {
           setEveryParticipantActions(action, false);
 
@@ -899,7 +898,6 @@ export default defineComponent({
           });
         }
       } else if (action === LOCK_ACTION_TYPE.Camera) {
-
         if (isEveryoneVideoBlocked.value) {
           setEveryParticipantActions(action, false);
 
@@ -934,7 +932,6 @@ export default defineComponent({
           });
         }
       } else if (action === LOCK_ACTION_TYPE.Screen) {
-
         if (isEveryoneScreenShareBlocked.value) {
           setEveryParticipantActions(action, false);
 
@@ -1051,7 +1048,8 @@ export default defineComponent({
       roomState,
       closeUserListPanel,
       participantActionsToolTip,
-      notificateHandUp,    };
+      notificateHandUp,
+    };
   },
 });
 </script>

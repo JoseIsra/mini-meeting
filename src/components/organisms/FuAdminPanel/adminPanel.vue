@@ -19,7 +19,12 @@
             :key="panel.id"
             @click="selectPanel(panel)"
           >
-            <q-icon :name="panel.iconName" color="white" size="25px" />
+            <q-icon
+              :name="panel.iconName"
+              class="o-panel__body__options__option__icon"
+              color="white"
+              size="25px"
+            />
             <p class="o-panel__body__options__option__name">
               {{ panel.description }}
             </p>

@@ -114,8 +114,6 @@ const {
 
 const roomTimerId = ref<ReturnType<typeof setInterval> | null>(null);
 
-const isDataChannelOpen = ref(false);
-
 const { updateExternalVideoState, externalVideo } = useExternalVideo();
 
 const { setScreenShareIconState } = useActions();
@@ -646,21 +644,18 @@ export function useInitWebRTC() {
             user === roomState.hostId
           ) {
             console.debug(
-              '⭐ SENDING REQUEST FOR INFO OF PARTICIPANTS IN ROOM',
-              obj
+              `🙍 NEW_USER ${userMe.id}: SENDS A REQUEST FOR PARTICIPANTS IN ROOM TO HOST AND ALSO SENDS HIS OWN USER INFO TO ALL`
             );
-            //PIDE INFORMACIÓN DE LOS PARTICIPANTES Y LA SALA SOLO AL HOST PERO TAMBIÉN ENVIA SU PROPIA DATA
-            /* setTimeout(() => { */
             webRTCInstance.value.sendData?.(
               roomState.hostId,
               JSON.stringify({
-                eventType: 'NEW_USER:PARTICIPANTS_IN_ROOM_INFO_REQUEST',
+                eventType:
+                  'NEW_USER:PARTICIPANTS_IN_ROOM_INFO_REQUEST_AND_SEND_OWN_INFO',
                 from: userMe.id,
                 to: roomState.hostId,
                 userInfo: userMe,
               })
             );
-            /* }, 1000); */
           }
 
           //Si no es el host y el canal que se ha abierto es el del mismo usuario cuando empiece a hacer el publish de su stream se actualizará su campo de isPublishing
@@ -668,9 +663,7 @@ export function useInitWebRTC() {
             updateUserMe({ isPublishing: 1 });
           }
 
-          //isLoadingOrError.value = false;
           setIsLoadingOrError(false);
-          isDataChannelOpen.value = true;
         } else if (info == 'data_channel_closed') {
           console.log('Data Channel closed for stream id', obj);
           // el primer usuario que aparezca en la devolución del api ejecutará el registro de salida para los usuarios si no está el id del host en la lista de miembros:
@@ -713,8 +706,6 @@ export function useInitWebRTC() {
               })
               .catch((e) => console.log(e));
           }
-
-          // isDataChannelOpen.value = false;
         } else if (info == 'data_received') {
           //console.log(obj);
           const baseMessage = obj as BaseMessage;
@@ -747,20 +738,14 @@ export function useInitWebRTC() {
           } else if (eventType === 'NOHAND') {
             removeHandNotification(baseDataParsed.from);
           } else if (
-            eventType === 'NEW_USER:PARTICIPANTS_IN_ROOM_INFO_REQUEST'
+            eventType ===
+            'NEW_USER:PARTICIPANTS_IN_ROOM_INFO_REQUEST_AND_SEND_OWN_INFO'
           ) {
             /* TODOS RECIBEN LA DATA DEL USUARIO ENTRANTE PERO SOLO EL HOST ENVÍA UN MENSAJE CON LA DATA DE LOS PARTICIPANTES EN LA SALA */
 
             const infoRequestParsed = JSON.parse(obj.data) as ObjRemoteUserInfo;
 
             if (infoRequestParsed.to === userMe.id) {
-              console.info(
-                '⭐ RECEIVING A REQUEST OF PARTICPANTS IN THE ROOM INFO AND ADDING THE DATA OF THE PERSON WHO IS ENTERING',
-                obj,
-                'from:',
-                userMe.id
-              );
-
               try {
                 //PONE EL OBJETO DE STREAM COMO NULO PARA QUE NO GASTE ESPACIO EN EL MENSAJE QUE IRÁ POR EL DATA CHANNEL YA QUE NO SE NECESITA ENVIAR POR AQUṔI
                 const modifiedUserMe = _.cloneDeep(userMe);
@@ -773,26 +758,31 @@ export function useInitWebRTC() {
                   modifiedUserMe,
                   ...modifiedParticipants,
                 ];
-                console.log(participantsInRoom, 'PArticipants in room ⭐');
+
+                const message = {
+                  eventType: 'HOST:PARTICIPANTS_IN_ROOM_INFO',
+                  from: infoRequestParsed.to,
+                  to: infoRequestParsed.from,
+                  participantsInRoom,
+                  externalVideoInfo: { ...externalVideo },
+                  roomInfo: { ...roomState },
+                };
+
+                console.debug(
+                  `🙍 HOST: RECEIVING A REQUEST FOR THE ACTUAL INFO OF THE ROOM SO I AM GOING TO SEND THAT INFO TO THE NEW USER: ${infoRequestParsed.from} / INFO:`,
+                  message
+                );
 
                 try {
                   webRTCInstance.value.sendData?.(
                     roomState.hostId,
-                    JSON.stringify({
-                      eventType: 'HOST:PARTICIPANTS_IN_ROOM_INFO',
-                      from: infoRequestParsed.to,
-                      to: infoRequestParsed.from,
-                      participantsInRoom,
-                      externalVideoInfo: { ...externalVideo },
-                      roomInfo: { ...roomState },
-                    })
+                    JSON.stringify(message)
                   );
                 } catch (e) {
                   console.error(
                     'DATA_CHANNEL_ERROR: IN SEND MESSAGE TO NEW PARTICIPANT'
                   );
                 }
-                console.log('my info have been sent');
               } catch {
                 console.info(
                   'The connection is not established yet for sending a petition for INFO_REQUEST'
@@ -805,6 +795,10 @@ export function useInitWebRTC() {
             const remoteUserInfoParsed = JSON.parse(
               obj.data
             ) as ObjRemoteUserInfo;
+            console.debug(
+              '🙍 ALL USERS: ADDING THE NEW PARTICIPANT TO THE STATE / INFO:',
+              remoteUserInfoParsed.userInfo
+            );
 
             const newUser = {
               id: remoteUserInfoParsed.userInfo.id,
@@ -829,12 +823,6 @@ export function useInitWebRTC() {
             participants.value.push(newUser);
           } else if (eventType === 'HOST:PARTICIPANTS_IN_ROOM_INFO') {
             // MENSAJE QUE RECIBE EL HOST PARA ENVIAR LA DATA DE LOS PARTICIPANTES
-            console.info(
-              '⭐ I am recieving info of user in room and i am setting it in my local state',
-              obj,
-              'from:',
-              userMe.id
-            );
 
             const remoteUserInfoParsed = JSON.parse(
               obj.data
@@ -842,6 +830,11 @@ export function useInitWebRTC() {
             //Recieving info from another user if is for me
 
             if (remoteUserInfoParsed.to === userMe.id) {
+              console.debug(
+                '🙍NEW USER: I AM RECEIVING INFO OF CURRENT PARTICIPANTS IN ROOM SO I AM INITIALIZING MY STATE OF PARTICIPANTS / INFO:',
+                remoteUserInfoParsed.participantsInRoom
+              );
+
               remoteUserInfoParsed.participantsInRoom.forEach(
                 (participantInRoom) => {
                   const findVal = participants.value.find(
@@ -1393,7 +1386,6 @@ export function useInitWebRTC() {
     streamId: string,
     state?: boolean | Record<string, string>
   ) => {
-    /* if (isDataChannelOpen.value) { */
     const notEvent = {
       streamId: userMe.id,
       notificationType,
@@ -1402,11 +1394,6 @@ export function useInitWebRTC() {
     };
 
     webRTCInstance.value.sendData?.(roomState.hostId, JSON.stringify(notEvent));
-    /* } else {
-      console.log(
-        'Could not send the notification because data channel is not open.'
-      );
-    } */
   };
 
   const justTurnOnLocalCamera = (streamId: string) => {

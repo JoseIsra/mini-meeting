@@ -597,6 +597,11 @@ export function useInitWebRTC() {
                             participant.fractalUserId as string
                           );
                         }
+
+                        if (roomState.pinnedUser?.id === participant.id) {
+                          updateRoom({ pinnedUser: null });
+                          window.xprops?.setPinnedUser?.('');
+                        }
                         /*  */
                         /* Senddata debe estar antes del removeRemoteVideo para que pueda enviar la información del usuario a eliminar */
                         sendData(roomState.hostId, {
@@ -1183,11 +1188,8 @@ export function useInitWebRTC() {
 
             console.log('USER LEAVING', '🚀🚀🚀');
 
-            if (
-              roomState.pinnedUser?.fractalUserId ===
-              userLeavingMsgParsed.fractalUserId
-            ) {
-              window.xprops?.setPinnedUser?.('');
+            if (roomState.pinnedUser?.id === userLeavingMsgParsed.id) {
+              updateRoom({ pinnedUser: null });
             }
 
             window.xprops?.addUserLogToState?.(

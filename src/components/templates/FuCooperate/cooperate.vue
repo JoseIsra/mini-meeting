@@ -215,6 +215,7 @@ export default defineComponent({
       cameraId,
       micId,
       isPublishing: isHost ? 1 : 0,
+      hasSeenChat: false,
     });
 
     /* setMicIconState(isMicLocked ? false : isMicOn); */
@@ -238,6 +239,7 @@ export default defineComponent({
       pinnedUserId: userPinnedZoid,
       startDate,
       hostId,
+      chatNotification: false,
     });
 
     /* setMicIconState(roleId === 1 ? (isMicLocked ? false : isMicOn) : isMicOn); */

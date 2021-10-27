@@ -85,6 +85,7 @@ import { useSidebarToogle, useToogleFunctions } from '@/composables';
 import { useScreen } from '@/composables/screen';
 import FuSharedStream from 'molecules/FuSharedStream';
 import { useRoom } from '@/composables/room';
+import { useUserMe } from '@/composables/userMe';
 
 export default defineComponent({
   name: 'FuCooperate',
@@ -138,12 +139,7 @@ export default defineComponent({
     const { screenMinimized, updateScreenState, setScreenDeviceOrientation } =
       useScreen();
 
-    // Dynamig-bg update (to delete)
-    // const bgStyle = computed(() => {
-    //   return roomState.bgMaximixed
-    //     ? 'left: 0; right: 0; top: 0; bottom: 0; width: 100vw; height: 100vh'
-    //     : 'top: 25vh; width: 50vw; height: 50vh';
-    // });
+    const { setWatchChat } = useUserMe();
 
     const hideMenuBar = _.debounce(() => {
       showMenuBar.value = false;
@@ -172,6 +168,7 @@ export default defineComponent({
       openOptionsMenu(false);
       openFunctionResponsiveMenu(false);
       setIDButtonSelected('');
+      setWatchChat(false);
     };
 
     const handleOrientationChange = () => {

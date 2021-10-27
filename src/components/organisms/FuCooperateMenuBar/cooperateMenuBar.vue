@@ -130,6 +130,13 @@
             <!-- <q-icon name="fas fa-clock" /> -->
             {{ waitingParticipants.length }}
           </div>
+          <q-badge
+            v-show="roomState.chatNotification && icon.interaction == 'CHAT'"
+            color="red"
+            rounded
+            floating
+          />
+
           <q-tooltip class="bg-grey-10" v-if="icon.behaviour == 'NORMAL'">
             <label
               class="a-menuBar__icon__tooltip"
@@ -233,7 +240,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, reactive } from 'vue';
+import { defineComponent, ref, reactive, watch, computed } from 'vue';
 import FuCooperateMenu from 'molecules/FuCooperateMenu';
 import { Icons, Periferics, Functionalities } from '@/types';
 
@@ -250,6 +257,8 @@ import { useActions } from '@/composables/actions';
 import { useHandleParticipants } from '@/composables/participants';
 import FuAdminPanel from 'organisms/FuAdminPanel';
 import { useRoom } from '@/composables/room';
+import { useHandleMessage } from '@/composables/chat';
+import _ from 'lodash';
 
 export default defineComponent({
   name: 'FuCooperateMenuBar',
@@ -276,7 +285,7 @@ export default defineComponent({
 
     const { waitingParticipants } = useHandleParticipants();
 
-    const { roomState } = useRoom();
+    const { roomState, updateRoom } = useRoom();
 
     let openNetworkConfig = ref(false);
     const objectPeriferics = reactive<Periferics>({
@@ -312,11 +321,33 @@ export default defineComponent({
 
     let { isSidebarRender, setSidebarState } = useSidebarToogle();
 
-    const { userMe, setMicState, setVideoActivatedState } = useUserMe();
+    const { userMe, setMicState, setVideoActivatedState, setWatchChat } =
+      useUserMe();
 
     let handNotificationActive = ref(false);
     const canSeeActionsMenu = ref(userMe.roleId === 0);
     const openAdminPanel = ref(false);
+    const { userMessages } = useHandleMessage();
+
+    const lastMessageOwner = computed(() => {
+      return userMessages.value[userMessages.value.length - 1].streamId;
+    });
+
+    watch(
+      () => _.cloneDeep(userMessages.value),
+      (current, prev) => {
+        if (
+          current.length - prev.length > 0 &&
+          !userMe.hasSeenChat &&
+          lastMessageOwner.value !== userMe.id
+        ) {
+          updateRoom({ chatNotification: true });
+        } else {
+          updateRoom({ chatNotification: false });
+        }
+      }
+    );
+
     //**********************++FUNCIONES ********************** */
     const toogleChat = () => {
       if (!isSidebarRender.value) {
@@ -324,14 +355,19 @@ export default defineComponent({
         setShowChat(true);
         setShowNotes(false);
         setShowUsersList(false);
+        updateRoom({ chatNotification: false });
+        setWatchChat(true);
         return;
       } else if (isSidebarRender.value && functionsOnMenuBar.renderChat) {
         setSidebarState(false);
+        setWatchChat(false);
         return;
       }
       setShowChat(true);
       setShowNotes(false);
       setShowUsersList(false);
+      updateRoom({ chatNotification: false });
+      setWatchChat(true);
     };
 
     const toogleShareNotes = () => {
@@ -515,6 +551,7 @@ export default defineComponent({
       toggleMIC,
       iconsPeriferics,
       openAdminPanel,
+      roomState,
     };
   },
 });

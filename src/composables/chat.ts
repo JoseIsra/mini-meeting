@@ -30,6 +30,7 @@ export function useHandleMessage() {
     );
     userMessages.value.splice(respectiveMessage, 1);
   };
+
   return {
     setUserMessage,
     userMessages,

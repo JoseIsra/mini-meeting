@@ -30,7 +30,6 @@
         margin: 0;
         padding: 0;
         width: 100%;
-
         .--active {
           background-color: #009bf4;
           box-shadow: -20px 0 0 #009bf4;
@@ -46,12 +45,15 @@
         cursor: pointer;
         margin: 1rem 0;
         border-radius: 0 50px 50px 0;
-
+        &__icon {
+          flex: 0.2;
+        }
         &__name {
           font-size: clamp(0.6rem, 2.5vw, 0.8rem);
           color: #fffffe;
           font-weight: bolder;
           margin: 0 0.5rem;
+          flex: 0.8;
         }
       }
     }

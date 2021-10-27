@@ -127,9 +127,9 @@ export default defineComponent({
 
     const isMicLocked = window.xprops?.isMicLocked || false;
 
-    console.log(isMicLocked);
     const cameraId =
       window.xprops?.cameraId || (route.query.cameraId as string);
+      
     const micId = window.xprops?.micId || (route.query.micId as string);
 
     const isCameraLocked = window.xprops?.isCameraLocked || false;
@@ -205,7 +205,7 @@ export default defineComponent({
       isCameraBlocked: roleId === 1 ? isCameraLocked : false,
       isScreenShareBlocked: roleId === 1 ? isScreenShareLocked : false,
       fractalUserId,
-      denied: roomRestriction
+      denied: Boolean(roomRestriction)
         ? roleId === 1
           ? PERMISSION_STATUS.asked
           : PERMISSION_STATUS.admitted
@@ -227,7 +227,7 @@ export default defineComponent({
       id: roomId,
       sharingLink,
       classroomId,
-      roomRestriction: roleId === 1 ? roomRestriction : 0,
+      roomRestriction: roleId === 1 ? Boolean(roomRestriction) : false,
       isMicBlocked: isMicLocked,
       isCameraBlocked: isCameraLocked,
       isScreenShareBlocked: isScreenShareLocked,

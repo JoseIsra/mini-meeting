@@ -125,10 +125,17 @@
         >
           <div
             class="a-menuBar__icon__topin"
-            v-if="icon.id === '3' && waitingParticipants.length > 0"
+            :style="`background-color: ${
+              userMe.roleId === 1
+                ? '#0099ff'
+                : waitingParticipants.length > 0
+                ? 'green'
+                : '#0099ff'
+            }`"
+            v-if="icon.id === '3' && notificationCount > 0"
           >
             <!-- <q-icon name="fas fa-clock" /> -->
-            {{ waitingParticipants.length }}
+            {{ notificationCount }}
           </div>
           <q-tooltip class="bg-grey-10" v-if="icon.behaviour == 'NORMAL'">
             <label
@@ -233,7 +240,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, reactive } from 'vue';
+import { defineComponent, ref, reactive, computed } from 'vue';
 import FuCooperateMenu from 'molecules/FuCooperateMenu';
 import { Icons, Periferics, Functionalities } from '@/types';
 
@@ -309,6 +316,13 @@ export default defineComponent({
       openOptionsMenu,
       openFunctionResponsiveMenu,
     } = useToogleFunctions();
+
+    const notificationCount = computed(() => {
+      return userMe.roleId === 0
+        ? waitingParticipants.value.length +
+            functionsOnMenuBar.handNotificationInfo.length
+        : functionsOnMenuBar.handNotificationInfo.length;
+    });
 
     let { isSidebarRender, setSidebarState } = useSidebarToogle();
 
@@ -510,11 +524,12 @@ export default defineComponent({
       handNotificationActive,
       openResponsiveMenuOfFunctions,
       canSeeActionsMenu,
-      waitingParticipants,
       toggleCamera,
       toggleMIC,
       iconsPeriferics,
       openAdminPanel,
+      notificationCount,
+      waitingParticipants,
     };
   },
 });

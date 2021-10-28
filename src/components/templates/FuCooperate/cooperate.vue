@@ -106,10 +106,25 @@ export default defineComponent({
     const streamName =
       window?.xprops?.streamName || (route.query.streamName as string);
 
+    const defaultAvatar =
+      'https://encrypted.fractalup.com/file/FractalUp/Logos/logo_azul.svg';
+
     const avatar =
       window?.xprops?.photoURL ||
       (route.query.photoURL as string) ||
-      'https://f002.backblazeb2.com/file/FractalUp/Logos/logo_azul.svg';
+      defaultAvatar;
+
+    //Para no colocar una imagen rota
+    if (avatar !== defaultAvatar) {
+      const splittedAvatarUrl = avatar.split('.');
+      const extension = splittedAvatarUrl[splittedAvatarUrl.length - 1];
+      const imageExtensions = ['png', 'jpg', 'jpeg', 'svg'];
+      if (!imageExtensions.includes(extension)) {
+        updateUserMe({
+          avatar: defaultAvatar,
+        });
+      }
+    }
 
     const roomId =
       window?.xprops?.roomId || (route.query.roomId as string) || '';
@@ -123,7 +138,8 @@ export default defineComponent({
     let roomRestriction = window.xprops?.roomRestriction as number;
 
     if (!roomRestriction) {
-      roomRestriction = parseInt(route.query.roomRestriction as string) || ROOM_PRIVACY.PUBLIC;
+      roomRestriction =
+        parseInt(route.query.roomRestriction as string) || ROOM_PRIVACY.PUBLIC;
     }
 
     const isMicLocked = window.xprops?.isMicLocked || false;

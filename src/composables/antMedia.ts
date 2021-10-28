@@ -599,6 +599,13 @@ export function useInitWebRTC() {
                         offlineParticipants.push(
                           participant.fractalUserId as string
                         );
+                      }
+                    }
+                    //Remueve de la lista de participantes general cuando alguien se va
+                    for (const participant of participants.value) {
+                      if (
+                        !currentParticipants.includes(participant.id as string)
+                      ) {
                         if (roomState.pinnedUser?.id === participant.id) {
                           updateRoom({ pinnedUser: null });
                           window.xprops?.setPinnedUser?.('');
@@ -618,6 +625,7 @@ export function useInitWebRTC() {
                         removeRemoteVideo(participant.id as string);
                       }
                     }
+                    /* Hace el log de usuarios que se han ido */
                     if (offlineParticipants.length > 0) {
                       window.xprops?.logUserExits?.(offlineParticipants);
                       console.debug(

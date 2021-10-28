@@ -278,7 +278,7 @@ export default defineComponent({
       const response = await fetch(rtmpRequest);
       console.log(response);
 
-      initMiniWebrtc(streamId, streamName);
+      initMiniWebrtc(streamId, streamName, roomId);
       if (response.ok) {
         updateRoom({ rtmpTransmission: true });
         console.log('transmision rtmp i guess 🤔');
@@ -360,8 +360,8 @@ export default defineComponent({
         name + '=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
     }
 
-    const joinRoom = (roomId: string) => {
-      webRTCInstance.value.joinRoom?.(roomId, 'retraId', 'legacy');
+    const joinRoom = (roomId: string, streamId: string) => {
+      webRTCInstance.value.joinRoom?.(roomId, streamId, 'legacy');
     };
 
     const publish = (
@@ -399,7 +399,11 @@ export default defineComponent({
       isHost: false,
     };
 
-    const initMiniWebrtc = (streamId: string, streamName: string) => {
+    const initMiniWebrtc = (
+      streamId: string,
+      streamName: string,
+      roomId: string
+    ) => {
       webRTCInstance.value = new WebRTCAdaptor({
         websocket_url: websocketURL,
         mediaConstraints: mediaConstraints,
@@ -410,7 +414,7 @@ export default defineComponent({
         dataChannelEnabled: true,
         callback: (info: string, obj: objWebRTC) => {
           if (info == 'initialized') {
-            joinRoom(roomId);
+            joinRoom(roomId, streamId);
           } else if (info == 'joinedTheRoom') {
             console.log('JOINED THE ROOM MINIWEBRTC 🐊', obj);
             window.addEventListener('unload', () => {

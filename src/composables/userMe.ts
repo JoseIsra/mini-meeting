@@ -8,10 +8,8 @@ import _ from 'lodash';
 // Role id: 'Admin|0' ; 'participant|1';
 
 const userState = {} as User;
-const pinnedStream = {} as MediaStream;
 
 const userMe = reactive<User>(userState);
-const pinnedUserStream = reactive(pinnedStream);
 
 export function useUserMe() {
   const setUserMe = (value: Partial<User>) => {
@@ -81,17 +79,11 @@ export function useUserMe() {
     userMe.isVideoActivated = value;
   };
 
-  const setPinnedUser = (value: MediaStream) => {
-    Object.assign(pinnedUserStream, value);
-  };
-
   const setDenied = (state: number) => (userMe.denied = state);
 
   return {
     userMe,
     setUserMe,
-    setPinnedUser,
-    pinnedUserStream,
     setMicState,
     setCameraState,
     setScreenState,

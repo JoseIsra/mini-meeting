@@ -125,11 +125,25 @@
         >
           <div
             class="a-menuBar__icon__topin"
-            v-if="icon.id === '3' && waitingParticipants.length > 0"
+            :style="`background-color: ${
+              userMe.roleId === 1
+                ? '#0099ff'
+                : waitingParticipants.length > 0
+                ? 'green'
+                : '#0099ff'
+            }`"
+            v-if="icon.id === '3' && notificationCount > 0"
           >
             <!-- <q-icon name="fas fa-clock" /> -->
-            {{ waitingParticipants.length }}
+            {{ notificationCount }}
           </div>
+          <q-badge
+            v-show="chatNotification && icon.interaction == 'CHAT'"
+            color="red"
+            rounded
+            floating
+          />
+
           <q-tooltip class="bg-grey-10" v-if="icon.behaviour == 'NORMAL'">
             <label
               class="a-menuBar__icon__tooltip"
@@ -233,7 +247,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, reactive } from 'vue';
+import { defineComponent, ref, reactive, watch, computed } from 'vue';
 import FuCooperateMenu from 'molecules/FuCooperateMenu';
 import { Icons, Periferics, Functionalities } from '@/types';
 
@@ -250,6 +264,8 @@ import { useActions } from '@/composables/actions';
 import { useHandleParticipants } from '@/composables/participants';
 import FuAdminPanel from 'organisms/FuAdminPanel';
 import { useRoom } from '@/composables/room';
+import { useHandleMessage } from '@/composables/chat';
+import _ from 'lodash';
 
 export default defineComponent({
   name: 'FuCooperateMenuBar',
@@ -310,6 +326,13 @@ export default defineComponent({
       openFunctionResponsiveMenu,
     } = useToogleFunctions();
 
+    const notificationCount = computed(() => {
+      return userMe.roleId === 0
+        ? waitingParticipants.value.length +
+            functionsOnMenuBar.handNotificationInfo.length
+        : functionsOnMenuBar.handNotificationInfo.length;
+    });
+
     let { isSidebarRender, setSidebarState } = useSidebarToogle();
 
     const { userMe, setMicState, setVideoActivatedState } = useUserMe();
@@ -317,6 +340,28 @@ export default defineComponent({
     let handNotificationActive = ref(false);
     const canSeeActionsMenu = ref(userMe.roleId === 0);
     const openAdminPanel = ref(false);
+    const { userMessages, showChatNotification, chatNotification } =
+      useHandleMessage();
+
+    const lastMessageOwner = computed(() => {
+      return userMessages.value[userMessages.value.length - 1].streamId;
+    });
+
+    watch(
+      () => _.cloneDeep(userMessages.value),
+      (current, prev) => {
+        if (
+          current.length - prev.length > 0 &&
+          !functionsOnMenuBar.renderChat &&
+          lastMessageOwner.value !== userMe.id
+        ) {
+          showChatNotification(true);
+        } else {
+          showChatNotification(false);
+        }
+      }
+    );
+
     //**********************++FUNCIONES ********************** */
     const toogleChat = () => {
       if (!isSidebarRender.value) {
@@ -324,14 +369,17 @@ export default defineComponent({
         setShowChat(true);
         setShowNotes(false);
         setShowUsersList(false);
+        showChatNotification(false);
         return;
       } else if (isSidebarRender.value && functionsOnMenuBar.renderChat) {
         setSidebarState(false);
+        setShowChat(false);
         return;
       }
       setShowChat(true);
       setShowNotes(false);
       setShowUsersList(false);
+      showChatNotification(false);
     };
 
     const toogleShareNotes = () => {
@@ -508,11 +556,13 @@ export default defineComponent({
       handNotificationActive,
       openResponsiveMenuOfFunctions,
       canSeeActionsMenu,
-      waitingParticipants,
       toggleCamera,
       toggleMIC,
       iconsPeriferics,
       openAdminPanel,
+      chatNotification,
+      notificationCount,
+      waitingParticipants,
     };
   },
 });

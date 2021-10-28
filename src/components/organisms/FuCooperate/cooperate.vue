@@ -125,19 +125,13 @@ export default defineComponent({
       setIDButtonSelected,
       openOptionsMenu,
       openFunctionResponsiveMenu,
+      setShowChat,
     } = useToogleFunctions();
 
     const { roomState } = useRoom();
 
     const { screenMinimized, updateScreenState, setScreenDeviceOrientation } =
       useScreen();
-
-    // Dynamig-bg update (to delete)
-    // const bgStyle = computed(() => {
-    //   return roomState.bgMaximixed
-    //     ? 'left: 0; right: 0; top: 0; bottom: 0; width: 100vw; height: 100vh'
-    //     : 'top: 25vh; width: 50vw; height: 50vh';
-    // });
 
     const hideMenuBar = _.debounce(() => {
       showMenuBar.value = false;
@@ -166,6 +160,7 @@ export default defineComponent({
       openOptionsMenu(false);
       openFunctionResponsiveMenu(false);
       setIDButtonSelected('');
+      setShowChat(false);
     };
 
     const handleOrientationChange = () => {

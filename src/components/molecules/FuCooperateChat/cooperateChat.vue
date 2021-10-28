@@ -57,31 +57,24 @@
               : '9'
           "
           text-color="white"
+          :stamp="message.date"
         >
-          <template #avatar>
-            <div class="m-chat__messagesBox__info">
-              <q-img
-                class="m-chat__messagesBox__info__avatar"
-                name="fractalup-logo"
-                :src="message.avatar"
-                style="width: 30px"
-              ></q-img>
-              <aside
-                :class="[
-                  message.streamId === userMe.id
-                    ? 'm-chat__messagesBox__info__user'
-                    : 'm-chat__messagesBox__info__secondUser',
-                ]"
-              >
-                <span class="m-chat__messagesBox__info__stamp">{{
-                  message.date
-                }}</span>
-                <span class="m-chat__messagesBox__info__name">
-                  {{ message.streamName }}</span
-                >
-              </aside>
-            </div>
+          <template v-slot:name v-if="!(message.streamId === userMe.id)">
+            <div class="m-chat__messagesBox__info__name">
+              {{ message.streamName }}
+            </div></template
+          >
+
+          <template v-slot:avatar>
+            <q-img
+              :class="[
+                'm-chat__messagesBox__info__avatar',
+                message.streamId == userMe.id ? '--me' : '--others',
+              ]"
+              :src="message.avatar"
+            ></q-img>
           </template>
+
           <div class="m-chat__messagesBox__message">
             <span
               class="m-chat__messagesBox__message__text"

@@ -144,7 +144,6 @@
             color="red"
             floating
           >
-            {{ newMessages }}
           </q-badge>
 
           <q-tooltip class="bg-grey-10" v-if="icon.behaviour == 'NORMAL'">

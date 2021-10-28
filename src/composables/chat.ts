@@ -14,7 +14,7 @@ export interface Message {
 }
 
 const userMessages = ref<Message[]>([]);
-
+const chatNotification = ref(false);
 export function useHandleMessage() {
   const setUserMessage = (value: Message) => {
     userMessages.value.push(value);
@@ -31,10 +31,16 @@ export function useHandleMessage() {
     userMessages.value.splice(respectiveMessage, 1);
   };
 
+  const showChatNotification = (value: boolean) => {
+    chatNotification.value = value;
+  };
+
   return {
     setUserMessage,
     userMessages,
     deleteMessages,
     deleteLoadingMessage,
+    chatNotification,
+    showChatNotification,
   };
 }

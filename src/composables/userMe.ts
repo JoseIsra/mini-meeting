@@ -87,10 +87,6 @@ export function useUserMe() {
 
   const setDenied = (state: number) => (userMe.denied = state);
 
-  const setWatchChat = (value: boolean) => {
-    userMe.hasSeenChat = value;
-  };
-
   return {
     userMe,
     setUserMe,
@@ -105,6 +101,5 @@ export function useUserMe() {
     setLocalVideoBlock,
     setLocalScreenShareBlock,
     setDenied,
-    setWatchChat,
   };
 }

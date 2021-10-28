@@ -131,7 +131,7 @@
             {{ waitingParticipants.length }}
           </div>
           <q-badge
-            v-show="roomState.chatNotification && icon.interaction == 'CHAT'"
+            v-show="chatNotification && icon.interaction == 'CHAT'"
             color="red"
             rounded
             floating
@@ -285,7 +285,7 @@ export default defineComponent({
 
     const { waitingParticipants } = useHandleParticipants();
 
-    const { roomState, updateRoom } = useRoom();
+    const { roomState } = useRoom();
 
     let openNetworkConfig = ref(false);
     const objectPeriferics = reactive<Periferics>({
@@ -321,13 +321,13 @@ export default defineComponent({
 
     let { isSidebarRender, setSidebarState } = useSidebarToogle();
 
-    const { userMe, setMicState, setVideoActivatedState, setWatchChat } =
-      useUserMe();
+    const { userMe, setMicState, setVideoActivatedState } = useUserMe();
 
     let handNotificationActive = ref(false);
     const canSeeActionsMenu = ref(userMe.roleId === 0);
     const openAdminPanel = ref(false);
-    const { userMessages } = useHandleMessage();
+    const { userMessages, showChatNotification, chatNotification } =
+      useHandleMessage();
 
     const lastMessageOwner = computed(() => {
       return userMessages.value[userMessages.value.length - 1].streamId;
@@ -338,12 +338,12 @@ export default defineComponent({
       (current, prev) => {
         if (
           current.length - prev.length > 0 &&
-          !userMe.hasSeenChat &&
+          !functionsOnMenuBar.renderChat &&
           lastMessageOwner.value !== userMe.id
         ) {
-          updateRoom({ chatNotification: true });
+          showChatNotification(true);
         } else {
-          updateRoom({ chatNotification: false });
+          showChatNotification(false);
         }
       }
     );
@@ -355,19 +355,17 @@ export default defineComponent({
         setShowChat(true);
         setShowNotes(false);
         setShowUsersList(false);
-        updateRoom({ chatNotification: false });
-        setWatchChat(true);
+        showChatNotification(false);
         return;
       } else if (isSidebarRender.value && functionsOnMenuBar.renderChat) {
         setSidebarState(false);
-        setWatchChat(false);
+        setShowChat(false);
         return;
       }
       setShowChat(true);
       setShowNotes(false);
       setShowUsersList(false);
-      updateRoom({ chatNotification: false });
-      setWatchChat(true);
+      showChatNotification(false);
     };
 
     const toogleShareNotes = () => {
@@ -463,8 +461,6 @@ export default defineComponent({
 
     const handleMenuPosition = (ubication?: string) => {
       if (ubication == 'actions') {
-        // isActions.value = true;
-        // isOptions.value = false;
         openAdminPanel.value = !openAdminPanel.value;
       } else {
         isActions.value = false;
@@ -551,7 +547,7 @@ export default defineComponent({
       toggleMIC,
       iconsPeriferics,
       openAdminPanel,
-      roomState,
+      chatNotification,
     };
   },
 });

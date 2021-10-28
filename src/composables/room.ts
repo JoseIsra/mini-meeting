@@ -24,7 +24,6 @@ export interface Room {
   fbTransmission?: boolean;
   ytTransmission?: boolean;
   rtmpTransmission?: boolean;
-  chatNotification?: boolean;
 }
 
 export interface UpdatedRoomFields {
@@ -47,7 +46,6 @@ export interface UpdatedRoomFields {
   fbTransmission?: boolean;
   ytTransmission?: boolean;
   rtmpTransmission?: boolean;
-  chatNotification?: boolean;
 }
 
 export interface participantOnWait {
@@ -88,10 +86,6 @@ export function useRoom() {
   const updateAllowResetBg = (value: boolean) =>
     (roomState.bgInfo.allowResetBg = value);
 
-  const showChatNotification = (value: boolean) => {
-    roomState.chatNotification = value;
-  };
-
   return {
     roomState,
     updateRoom,
@@ -104,6 +98,5 @@ export function useRoom() {
     updateBgUrl,
     updateBgSize,
     updateAllowResetBg,
-    showChatNotification,
   };
 }

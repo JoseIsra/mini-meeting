@@ -85,7 +85,6 @@ import { useSidebarToogle, useToogleFunctions } from '@/composables';
 import { useScreen } from '@/composables/screen';
 import FuSharedStream from 'molecules/FuSharedStream';
 import { useRoom } from '@/composables/room';
-import { useUserMe } from '@/composables/userMe';
 
 export default defineComponent({
   name: 'FuCooperate',
@@ -132,14 +131,13 @@ export default defineComponent({
       setIDButtonSelected,
       openOptionsMenu,
       openFunctionResponsiveMenu,
+      setShowChat,
     } = useToogleFunctions();
 
     const { roomState } = useRoom();
 
     const { screenMinimized, updateScreenState, setScreenDeviceOrientation } =
       useScreen();
-
-    const { setWatchChat } = useUserMe();
 
     const hideMenuBar = _.debounce(() => {
       showMenuBar.value = false;
@@ -168,7 +166,7 @@ export default defineComponent({
       openOptionsMenu(false);
       openFunctionResponsiveMenu(false);
       setIDButtonSelected('');
-      setWatchChat(false);
+      setShowChat(false);
     };
 
     const handleOrientationChange = () => {

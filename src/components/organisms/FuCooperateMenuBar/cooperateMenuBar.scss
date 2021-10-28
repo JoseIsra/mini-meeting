@@ -25,19 +25,26 @@
   &__icon {
     color: rgba(255, 255, 255, 0.6) !important;
     margin: 0 0.3rem;
-
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    &__chatbadge {
+      height: 15px;
+      width: 15px;
+    }
     &__topin {
-      border-radius: 50%;
       box-shadow: 1px 1px 3px 3px rgba(0, 0, 0, 0.25);
-      color: white;
-      font-size: 12px;
-      height: 25px;
-      padding: 2;
-      position: absolute;
-      right: -7.5px;
-      top: 0;
-      width: 25px;
-      z-index: 50;
+      height: 15px;
+      width: 15px;
+      &.--roleOne {
+        background-color: #0099ff;
+      }
+      &.--participants {
+        background-color: green;
+      }
+      &.--noparticipants {
+        background-color: #0099ff;
+      }
     }
 
     &__tooltip {

@@ -74,7 +74,7 @@
       </q-item>
     </q-list>
 
-    <div class="m-perifericsPanel__actions" style="height: 40px">
+    <!-- <div class="m-perifericsPanel__actions" style="height: 40px">
       <p class="m-perifericsPanel__actions__message">
         {{
           isEveryoneActionsBlocked
@@ -105,7 +105,7 @@
           }}</label>
         </q-tooltip>
       </q-btn>
-    </div>
+    </div> -->
   </section>
 </template>
 

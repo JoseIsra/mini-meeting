@@ -9,7 +9,6 @@
       { '--chatmenu': chatOptions },
     ]"
   >
-    <fu-menu-content-actions v-if="isActions" />
     <fu-menu-content-functions
       v-if="renderFunctions && !isActions"
       :objectFunctionalities="objectFunctionalities"
@@ -31,7 +30,6 @@
 <script lang="ts">
 import { defineComponent, toRefs, computed, PropType } from 'vue';
 import FuMenuContentOptions from 'molecules/FuMenuContentOptions';
-import FuMenuContentActions from 'molecules/FuMenuContentActions';
 import FuMenuContentFunctions from 'molecules/FuMenuContentFunctions';
 import FuMenuContentChat from 'molecules/FuMenuContentChat';
 import { Functionalities } from '@/types';
@@ -39,7 +37,6 @@ export default defineComponent({
   name: 'FuCooperateMenu',
   components: {
     FuMenuContentOptions,
-    FuMenuContentActions,
     FuMenuContentFunctions,
     FuMenuContentChat,
   },

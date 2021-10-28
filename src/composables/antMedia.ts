@@ -561,83 +561,77 @@ export function useInitWebRTC() {
 
                     const currentParticipants = body.roomStreamList;
                     const offlineParticipants: string[] = [];
-                    for (const participant of participants.value) {
-                      for (const participant of admittedParticipants.value) {
-                        if (
-                          currentParticipants.includes(
-                            participant.id as string
-                          ) &&
-                          !participant.hasLogJoin
-                        ) {
-                          console.log(
-                            'asistencia registrada (login) con el siguiente id: ',
-                            participant?.fractalUserId
-                          );
-                          window.xprops?.logJoined?.(
-                            participant?.fractalUserId as string
-                          );
-                          updateParticipantById(participant?.id as string, {
-                            hasLogJoin: true,
-                          });
-                        }
+
+                    for (const participant of admittedParticipants.value) {
+                      /* Loguear la entrada */
+                      const isMerge = participant.id?.split('-')[0] === 'm';
+                      const isRetransmission =
+                        participant.id?.split('-')[0] === 'r';
+                      if (
+                        currentParticipants.includes(
+                          participant.id as string
+                        ) &&
+                        !isMerge &&
+                        !isRetransmission &&
+                        !participant.hasLogJoin
+                      ) {
+                        console.debug(
+                          `🏃‍♂️ Registrando entrada del usuario: ${
+                            participant.name as string
+                          } ${participant.id as string}`
+                        );
+                        window.xprops?.logJoined?.(
+                          participant?.fractalUserId as string
+                        );
+                        updateParticipantById(participant?.id as string, {
+                          hasLogJoin: true,
+                        });
                       }
 
-                      if (offlineParticipants.length > 0)
-                        window.xprops?.logUserExits?.(offlineParticipants);
-
+                      /* Loguear la salida y sacar usuarios de la sala */
+                      if (
+                        !currentParticipants.includes(
+                          participant.id as string
+                        ) &&
+                        !isMerge &&
+                        !isRetransmission
+                      ) {
+                        offlineParticipants.push(
+                          participant.fractalUserId as string
+                        );
+                      }
+                    }
+                    //Remueve de la lista de participantes general cuando alguien se va
+                    for (const participant of participants.value) {
                       if (
                         !currentParticipants.includes(participant.id as string)
                       ) {
-                        const isAnAdmittedParticipant =
-                          admittedParticipants.value.some(
-                            (admittedParticipant) =>
-                              admittedParticipant.id == participant.id
-                          );
-                        if (isAnAdmittedParticipant) {
-                          offlineParticipants.push(
-                            participant.fractalUserId as string
-                          );
-                        }
-
                         if (roomState.pinnedUser?.id === participant.id) {
                           updateRoom({ pinnedUser: null });
                           window.xprops?.setPinnedUser?.('');
                         }
-                        /*  */
-                        /* Senddata debe estar antes del removeRemoteVideo para que pueda enviar la información del usuario a eliminar */
+                        const hasHandUp =
+                          functionsOnMenuBar.handNotificationInfo.find(
+                            (notific) => notific.from == participant.id
+                          );
+                        if (hasHandUp) {
+                          removeHandNotification(participant.id as string);
+                        }
                         sendData(roomState.hostId, {
                           eventType: 'USER_LEAVING',
                           id: participant.id,
                           fractalUserId: participant.fractalUserId,
                         });
-
-                        const hasHandUp =
-                          functionsOnMenuBar.handNotificationInfo.find(
-                            (notific) => notific.from == participant.id
-                          );
-
-                        if (hasHandUp) {
-                          removeHandNotification(participant.id as string);
-                        }
-
-                        /* if (roomState.pinnedUser?.id === participant.id) {
-                          sendData(roomState.hostId, {
-                            eventType: 'SET_FULL_SCREEN',
-                            mode: 'none',
-                          });
-                        }
-                        if (participant.isRecording) {
-                          updateRoom({ isBeingRecorded: false });
-                          sendNotificationEvent(
-                            'RECORDING_STOPPED',
-                            roomState.hostId
-                          );
-                          window.xprops?.handleStopRecording?.(
-                            roomState.recordingUrl
-                          );
-                        } */
                         removeRemoteVideo(participant.id as string);
                       }
+                    }
+                    /* Hace el log de usuarios que se han ido */
+                    if (offlineParticipants.length > 0) {
+                      window.xprops?.logUserExits?.(offlineParticipants);
+                      console.debug(
+                        '🏃‍♂️ Registrando salida de los siguientes usuarios: ',
+                        offlineParticipants
+                      );
                     }
                   })
                   .catch((e) => console.log(e));

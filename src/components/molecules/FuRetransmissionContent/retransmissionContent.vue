@@ -76,6 +76,8 @@ export default defineComponent({
     const { roomState, updateRoom } = useRoom();
     const endpoint = ref('');
     const key = ref('');
+    const streamId = `r-nr-${roomState.classroomId}-${userMe.id}-${roomState.id}`;
+    const streamName = `OBS-${userMe.name}`;
     const streamServiceObject = reactive<IStreamServiceObject>({
       facebook: 'Agrega las credenciales dadas por Facebook',
       youtube: 'Agrega las credenciales dadas por Youtube',
@@ -204,7 +206,7 @@ export default defineComponent({
     });
 
     const inputValueKeyRTMP = computed(() => {
-      return props.streamService == 'rtmp' ? userMe.id : '';
+      return props.streamService == 'rtmp' ? streamId : '';
     });
 
     //***************COOL FUNCTIONS  */
@@ -275,7 +277,8 @@ export default defineComponent({
       );
       const response = await fetch(rtmpRequest);
       console.log(response);
-      initMiniWebrtc();
+
+      initMiniWebrtc(streamId, streamName);
       if (response.ok) {
         updateRoom({ rtmpTransmission: true });
         console.log('transmision rtmp i guess 🤔');
@@ -379,9 +382,9 @@ export default defineComponent({
     };
 
     const userMeForObs = {
-      id: 'retraId',
+      id: streamId,
       avatar: 'https://f002.backblazeb2.com/file/FractalUp/Logos/logo_azul.svg',
-      name: 'streamName',
+      name: streamName,
       isCameraOn: false,
       isMicOn: true,
       isScreenSharing: false,
@@ -391,12 +394,12 @@ export default defineComponent({
       isScreenShareBlocked: false,
       denied: 1,
       isRecording: false,
-      fractalUserId: 'retraID',
+      fractalUserId: streamId,
       roleId: 1,
       isHost: false,
     };
 
-    const initMiniWebrtc = () => {
+    const initMiniWebrtc = (streamId: string, streamName: string) => {
       webRTCInstance.value = new WebRTCAdaptor({
         websocket_url: websocketURL,
         mediaConstraints: mediaConstraints,
@@ -415,11 +418,11 @@ export default defineComponent({
             });
             webRTCInstance.value.turnOffLocalCamera('retraId');
             publish(
-              'retraId',
+              streamId,
               publishToken,
               subscriberId,
               subscriberCode,
-              'streamName'
+              streamName
             );
             webRTCInstance.value.play?.(roomState.hostId, undefined, roomId);
           } else if (info == 'newStreamAvailable') {

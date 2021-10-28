@@ -33,7 +33,6 @@
 <script lang="ts">
 import { useInitWebRTC } from '@/composables/antMedia';
 import { useHandleParticipants } from '@/composables/participants';
-import { useUserMe } from '@/composables/userMe';
 import { PERMISSION_STATUS } from '@/utils/enums/general';
 import { User } from '@/types/user';
 import { defineComponent, PropType } from 'vue';
@@ -50,8 +49,6 @@ export default defineComponent({
   setup(props) {
     const { updateParticipantDenied } = useHandleParticipants();
     const { roomState } = useRoom();
-
-    const { userMe } = useUserMe();
 
     const { sendData } = useInitWebRTC();
 

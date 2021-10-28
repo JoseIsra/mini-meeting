@@ -1,7 +1,6 @@
 import { ref } from 'vue';
 import { WebRTCAdaptor } from '@/utils/webrtc/webrtc_adaptor';
 import { useUserMe } from '@/composables/userMe';
-import { User } from '@/types/user';
 import { useAuthState } from '@/composables/auth';
 import { objWebRTC } from '@/types/index';
 
@@ -19,11 +18,7 @@ import {
 } from '@/types/datachannelMessages';
 import { useRoom } from '@/composables/room';
 import { PERMISSION_STATUS } from '@/utils/enums';
-import {
-  notifyWithAction,
-  successMessage,
-  warningMessage,
-} from '@/utils/notify';
+import { notifyWithAction, warningMessage } from '@/utils/notify';
 import { useExternalVideo } from './external-video';
 import videojs from 'video.js';
 import { useActions } from '@/composables/actions';
@@ -36,7 +31,6 @@ import {
   ObjBlockEveryoneAction,
   ObjBlockParticipantAction,
   ObjKickedEvent,
-  ObjRecordingStopParsed,
   ObjRemoteUserInfo,
   ObjSetFullScreen,
   ObjUserLeavingMessageParsed,
@@ -81,7 +75,6 @@ const {
   setRoomMicState,
   setRoomCameraState,
   setRoomScreenShareState,
-  setRoomRestriction,
   updateFocus,
   updateBgUrl,
   updateBgSize,
@@ -97,7 +90,6 @@ const {
   updateParticipantById,
   setEveryParticipantActions,
   setParticipantActions,
-  findParticipantById,
 } = useHandleParticipants();
 
 const { setUserMessage, deleteLoadingMessage } = useHandleMessage();

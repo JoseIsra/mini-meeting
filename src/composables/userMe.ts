@@ -12,8 +12,8 @@ const userState = {} as User;
 const userMe = reactive<User>(userState);
 
 export function useUserMe() {
-  const setUserMe = (value: Partial<User>) => {
-    Object.assign(userState, value);
+  const setUserMe = (value: User) => {
+    _.merge(userState, value);
   };
 
   const updateUserMe = (value: Partial<User>) => {
@@ -28,7 +28,7 @@ export function useUserMe() {
         });
       }
     });
-    Object.assign(userMe, updatedUser);
+    _.merge(userMe, updatedUser);
   };
 
   userMe.cameraPublishedState = computed(() =>

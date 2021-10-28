@@ -4,10 +4,7 @@
       class="t-cooperate__page"
       v-if="existRoom && isLoadingOrError === false"
     >
-      <fu-lobby
-        v-if="roomState.roomRestriction"
-        @handleLeaveCall="handleZoidLeaveCall"
-      />
+      <fu-lobby v-if="denied !== 1" @handleLeaveCall="handleZoidLeaveCall" />
 
       <fu-cooperate
         v-else
@@ -44,7 +41,11 @@ import FuLobby from 'organisms/FuLobby';
 import { useRoute } from 'vue-router';
 import { useUserMe } from '@/composables/userMe';
 import FuTLoading from 'organisms/FuLoading';
-import { PERMISSION_STATUS, REASON_TO_LEAVE_ROOM } from '@/utils/enums';
+import {
+  PERMISSION_STATUS,
+  REASON_TO_LEAVE_ROOM,
+  ROOM_PRIVACY,
+} from '@/utils/enums';
 import { useInitWebRTC } from '@/composables/antMedia';
 import { useAuthState } from '@/composables/auth';
 import { useRoom } from '@/composables/room';
@@ -122,14 +123,14 @@ export default defineComponent({
     let roomRestriction = window.xprops?.roomRestriction as number;
 
     if (!roomRestriction) {
-      roomRestriction = parseInt(route.query.roomRestriction as string) || 0;
+      roomRestriction = parseInt(route.query.roomRestriction as string) || ROOM_PRIVACY.PUBLIC;
     }
 
     const isMicLocked = window.xprops?.isMicLocked || false;
 
-    console.log(isMicLocked);
     const cameraId =
       window.xprops?.cameraId || (route.query.cameraId as string);
+
     const micId = window.xprops?.micId || (route.query.micId as string);
 
     const isCameraLocked = window.xprops?.isCameraLocked || false;
@@ -205,11 +206,12 @@ export default defineComponent({
       isCameraBlocked: roleId === 1 ? isCameraLocked : false,
       isScreenShareBlocked: roleId === 1 ? isScreenShareLocked : false,
       fractalUserId,
-      denied: roomRestriction
-        ? roleId === 1
-          ? PERMISSION_STATUS.asked
-          : PERMISSION_STATUS.admitted
-        : PERMISSION_STATUS.admitted,
+      denied:
+        roomRestriction === ROOM_PRIVACY.PRIVATE
+          ? roleId === 1
+            ? PERMISSION_STATUS.asked
+            : PERMISSION_STATUS.admitted
+          : PERMISSION_STATUS.admitted,
       isRecording: false,
       isHost,
       cameraId,
@@ -227,7 +229,7 @@ export default defineComponent({
       id: roomId,
       sharingLink,
       classroomId,
-      roomRestriction: roleId === 1 ? roomRestriction : 0,
+      roomRestriction: roleId === 1 ? roomRestriction : ROOM_PRIVACY.PUBLIC,
       isMicBlocked: isMicLocked,
       isCameraBlocked: isCameraLocked,
       isScreenShareBlocked: isScreenShareLocked,
@@ -552,6 +554,7 @@ export default defineComponent({
       toggleDesktopCapture,
       handleZoidLeaveCall,
       ...toRefs(authState),
+      ...toRefs(userMe),
       roomState,
     };
   },

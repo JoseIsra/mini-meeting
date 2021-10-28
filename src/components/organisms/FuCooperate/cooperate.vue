@@ -26,10 +26,6 @@
       v-show="screenMinimized"
     />
     <fu-cooperate-header v-show="!screenMinimized" />
-    <fu-shared-stream
-      :sharedLink="sharingLink"
-      v-show="functionsOnMenuBar.renderInfoRoomCard"
-    />
     <fu-cooperate-menu-bar
       v-show="showMenuBar && !screenMinimized"
       :toggleLocalCamera="toggleLocalCamera"
@@ -83,7 +79,6 @@ import FuCooperateParticipantsPanel from '@/components/molecules/FuCooperatePart
 import _ from 'lodash';
 import { useSidebarToogle, useToogleFunctions } from '@/composables';
 import { useScreen } from '@/composables/screen';
-import FuSharedStream from 'molecules/FuSharedStream';
 import { useRoom } from '@/composables/room';
 
 export default defineComponent({
@@ -106,7 +101,6 @@ export default defineComponent({
     FuCooperateUserVideo,
     FuHandNotification,
     FuFullScreen,
-    FuSharedStream,
     FuCooperateParticipantsPanel,
   },
   setup(props, { emit }) {

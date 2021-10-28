@@ -27,7 +27,6 @@ export function useStreams() {
     const newStreams = _.cloneDeep(streams);
     const filteredResult = newStreams.filter((stream) => stream.id !== id);
     Object.assign(streams, filteredResult);
-    console.log(streams);
   };
 
   return {

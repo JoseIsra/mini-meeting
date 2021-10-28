@@ -67,12 +67,10 @@
 
           <template v-slot:avatar>
             <q-img
-              class="m-chat__messagesBox__info__avatar"
-              :style="
-                message.streamId == userMe.id
-                  ? 'margin-left: 4px'
-                  : 'margin-right: 4px'
-              "
+              :class="[
+                'm-chat__messagesBox__info__avatar',
+                message.streamId == userMe.id ? '--me' : '--others',
+              ]"
               :src="message.avatar"
             ></q-img>
           </template>

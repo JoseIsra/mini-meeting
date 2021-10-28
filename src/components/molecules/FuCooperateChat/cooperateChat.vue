@@ -61,9 +61,13 @@
         >
           <template v-slot:name v-if="!(message.streamId === userMe.id)">
             <div class="m-chat__messagesBox__info__name">
+              <span> {{ message.streamName }} </span>
+            </div>
+
+            <div class="m-chat__messagesBox__info__fullname" v-if="message.streamName.length >= 20">
               {{ message.streamName }}
-            </div></template
-          >
+            </div>
+          </template>
 
           <template v-slot:avatar>
             <q-img

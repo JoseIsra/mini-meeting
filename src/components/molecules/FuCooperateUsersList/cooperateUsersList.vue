@@ -258,7 +258,7 @@
                   >
                     <q-tooltip class="bg-grey-10">
                       <label v-if="listenFullScreen.id == userMe.id"
-                        >Estás fijado
+                        >Desfijarte
                       </label>
                       <label v-else>Fijarte a ti mismo</label>
                     </q-tooltip>
@@ -1005,8 +1005,14 @@ export default defineComponent({
 
     const activeFullScreen = (arg: User) => {
       if (isFullScreen.value) {
-        setFullScreenObject(arg);
-        return;
+        if (fullScreenObject.id === arg.id) {
+          setFullScreen('none', false);
+          clearFullScreenObject();
+          return;
+        } else {
+          setFullScreenObject(arg);
+          return;
+        }
       }
       setFullScreen('user', true);
       setFullScreenObject(arg);

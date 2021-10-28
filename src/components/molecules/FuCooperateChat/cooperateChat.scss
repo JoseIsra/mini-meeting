@@ -45,27 +45,43 @@
     }
     &__bubble {
       margin: 1rem 0.4rem;
+      position: relative;
     }
 
     &__info {
       position: relative;
       display: flex;
       flex-direction: column;
+
       &__name {
         font-size: 12px;
-        opacity: 0.6;
-        overflow: hidden;
-        white-space: nowrap;
-        width: 100px;
-        text-overflow: ellipsis;
         margin: 2px 0;
-
+        max-width: 100px;
+        overflow: hidden;
+        text-overflow: ellipsis;
         transition: 0.8s ease-in-out;
+        white-space: nowrap;
 
-        &:hover {
-          width: 150px;
+        span {
+          opacity: 0.6;
         }
       }
+
+      &__fullname {
+        background-color: #1d1d1d;
+        color: white;
+        opacity: 0;
+        padding: 2px 4px;
+        position: absolute;
+        top: -2px;
+        left: 30px;
+        transition: opacity 0.3s;
+
+        &:hover {
+          opacity: 1;
+        }
+      }
+
       &__avatar {
         min-width: 30px;
         width: 30px;

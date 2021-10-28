@@ -399,7 +399,9 @@ export default defineComponent({
           console.log(userMe.stream, '⭕⭕⭕');
           sendNotificationEvent('CAM_TURNED_ON', roomState.hostId);
         } else {
+          setCameraState(true);
           updateUserMe({ isPublishing: 2 });
+          console.log(userMe);
           publish(userMe.id, undefined, undefined, undefined, userMe.name);
 
           const interval = setInterval(() => {
@@ -407,7 +409,6 @@ export default defineComponent({
               clearInterval(interval);
               setVideoActivatedState(true);
               /* setCameraIconState(true); */
-              setCameraState(true);
               turnOnLocalCamera(streamId);
               sendNotificationEvent('CAM_TURNED_ON', roomState.hostId);
               console.log(userMe.stream, '⭕⭕⭕');

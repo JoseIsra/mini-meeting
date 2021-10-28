@@ -2,35 +2,6 @@
   <div class="a-menuBar">
     <section class="a-menuBar__box">
       <aside class="a-menuBar__periferics">
-        <!-- <q-btn
-          flat
-          round
-          :class="['a-menuBar__icon', { active: icon.active }]"
-          v-for="icon in periferics"
-          :key="icon.id"
-          :icon="
-            userMe.isMicOn && userMe.isPublishing == 1
-              ? icon.onState
-              : userMe.isPublishing == 2
-              ? icon.loadingState
-              : icon.offState
-          "
-          size="0.7rem"
-          :disable="disableAction(icon)"
-          @click="tooglePeriferic(icon?.interaction)"
-        >
-          {{ userMe.isPublishing }}
-          <q-tooltip class="bg-grey-10" v-if="!icon.active">
-            <label class="a-menuBar__icon__tooltip">
-              {{ icon.toolTipMessage }}
-            </label>
-          </q-tooltip>
-          <q-tooltip class="bg-grey-10" v-if="icon.active">
-            <label class="a-menuBar__icon__tooltip">
-              {{ icon.toolTipSecondMessage }}
-            </label>
-          </q-tooltip>
-        </q-btn> -->
         <q-btn
           flat
           round
@@ -49,16 +20,15 @@
           size="0.7rem"
           @click="toggleMIC"
         >
-          <!-- <q-tooltip class="bg-grey-10" v-if="!icon.active">
+          <q-tooltip class="bg-grey-10" v-if="userMe.micPublishedState == 0">
             <label class="a-menuBar__icon__tooltip">
-              {{ icon.toolTipMessage }}
+              {{
+                userMe.micPublishedState == 0
+                  ? iconsPeriferics.mic.toolTipMessage
+                  : iconsPeriferics.mic.toolTipSecondMessage
+              }}
             </label>
           </q-tooltip>
-          <q-tooltip class="bg-grey-10" v-if="icon.active">
-            <label class="a-menuBar__icon__tooltip">
-              {{ icon.toolTipSecondMessage }}
-            </label>
-          </q-tooltip> -->
         </q-btn>
 
         <q-btn
@@ -79,16 +49,15 @@
           size="0.7rem"
           @click="toggleCamera"
         >
-          <!-- <q-tooltip class="bg-grey-10" v-if="!icon.active">
+          <q-tooltip class="bg-grey-10">
             <label class="a-menuBar__icon__tooltip">
-              {{ icon.toolTipMessage }}
+              {{
+                userMe.cameraPublishedState == 0
+                  ? iconsPeriferics.camera.toolTipMessage
+                  : iconsPeriferics.camera.toolTipSecondMessage
+              }}
             </label>
           </q-tooltip>
-          <q-tooltip class="bg-grey-10" v-if="icon.active">
-            <label class="a-menuBar__icon__tooltip">
-              {{ icon.toolTipSecondMessage }}
-            </label>
-          </q-tooltip> -->
         </q-btn>
       </aside>
       <div class="a-menuBar__functions">

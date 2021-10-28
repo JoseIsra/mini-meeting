@@ -123,26 +123,29 @@
                 }
           "
         >
-          <div
-            class="a-menuBar__icon__topin"
-            :style="`background-color: ${
-              userMe.roleId === 1
-                ? '#0099ff'
-                : waitingParticipants.length > 0
-                ? 'green'
-                : '#0099ff'
-            }`"
-            v-if="icon.id === '3' && notificationCount > 0"
-          >
-            <!-- <q-icon name="fas fa-clock" /> -->
-            {{ notificationCount }}
-          </div>
           <q-badge
-            v-show="chatNotification && icon.interaction == 'CHAT'"
-            color="red"
             rounded
             floating
-          />
+            v-show="icon.id === '3' && notificationCount > 0"
+            :class="[
+              'a-menuBar__icon__topin',
+              { '--roleOne': userMe.roleId == 1 },
+              waitingParticipants.length > 0
+                ? '--participants'
+                : '--noparticipants',
+            ]"
+          >
+            {{ notificationCount }}
+          </q-badge>
+          <q-badge
+            v-show="chatNotification && icon.interaction == 'CHAT'"
+            class="a-menuBar__icon__chatbadge"
+            rounded
+            color="red"
+            floating
+          >
+            {{ newMessages }}
+          </q-badge>
 
           <q-tooltip class="bg-grey-10" v-if="icon.behaviour == 'NORMAL'">
             <label

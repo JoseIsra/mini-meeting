@@ -1,17 +1,17 @@
 <template>
   <section class="m-fuser">
     <template v-if="gotPinnedUser">
-      <div v-show="!studentPinned.isVideoActivated" class="m-fuser__avatar">
+      <div v-show="!studentPinned?.isVideoActivated" class="m-fuser__avatar">
         <figure class="m-fuser__avatar__imageBox">
           <img
             class="m-fuser__avatar__imageBox__image"
-            :src="studentPinned.avatar"
+            :src="studentPinned?.avatar"
           />
         </figure>
         <div class="m-fuser__info">
           <label class="m-fuser__info__userName"
-            >{{ studentPinned.name }}
-            {{ studentPinned.id === userMe.id ? '(Tú)' : '' }}</label
+            >{{ studentPinned?.name }}
+            {{ studentPinned?.id === userMe.id ? '(Tú)' : '' }}</label
           >
         </div>
         <div class="m-fuser__actions">
@@ -34,7 +34,7 @@
         </div>
       </div>
       <video
-        v-show="studentPinned.isVideoActivated"
+        v-show="studentPinned?.isVideoActivated"
         :class="[
           'm-fuser__stream',
           orientationClass,
@@ -44,7 +44,7 @@
         @mousemove="toggleMinimizeMessage"
         muted
         playsinline
-        :srcObject.prop="studentPinned.stream"
+        :srcObject.prop="studentPinned?.stream"
       ></video>
       <q-btn
         flat
@@ -55,8 +55,8 @@
         @click="exitFullScreen"
         v-show="
           showMinimizeMessage &&
-          studentPinned.isVideoActivated &&
-          !screenMinimized & minimizeOnGlobalFocusedUser
+          studentPinned?.isVideoActivated &&
+          !screenMinimized && minimizeOnGlobalFocusedUser
         "
       />
     </template>

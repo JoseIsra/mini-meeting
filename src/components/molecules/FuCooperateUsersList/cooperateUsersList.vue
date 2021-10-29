@@ -255,6 +255,7 @@
                         : 'gps_fixed'
                     "
                     @click="activeFullScreen(userMe)"
+                    :disable="!!roomState.pinnedUser"
                   >
                     <q-tooltip class="bg-grey-10">
                       <label v-if="listenFullScreen.id == userMe.id"

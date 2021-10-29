@@ -17,7 +17,7 @@
               : iconsPeriferics.mic.offState
           "
           :disable="userMe.isPublishing == 2 || userMe.isMicBlocked"
-          size="0.7rem"
+          size="13px"
           @click="toggleMIC"
         >
           <q-tooltip class="bg-grey-10" v-if="userMe.micPublishedState == 0">
@@ -30,7 +30,6 @@
             </label>
           </q-tooltip>
         </q-btn>
-
         <q-btn
           flat
           round
@@ -46,7 +45,7 @@
               : iconsPeriferics.camera.offState
           "
           :disable="userMe.isPublishing == 2 || userMe.isCameraBlocked"
-          size="0.7rem"
+          size="13px"
           @click="toggleCamera"
         >
           <q-tooltip class="bg-grey-10">
@@ -65,37 +64,81 @@
         <q-btn
           flat
           round
-          v-for="icon in functions"
           :class="[
             'a-menuBar__icon',
             {
-              active:
-                icon.id !== '1'
-                  ? icon.id == functionsOnMenuBar.selectedButtonID
-                  : userMe.isScreenSharing,
-            },
-            {
-              activeHand:
-                handNotificationActive && icon.interaction == 'HANDUP',
+              active: userMe.isScreenSharing,
             },
           ]"
-          :key="icon.id"
-          :icon="icon.onState"
-          size="14px"
-          :disabled="disableAction(icon)"
-          v-on="
-            icon.behaviour == 'ESPECIAL'
-              ? { click: () => handleEspecialBehaviour(icon.interaction) }
-              : {
-                  click: () =>
-                    handleFunctionSelected(icon.interaction, icon.id),
-                }
+          :icon="
+            userMe.screenSharingPublishedState == 1
+              ? iconsFunctions.screenShare.onState
+              : userMe.screenSharingPublishedState == 2
+              ? iconsFunctions.screenShare.loadingState
+              : iconsFunctions.screenShare.offState
           "
+          size="13px"
+          :disable="userMe.isPublishing == 2 || userMe.isScreenShareBlocked"
+          @click="toggleDesktopScreenCapture"
+        >
+          <q-tooltip class="bg-grey-10">
+            <label class="a-menuBar__icon__tooltip">
+              {{
+                userMe.screenSharingPublishedState == 0
+                  ? iconsFunctions.screenShare.toolTipMessage
+                  : iconsFunctions.screenShare.toolTipSecondMessage
+              }}
+            </label>
+          </q-tooltip>
+        </q-btn>
+        <q-btn
+          flat
+          round
+          :class="[
+            'a-menuBar__icon',
+            {
+              active: handNotificationActive,
+            },
+          ]"
+          :icon="
+            handNotificationActive
+              ? iconsFunctions.hand.onState
+              : iconsFunctions.hand.offState
+          "
+          size="13px"
+          @click="toogleHandUp"
+        >
+          <q-tooltip class="bg-grey-10">
+            <label class="a-menuBar__icon__tooltip">
+              {{
+                handNotificationActive
+                  ? iconsFunctions.hand.toolTipSecondMessage
+                  : iconsFunctions.hand.toolTipMessage
+              }}
+            </label>
+          </q-tooltip>
+        </q-btn>
+        <q-btn
+          flat
+          round
+          :class="[
+            'a-menuBar__icon',
+            {
+              active: functionsOnMenuBar.renderUsersList && isSidebarRender,
+            },
+          ]"
+          :icon="
+            functionsOnMenuBar.renderUsersList && isSidebarRender
+              ? iconsFunctions.users.onState
+              : iconsFunctions.users.offState
+          "
+          size="13px"
+          @click="toggleUsersList"
         >
           <q-badge
             rounded
             floating
-            v-show="icon.id === '3' && notificationCount > 0"
+            v-show="notificationCount > 0"
             :class="[
               'a-menuBar__icon__topin',
               { '--roleOne': userMe.roleId == 1 },
@@ -106,35 +149,62 @@
           >
             {{ notificationCount }}
           </q-badge>
+          <q-tooltip class="bg-grey-10">
+            <label class="a-menuBar__icon__tooltip">
+              {{
+                functionsOnMenuBar.renderUsersList && isSidebarRender
+                  ? iconsFunctions.users.toolTipSecondMessage
+                  : iconsFunctions.users.toolTipMessage
+              }}
+            </label>
+          </q-tooltip>
+        </q-btn>
+        <q-btn
+          flat
+          round
+          :class="[
+            'a-menuBar__icon',
+            {
+              active: functionsOnMenuBar.renderChat && isSidebarRender,
+            },
+          ]"
+          :icon="
+            functionsOnMenuBar.renderChat && isSidebarRender
+              ? iconsFunctions.chat.onState
+              : iconsFunctions.chat.offState
+          "
+          size="13px"
+          @click="toogleChat"
+        >
           <q-badge
-            v-show="chatNotification && icon.interaction == 'CHAT'"
+            v-show="chatNotification"
             class="a-menuBar__icon__chatbadge"
             rounded
             color="red"
             floating
           >
           </q-badge>
-
-          <q-tooltip class="bg-grey-10" v-if="icon.behaviour == 'NORMAL'">
-            <label
-              class="a-menuBar__icon__tooltip"
-              v-if="icon.id !== functionsOnMenuBar.selectedButtonID"
-            >
-              {{ icon.toolTipMessage }}
-            </label>
-            <label v-else class="a-menuBar__icon__tooltip">
-              {{ icon.toolTipSecondMessage }}
+          <q-tooltip class="bg-grey-10">
+            <label class="a-menuBar__icon__tooltip">
+              {{
+                functionsOnMenuBar.renderChat && isSidebarRender
+                  ? iconsFunctions.chat.toolTipSecondMessage
+                  : iconsFunctions.chat.toolTipMessage
+              }}
             </label>
           </q-tooltip>
-          <q-tooltip class="bg-grey-10" v-if="icon.behaviour == 'ESPECIAL'">
-            <label
-              class="a-menuBar__icon__tooltip"
-              v-if="handNotificationActive"
-            >
-              {{ icon.toolTipSecondMessage }}
-            </label>
-            <label v-else class="a-menuBar__icon__tooltip">
-              {{ icon.toolTipMessage }}
+        </q-btn>
+        <q-btn
+          flat
+          round
+          :class="'a-menuBar__icon'"
+          :icon="iconsFunctions.minimize.onState"
+          size="13px"
+          @click="minimizeScreen"
+        >
+          <q-tooltip class="bg-grey-10">
+            <label class="a-menuBar__icon__tooltip">
+              {{ iconsFunctions.minimize.toolTipMessage }}
             </label>
           </q-tooltip>
         </q-btn>
@@ -153,7 +223,7 @@
           flat
           round
           color="grey-1"
-          size="12px"
+          size="13px"
           @click="handleEspecialBehaviour('HANDUP')"
         >
           <q-badge v-show="handNotificationActive" color="red" rounded floating
@@ -176,13 +246,13 @@
           round
           flat
           :ripple="false"
-          v-for="icon in options"
+          v-for="icon in iconsOptions"
           v-show="icon.id == '1' ? canSeeActionsMenu : true"
           :key="icon.id"
           :icon="icon.onState"
           class="a-menuBar__icon"
           @click="handleMenuPosition(icon.ubication)"
-          size="14px"
+          size="13px"
         >
           <q-tooltip class="bg-grey-10">
             <label class="a-menuBar__icon__tooltip">
@@ -222,7 +292,7 @@ import { defineComponent, ref, reactive, watch, computed } from 'vue';
 import FuCooperateMenu from 'molecules/FuCooperateMenu';
 import { Icons, Periferics, Functionalities } from '@/types';
 
-import { iconsPeriferics } from '@/helpers/iconsMenuBar';
+import { iconsPeriferics, iconsFunctions } from '@/helpers/iconsMenuBar';
 
 import { useToogleFunctions, useSidebarToogle } from '@/composables';
 import { useUserMe } from '@/composables/userMe';
@@ -231,11 +301,12 @@ import FuCooperateNetworkInfo from 'molecules/FuCooperateNetworkInfo';
 
 import { useInitWebRTC } from '@/composables/antMedia';
 import { useScreen } from '@/composables/screen';
-import { useActions } from '@/composables/actions';
+/* import { useActions } from '@/composables/actions'; */
 import { useHandleParticipants } from '@/composables/participants';
 import FuAdminPanel from 'organisms/FuAdminPanel';
 import { useRoom } from '@/composables/room';
 import { useHandleMessage } from '@/composables/chat';
+import { iconsOptions } from '@/helpers/iconsMenuBar';
 import _ from 'lodash';
 
 export default defineComponent({
@@ -259,7 +330,7 @@ export default defineComponent({
   setup(props) {
     const { sendData } = useInitWebRTC();
 
-    const { functions, options } = useActions();
+    /* const { options } = useActions(); */
 
     const { waitingParticipants } = useHandleParticipants();
 
@@ -510,8 +581,6 @@ export default defineComponent({
 
     return {
       userMe,
-      functions,
-      options,
       handleMenuPosition,
       isActions,
       handleFunctionSelected,
@@ -534,6 +603,14 @@ export default defineComponent({
       chatNotification,
       notificationCount,
       waitingParticipants,
+      iconsFunctions,
+      toggleDesktopScreenCapture,
+      toogleHandUp,
+      toggleUsersList,
+      isSidebarRender,
+      toogleChat,
+      minimizeScreen,
+      iconsOptions,
     };
   },
 });

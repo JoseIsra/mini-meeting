@@ -21,7 +21,7 @@ import { PERMISSION_STATUS } from '@/utils/enums';
 import { notifyWithAction, warningMessage } from '@/utils/notify';
 import { useExternalVideo } from './external-video';
 import videojs from 'video.js';
-import { useActions } from '@/composables/actions';
+/* import { useActions } from '@/composables/actions'; */
 import { LOG_TYPE } from '@/utils/enums/zoid';
 import _ from 'lodash';
 /*  */
@@ -109,7 +109,7 @@ const roomTimerId = ref<ReturnType<typeof setInterval> | null>(null);
 
 const { updateExternalVideoState, externalVideo } = useExternalVideo();
 
-const { setScreenShareIconState } = useActions();
+/* const { setScreenShareIconState } = useActions(); */
 
 const remotePlayer = ref<videojs.Player>({} as videojs.Player);
 
@@ -661,6 +661,7 @@ export function useInitWebRTC() {
 
           //Si no es el host y el canal que se ha abierto es el del mismo usuario cuando empiece a hacer el publish de su stream se actualizará su campo de isPublishing
           if (user === userMe.id && !userMe.isHost) {
+            webRTCInstance.value.turnOffLocalCamera?.(userMe.id);
             updateUserMe({ isPublishing: 1 });
           }
 
@@ -925,7 +926,7 @@ export function useInitWebRTC() {
                 setVideoActivatedState(!value);
                 resetDesktop();
                 sendNotificationEvent('SCREEN_SHARING_OFF', userMe.id);
-                setScreenShareIconState(!value);
+                /* setScreenShareIconState(!value); */
 
                 updateUserMe({ isPublishing: 0 });
                 stopPublishing(userMe.id);
@@ -975,7 +976,7 @@ export function useInitWebRTC() {
               setLocalScreenShareBlock(value);
 
               if (value) {
-                setScreenShareIconState(!value);
+                /* setScreenShareIconState(!value); */
                 setScreenState(!value);
                 setVideoActivatedState(!value);
                 resetDesktop();
@@ -1018,7 +1019,7 @@ export function useInitWebRTC() {
                 setVideoActivatedState(!value);
                 resetDesktop();
                 sendNotificationEvent('SCREEN_SHARING_OFF', userMe.id);
-                setScreenShareIconState(!value);
+                /* setScreenShareIconState(!value); */
 
                 updateUserMe({ isPublishing: 0 });
                 stopPublishing(userMe.id);
@@ -1076,7 +1077,7 @@ export function useInitWebRTC() {
                 setLocalScreenShareBlock(value);
 
                 if (value) {
-                  setScreenShareIconState(!value);
+                  /* setScreenShareIconState(!value); */
                   setScreenState(!value);
                   setVideoActivatedState(!value);
                   resetDesktop();
@@ -1288,14 +1289,47 @@ export function useInitWebRTC() {
         } else if (error.indexOf('data_channel_error') != -1) {
           errorMessage = 'There was a error during data channel communication';
         } else if (error.indexOf('ScreenSharePermissionDenied') != -1) {
-          setIDButtonSelected('');
-          if (!userMe.isCameraOn) {
-            userMe.isVideoActivated = false;
-            userMe.isScreenSharing = false;
-            webRTCInstance.value.turnOffLocalCamera?.(userMe.id);
-          }
+          //setIDButtonSelected('');
+          /* if (!userMe.isVideoActivated) {
+            updateUserMe({
+              isVideoActivated: false,
+            });
+            setTimeout(() => {
+              webRTCInstance.value.turnOffLocalCamera?.(userMe.id);
+            }, 1000);
+          } */
+          updateUserMe({
+            isScreenSharing: false,
+          });
           webRTCInstance.value.resetDesktop?.();
           sendNotificationEvent('SCREEN_SHARING_OFF', userMe.id);
+
+          if (userMe.isVideoActivated) {
+            updateUserMe({
+              isCameraOn: true,
+            });
+            sendNotificationEvent('CAM_TURNED_ON', userMe.id);
+          }
+
+          if (
+            !userMe.isCameraOn &&
+            !userMe.isMicOn &&
+            !userMe.isHost &&
+            !userMe.isVideoActivated
+          ) {
+            if (!userMe.isHost) {
+              stopPublishing(streamId);
+              updateUserMe({ isPublishing: 0 });
+            } else {
+              setTimeout(() => {
+                webRTCInstance.value.turnOffLocalCamera?.(userMe.id);
+                updateUserMe({
+                  isVideoActivated: false,
+                });
+              }, 1000);
+            }
+          }
+
           errorMessage = 'No has dado permisos para compartir tus dispositivos';
           //screen_share_checkbox.checked = false;
         } else if (error.indexOf('AbortError') !== -1) {

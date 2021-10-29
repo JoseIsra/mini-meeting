@@ -19,7 +19,11 @@ export function useUserMe() {
   const updateUserMe = (value: Partial<User>) => {
     const updatedUser = _.cloneDeep(userMe);
     Object.keys(value).forEach((key: string) => {
-      if (key != 'cameraPublishedState' && key != 'micPublishedState') {
+      if (
+        key != 'cameraPublishedState' &&
+        key != 'micPublishedState' &&
+        key != 'screenSharingPublishedState'
+      ) {
         Object.defineProperty(updatedUser, key, {
           value: value[key as keyof User] as ValueOf<User>,
           writable: true,
@@ -43,6 +47,14 @@ export function useUserMe() {
     userMe.isMicOn && userMe.isPublishing == 1
       ? 1
       : userMe.isPublishing == 2 && userMe.isMicOn
+      ? 2
+      : 0
+  );
+
+  userMe.screenSharingPublishedState = computed(() =>
+    userMe.isScreenSharing && userMe.isPublishing == 1
+      ? 1
+      : userMe.isPublishing == 2 && userMe.isScreenSharing
       ? 2
       : 0
   );

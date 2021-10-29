@@ -51,11 +51,7 @@
           :bg-color="
             message.streamId == userMe.id ? 'indigo-6' : 'deep-purple-9'
           "
-          :size="
-            message.typeMessage == 'plainText'
-              ? ''
-              : '9'
-          "
+          :size="message.typeMessage == 'plainText' ? '' : '9'"
           text-color="white"
           :stamp="message.date"
         >
@@ -64,7 +60,10 @@
               <span> {{ message.streamName }} </span>
             </div>
 
-            <div class="m-chat__messagesBox__info__fullname" v-if="message.streamName.length >= 20">
+            <div
+              class="m-chat__messagesBox__info__fullname"
+              v-if="message.streamName.length >= 20"
+            >
               {{ message.streamName }}
             </div>
           </template>
@@ -124,6 +123,16 @@
               <q-spinner-dots size="20px" />
             </span>
           </div>
+        </q-chat-message>
+        <q-chat-message
+          v-if="fakeMessage == userMe.id"
+          :sent="fakeMessage == userMe.id"
+          :bg-color="fakeMessage == userMe.id ? 'indigo-6' : 'deep-purple-9'"
+          text-color="white"
+        >
+          <span>
+            <q-spinner-dots size="20px" />
+          </span>
         </q-chat-message>
       </main>
       <div class="m-chat__formBox">
@@ -215,6 +224,8 @@ export default defineComponent({
     const { sendData } = useInitWebRTC();
     const { userMe } = useUserMe();
     let userName = ref(window?.xprops?.streamId || route.query.streamName);
+    const fakeMessage = ref('');
+
     const sendMessage = () => {
       if (!regexp.test(userInput.value)) {
         warningMessage('Complete los campos');
@@ -265,8 +276,8 @@ export default defineComponent({
           uploadUrl: uploadUrl,
           authorizationToken: authorizationToken,
         };
-
-        addTextMessage('empty', new Date(), 'empty'); // activa loader message
+        fakeMessage.value = userMe.id;
+        // addTextMessage('empty', new Date(), 'empty'); // activa loader message
         uploadFileToBackblaze({
           file: new File([fileInformation], encodeURIComponent(fileName)),
           path: `classrooms/${roomState.classroomId}/cooperate/chat`,
@@ -274,7 +285,8 @@ export default defineComponent({
           retries: 10,
         })
           .then(() => {
-            deleteLoadingMessage(userMe.id);
+            fakeMessage.value = '';
+            // deleteLoadingMessage(userMe.id);
             const fileRoute = `${backBlazePathFile}/${fileName}`;
             if (leftType === 'image') {
               addTextMessage(fileRoute, new Date(), 'image');
@@ -326,13 +338,14 @@ export default defineComponent({
       userInput,
       sendMessage,
       userMessages,
-      userName,      
+      userName,
       userMe,
       closeChat,
       fileSelected,
       messageContainer,
       showChatMenu,
       hideMenu,
+      fakeMessage,
     };
   },
 });

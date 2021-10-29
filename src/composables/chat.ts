@@ -15,6 +15,8 @@ export interface Message {
 
 const userMessages = ref<Message[]>([]);
 const chatNotification = ref(false);
+const amountOfNewMessages = ref(0);
+
 export function useHandleMessage() {
   const setUserMessage = (value: Message) => {
     userMessages.value.push(value);
@@ -35,6 +37,10 @@ export function useHandleMessage() {
     chatNotification.value = value;
   };
 
+  const acumulateMessages = (value: number) => {
+    amountOfNewMessages.value = value;
+  };
+
   return {
     setUserMessage,
     userMessages,
@@ -42,5 +48,7 @@ export function useHandleMessage() {
     deleteLoadingMessage,
     chatNotification,
     showChatNotification,
+    amountOfNewMessages,
+    acumulateMessages,
   };
 }

@@ -92,14 +92,19 @@ const {
   setParticipantActions,
 } = useHandleParticipants();
 
-const { setUserMessage, deleteLoadingMessage } = useHandleMessage();
+const {
+  setUserMessage,
+  deleteLoadingMessage,
+  amountOfNewMessages,
+  acumulateMessages,
+} = useHandleMessage();
 
 const {
   addHandNotificationInfo,
   removeHandNotification,
   setFullScreen,
   setFullScreenObject,
-  isFullScreen,  
+  isFullScreen,
   clearFullScreenObject,
   functionsOnMenuBar,
 } = useToogleFunctions();
@@ -733,7 +738,11 @@ export function useInitWebRTC() {
             if (typeMessage == 'image' || typeMessage == 'file') {
               deleteLoadingMessage(chatMessageParsed.streamId);
               setUserMessage(chatMessageParsed);
+              amountOfNewMessages.value++;
+              acumulateMessages(amountOfNewMessages.value);
             } else {
+              amountOfNewMessages.value++;
+              acumulateMessages(amountOfNewMessages.value);
               setUserMessage(chatMessageParsed);
             }
           } else if (eventType === 'NOTIFICATION') {

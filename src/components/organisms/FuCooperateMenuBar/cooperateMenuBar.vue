@@ -183,6 +183,7 @@
             color="red"
             floating
           >
+            {{ amountOfNewMessages }}
           </q-badge>
           <q-tooltip class="bg-grey-10">
             <label class="a-menuBar__icon__tooltip">
@@ -381,8 +382,13 @@ export default defineComponent({
     let handNotificationActive = ref(false);
     const canSeeActionsMenu = ref(userMe.roleId === 0);
     const openAdminPanel = ref(false);
-    const { userMessages, showChatNotification, chatNotification } =
-      useHandleMessage();
+    const {
+      userMessages,
+      showChatNotification,
+      chatNotification,
+      amountOfNewMessages,
+      acumulateMessages,
+    } = useHandleMessage();
 
     const lastMessageOwner = computed(() => {
       return userMessages.value[userMessages.value.length - 1].streamId;
@@ -391,6 +397,7 @@ export default defineComponent({
     watch(
       () => _.cloneDeep(userMessages.value),
       (current, prev) => {
+        console.log('MENSAJES', current, prev);
         if (
           current.length - prev.length > 0 &&
           !functionsOnMenuBar.renderChat &&
@@ -411,6 +418,7 @@ export default defineComponent({
         setShowNotes(false);
         setShowUsersList(false);
         showChatNotification(false);
+        acumulateMessages(0);
         return;
       } else if (isSidebarRender.value && functionsOnMenuBar.renderChat) {
         setSidebarState(false);
@@ -421,6 +429,7 @@ export default defineComponent({
       setShowNotes(false);
       setShowUsersList(false);
       showChatNotification(false);
+      acumulateMessages(0);
     };
 
     const toogleShareNotes = () => {
@@ -607,6 +616,7 @@ export default defineComponent({
       toogleChat,
       minimizeScreen,
       iconsOptions,
+      amountOfNewMessages,
     };
   },
 });

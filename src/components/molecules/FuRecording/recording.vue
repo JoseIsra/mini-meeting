@@ -88,7 +88,7 @@ export default defineComponent({
 
       isLoading.value = true;
       warningMessage('Iniciando grabación...');
-      mergedName.value = `m-r-${roomState.classroomId}-${userMe.id}-${roomState.id}-${timestamp}`;
+      mergedName.value = `m-r-${roomState.classroomId}-${userMe.fractalUserId}-${roomState.id}-${timestamp}`;
 
       sendNotificationEvent('RECORDING_STARTED', userMe.id);
       /* createMergeInstance(roomState.id, mergedName.value, mergedName.value)

@@ -609,6 +609,8 @@ export function useInitWebRTC() {
                         !currentParticipants.includes(participant.id as string)
                       ) {
                         if (roomState.pinnedUser?.id === participant.id) {
+                          setFullScreen('none', false);
+                          clearFullScreenObject();
                           updateRoom({ pinnedUser: null });
                           window.xprops?.setPinnedUser?.('');
                         }
@@ -1190,8 +1192,6 @@ export function useInitWebRTC() {
               obj.data
             ) as ObjUserLeavingMessageParsed;
 
-            console.debug('USER LEAVING', '🚀🚀🚀', userLeavingMsgParsed);
-
             const hasHandUp = functionsOnMenuBar.handNotificationInfo.find(
               (notific) => notific.from == userLeavingMsgParsed.id
             );
@@ -1201,6 +1201,8 @@ export function useInitWebRTC() {
             }
 
             if (roomState.pinnedUser?.id === userLeavingMsgParsed.id) {
+              setFullScreen('none', false);
+              clearFullScreenObject();
               updateRoom({ pinnedUser: null });
             }
 

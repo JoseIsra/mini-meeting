@@ -88,7 +88,6 @@ import { useInitWebRTC } from '@/composables/antMedia';
 import { backBlazePath } from '@/config/constants';
 import { simplifyExtension, renameFile } from '@/utils/file';
 import backblazeService from '@/services/backblaze';
-import { useUserMe } from '@/composables/userMe';
 import { errorMessage, successMessage } from '@/utils/notify';
 const { uploadFileToBackblaze } = backblazeService;
 import FuExternalVideoModal from 'molecules/FuExternalVideoModal';
@@ -104,7 +103,6 @@ export default defineComponent({
     let fileToChangeBg = ref({} as File);
     let tempFileName = ref('');
     const { sendData } = useInitWebRTC();
-    const { userMe } = useUserMe();
     const isLoading = ref(false);
 
     //*******COMPUTEDSSS */
@@ -170,7 +168,7 @@ export default defineComponent({
             'https://www.fcbarcelona.com/photo-resources/2021/08/09/c4f2dddd-2152-4b8b-acf8-826b4377e29d/Camp-Nou-4.jpg?width=1200&height=750'
         );
         updateAllowResetBg(true);
-        sendData(userMe.id, {
+        sendData(roomState.hostId, {
           eventType: 'UPDATE_ROOM_BG',
           url: fileRoute,
         });
@@ -187,7 +185,7 @@ export default defineComponent({
     };
 
     watch(maximizeBg, (value) => {
-      sendData(userMe.id, {
+      sendData(roomState.hostId, {
         eventType: 'UPDATE_ROOM_SIZE',
         maximized: value,
       });
@@ -202,7 +200,7 @@ export default defineComponent({
         'https://encrypted.fractalup.com/file/MainPublic/fractalup_assets/landing/main.png'
       );
 
-      sendData(userMe.id, {
+      sendData(roomState.hostId, {
         eventType: 'UPDATE_ROOM_BG',
         url: 'https://encrypted.fractalup.com/file/MainPublic/fractalup_assets/landing/main.png',
       });

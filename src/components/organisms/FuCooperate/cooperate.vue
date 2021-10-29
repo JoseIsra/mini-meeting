@@ -122,7 +122,6 @@ export default defineComponent({
     const {
       functionsOnMenuBar,
       isFullScreen,
-      setIDButtonSelected,
       openOptionsMenu,
       openFunctionResponsiveMenu,
       setShowChat,
@@ -159,7 +158,6 @@ export default defineComponent({
       setSidebarState(false);
       openOptionsMenu(false);
       openFunctionResponsiveMenu(false);
-      setIDButtonSelected('');
       setShowChat(false);
     };
 

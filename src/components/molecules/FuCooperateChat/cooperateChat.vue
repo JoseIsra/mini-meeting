@@ -53,7 +53,7 @@
           "
           :size="
             message.typeMessage == 'plainText'
-              ? bubbleSize(message.content)
+              ? ''
               : '9'
           "
           text-color="white"
@@ -180,7 +180,7 @@ import moment from 'moment';
 import { useHandleMessage } from '@/composables/chat';
 import { useUserMe } from '@/composables/userMe';
 import { nanoid } from 'nanoid';
-import { useSidebarToogle, useToogleFunctions } from '@/composables';
+import { useSidebarToogle } from '@/composables';
 import { useRoom } from '@/composables/room';
 
 import { useInitWebRTC } from '@/composables/antMedia';
@@ -212,7 +212,6 @@ export default defineComponent({
     const { userMessages, setUserMessage, deleteLoadingMessage } =
       useHandleMessage();
     let { setSidebarState } = useSidebarToogle();
-    const { setIDButtonSelected } = useToogleFunctions();
     const { sendData } = useInitWebRTC();
     const { userMe } = useUserMe();
     let userName = ref(window?.xprops?.streamId || route.query.streamName);
@@ -294,7 +293,7 @@ export default defineComponent({
       reader.readAsArrayBuffer(fileInformation);
       e.target.value = '';
     };
-    const bubbleSize = (message: string) => {
+    /* const bubbleSize = (message: string) => {
       let numOfWords = message.split(' ').length;
       if (message.startsWith('https')) {
         return '9';
@@ -303,10 +302,9 @@ export default defineComponent({
         return '3';
       }
       return '';
-    };
+    }; */
     const closeChat = () => {
       setSidebarState(false);
-      setIDButtonSelected('');
     };
 
     const scrollToEnd = () => {
@@ -328,8 +326,7 @@ export default defineComponent({
       userInput,
       sendMessage,
       userMessages,
-      userName,
-      bubbleSize,
+      userName,      
       userMe,
       closeChat,
       fileSelected,

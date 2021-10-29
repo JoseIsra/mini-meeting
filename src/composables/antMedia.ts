@@ -99,8 +99,7 @@ const {
   removeHandNotification,
   setFullScreen,
   setFullScreenObject,
-  isFullScreen,
-  setIDButtonSelected,
+  isFullScreen,  
   clearFullScreenObject,
   functionsOnMenuBar,
   updateHandNotification,
@@ -413,7 +412,6 @@ export function useInitWebRTC() {
           console.log('screen share stopped');
           setScreenState(false);
           setVideoActivatedState(false);
-          setIDButtonSelected('');
           webRTCInstance.value.turnOffLocalCamera?.(streamId);
           webRTCInstance.value.resetDesktop?.();
           sendNotificationEvent('SCREEN_SHARING_OFF', streamId);

@@ -664,8 +664,7 @@ export default defineComponent({
       setFullScreenObject,
       isFullScreen,
       fullScreenObject,
-      clearFullScreenObject,
-      setIDButtonSelected,
+      clearFullScreenObject,      
       functionsOnMenuBar,
       removeHandNotification,
       updateHandNotification,
@@ -1038,7 +1037,6 @@ export default defineComponent({
 
     const closeUserListPanel = () => {
       setSidebarState(false);
-      setIDButtonSelected('');
     };
 
     const notificateHandUp = (userId: string) => {

@@ -88,7 +88,6 @@ import { useInitWebRTC } from '@/composables/antMedia';
 import { backBlazePath } from '@/config/constants';
 import { simplifyExtension, renameFile } from '@/utils/file';
 import backblazeService from '@/services/backblaze';
-import { useUserMe } from '@/composables/userMe';
 import { errorMessage, successMessage } from '@/utils/notify';
 const { uploadFileToBackblaze } = backblazeService;
 import FuExternalVideoModal from 'molecules/FuExternalVideoModal';
@@ -104,7 +103,6 @@ export default defineComponent({
     let fileToChangeBg = ref({} as File);
     let tempFileName = ref('');
     const { sendData } = useInitWebRTC();
-    const { userMe } = useUserMe();
     const isLoading = ref(false);
 
     //*******COMPUTEDSSS */

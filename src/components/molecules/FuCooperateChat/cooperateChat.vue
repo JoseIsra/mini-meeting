@@ -180,7 +180,7 @@ import moment from 'moment';
 import { useHandleMessage } from '@/composables/chat';
 import { useUserMe } from '@/composables/userMe';
 import { nanoid } from 'nanoid';
-import { useSidebarToogle, useToogleFunctions } from '@/composables';
+import { useSidebarToogle } from '@/composables';
 import { useRoom } from '@/composables/room';
 
 import { useInitWebRTC } from '@/composables/antMedia';

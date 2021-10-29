@@ -103,6 +103,7 @@ const {
   setIDButtonSelected,
   clearFullScreenObject,
   functionsOnMenuBar,
+  updateHandNotification,
 } = useToogleFunctions();
 
 const roomTimerId = ref<ReturnType<typeof setInterval> | null>(null);
@@ -750,6 +751,9 @@ export function useInitWebRTC() {
             ) as HandNotification;
             addHandNotificationInfo(handNotificationParsed);
           } else if (eventType === 'NOHAND') {
+            if (userMe.id == baseDataParsed.from) {
+              updateHandNotification(false);
+            }
             removeHandNotification(baseDataParsed.from);
           } else if (
             eventType ===

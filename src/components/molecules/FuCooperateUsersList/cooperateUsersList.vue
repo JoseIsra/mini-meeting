@@ -309,15 +309,21 @@
             class="m-list__content__userBox__avatar__iconBox"
             round
             push
-            :disable="userMe.roleId != 0"
-            @click="removeHandUp(participant.id)"
+            :ripple="false"
+            v-on="
+              userMe.roleId == 0
+                ? { click: () => removeHandUp(participant.id) }
+                : {}
+            "
           >
             <q-icon
               name="front_hand"
               size="20px"
               class="m-list__content__userBox__avatar__handIcon"
             />
-            <q-tooltip class="bg-grey-10"> Bajar mano</q-tooltip>
+            <q-tooltip class="bg-grey-10" v-if="userMe.roleId == 0">
+              Bajar mano</q-tooltip
+            >
           </q-btn>
           <q-img
             v-else
@@ -662,6 +668,7 @@ export default defineComponent({
       setIDButtonSelected,
       functionsOnMenuBar,
       removeHandNotification,
+      updateHandNotification,
     } = useToogleFunctions();
 
     const listenFullScreen = computed(() => {
@@ -1043,8 +1050,8 @@ export default defineComponent({
     const removeHandUp = (userId: string) => {
       console.log(userId, 'bajando mano');
       removeHandNotification(userId);
+      updateHandNotification(false);
       sendData(roomState.hostId, {
-        to: 'ALL',
         from: userId,
         eventType: 'NOHAND',
       });

@@ -97,11 +97,11 @@
           :class="[
             'a-menuBar__icon',
             {
-              active: handNotificationActive,
+              active: functionsOnMenuBar.handNotificationActive,
             },
           ]"
           :icon="
-            handNotificationActive
+            functionsOnMenuBar.handNotificationActive
               ? iconsFunctions.hand.onState
               : iconsFunctions.hand.offState
           "
@@ -111,7 +111,7 @@
           <q-tooltip class="bg-grey-10">
             <label class="a-menuBar__icon__tooltip">
               {{
-                handNotificationActive
+                functionsOnMenuBar.handNotificationActive
                   ? iconsFunctions.hand.toolTipSecondMessage
                   : iconsFunctions.hand.toolTipMessage
               }}
@@ -366,6 +366,7 @@ export default defineComponent({
       setIDButtonSelected,
       openOptionsMenu,
       openFunctionResponsiveMenu,
+      updateHandNotification,
     } = useToogleFunctions();
 
     const notificationCount = computed(() => {
@@ -379,7 +380,6 @@ export default defineComponent({
 
     const { userMe, setMicState, setVideoActivatedState } = useUserMe();
 
-    let handNotificationActive = ref(false);
     const canSeeActionsMenu = ref(userMe.roleId === 0);
     const openAdminPanel = ref(false);
     const { userMessages, showChatNotification, chatNotification } =
@@ -485,11 +485,11 @@ export default defineComponent({
       ) {
         const downHand = { ...riseHand, eventType: 'NOHAND' };
         sendData(roomState.hostId, downHand);
-        handNotificationActive.value = false;
+        updateHandNotification(false);
         removeHandNotification(downHand.from);
         return;
       }
-      handNotificationActive.value = true;
+      updateHandNotification(true);
       sendData(roomState.hostId, riseHand);
       addHandNotificationInfo(riseHand);
     };
@@ -593,7 +593,6 @@ export default defineComponent({
       isOptions,
       disableAction,
       handleEspecialBehaviour,
-      handNotificationActive,
       openResponsiveMenuOfFunctions,
       canSeeActionsMenu,
       toggleCamera,

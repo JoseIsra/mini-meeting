@@ -303,12 +303,21 @@
         :key="participant.id"
       >
         <aside class="m-list__content__userBox__avatar">
-          <q-icon
+          <q-btn
             v-if="notificateHandUp(participant.id)"
-            name="front_hand"
-            size="20px"
-            class="m-list__content__userBox__avatar__handIcon"
-          />
+            class="m-list__content__userBox__avatar__iconBox"
+            round
+            push
+            :disable="userMe.roleId != 0"
+            @click="removeHandUp(participant.id)"
+          >
+            <q-icon
+              name="front_hand"
+              size="20px"
+              class="m-list__content__userBox__avatar__handIcon"
+            />
+            <q-tooltip class="bg-grey-10"> Bajar mano</q-tooltip>
+          </q-btn>
           <q-img
             v-else
             class="m-list__content__userBox__avatar__image"
@@ -651,6 +660,7 @@ export default defineComponent({
       clearFullScreenObject,
       setIDButtonSelected,
       functionsOnMenuBar,
+      removeHandNotification,
     } = useToogleFunctions();
 
     const listenFullScreen = computed(() => {
@@ -1023,6 +1033,16 @@ export default defineComponent({
       );
     };
 
+    const removeHandUp = (userId: string) => {
+      console.log(userId, 'bajando mano');
+      removeHandNotification(userId);
+      sendData(roomState.hostId, {
+        to: 'ALL',
+        from: userId,
+        eventType: 'NOHAND',
+      });
+    };
+
     return {
       waitingParticipants,
       admittedParticipants,
@@ -1049,6 +1069,7 @@ export default defineComponent({
       closeUserListPanel,
       participantActionsToolTip,
       notificateHandUp,
+      removeHandUp,
     };
   },
 });

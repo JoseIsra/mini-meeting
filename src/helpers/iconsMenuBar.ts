@@ -1,10 +1,7 @@
-import { useScreen } from '@/composables/screen';
 import {
   INTERACTION_TYPE_MENU_BAR,
   BEHAVIOUR_TYPE_MENU_BAR,
 } from '@/utils/enums';
-
-const { screenMinimized } = useScreen();
 
 export const iconsPeriferics = {
   mic: {
@@ -12,7 +9,6 @@ export const iconsPeriferics = {
     onState: 'mic',
     offState: 'mic_off',
     loadingState: 'fas fa-spinner',
-    active: false,
     toolTipMessage: 'Habilitar audio',
     toolTipSecondMessage: 'Deshabilitar audio',
     interaction: INTERACTION_TYPE_MENU_BAR.MIC,
@@ -22,59 +18,54 @@ export const iconsPeriferics = {
     onState: 'videocam',
     offState: 'videocam_off',
     loadingState: 'fas fa-spinner',
-    active: false,
     toolTipMessage: 'Habilitar webcam',
     toolTipSecondMessage: 'Deshabilitar webcam',
     interaction: INTERACTION_TYPE_MENU_BAR.WEBCAM,
   },
 };
 
-export const iconsFunctions = [
-  {
+export const iconsFunctions = {
+  screenShare: {
     id: '1',
     onState: 'monitor',
     offState: 'desktop_access_disabled',
-    active: false,
+    loadingState: 'fas fa-spinner',
     toolTipMessage: 'Compartir pantalla',
     toolTipSecondMessage: 'Dejar de compartir pantalla',
     interaction: INTERACTION_TYPE_MENU_BAR.SHARESCREEN,
     behaviour: BEHAVIOUR_TYPE_MENU_BAR.NORMAL,
   },
-  {
+  hand: {
     id: '2',
     onState: 'pan_tool',
     offState: 'pan_tool',
-    active: false,
     toolTipMessage: 'Levantar la mano',
     toolTipSecondMessage: 'Bajar la mano',
     interaction: INTERACTION_TYPE_MENU_BAR.HANDUP,
     behaviour: BEHAVIOUR_TYPE_MENU_BAR.ESPECIAL,
   },
-  {
+  users: {
     id: '3',
     onState: 'person',
     offState: 'person',
-    active: false,
     toolTipMessage: 'Lista de usuarios',
     toolTipSecondMessage: 'Ocultar lista de usuarios',
     interaction: INTERACTION_TYPE_MENU_BAR.USERLIST,
     behaviour: BEHAVIOUR_TYPE_MENU_BAR.NORMAL,
   },
-  {
+  chat: {
     id: '4',
     onState: 'far fa-comments',
     offState: 'far fa-comments',
-    active: false,
     toolTipMessage: 'Chat',
     toolTipSecondMessage: 'Ocultar chat',
     interaction: INTERACTION_TYPE_MENU_BAR.CHAT,
     behaviour: BEHAVIOUR_TYPE_MENU_BAR.NORMAL,
   },
-  {
+  minimize: {
     id: '5',
     onState: 'branding_watermark',
     offState: 'branding_watermark',
-    active: screenMinimized.value,
     toolTipMessage: 'Minimizar ventana',
     toolTipSecondMessage: 'Minimizar ventana',
     interaction: INTERACTION_TYPE_MENU_BAR.MINIMIZE,
@@ -100,7 +91,7 @@ export const iconsFunctions = [
     interaction: interactionType.CONNECTION,
     behaviour: typeOfBehaviour.NORMAL
   }, */
-];
+};
 
 export const iconsOptions = [
   {

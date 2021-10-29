@@ -21,7 +21,7 @@ import { PERMISSION_STATUS } from '@/utils/enums';
 import { notifyWithAction, warningMessage } from '@/utils/notify';
 import { useExternalVideo } from './external-video';
 import videojs from 'video.js';
-import { useActions } from '@/composables/actions';
+/* import { useActions } from '@/composables/actions'; */
 import { LOG_TYPE } from '@/utils/enums/zoid';
 import _ from 'lodash';
 /*  */
@@ -109,7 +109,7 @@ const roomTimerId = ref<ReturnType<typeof setInterval> | null>(null);
 
 const { updateExternalVideoState, externalVideo } = useExternalVideo();
 
-const { setScreenShareIconState } = useActions();
+/* const { setScreenShareIconState } = useActions(); */
 
 const remotePlayer = ref<videojs.Player>({} as videojs.Player);
 
@@ -418,6 +418,16 @@ export function useInitWebRTC() {
           sendNotificationEvent('SCREEN_SHARING_OFF', streamId);
         } else if (info == 'ScreenShareStarted') {
           setVideoActivatedState(true);
+          setScreenState(true);
+          if (userMe.isCameraOn) {
+            setCameraState(false);
+            setScreenState(true);
+            sendNotificationEvent('SCREEN_SHARING_ON', streamId);
+          } else {
+            setScreenState(true);
+            setVideoActivatedState(true);
+            sendNotificationEvent('SCREEN_SHARING_ON', streamId);
+          }
         } else if (info == 'browser_screen_share_supported') {
           console.log('browser screen share supported');
         } else if (info == 'leavedFromRoom') {
@@ -599,6 +609,8 @@ export function useInitWebRTC() {
                         !currentParticipants.includes(participant.id as string)
                       ) {
                         if (roomState.pinnedUser?.id === participant.id) {
+                          setFullScreen('none', false);
+                          clearFullScreenObject();
                           updateRoom({ pinnedUser: null });
                           window.xprops?.setPinnedUser?.('');
                         }
@@ -661,6 +673,7 @@ export function useInitWebRTC() {
 
           //Si no es el host y el canal que se ha abierto es el del mismo usuario cuando empiece a hacer el publish de su stream se actualizará su campo de isPublishing
           if (user === userMe.id && !userMe.isHost) {
+            webRTCInstance.value.turnOffLocalCamera?.(userMe.id);
             updateUserMe({ isPublishing: 1 });
           }
 
@@ -925,7 +938,7 @@ export function useInitWebRTC() {
                 setVideoActivatedState(!value);
                 resetDesktop();
                 sendNotificationEvent('SCREEN_SHARING_OFF', userMe.id);
-                setScreenShareIconState(!value);
+                /* setScreenShareIconState(!value); */
 
                 updateUserMe({ isPublishing: 0 });
                 stopPublishing(userMe.id);
@@ -975,7 +988,7 @@ export function useInitWebRTC() {
               setLocalScreenShareBlock(value);
 
               if (value) {
-                setScreenShareIconState(!value);
+                /* setScreenShareIconState(!value); */
                 setScreenState(!value);
                 setVideoActivatedState(!value);
                 resetDesktop();
@@ -1018,7 +1031,7 @@ export function useInitWebRTC() {
                 setVideoActivatedState(!value);
                 resetDesktop();
                 sendNotificationEvent('SCREEN_SHARING_OFF', userMe.id);
-                setScreenShareIconState(!value);
+                /* setScreenShareIconState(!value); */
 
                 updateUserMe({ isPublishing: 0 });
                 stopPublishing(userMe.id);
@@ -1076,7 +1089,7 @@ export function useInitWebRTC() {
                 setLocalScreenShareBlock(value);
 
                 if (value) {
-                  setScreenShareIconState(!value);
+                  /* setScreenShareIconState(!value); */
                   setScreenState(!value);
                   setVideoActivatedState(!value);
                   resetDesktop();
@@ -1179,8 +1192,6 @@ export function useInitWebRTC() {
               obj.data
             ) as ObjUserLeavingMessageParsed;
 
-            console.debug('USER LEAVING', '🚀🚀🚀', userLeavingMsgParsed);
-
             const hasHandUp = functionsOnMenuBar.handNotificationInfo.find(
               (notific) => notific.from == userLeavingMsgParsed.id
             );
@@ -1190,6 +1201,8 @@ export function useInitWebRTC() {
             }
 
             if (roomState.pinnedUser?.id === userLeavingMsgParsed.id) {
+              setFullScreen('none', false);
+              clearFullScreenObject();
               updateRoom({ pinnedUser: null });
             }
 
@@ -1207,6 +1220,7 @@ export function useInitWebRTC() {
               updateStreamById(streamToPause, { isBeingPlayed: false });
             }
           }
+          console.log(obj);
         }
       },
       callbackError: function (
@@ -1288,14 +1302,23 @@ export function useInitWebRTC() {
         } else if (error.indexOf('data_channel_error') != -1) {
           errorMessage = 'There was a error during data channel communication';
         } else if (error.indexOf('ScreenSharePermissionDenied') != -1) {
-          setIDButtonSelected('');
-          if (!userMe.isCameraOn) {
-            userMe.isVideoActivated = false;
-            userMe.isScreenSharing = false;
-            webRTCInstance.value.turnOffLocalCamera?.(userMe.id);
-          }
+          updateUserMe({
+            isScreenSharing: false,
+          });
           webRTCInstance.value.resetDesktop?.();
           sendNotificationEvent('SCREEN_SHARING_OFF', userMe.id);
+
+          if (!userMe.isCameraOn && !userMe.isMicOn && !userMe.isHost) {
+            stopPublishing(streamId);
+            updateUserMe({ isPublishing: 0 });
+          }
+
+          if (!userMe.isCameraOn) {
+            setTimeout(() => {
+              webRTCInstance.value.turnOffLocalCamera?.(userMe.id);
+            }, 1000);
+          }
+
           errorMessage = 'No has dado permisos para compartir tus dispositivos';
           //screen_share_checkbox.checked = false;
         } else if (error.indexOf('AbortError') !== -1) {

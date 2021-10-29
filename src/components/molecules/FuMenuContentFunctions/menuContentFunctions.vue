@@ -3,14 +3,29 @@
     <ul class="a-menu__actionList">
       <li
         class="a-menu__actionList__item"
-        v-for="icon in iconList"
-        v-show="!(icon.id === '1' && $q.platform.is.mobile)"
-        :key="icon.id"
-        @click="handleFunctionSelected(icon.interaction)"
+        @click="handleFunctionSelected(INTERACTION_TYPE_MENU_BAR.USERLIST)"
       >
-        <q-icon :name="icon.onState" size="18px" />
+        <q-icon :name="iconsFunctions.users.onState" size="18px" />
         <label class="a-menu__actionList__item__description">{{
-          icon.toolTipMessage
+          iconsFunctions.users.toolTipMessage
+        }}</label>
+      </li>
+      <li
+        class="a-menu__actionList__item"
+        @click="handleFunctionSelected(INTERACTION_TYPE_MENU_BAR.CHAT)"
+      >
+        <q-icon :name="iconsFunctions.chat.onState" size="18px" />
+        <label class="a-menu__actionList__item__description">{{
+          iconsFunctions.chat.toolTipMessage
+        }}</label>
+      </li>
+      <li
+        class="a-menu__actionList__item"
+        @click="handleFunctionSelected(INTERACTION_TYPE_MENU_BAR.MINIMIZE)"
+      >
+        <q-icon :name="iconsFunctions.minimize.onState" size="18px" />
+        <label class="a-menu__actionList__item__description">{{
+          iconsFunctions.minimize.toolTipMessage
         }}</label>
       </li>
     </ul>
@@ -18,10 +33,11 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, PropType, computed } from 'vue';
+import { defineComponent, PropType } from 'vue';
 import { iconsFunctions } from '@/helpers/iconsMenuBar';
-import { Icons, Functionalities } from '@/types';
+import { Functionalities } from '@/types';
 import { useToogleFunctions } from '@/composables';
+import { INTERACTION_TYPE_MENU_BAR } from '@/utils/enums';
 
 export default defineComponent({
   name: 'FuMenuFunctions',
@@ -31,19 +47,16 @@ export default defineComponent({
     },
   },
   setup(props) {
-    const icons = ref<Icons[]>(iconsFunctions);
-
     const { openFunctionResponsiveMenu } = useToogleFunctions();
 
     const handleFunctionSelected = (interaction: string) => {
       props?.objectFunctionalities?.[interaction as keyof Functionalities]?.();
       openFunctionResponsiveMenu(false);
     };
-    const iconList = computed(() =>
-      icons.value.filter((icon) => icon.interaction !== 'HANDUP')
-    );
+
     return {
-      iconList,
+      iconsFunctions,
+      INTERACTION_TYPE_MENU_BAR,
       handleFunctionSelected,
     };
   },

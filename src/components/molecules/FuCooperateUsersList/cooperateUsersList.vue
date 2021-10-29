@@ -4,7 +4,7 @@
       <label class="m-list__title__text">Lista de Usuarios</label>
       <small>En línea ({{ admittedParticipants.length + 1 }})</small>
       <q-btn
-        v-show="userMe.roleId === 0"
+        v-show="userMe.roleId === 0 && roomState.roomRestriction != 0"
         :label="
           waitingParticipants.length > 0
             ? `En espera (${waitingParticipants.length})`
@@ -255,10 +255,11 @@
                         : 'gps_fixed'
                     "
                     @click="activeFullScreen(userMe)"
+                    :disable="!!roomState.pinnedUser"
                   >
                     <q-tooltip class="bg-grey-10">
                       <label v-if="listenFullScreen.id == userMe.id"
-                        >Estás fijado
+                        >Desfijarte
                       </label>
                       <label v-else>Fijarte a ti mismo</label>
                     </q-tooltip>
@@ -1015,8 +1016,14 @@ export default defineComponent({
 
     const activeFullScreen = (arg: User) => {
       if (isFullScreen.value) {
-        setFullScreenObject(arg);
-        return;
+        if (fullScreenObject.id === arg.id) {
+          setFullScreen('none', false);
+          clearFullScreenObject();
+          return;
+        } else {
+          setFullScreenObject(arg);
+          return;
+        }
       }
       setFullScreen('user', true);
       setFullScreenObject(arg);

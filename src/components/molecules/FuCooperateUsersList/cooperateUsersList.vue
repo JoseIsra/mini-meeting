@@ -649,8 +649,7 @@ export default defineComponent({
       setFullScreenObject,
       isFullScreen,
       fullScreenObject,
-      clearFullScreenObject,
-      setIDButtonSelected,
+      clearFullScreenObject,      
       functionsOnMenuBar,
     } = useToogleFunctions();
 
@@ -1021,7 +1020,6 @@ export default defineComponent({
 
     const closeUserListPanel = () => {
       setSidebarState(false);
-      setIDButtonSelected('');
     };
 
     const notificateHandUp = (userId: string) => {

@@ -212,7 +212,6 @@ export default defineComponent({
     const { userMessages, setUserMessage, deleteLoadingMessage } =
       useHandleMessage();
     let { setSidebarState } = useSidebarToogle();
-    const { setIDButtonSelected } = useToogleFunctions();
     const { sendData } = useInitWebRTC();
     const { userMe } = useUserMe();
     let userName = ref(window?.xprops?.streamId || route.query.streamName);
@@ -306,7 +305,6 @@ export default defineComponent({
     };
     const closeChat = () => {
       setSidebarState(false);
-      setIDButtonSelected('');
     };
 
     const scrollToEnd = () => {

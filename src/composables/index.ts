@@ -91,9 +91,7 @@ export function useToogleFunctions() {
     });
   };
 
-  const setIDButtonSelected = (value: string) => {
-    functionsOnMenuBar.selectedButtonID = value;
-  };
+ 
 
   const openOptionsMenu = (value: boolean) => {
     functionsOnMenuBar.renderPopupMenu = value;
@@ -113,7 +111,6 @@ export function useToogleFunctions() {
     removeHandNotification,
     setFullScreen,
     isFullScreen,
-    setIDButtonSelected,
     openOptionsMenu,
     openFunctionResponsiveMenu,
     functionState,

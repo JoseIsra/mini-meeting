@@ -363,7 +363,6 @@ export default defineComponent({
       setShowUsersList,
       addHandNotificationInfo,
       removeHandNotification,
-      setIDButtonSelected,
       openOptionsMenu,
       openFunctionResponsiveMenu,
     } = useToogleFunctions();
@@ -512,7 +511,6 @@ export default defineComponent({
     const minimizeScreen = () => {
       updateScreenState();
       setSidebarState(false);
-      setIDButtonSelected('');
     };
 
     const handleMenuPosition = (ubication?: string) => {
@@ -527,11 +525,9 @@ export default defineComponent({
 
     const handleFunctionSelected = (interaction?: string, ID?: string) => {
       if (functionsOnMenuBar.selectedButtonID == ID) {
-        setIDButtonSelected('');
         objectFunctionalities[interaction as keyof Functionalities]?.();
         return;
       }
-      setIDButtonSelected(ID as string);
       objectFunctionalities[interaction as keyof Functionalities]?.();
     };
 

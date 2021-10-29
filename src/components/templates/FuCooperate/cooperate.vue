@@ -199,7 +199,7 @@ export default defineComponent({
 
     const isBeingRecorded = window?.xprops?.isBeingRecorded || false;
 
-    const { setIDButtonSelected, setFullScreen } = useToogleFunctions();
+    const { setFullScreen } = useToogleFunctions();
 
     if (isCameraOn) {
       setVideoActivatedState(true);
@@ -349,7 +349,6 @@ export default defineComponent({
             setScreenState(false);
             setCameraState(true);
             turnOnLocalCamera(streamId);
-            setIDButtonSelected('');
             resetDesktop();
             /* if (!userMe.isHost && !userMe.isMicOn && !userMe.isCameraOn) {
               updateUserMe({ isPublishing: 0 });

@@ -297,38 +297,18 @@ export default defineComponent({
           stopPublishing(userMe.id);
         }
       } else {
-        if (userMe.isCameraOn) {
-          //apagar camara y prender captura
-          /* setCameraIconState(false); */
+        if (userMe.isPublishing == 1) {
           switchDesktopCapture(streamId);
-          setCameraState(false);
+        } else if (userMe.isPublishing == 0) {
+          updateUserMe({ isPublishing: 2 });
           setScreenState(true);
-          //turnOffLocalCamera(streamId);
-          sendNotificationEvent('SCREEN_SHARING_ON', streamId);
-          /* if (!userMe.isHost && !userMe.isMicOn && !userMe.isScreenSharing) {
-            updateUserMe({ isPublishing: 0 });
-            stopPublishing(userMe.id);
-          } */
-        } else {
-          if (userMe.isPublishing == 1) {
-            switchDesktopCapture(streamId);
-            setVideoActivatedState(true);
-            setScreenState(true);
-            sendNotificationEvent('SCREEN_SHARING_ON', streamId);
-          } else {
-            updateUserMe({ isPublishing: 2 });
-            setScreenState(true);
-            switchDesktopCapture(streamId);
-            publish(userMe.id, undefined, undefined, undefined, userMe.name);
-            const interval = setInterval(() => {
-              if (userMe.isPublishing == 1) {
-                clearInterval(interval);
-                /* setMicIconState(true); */
-                setVideoActivatedState(true);
-                sendNotificationEvent('SCREEN_SHARING_ON', streamId);
-              }
-            }, 1000);
-          }
+          switchDesktopCapture(streamId);
+          publish(userMe.id, undefined, undefined, undefined, userMe.name);
+          const interval = setInterval(() => {
+            if (userMe.isPublishing == 1) {
+              clearInterval(interval);
+            }
+          }, 1000);
         }
       }
       // if (userMe.isCameraOn && !userMe.isScreenSharing) {

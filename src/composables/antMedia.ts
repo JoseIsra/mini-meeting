@@ -418,6 +418,16 @@ export function useInitWebRTC() {
           sendNotificationEvent('SCREEN_SHARING_OFF', streamId);
         } else if (info == 'ScreenShareStarted') {
           setVideoActivatedState(true);
+          setScreenState(true);
+          if (userMe.isCameraOn) {
+            setCameraState(false);
+            setScreenState(true);
+            sendNotificationEvent('SCREEN_SHARING_ON', streamId);
+          } else {
+            setScreenState(true);
+            setVideoActivatedState(true);
+            sendNotificationEvent('SCREEN_SHARING_ON', streamId);
+          }
         } else if (info == 'browser_screen_share_supported') {
           console.log('browser screen share supported');
         } else if (info == 'leavedFromRoom') {
@@ -1208,6 +1218,7 @@ export function useInitWebRTC() {
               updateStreamById(streamToPause, { isBeingPlayed: false });
             }
           }
+          console.log(obj);
         }
       },
       callbackError: function (
@@ -1289,45 +1300,21 @@ export function useInitWebRTC() {
         } else if (error.indexOf('data_channel_error') != -1) {
           errorMessage = 'There was a error during data channel communication';
         } else if (error.indexOf('ScreenSharePermissionDenied') != -1) {
-          //setIDButtonSelected('');
-          /* if (!userMe.isVideoActivated) {
-            updateUserMe({
-              isVideoActivated: false,
-            });
-            setTimeout(() => {
-              webRTCInstance.value.turnOffLocalCamera?.(userMe.id);
-            }, 1000);
-          } */
           updateUserMe({
             isScreenSharing: false,
           });
           webRTCInstance.value.resetDesktop?.();
           sendNotificationEvent('SCREEN_SHARING_OFF', userMe.id);
 
-          if (userMe.isVideoActivated) {
-            updateUserMe({
-              isCameraOn: true,
-            });
-            sendNotificationEvent('CAM_TURNED_ON', userMe.id);
+          if (!userMe.isCameraOn && !userMe.isMicOn && !userMe.isHost) {
+            stopPublishing(streamId);
+            updateUserMe({ isPublishing: 0 });
           }
 
-          if (
-            !userMe.isCameraOn &&
-            !userMe.isMicOn &&
-            !userMe.isHost &&
-            !userMe.isVideoActivated
-          ) {
-            if (!userMe.isHost) {
-              stopPublishing(streamId);
-              updateUserMe({ isPublishing: 0 });
-            } else {
-              setTimeout(() => {
-                webRTCInstance.value.turnOffLocalCamera?.(userMe.id);
-                updateUserMe({
-                  isVideoActivated: false,
-                });
-              }, 1000);
-            }
+          if (!userMe.isCameraOn) {
+            setTimeout(() => {
+              webRTCInstance.value.turnOffLocalCamera?.(userMe.id);
+            }, 1000);
           }
 
           errorMessage = 'No has dado permisos para compartir tus dispositivos';

@@ -4,7 +4,7 @@
       <label class="m-list__title__text">Lista de Usuarios</label>
       <small>En línea ({{ admittedParticipants.length + 1 }})</small>
       <q-btn
-        v-show="userMe.roleId === 0"
+        v-show="userMe.roleId === 0 && roomState.roomRestriction != 0"
         :label="
           waitingParticipants.length > 0
             ? `En espera (${waitingParticipants.length})`

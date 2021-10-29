@@ -53,7 +53,7 @@
           "
           :size="
             message.typeMessage == 'plainText'
-              ? bubbleSize(message.content)
+              ? ''
               : '9'
           "
           text-color="white"
@@ -293,7 +293,7 @@ export default defineComponent({
       reader.readAsArrayBuffer(fileInformation);
       e.target.value = '';
     };
-    const bubbleSize = (message: string) => {
+    /* const bubbleSize = (message: string) => {
       let numOfWords = message.split(' ').length;
       if (message.startsWith('https')) {
         return '9';
@@ -302,7 +302,7 @@ export default defineComponent({
         return '3';
       }
       return '';
-    };
+    }; */
     const closeChat = () => {
       setSidebarState(false);
     };
@@ -326,8 +326,7 @@ export default defineComponent({
       userInput,
       sendMessage,
       userMessages,
-      userName,
-      bubbleSize,
+      userName,      
       userMe,
       closeChat,
       fileSelected,

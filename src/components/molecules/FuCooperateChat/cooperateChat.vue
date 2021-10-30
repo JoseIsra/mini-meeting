@@ -51,11 +51,7 @@
           :bg-color="
             message.streamId == userMe.id ? 'indigo-6' : 'deep-purple-9'
           "
-          :size="
-            message.typeMessage == 'plainText'
-              ? ''
-              : '9'
-          "
+          :size="message.typeMessage == 'plainText' ? '' : '9'"
           text-color="white"
           :stamp="message.date"
         >
@@ -64,7 +60,10 @@
               <span> {{ message.streamName }} </span>
             </div>
 
-            <div class="m-chat__messagesBox__info__fullname" v-if="message.streamName.length >= 20">
+            <div
+              class="m-chat__messagesBox__info__fullname"
+              v-if="message.streamName.length >= 20"
+            >
               {{ message.streamName }}
             </div>
           </template>
@@ -120,10 +119,25 @@
                 >Descargar</a
               >
             </span>
-            <span v-if="message.typeMessage === 'empty'">
-              <q-spinner-dots size="20px" />
-            </span>
           </div>
+        </q-chat-message>
+        <q-chat-message
+          v-if="fakeMessage == userMe.id"
+          :sent="true"
+          class="m-chat__messagesBox__bubble"
+          bg-color="indigo-6"
+          text-color="white"
+          size="4"
+        >
+          <template v-slot:avatar>
+            <q-img
+              class="m-chat__messagesBox__info__avatar --me"
+              :src="userMe.avatar"
+            ></q-img>
+          </template>
+          <span>
+            <q-spinner-dots size="25px" />
+          </span>
         </q-chat-message>
       </main>
       <div class="m-chat__formBox">
@@ -209,12 +223,13 @@ export default defineComponent({
     const backBlazePathFile = `https://encrypted.fractalup.com/file/MainPublic/classrooms/${roomState.classroomId}/cooperate/chat`;
     const messageContainer = ref<MessageContainer>({} as MessageContainer);
     let userInput = ref<string>('');
-    const { userMessages, setUserMessage, deleteLoadingMessage } =
-      useHandleMessage();
+    const { userMessages, setUserMessage } = useHandleMessage();
     let { setSidebarState } = useSidebarToogle();
     const { sendData } = useInitWebRTC();
     const { userMe } = useUserMe();
     let userName = ref(window?.xprops?.streamId || route.query.streamName);
+    const fakeMessage = ref('');
+
     const sendMessage = () => {
       if (!regexp.test(userInput.value)) {
         warningMessage('Complete los campos');
@@ -265,8 +280,7 @@ export default defineComponent({
           uploadUrl: uploadUrl,
           authorizationToken: authorizationToken,
         };
-
-        addTextMessage('empty', new Date(), 'empty'); // activa loader message
+        fakeMessage.value = userMe.id;
         uploadFileToBackblaze({
           file: new File([fileInformation], encodeURIComponent(fileName)),
           path: `classrooms/${roomState.classroomId}/cooperate/chat`,
@@ -274,7 +288,7 @@ export default defineComponent({
           retries: 10,
         })
           .then(() => {
-            deleteLoadingMessage(userMe.id);
+            fakeMessage.value = '';
             const fileRoute = `${backBlazePathFile}/${fileName}`;
             if (leftType === 'image') {
               addTextMessage(fileRoute, new Date(), 'image');
@@ -326,13 +340,14 @@ export default defineComponent({
       userInput,
       sendMessage,
       userMessages,
-      userName,      
+      userName,
       userMe,
       closeChat,
       fileSelected,
       messageContainer,
       showChatMenu,
       hideMenu,
+      fakeMessage,
     };
   },
 });

@@ -286,29 +286,32 @@ export default defineComponent({
     //const currentVolume = ref(0.5);
 
     const toggleDesktopCapture = () => {
+      //si estoy compartiendo -> apago todo
       if (userMe.isScreenSharing) {
-        //si estoy compartiendo -> apago todo
-        setVideoActivatedState(false);
-        setScreenState(false);
-        resetDesktop();
-        sendNotificationEvent('SCREEN_SHARING_OFF', streamId);
-        if (!userMe.isHost && !userMe.isMicOn && !userMe.isCameraOn) {
-          updateUserMe({ isPublishing: 0 });
-          stopPublishing(userMe.id);
+        if (!userMe.isCameraOn) {
+          setVideoActivatedState(false);
+          updateUserMe({ isVideoActivated: false });
         }
+        updateUserMe({ isScreenSharing: false });
+        turnOffLocalCamera(streamId);
+        resetDesktop();
+        if (!userMe.isCameraOn && !userMe.isMicOn && !userMe.isHost) {
+          stopPublishing(streamId);
+          updateUserMe({ isPublishing: 0 });
+        }
+        sendNotificationEvent('SCREEN_SHARING_OFF', streamId);
       } else {
         if (userMe.isPublishing == 1) {
           switchDesktopCapture(streamId);
         } else if (userMe.isPublishing == 0) {
           updateUserMe({ isPublishing: 2 });
-          setScreenState(true);
           switchDesktopCapture(streamId);
           publish(userMe.id, undefined, undefined, undefined, userMe.name);
-          const interval = setInterval(() => {
+          /* const interval = setInterval(() => {
             if (userMe.isPublishing == 1) {
               clearInterval(interval);
             }
-          }, 1000);
+          }, 1000); */
         }
       }
       // if (userMe.isCameraOn && !userMe.isScreenSharing) {

@@ -560,7 +560,7 @@ export class WebRTCAdaptor {
               stream,
               streamId
             );
-            this.callback('ScreenShareStarted');
+            this.callback('screen_share_started');
           })
           .catch((error) => {
             console.error(error);

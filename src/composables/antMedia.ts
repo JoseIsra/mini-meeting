@@ -99,7 +99,7 @@ const {
   removeHandNotification,
   setFullScreen,
   setFullScreenObject,
-  isFullScreen,  
+  isFullScreen,
   clearFullScreenObject,
   functionsOnMenuBar,
   updateHandNotification,
@@ -409,15 +409,22 @@ export function useInitWebRTC() {
         } else if (info == 'publish_finished') {
           console.debug('publish finished');
         } else if (info == 'screen_share_stopped') {
-          console.log('screen share stopped');
-          setScreenState(false);
-          setVideoActivatedState(false);
-          webRTCInstance.value.turnOffLocalCamera?.(streamId);
-          webRTCInstance.value.resetDesktop?.();
+          console.debug('screen share stopped');
+          updateUserMe({ isScreenSharing: false });
+          turnOffLocalCamera(streamId);
+          resetDesktop();
+          if (!userMe.isCameraOn && !userMe.isMicOn && !userMe.isHost) {
+            stopPublishing(streamId);
+            updateUserMe({ isPublishing: 0 });
+          }
+          if (!userMe.isCameraOn) {
+            updateUserMe({ isVideoActivated: false });
+          }
           sendNotificationEvent('SCREEN_SHARING_OFF', streamId);
-        } else if (info == 'ScreenShareStarted') {
-          setVideoActivatedState(true);
-          setScreenState(true);
+        } else if (info == 'screen_share_started') {
+          /* setVideoActivatedState(true);
+          setScreenState(true); */
+          updateUserMe({ isScreenSharing: true, isVideoActivated: true });
           if (userMe.isCameraOn) {
             setCameraState(false);
             setScreenState(true);

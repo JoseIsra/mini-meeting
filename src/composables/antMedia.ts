@@ -92,12 +92,8 @@ const {
   setParticipantActions,
 } = useHandleParticipants();
 
-const {
-  setUserMessage,
-  deleteLoadingMessage,
-  amountOfNewMessages,
-  acumulateMessages,
-} = useHandleMessage();
+const { setUserMessage, amountOfNewMessages, acumulateMessages } =
+  useHandleMessage();
 
 const {
   addHandNotificationInfo,
@@ -736,7 +732,6 @@ export function useInitWebRTC() {
             const { typeMessage } = chatMessageParsed;
 
             if (typeMessage == 'image' || typeMessage == 'file') {
-              deleteLoadingMessage(chatMessageParsed.streamId);
               setUserMessage(chatMessageParsed);
               amountOfNewMessages.value++;
               acumulateMessages(amountOfNewMessages.value);

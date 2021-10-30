@@ -397,7 +397,6 @@ export default defineComponent({
     watch(
       () => _.cloneDeep(userMessages.value),
       (current, prev) => {
-        console.log('MENSAJES', current, prev);
         if (
           current.length - prev.length > 0 &&
           !functionsOnMenuBar.renderChat &&

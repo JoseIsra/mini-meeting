@@ -119,19 +119,24 @@
                 >Descargar</a
               >
             </span>
-            <span v-if="message.typeMessage === 'empty'">
-              <q-spinner-dots size="20px" />
-            </span>
           </div>
         </q-chat-message>
         <q-chat-message
           v-if="fakeMessage == userMe.id"
-          :sent="fakeMessage == userMe.id"
-          :bg-color="fakeMessage == userMe.id ? 'indigo-6' : 'deep-purple-9'"
+          :sent="true"
+          class="m-chat__messagesBox__bubble"
+          bg-color="indigo-6"
           text-color="white"
+          size="4"
         >
+          <template v-slot:avatar>
+            <q-img
+              class="m-chat__messagesBox__info__avatar --me"
+              :src="userMe.avatar"
+            ></q-img>
+          </template>
           <span>
-            <q-spinner-dots size="20px" />
+            <q-spinner-dots size="25px" />
           </span>
         </q-chat-message>
       </main>
@@ -218,8 +223,7 @@ export default defineComponent({
     const backBlazePathFile = `https://encrypted.fractalup.com/file/MainPublic/classrooms/${roomState.classroomId}/cooperate/chat`;
     const messageContainer = ref<MessageContainer>({} as MessageContainer);
     let userInput = ref<string>('');
-    const { userMessages, setUserMessage, deleteLoadingMessage } =
-      useHandleMessage();
+    const { userMessages, setUserMessage } = useHandleMessage();
     let { setSidebarState } = useSidebarToogle();
     const { sendData } = useInitWebRTC();
     const { userMe } = useUserMe();
@@ -277,7 +281,6 @@ export default defineComponent({
           authorizationToken: authorizationToken,
         };
         fakeMessage.value = userMe.id;
-        // addTextMessage('empty', new Date(), 'empty'); // activa loader message
         uploadFileToBackblaze({
           file: new File([fileInformation], encodeURIComponent(fileName)),
           path: `classrooms/${roomState.classroomId}/cooperate/chat`,
@@ -286,7 +289,6 @@ export default defineComponent({
         })
           .then(() => {
             fakeMessage.value = '';
-            // deleteLoadingMessage(userMe.id);
             const fileRoute = `${backBlazePathFile}/${fileName}`;
             if (leftType === 'image') {
               addTextMessage(fileRoute, new Date(), 'image');

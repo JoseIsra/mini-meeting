@@ -26,13 +26,6 @@ export function useHandleMessage() {
     userMessages.value = [];
   };
 
-  const deleteLoadingMessage = (owner: string) => {
-    const respectiveMessage = userMessages.value.findIndex(
-      (message) => message.typeMessage == 'empty' && message.streamId == owner
-    );
-    userMessages.value.splice(respectiveMessage, 1);
-  };
-
   const showChatNotification = (value: boolean) => {
     chatNotification.value = value;
   };
@@ -45,7 +38,6 @@ export function useHandleMessage() {
     setUserMessage,
     userMessages,
     deleteMessages,
-    deleteLoadingMessage,
     chatNotification,
     showChatNotification,
     amountOfNewMessages,

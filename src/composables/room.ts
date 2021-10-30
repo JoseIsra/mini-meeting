@@ -13,36 +13,12 @@ export interface Room {
   isMicBlocked: boolean;
   isCameraBlocked: boolean;
   isScreenShareBlocked: boolean;
-  roomRestriction: number;
-  // bgUrl?: string;
-  // bgMaximixed: boolean;
+  roomRestriction: number;  
   startDate: string;
   pinnedUser: null | User;
   pinnedUserId?: string;
   bgInfo: BgInfo;
   hostId: string;
-  fbTransmission?: boolean;
-  ytTransmission?: boolean;
-  rtmpTransmission?: boolean;
-}
-
-export interface UpdatedRoomFields {
-  id?: string;
-  isBeingRecorded?: boolean;
-  recordingUrl?: string;
-  sharingLink?: string;
-  classroomId?: string;
-  isMicBlocked?: boolean;
-  isCameraBlocked?: boolean;
-  isScreenShareBlocked?: boolean;
-  roomRestriction?: number;
-  // bgUrl?: string;
-  // bgMaximixed: boolean;
-  startDate?: string;
-  pinnedUser?: null | User;
-  pinnedUserId?: string;
-  bgInfo?: BgInfo;
-  hostId?: string;
   fbTransmission?: boolean;
   ytTransmission?: boolean;
   rtmpTransmission?: boolean;
@@ -60,7 +36,7 @@ export function useRoom() {
     Object.assign(roomState, room);
   };
 
-  const updateRoom = (value: UpdatedRoomFields) => {
+  const updateRoom = (value: Partial<Room>) => {
     console.log('changing room', '🚀🚀🚀');
     Object.assign(roomState, { ...roomState, ...value });
   };

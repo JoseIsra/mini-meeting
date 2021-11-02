@@ -227,7 +227,11 @@
           size="13px"
           @click="handleEspecialBehaviour('HANDUP')"
         >
-          <q-badge v-show="handNotificationActive" color="red" rounded floating
+          <q-badge
+            v-show="functionsOnMenuBar.handNotificationActive"
+            color="red"
+            rounded
+            floating
             >x</q-badge
           >
         </q-btn>

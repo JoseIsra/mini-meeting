@@ -1243,24 +1243,17 @@ export function useInitWebRTC() {
 
             if (!object) {
               if (event === BOARD_EVENTS.TURN_ON) {
-                console.log('Enceder board');
+                console.debug('Enceder board');
                 updateBoardState(true);
               } else if (event === BOARD_EVENTS.TURN_OFF) {
-                console.log('Apagar board');
+                console.debug('Apagar board');
                 updateBoardState(false);
-              } else if (event === BOARD_EVENTS.CLEAN) {
+              } else if (event === BOARD_EVENTS.CLEAR) {
+                console.debug('Limpiar board');
                 clearBoard();
               }
             } else {
               handleObject(JSON.parse(object));
-              // if (event === BOARD_EVENTS.ADD) {
-              //   /* eslint-disable @typescript-eslint/no-unsafe-call */
-              //   addObject(JSON.parse(object));
-              // } else if (event === BOARD_EVENTS.REMOVE) {
-              //   console.log('Remove element');
-              // } else if (event === BOARD_EVENTS.UPDATE) {
-              //   console.log('Update element');
-              // }
             }
           }
           console.log(obj);

@@ -67,6 +67,7 @@ import { fabric } from 'fabric';
 import { useInitWebRTC } from '@/composables/antMedia';
 import { useUserMe } from '@/composables/userMe';
 import { BOARD_EVENTS } from '@/utils/enums';
+import { useRoom } from '@/composables/room';
 
 export default defineComponent({
   name: 'FuBoard',
@@ -74,6 +75,7 @@ export default defineComponent({
     const {
       board,
       showBoard,
+      loadBoard,
       setBoard,
       toggleShowBoard,
       clearBoard,
@@ -86,30 +88,22 @@ export default defineComponent({
 
     const { userMe } = useUserMe();
 
+    const { roomState } = useRoom();
+
     onMounted(() => {
       setBoard(new fabric.Canvas('board'));
-      board.value.isDrawingMode = true;
+      board.value.isDrawingMode = userMe.roleId === '1' ? false : true;
 
-      // context.value = canvasref.value.getContext('2d');
-      // canvasref.value.addEventListener(
-      //   'object:added',
-      //   (value) => {
-      //     console.log(value);
-      //   },
-      //   false
-      // );
-      // context.value = canvas.getContext('2d');
-      // console.log(context.value);
-      // canvasRef.value.setDimensions({width: 750, height:  500});
-      // canvasRef.value?.backgroundColor  = '#fff';
-      // const canvasProperties = {width:750, height:500}
-      // const currentCanvas = {json: JSON.parse(canvasRef.value), canvas: canvasProperties};
-      // new CanvasHistory(canvasRef.value, currentCanvas);
+      console.debug('Se monta...');
+
+      const boardObjects = window?.xprops?.boardObjects || '';
+
+      if (boardObjects) {
+        loadBoard(boardObjects);
+      }
 
       board.value.on('object:added', (options) => {
         const obj = options.target;
-
-        console.log(obj);
 
         if (obj) {
           if (!obj.id) {
@@ -124,16 +118,31 @@ export default defineComponent({
               };
             })(obj.toJSON);
 
-            sendData(userMe.id, {
+            sendData(roomState.hostId, {
               eventType: 'BOARD_EVENT',
+              from: userMe.id,
+              to: 'ALL',
               event: BOARD_EVENTS.ADD,
               object: JSON.stringify(obj),
             });
+
+            // if (userMe.isPublishing == 1) {
+            // } else {
+            //   updateUserMe({ isPublishing: 2 });
+            //   publish(userMe.id, undefined, undefined, undefined, userMe.name);
+            //   sendData(roomState.hostId, {
+            //     eventType: 'BOARD_EVENT',
+            //     event: BOARD_EVENTS.ADD,
+            //     object: JSON.stringify(obj),
+            //   });
+            // }
+          } else {
+            console.debug('Tiene id');
           }
         }
-
-        console.debug(board.value.getObjects());
         
+        console.debug(board.value.getObjects());
+
         window.xprops?.updateBoardObjects?.(
           JSON.stringify(board.value.getObjects())
         );
@@ -166,9 +175,9 @@ export default defineComponent({
 
     const callCleanBoard = () => {
       clearBoard();
-      sendData(userMe.id, {
+      sendData(roomState.hostId, {
         eventType: 'BOARD_EVENT',
-        event: BOARD_EVENTS.CLEAN,
+        event: BOARD_EVENTS.CLEAR,
       });
     };
 

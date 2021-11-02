@@ -65,5 +65,5 @@ export enum BOARD_EVENTS {
   'ADD',
   'UPDATE',
   'REMOVE',
-  'CLEAN'
+  'CLEAR'
 }

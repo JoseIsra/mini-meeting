@@ -54,7 +54,6 @@ import { useToogleFunctions } from '@/composables';
 import moment from 'moment';
 
 import { RoomApiBody } from '@/types/antmediaApi';
-// import { useBoard } from '@/composables/board';
 
 export default defineComponent({
   name: 'FuTCooperate',
@@ -97,8 +96,6 @@ export default defineComponent({
       setExistRoom,
       // setIsLoadingOrError,
     } = useAuthState();
-
-    // const { addObject } = useBoard();
 
     /* const { setMicIconState, setCameraIconState } = useActions(); */
 
@@ -203,15 +200,6 @@ export default defineComponent({
     const isBeingRecorded = window?.xprops?.isBeingRecorded || false;
 
     const boardObjects = window?.xprops?.boardObjects || '';
-
-    console.debug('Board: ', boardObjects);
-
-    if (boardObjects) {
-      // boardObjects.forEach((object) => {
-      //   console.log(object);
-      //   addObject(object);
-      // });
-    }
 
     const { setFullScreen } = useToogleFunctions();
 

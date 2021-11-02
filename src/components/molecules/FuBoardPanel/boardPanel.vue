@@ -51,7 +51,7 @@ export default defineComponent({
         updateBoardState(true);
 
         if (userMe.isPublishing == 1) {
-          sendData(userMe.id, {
+          sendData(roomState.hostId, {
             eventType: 'BOARD_EVENT',
             event: BOARD_EVENTS.TURN_ON,
           });
@@ -62,7 +62,7 @@ export default defineComponent({
             if (userMe.isPublishing == 1) {
               clearInterval(interval);
               /* setMicIconState(true); */
-              sendData(userMe.id, {
+              sendData(roomState.hostId, {
                 eventType: 'BOARD_EVENT',
                 event: BOARD_EVENTS.TURN_ON,
               });
@@ -74,7 +74,7 @@ export default defineComponent({
         updateBoardState(false);
 
         if (userMe.isPublishing == 1) {
-          sendData(userMe.id, {
+          sendData(roomState.hostId, {
             eventType: 'BOARD_EVENT',
             event: BOARD_EVENTS.TURN_OFF,
           });
@@ -85,7 +85,7 @@ export default defineComponent({
             if (userMe.isPublishing == 1) {
               clearInterval(interval);
               /* setMicIconState(true); */
-              sendData(userMe.id, {
+              sendData(roomState.hostId, {
                 eventType: 'BOARD_EVENT',
                 event: BOARD_EVENTS.TURN_OFF,
               });

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
@@ -17,43 +18,31 @@ export const useBoard = () => {
   };
 
   const clearBoard = () => {
-    board.value.clear();    
-  };
-
-  const addObject = (object) => {
-    console.log('Add object board js: ', object);
-
-    if (object.type == 'rect') {
-      console.log('You added a rectangle!');
-      board.value.add(new fabric.Rect(object));
-    } else if (object.type === 'path') {
-      console.log('You added a path');
-      board.value.add(new fabric.Path(object));
-    }
+    board.value.clear();
+    window.xprops?.updateBoardObjects?.('{}');
   };
 
   const getObjectFromId = (id) => {
     const currentObjects = board.value.getObjects();
 
     for (let i = currentObjects.length - 1; i >= 0; i--) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       if (currentObjects[i].id === id) return currentObjects[i];
     }
     return null;
   };
 
   const handleObject = (obj) => {
-    console.log(obj);
+    console.debug(obj);
 
     const test = board.value
       .getObjects()
       .find((object) => object.id === obj.id);
 
-    console.log('Metodo EcmaScript: ', test);
+    console.debug('Metodo EcmaScript: ', test);
 
     const existing = getObjectFromId(obj.id);
 
-    console.log(existing);
+    console.debug(existing);
 
     if (obj.removed) {
       if (existing) {
@@ -66,20 +55,30 @@ export const useBoard = () => {
       existing.set(obj);
     } else {
       if (obj.type === 'rect') {
-        console.log('Nuevo rect');
+        console.debug('Nuevo rect');
         board.value.add(new fabric.Rect(obj));
       } else if (obj.type === 'path') {
-        console.log('Nuevo path');
-        console.log(obj);
-        console.log(new fabric.Path(obj));
+        console.debug('Nuevo path');
+        console.debug(new fabric.Path(obj));
+        // board.value.add(new fabric.Path(obj));
+        // board.value.add(new fabric.Line(obj))
         board.value.add(new fabric.Rect(obj));
+      } else {
+        console.debug('Objecto extraño');        
       }
     }
     board.value.renderAll();
   };
 
   const dummylogs = () => {
-    console.log(board.value.getObjects());
+    console.debug(board.value.getObjects());
+  };
+
+  const loadBoard = (objects) => {
+    console.debug('Board objects: ', objects);
+    if (objects.length) {
+      objects.forEach((obj) => handleObject(obj));
+    }
   };
 
   return {
@@ -89,7 +88,8 @@ export const useBoard = () => {
     toggleShowBoard,
     clearBoard,
     dummylogs,
-    addObject,
+
     handleObject,
+    loadBoard,
   };
 };

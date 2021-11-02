@@ -59,11 +59,12 @@ export enum BEHAVIOUR_TYPE_MENU_BAR {
   ESPECIAL = 'ESPECIAL',
 }
 
-export enum BOARD_EVENTS {
+export enum BOARD_EVENTS {  
   'TURN_ON',
   'TURN_OFF',
   'ADD',
   'UPDATE',
   'REMOVE',
-  'CLEAR'
+  'CLEAR',
+  'TOGGLE_DRAW_MODE'
 }

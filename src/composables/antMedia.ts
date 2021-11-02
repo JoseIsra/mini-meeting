@@ -61,6 +61,7 @@ const {
   setLocalScreenShareBlock,
   setLocalVideoBlock,
   setDenied,
+  toggleDrawState
 } = useUserMe();
 
 const {
@@ -861,6 +862,7 @@ export function useInitWebRTC() {
               fractalUserId: remoteUserInfoParsed.userInfo.fractalUserId,
               roleId: remoteUserInfoParsed.userInfo.roleId,
               isHost: remoteUserInfoParsed.userInfo.isHost,
+              canDraw: remoteUserInfoParsed.userInfo.canDraw,
               hasLogJoin: false,
             };
 
@@ -1239,7 +1241,7 @@ export function useInitWebRTC() {
               updateStreamById(streamToPause, { isBeingPlayed: false });
             }
           } else if (eventType === 'BOARD_EVENT') {
-            const { event, object } = JSON.parse(obj.data) as ObjBoardEvent;
+            const { event, object } = JSON.parse(obj.data) as ObjBoardEvent;    
 
             if (!object) {
               if (event === BOARD_EVENTS.TURN_ON) {
@@ -1251,12 +1253,14 @@ export function useInitWebRTC() {
               } else if (event === BOARD_EVENTS.CLEAR) {
                 console.debug('Limpiar board');
                 clearBoard();
+              } else if (event === BOARD_EVENTS.TOGGLE_DRAW_MODE && baseDataParsed.to === userMe.id){
+                console.debug('Toggle draw mode');
+                toggleDrawState();
               }
             } else {
               handleObject(JSON.parse(object));
             }
           }
-          console.log(obj);
         }
       },
       callbackError: function (

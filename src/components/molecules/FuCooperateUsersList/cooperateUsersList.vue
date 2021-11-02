@@ -474,6 +474,24 @@
                   </q-btn>
 
                   <q-btn
+                    icon="draw"
+                    :color="participant.canDraw ? 'blue' : 'red'"
+                    text-color="white"
+                    @click="toggleDrawMode(participant)"
+                  >
+                    <q-tooltip
+                      class="bg-grey-10"
+                      anchor="bottom middle"
+                      self="top middle"
+                      transition-show="scale"
+                      transition-hide="scale"
+                    >
+                      <label v-if="participant.canDraw">Dibujar habilitado</label>
+                      <label v-else>Dibujar deshabilitado</label>
+                    </q-tooltip>
+                  </q-btn>
+
+                  <q-btn
                     icon="fas fa-sign-out-alt"
                     @click="handleKickParticipant(participant)"
                     color="red"
@@ -629,7 +647,7 @@ import { useHandleParticipants } from '@/composables/participants';
 import { useUserMe } from '@/composables/userMe';
 import { User } from '@/types/user';
 import { useInitWebRTC } from '@/composables/antMedia';
-import { LOCK_ACTION_TYPE, USER_ROLE } from '@/utils/enums';
+import { BOARD_EVENTS, LOCK_ACTION_TYPE, USER_ROLE } from '@/utils/enums';
 import { nanoid } from 'nanoid';
 import { useSidebarToogle } from '@/composables';
 import { useToogleFunctions } from '@/composables';
@@ -643,6 +661,7 @@ export default defineComponent({
       setEveryParticipantActions,
       waitingParticipants,
       admittedParticipants,
+      updateParticipantById
     } = useHandleParticipants();
 
     const { toggleParticipantPanel, setSidebarState } = useSidebarToogle();
@@ -664,7 +683,7 @@ export default defineComponent({
       setFullScreenObject,
       isFullScreen,
       fullScreenObject,
-      clearFullScreenObject,      
+      clearFullScreenObject,
       functionsOnMenuBar,
       removeHandNotification,
       updateHandNotification,
@@ -1055,6 +1074,18 @@ export default defineComponent({
       });
     };
 
+    const toggleDrawMode = (arg: User) => {
+
+      updateParticipantById(arg.id, { canDraw:  !arg.canDraw});
+
+      sendData(roomState.hostId, {
+        eventType: 'BOARD_EVENT',
+        from: userMe.id,
+        to: arg.id,
+        event: BOARD_EVENTS.TOGGLE_DRAW_MODE
+      });
+    }
+
     return {
       waitingParticipants,
       admittedParticipants,
@@ -1082,6 +1113,7 @@ export default defineComponent({
       participantActionsToolTip,
       notificateHandUp,
       removeHandUp,
+      toggleDrawMode
     };
   },
 });

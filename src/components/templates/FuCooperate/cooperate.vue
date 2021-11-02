@@ -235,6 +235,7 @@ export default defineComponent({
       cameraId,
       micId,
       isPublishing: isHost ? 1 : 0,
+      canDraw: roleId === 1 ? false : true,
     });
 
     /* setMicIconState(isMicLocked ? false : isMicOn); */

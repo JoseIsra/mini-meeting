@@ -1,8 +1,10 @@
 <template>
-  <div class="o-cooperate-board" v-show="showBoard">
-    <div class="o-cooperate-board__toolbar">
+  <div class="o-board" v-show="showBoard">
+    <div class="o-board__mask" v-if="!canDraw && roleId === 1"></div>
+
+    <div class="o-board__toolbar">
       <q-btn
-        class="o-cooperate-board__tool"
+        class="o-board__tool"
         icon="fas fa-window-minimize"
         @click="toggleShowBoard"
         size="8px"
@@ -13,41 +15,45 @@
         </q-tooltip>
       </q-btn>
       <q-btn
-        class="o-cooperate-board__tool"
+        class="o-board__tool"
         icon="fas fa-pencil-alt"
         @click="toggleDrawMode"
         size="8px"
         dense
+        :disable="!canDraw"
       />
       <q-btn
-        class="o-cooperate-board__tool"
+        class="o-board__tool"
         icon="fas fa-eraser"
         @click="callCleanBoard"
         size="8px"
         dense
+        :disable="!canDraw"
       />
       <q-btn
-        class="o-cooperate-board__tool"
+        class="o-board__tool"
         icon="fas fa-democrat"
         @click="dummylogs"
         size="8px"
         dense
       />
       <q-btn
-        class="o-cooperate-board__tool"
+        class="o-board__tool"
         icon="fas fa-square"
         @click="addRect"
         size="8px"
         dense
+        :disable="!canDraw"
       />
     </div>
-    <div class="o-cooperate-board__board">
+
+    <div class="o-board__board">
       <canvas id="board" width="750" height="500"></canvas>
     </div>
   </div>
   <div
     v-show="!showBoard"
-    class="o-cooperate-activeBoard"
+    class="o-board__activeBoard"
     @click="toggleShowBoard"
   >
     <q-icon style="margin-right: 10px" name="fas fa-drafting-compass" />
@@ -61,7 +67,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 
-import { defineComponent, onMounted } from 'vue';
+import { defineComponent, onMounted, toRefs } from 'vue';
 import { useBoard } from '@/composables/board';
 import { fabric } from 'fabric';
 import { useInitWebRTC } from '@/composables/antMedia';
@@ -92,7 +98,10 @@ export default defineComponent({
 
     onMounted(() => {
       setBoard(new fabric.Canvas('board'));
-      board.value.isDrawingMode = userMe.roleId === '1' ? false : true;
+
+      if (userMe.roleId !== 1) {
+        board.value.isDrawingMode = true;
+      }
 
       console.debug('Se monta...');
 
@@ -140,7 +149,7 @@ export default defineComponent({
             console.debug('Tiene id');
           }
         }
-        
+
         console.debug(board.value.getObjects());
 
         window.xprops?.updateBoardObjects?.(
@@ -188,6 +197,7 @@ export default defineComponent({
       toggleShowBoard,
       dummylogs,
       addRect,
+      ...toRefs(userMe),
     };
   },
 });

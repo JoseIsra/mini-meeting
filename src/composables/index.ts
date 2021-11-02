@@ -10,7 +10,6 @@ interface FunctionState {
   handNotificationInfo: HandNotification[];
   selectedButtonID: string;
   renderPopupMenu: boolean;
-  renderInfoRoomCard: boolean;
   renderResponsiveFunctionMenu: boolean;
 }
 
@@ -34,7 +33,6 @@ const functionState = {
   handNotificationInfo: [] as HandNotification[],
   selectedButtonID: '',
   renderPopupMenu: false,
-  renderInfoRoomCard: false,
   renderResponsiveFunctionMenu: false,
 };
 
@@ -93,16 +91,10 @@ export function useToogleFunctions() {
     });
   };
 
-  const setIDButtonSelected = (value: string) => {
-    functionsOnMenuBar.selectedButtonID = value;
-  };
+ 
 
   const openOptionsMenu = (value: boolean) => {
     functionsOnMenuBar.renderPopupMenu = value;
-  };
-
-  const watchInfoRoomCard = (value: boolean) => {
-    functionsOnMenuBar.renderInfoRoomCard = value;
   };
 
   const openFunctionResponsiveMenu = (value: boolean) => {
@@ -119,9 +111,7 @@ export function useToogleFunctions() {
     removeHandNotification,
     setFullScreen,
     isFullScreen,
-    setIDButtonSelected,
     openOptionsMenu,
-    watchInfoRoomCard,
     openFunctionResponsiveMenu,
     functionState,
     fullScreenMode,

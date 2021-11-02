@@ -15,13 +15,15 @@
         <label class="m-transmission__body__inputFields__label">Endpoint</label>
         <input
           class="m-transmission__body__inputFields__input"
-          v-model="endpoint"
+          v-model="inputValueEndPointRTMP"
+          :readonly="streamService == 'rtmp'"
           placeholder="Endpoint (rtmps://live-api-s.facebook.com:443/rtmp)"
         />
         <label class="m-transmission__body__inputFields__label">KEY</label>
         <input
           class="m-transmission__body__inputFields__input"
-          v-model="key"
+          v-model="inputValueKeyRTMP"
+          :readonly="streamService == 'rtmp'"
           placeholder="Key (FB-12341432344535255-3234-323)"
         />
       </div>
@@ -57,7 +59,10 @@
 import { defineComponent, ref, computed, onMounted, reactive } from 'vue';
 import { useUserMe } from '@/composables/userMe';
 import { useRoom } from '@/composables/room';
-import { IStreamServiceObject, SocialMedia } from '@/types';
+import { IStreamServiceObject, SocialMedia, objWebRTC } from '@/types';
+import { useRoute } from 'vue-router';
+import { WebRTCAdaptor } from '@/utils/webrtc/webrtc_adaptor';
+
 export default defineComponent({
   name: 'FuRetransmissionContent',
   props: {
@@ -66,17 +71,13 @@ export default defineComponent({
     },
   },
   setup(props) {
+    const route = useRoute();
     const { userMe } = useUserMe();
-    const moreContent = ref(true);
-    // const layout = ref(false);
     const { roomState, updateRoom } = useRoom();
     const endpoint = ref('');
     const key = ref('');
-
-    const isStreaming = ref(false);
-    const fbStreaming = ref(false);
-    const ytStreaming = ref(false);
-    const rtmpStreaming = ref(false);
+    const streamId = `r-nr-${roomState.classroomId}-${userMe.id}-${roomState.id}`;
+    const streamName = `OBS-${userMe.name}`;
     const streamServiceObject = reactive<IStreamServiceObject>({
       facebook: 'Agrega las credenciales dadas por Facebook',
       youtube: 'Agrega las credenciales dadas por Youtube',
@@ -108,13 +109,47 @@ export default defineComponent({
       },
     });
 
+    const server = ref<string>(process.env.ANTMEDIA_SERVER);
+    const app = ref<string>(process.env.ANTMEDIA_APP);
+
+    const roomId =
+      window?.xprops?.roomId || (route.query.roomId as string) || '';
+    const publishToken =
+      window?.xprops?.publishToken ||
+      (route.query.publishToken as string) ||
+      '';
+
+    const subscriberId = (route.query.subscriberId as string) || undefined;
+
+    const subscriberCode = (route.query.subscriberCode as string) || undefined;
+    const websocketURL = `wss://${process.env.ANTMEDIA_SERVER}/${process.env.ANTMEDIA_APP}/websocket`;
+
+    const mediaConstraints = {
+      video: true,
+      audio: true,
+    };
+    const pc_config = {
+      iceServers: [
+        {
+          urls: 'stun:stun1.l.google.com:19302',
+        },
+      ],
+    };
+    const webRTCInstance = ref<WebRTCAdaptor>({} as WebRTCAdaptor);
+
+    const sdpConstraints = {
+      OfferToReceiveAudio: false,
+      OfferToReceiveVideo: false,
+    };
+
     onMounted(() => {
       /* handleMerge(); */
       const cookieEndpoint = getCookie('endpoint');
       const cookieKey = getCookie('key');
 
       if (cookieEndpoint && cookieKey) {
-        isStreaming.value = true;
+        // solo haciendo pruebas con el rmtp
+        roomState.rtmpTransmission = true;
         endpoint.value = cookieEndpoint;
         key.value = cookieKey;
       }
@@ -164,8 +199,22 @@ export default defineComponent({
           ];
     });
 
+    const inputValueEndPointRTMP = computed(() => {
+      return props.streamService == 'rtmp'
+        ? `rtmp://${server.value}/${app.value}`
+        : '';
+    });
+
+    const inputValueKeyRTMP = computed(() => {
+      return props.streamService == 'rtmp' ? streamId : '';
+    });
+
     //***************COOL FUNCTIONS  */
     // > general controller for all types of tranmissions
+    const leaveRoom = (roomId: string) => {
+      webRTCInstance.value.leaveFromRoom?.(roomId);
+    };
+
     const handleDifferentTransmissions = () => {
       streamServiceObject?.transmissionMethods?.[
         props.streamService as keyof SocialMedia
@@ -206,22 +255,82 @@ export default defineComponent({
       }
     };
 
-    const initRTMPTransmission = () => {
+    const initRTMPTransmission = async () => {
       console.log('INICIANDO RTMP 📽️');
-      updateRoom({ rtmpTransmission: true });
+      let rtmpUrl = `${endpoint.value}/${key.value}`;
+      if (rtmpUrl.slice(-1) === '/') {
+        rtmpUrl.slice(0, -1);
+      }
+      const rtmpRequest = new Request(
+        `https://${process.env.ANTMEDIA_SERVER}/${process.env.ANTMEDIA_APP}/rest/v2/broadcasts/${userMe.id}/rtmp-endpoint`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization:
+              'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiaWF0IjoxNTE2MjM5MDIyfQ.dnwd9sjQmEAyWWpbaGWA9R6pW4Qxu5eYES9Xrpl5UsY',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            rtmpUrl,
+          }),
+        }
+      );
+      const response = await fetch(rtmpRequest);
+      console.log(response);
+
+      initMiniWebrtc(streamId, streamName, roomId);
+      if (response.ok) {
+        updateRoom({ rtmpTransmission: true });
+        console.log('transmision rtmp i guess 🤔');
+        //document.cookie = 'isInTransmission=true';
+        setCookie('endpoint', endpoint.value, 30);
+        setCookie('key', key.value, 30);
+      }
+    };
+    const stopPublishing = (streamId: string) => {
+      webRTCInstance.value.stop(streamId);
     };
 
-    const endRTMPTransmission = () => {
+    const endRTMPTransmission = async () => {
       console.log('TERMINANDO RTMP 📽️');
-      updateRoom({ rtmpTransmission: false });
+      let rtmpUrl = `${endpoint.value}/${key.value}`;
+      if (rtmpUrl.slice(-1) === '/') {
+        rtmpUrl.slice(0, -1);
+      }
+      const rtmpRequest = new Request(
+        `https://${process.env.ANTMEDIA_SERVER}/${process.env.ANTMEDIA_APP}/rest/v2/broadcasts/${userMe.id}/rtmp-endpoint`,
+        {
+          method: 'DELETE',
+          headers: {
+            Authorization:
+              'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiaWF0IjoxNTE2MjM5MDIyfQ.dnwd9sjQmEAyWWpbaGWA9R6pW4Qxu5eYES9Xrpl5UsY',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            rtmpUrl,
+          }),
+        }
+      );
+      const response = await fetch(rtmpRequest);
+      console.log(response);
+      if (response.ok) {
+        console.log('finalizando rmtp tranmission 🤔');
+        //document.cookie = 'isInTransmission=true';
+        eraseCookie('endpoint');
+        eraseCookie('key');
+        updateRoom({ rtmpTransmission: false });
+
+        stopPublishing('retraId');
+        webRTCInstance.value.leaveFromRoom?.(roomId);
+      }
     };
 
-    const rtmp_transmission_controller = () => {
+    const rtmp_transmission_controller = async () => {
       console.log('RTMP OBS GO 📽️');
       if (roomState.rtmpTransmission) {
-        endRTMPTransmission();
+        await endRTMPTransmission();
       } else {
-        initRTMPTransmission();
+        await initRTMPTransmission();
       }
     };
 
@@ -251,86 +360,115 @@ export default defineComponent({
         name + '=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
     }
 
-    const handleStartTransmission = async () => {
-      let rtmpUrl = `${endpoint.value}/${key.value}`;
-      if (rtmpUrl.slice(-1) === '/') {
-        rtmpUrl.slice(0, -1);
-      }
-      const rtmpRequest = new Request(
-        `https://${process.env.ANTMEDIA_SERVER}/${process.env.ANTMEDIA_APP}/rest/v2/broadcasts/${userMe.id}/rtmp-endpoint`,
-        {
-          method: 'POST',
-          headers: {
-            Authorization:
-              'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiaWF0IjoxNTE2MjM5MDIyfQ.dnwd9sjQmEAyWWpbaGWA9R6pW4Qxu5eYES9Xrpl5UsY',
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            rtmpUrl,
-          }),
-        }
-      );
-      const response = await fetch(rtmpRequest);
-      console.log(response);
-      if (response.ok) {
-        //document.cookie = 'isInTransmission=true';
-        setCookie('endpoint', endpoint.value, 30);
-        setCookie('key', key.value, 30);
-        isStreaming.value = true;
-      }
+    const joinRoom = (roomId: string, streamId: string) => {
+      webRTCInstance.value.joinRoom?.(roomId, streamId, 'legacy');
     };
 
-    const handleEndTransmission = async () => {
-      let rtmpUrl = `${endpoint.value}/${key.value}`;
-      if (rtmpUrl.slice(-1) === '/') {
-        rtmpUrl.slice(0, -1);
-      }
-      const rtmpRequest = new Request(
-        `https://${process.env.ANTMEDIA_SERVER}/${process.env.ANTMEDIA_APP}/rest/v2/broadcasts/${userMe.id}/rtmp-endpoint`,
-        {
-          method: 'DELETE',
-          headers: {
-            Authorization:
-              'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiaWF0IjoxNTE2MjM5MDIyfQ.dnwd9sjQmEAyWWpbaGWA9R6pW4Qxu5eYES9Xrpl5UsY',
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            rtmpUrl,
-          }),
-        }
+    const publish = (
+      streamId: string,
+      token?: string,
+      subscriberId?: string,
+      subscriberCode?: string,
+      streamName?: string
+    ) => {
+      streamId = streamId;
+      webRTCInstance.value.publish?.(
+        streamId,
+        token,
+        subscriberId,
+        subscriberCode,
+        streamName
       );
-      const response = await fetch(rtmpRequest);
-      console.log(response);
-      if (response.ok) {
-        //document.cookie = 'isInTransmission=true';
-        eraseCookie('endpoint');
-        eraseCookie('key');
-        isStreaming.value = false;
-      }
+    };
+
+    const userMeForObs = {
+      id: streamId,
+      avatar: 'https://f002.backblazeb2.com/file/FractalUp/Logos/logo_azul.svg',
+      name: streamName,
+      isCameraOn: false,
+      isMicOn: true,
+      isScreenSharing: false,
+      isVideoActivated: true,
+      isMicBlocked: false,
+      isCameraBlocked: false,
+      isScreenShareBlocked: false,
+      denied: 1,
+      isRecording: false,
+      fractalUserId: streamId,
+      roleId: 1,
+      isHost: false,
+    };
+
+    const initMiniWebrtc = (
+      streamId: string,
+      streamName: string,
+      roomId: string
+    ) => {
+      webRTCInstance.value = new WebRTCAdaptor({
+        websocket_url: websocketURL,
+        mediaConstraints: mediaConstraints,
+        peerconnection_config: pc_config,
+        sdp_constraints: sdpConstraints,
+        isPlayMode: false,
+        debug: true,
+        dataChannelEnabled: true,
+        callback: (info: string, obj: objWebRTC) => {
+          if (info == 'initialized') {
+            joinRoom(roomId, streamId);
+          } else if (info == 'joinedTheRoom') {
+            console.log('JOINED THE ROOM MINIWEBRTC 🐊', obj);
+            window.addEventListener('unload', () => {
+              leaveRoom?.(roomId);
+            });
+            webRTCInstance.value.turnOffLocalCamera('retraId');
+            publish(
+              streamId,
+              publishToken,
+              subscriberId,
+              subscriberCode,
+              streamName
+            );
+            webRTCInstance.value.play?.(roomState.hostId, undefined, roomId);
+          } else if (info == 'newStreamAvailable') {
+            console.log('new stream available MINIWEBRTC 🚀', obj);
+          } else if (info == 'publish_started') {
+            console.log('PUBLICANDO MINI WEBRTC', obj);
+          } else if (info == 'data_channel_opened') {
+            const streamId = obj as unknown as string;
+            console.log('dataChannelOpen with ⭐', streamId);
+            if (streamId === roomState.hostId) {
+              console.log('started retransmission channel ⭐');
+              webRTCInstance.value.sendData?.(
+                roomState.hostId,
+                JSON.stringify({
+                  eventType:
+                    'NEW_USER:PARTICIPANTS_IN_ROOM_INFO_REQUEST_AND_SEND_OWN_INFO',
+                  from: 'retraId',
+                  to: roomState.hostId,
+                  userInfo: userMeForObs,
+                })
+              );
+            }
+          }
+        },
+        callbackError: (error: string, message: string) => {
+          console.log(error, message);
+        },
+      });
     };
 
     return {
-      handleStartTransmission,
-      handleEndTransmission,
       endpoint,
       key,
-      // openModal,
-      // layout,
-      moreContent,
-      contentSize: computed(() => (moreContent.value ? 150 : 5)),
-      drawer: ref(false),
-      drawerR: ref(false),
-      lorem:
-        'Lorem ipsum dolor sit amet consectetur, adipisicing elit. Natus, ratione eum minus fuga, quasi dicta facilis corporis magnam, suscipit at quo nostrum!',
-      isStreaming,
       serviceStreamHint,
       labelStreamingBtn,
       iconBtnStreaming,
-      fbStreaming,
-      ytStreaming,
-      rtmpStreaming,
       handleDifferentTransmissions,
       roomState,
+      server,
+      app,
+      inputValueEndPointRTMP,
+      inputValueKeyRTMP,
     };
   },
 });

@@ -560,7 +560,7 @@ export class WebRTCAdaptor {
               stream,
               streamId
             );
-            this.callback('ScreenShareStarted');
+            this.callback('screen_share_started');
           })
           .catch((error) => {
             console.error(error);
@@ -801,7 +801,14 @@ export class WebRTCAdaptor {
     this.webSocketAdaptor.send(JSON.stringify(jsCmd));
   }
 
-  play(streamId, token, roomId, enableTracks, subscriberId, subscriberCode) {
+  play(
+    streamId,
+    token,
+    roomId,
+    enableTracks = undefined,
+    subscriberId = undefined,
+    subscriberCode = undefined
+  ) {
     this.playStreamId.push(streamId);
     var jsCmd = {
       command: 'play',

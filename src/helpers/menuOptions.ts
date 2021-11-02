@@ -16,45 +16,6 @@ export interface MenuOptions {
   fourthSection: Options[];
 }
 
-export const menuActions = [
-  // {
-  //   id: '1',
-  //   iconName: 'format_list_bulleted',
-  //   description: 'Iniciar una encuesta',
-  //   important: false,
-  // },
-  // {
-  //   id: '2',
-  //   iconName: 'monitor',
-  //   description: 'Gestionar presentaciones',
-  //   important: false,
-  // },
-  {
-    id: '3',
-    iconName: 'videocam',
-    description: 'Compartir un video externo',
-    secondDescription: 'Dejar de compartir video externo',
-    important: false,
-    interaction: INTERACTION_TYPE_MENU_OPTIONS.EXTERNALVIDEO,
-    active: false,
-  },
-  // {
-  //   id: '4',
-  //   iconName: 'person',
-  //   description: 'Seleccionar usuario aleatoriamente',
-  //   important: false,
-  // },
-  {
-    id: '5',
-    iconName: 'fas fa-satellite-dish',
-    description: 'Retransmitir en redes sociales',
-    secondDescription: 'Retransmitir en redes sociales',
-    important: false,
-    active: false,
-    interaction: INTERACTION_TYPE_MENU_OPTIONS.RETRANSMISSION,
-  },
-];
-
 export const menuOptions = {
   firstSection: [
     /* {
@@ -71,13 +32,13 @@ export const menuOptions = {
     //   important: false,
     //   interaction: INTERACTION_TYPE_MENU_OPTIONS.DEVICECONFIGURATION,
     // },
-    {
-      id: '3',
-      iconName: 'info',
-      description: 'Detalles de la reunión',
-      important: false,
-      interaction: INTERACTION_TYPE_MENU_OPTIONS.ROOMDETAILS,
-    },
+    // {
+    //   id: '3',
+    //   iconName: 'info',
+    //   description: 'Detalles de la reunión',
+    //   important: false,
+    //   interaction: INTERACTION_TYPE_MENU_OPTIONS.ROOMDETAILS,
+    // },
   ],
   secondSection: [
     /* {

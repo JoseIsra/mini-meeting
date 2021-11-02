@@ -12,7 +12,7 @@
     display: flex;
     align-items: center;
     justify-content: space-around;
-    background: linear-gradient(350deg, mediumslateblue 0%, #009bff 75%);
+    background: linear-gradient(350deg, mediumslateblue 0%, #0099ff 75%);
     border-radius: 7px;
     padding: 10px;
   }
@@ -25,25 +25,26 @@
   &__icon {
     color: rgba(255, 255, 255, 0.6) !important;
     margin: 0 0.3rem;
-
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    &__chatbadge {
+      height: 15px;
+      width: 15px;
+    }
     &__topin {
-      position: absolute;
-
-      border-radius: 50%;
-      padding: 2;
-
-      width: 25px;
-      height: 25px;
-
-      top: 0;
-      right: -7.5px;
-
-      font-size: 12px;
-
-      background-color: green;
-      color: white;
-
-      z-index: 50;
+      box-shadow: 1px 1px 3px 3px rgba(0, 0, 0, 0.25);
+      height: 15px;
+      width: 15px;
+      &.--roleOne {
+        background-color: #0099ff;
+      }
+      &.--participants {
+        background-color: green;
+      }
+      &.--noparticipants {
+        background-color: #0099ff;
+      }
     }
 
     &__tooltip {

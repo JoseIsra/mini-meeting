@@ -4,7 +4,7 @@
       <label class="m-list__title__text">Lista de Usuarios</label>
       <small>En línea ({{ admittedParticipants.length + 1 }})</small>
       <q-btn
-        v-show="userMe.roleId === 0"
+        v-show="userMe.roleId === 0 && roomState.roomRestriction != 0"
         :label="
           waitingParticipants.length > 0
             ? `En espera (${waitingParticipants.length})`
@@ -255,10 +255,11 @@
                         : 'gps_fixed'
                     "
                     @click="activeFullScreen(userMe)"
+                    :disable="!!roomState.pinnedUser"
                   >
                     <q-tooltip class="bg-grey-10">
                       <label v-if="listenFullScreen.id == userMe.id"
-                        >Estás fijado
+                        >Desfijarte
                       </label>
                       <label v-else>Fijarte a ti mismo</label>
                     </q-tooltip>
@@ -303,12 +304,27 @@
         :key="participant.id"
       >
         <aside class="m-list__content__userBox__avatar">
-          <q-icon
+          <q-btn
             v-if="notificateHandUp(participant.id)"
-            name="front_hand"
-            size="20px"
-            class="m-list__content__userBox__avatar__handIcon"
-          />
+            class="m-list__content__userBox__avatar__iconBox"
+            round
+            push
+            :ripple="false"
+            v-on="
+              userMe.roleId == 0
+                ? { click: () => removeHandUp(participant.id) }
+                : {}
+            "
+          >
+            <q-icon
+              name="front_hand"
+              size="20px"
+              class="m-list__content__userBox__avatar__handIcon"
+            />
+            <q-tooltip class="bg-grey-10" v-if="userMe.roleId == 0">
+              Bajar mano</q-tooltip
+            >
+          </q-btn>
           <q-img
             v-else
             class="m-list__content__userBox__avatar__image"
@@ -648,9 +664,10 @@ export default defineComponent({
       setFullScreenObject,
       isFullScreen,
       fullScreenObject,
-      clearFullScreenObject,
-      setIDButtonSelected,
+      clearFullScreenObject,      
       functionsOnMenuBar,
+      removeHandNotification,
+      updateHandNotification,
     } = useToogleFunctions();
 
     const listenFullScreen = computed(() => {
@@ -1005,8 +1022,14 @@ export default defineComponent({
 
     const activeFullScreen = (arg: User) => {
       if (isFullScreen.value) {
-        setFullScreenObject(arg);
-        return;
+        if (fullScreenObject.id === arg.id) {
+          setFullScreen('none', false);
+          clearFullScreenObject();
+          return;
+        } else {
+          setFullScreenObject(arg);
+          return;
+        }
       }
       setFullScreen('user', true);
       setFullScreenObject(arg);
@@ -1014,13 +1037,22 @@ export default defineComponent({
 
     const closeUserListPanel = () => {
       setSidebarState(false);
-      setIDButtonSelected('');
     };
 
     const notificateHandUp = (userId: string) => {
       return functionsOnMenuBar.handNotificationInfo.some(
         (notific) => notific.from == userId
       );
+    };
+
+    const removeHandUp = (userId: string) => {
+      console.log(userId, 'bajando mano');
+      removeHandNotification(userId);
+      updateHandNotification(false);
+      sendData(roomState.hostId, {
+        from: userId,
+        eventType: 'NOHAND',
+      });
     };
 
     return {
@@ -1049,6 +1081,7 @@ export default defineComponent({
       closeUserListPanel,
       participantActionsToolTip,
       notificateHandUp,
+      removeHandUp,
     };
   },
 });

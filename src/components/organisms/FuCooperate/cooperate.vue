@@ -26,10 +26,6 @@
       v-show="screenMinimized"
     />
     <fu-cooperate-header v-show="!screenMinimized" />
-    <fu-shared-stream
-      :sharedLink="sharingLink"
-      v-show="functionsOnMenuBar.renderInfoRoomCard"
-    />
     <fu-cooperate-menu-bar
       v-show="showMenuBar && !screenMinimized"
       :toggleLocalCamera="toggleLocalCamera"
@@ -86,7 +82,6 @@ import FuCooperateParticipantsPanel from '@/components/molecules/FuCooperatePart
 import _ from 'lodash';
 import { useSidebarToogle, useToogleFunctions } from '@/composables';
 import { useScreen } from '@/composables/screen';
-import FuSharedStream from 'molecules/FuSharedStream';
 import { useRoom } from '@/composables/room';
 
 export default defineComponent({
@@ -109,7 +104,6 @@ export default defineComponent({
     FuCooperateUserVideo,
     FuHandNotification,
     FuFullScreen,
-    FuSharedStream,
     FuBoard,
     FuCooperateParticipantsPanel,
   },
@@ -132,22 +126,15 @@ export default defineComponent({
     const {
       functionsOnMenuBar,
       isFullScreen,
-      setIDButtonSelected,
       openOptionsMenu,
       openFunctionResponsiveMenu,
+      setShowChat,
     } = useToogleFunctions();
 
     const { roomState } = useRoom();
 
     const { screenMinimized, updateScreenState, setScreenDeviceOrientation } =
       useScreen();
-
-    // Dynamig-bg update (to delete)
-    // const bgStyle = computed(() => {
-    //   return roomState.bgMaximixed
-    //     ? 'left: 0; right: 0; top: 0; bottom: 0; width: 100vw; height: 100vh'
-    //     : 'top: 25vh; width: 50vw; height: 50vh';
-    // });
 
     const hideMenuBar = _.debounce(() => {
       showMenuBar.value = false;
@@ -175,7 +162,7 @@ export default defineComponent({
       setSidebarState(false);
       openOptionsMenu(false);
       openFunctionResponsiveMenu(false);
-      setIDButtonSelected('');
+      setShowChat(false);
     };
 
     const handleOrientationChange = () => {

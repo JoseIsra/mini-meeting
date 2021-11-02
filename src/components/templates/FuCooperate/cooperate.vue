@@ -4,10 +4,7 @@
       class="t-cooperate__page"
       v-if="existRoom && isLoadingOrError === false"
     >
-      <fu-lobby
-        v-if="roomState.roomRestriction"
-        @handleLeaveCall="handleZoidLeaveCall"
-      />
+      <fu-lobby v-if="denied !== 1" @handleLeaveCall="handleZoidLeaveCall" />
 
       <fu-cooperate
         v-else
@@ -44,7 +41,11 @@ import FuLobby from 'organisms/FuLobby';
 import { useRoute } from 'vue-router';
 import { useUserMe } from '@/composables/userMe';
 import FuTLoading from 'organisms/FuLoading';
-import { PERMISSION_STATUS, REASON_TO_LEAVE_ROOM } from '@/utils/enums';
+import {
+  PERMISSION_STATUS,
+  REASON_TO_LEAVE_ROOM,
+  ROOM_PRIVACY,
+} from '@/utils/enums';
 import { useInitWebRTC } from '@/composables/antMedia';
 import { useAuthState } from '@/composables/auth';
 import { useRoom } from '@/composables/room';
@@ -108,10 +109,25 @@ export default defineComponent({
     const streamName =
       window?.xprops?.streamName || (route.query.streamName as string);
 
+    const defaultAvatar =
+      'https://encrypted.fractalup.com/file/FractalUp/Logos/logo_azul.svg';
+
     const avatar =
       window?.xprops?.photoURL ||
       (route.query.photoURL as string) ||
-      'https://f002.backblazeb2.com/file/FractalUp/Logos/logo_azul.svg';
+      defaultAvatar;
+
+    //Para no colocar una imagen rota
+    if (avatar !== defaultAvatar) {
+      const splittedAvatarUrl = avatar.split('.');
+      const extension = splittedAvatarUrl[splittedAvatarUrl.length - 1];
+      const imageExtensions = ['png', 'jpg', 'jpeg', 'svg'];
+      if (!imageExtensions.includes(extension)) {
+        updateUserMe({
+          avatar: defaultAvatar,
+        });
+      }
+    }
 
     const roomId =
       window?.xprops?.roomId || (route.query.roomId as string) || '';
@@ -125,13 +141,15 @@ export default defineComponent({
     let roomRestriction = window.xprops?.roomRestriction as number;
 
     if (!roomRestriction) {
-      roomRestriction = parseInt(route.query.roomRestriction as string) || 0;
+      roomRestriction =
+        parseInt(route.query.roomRestriction as string) || ROOM_PRIVACY.PUBLIC;
     }
 
     const isMicLocked = window.xprops?.isMicLocked || false;
 
     const cameraId =
       window.xprops?.cameraId || (route.query.cameraId as string);
+
     const micId = window.xprops?.micId || (route.query.micId as string);
 
     const isCameraLocked = window.xprops?.isCameraLocked || false;
@@ -195,7 +213,7 @@ export default defineComponent({
       // });
     }
 
-    const { setIDButtonSelected, setFullScreen } = useToogleFunctions();
+    const { setFullScreen } = useToogleFunctions();
 
     if (isCameraOn) {
       setVideoActivatedState(true);
@@ -218,11 +236,12 @@ export default defineComponent({
       isCameraBlocked: roleId === 1 ? isCameraLocked : false,
       isScreenShareBlocked: roleId === 1 ? isScreenShareLocked : false,
       fractalUserId,
-      denied: roomRestriction
-        ? roleId === 1
-          ? PERMISSION_STATUS.asked
-          : PERMISSION_STATUS.admitted
-        : PERMISSION_STATUS.admitted,
+      denied:
+        roomRestriction === ROOM_PRIVACY.PRIVATE
+          ? roleId === 1
+            ? PERMISSION_STATUS.asked
+            : PERMISSION_STATUS.admitted
+          : PERMISSION_STATUS.admitted,
       isRecording: false,
       isHost,
       cameraId,
@@ -240,7 +259,7 @@ export default defineComponent({
       id: roomId,
       sharingLink,
       classroomId,
-      roomRestriction: roleId === 1 ? roomRestriction : 0,
+      roomRestriction: roleId === 1 ? roomRestriction : ROOM_PRIVACY.PUBLIC,
       isMicBlocked: isMicLocked,
       isCameraBlocked: isCameraLocked,
       isScreenShareBlocked: isScreenShareLocked,
@@ -258,7 +277,6 @@ export default defineComponent({
 
     if (roleId === 1 ? (isCameraLocked ? false : isCameraOn) : isCameraOn) {
       setVideoActivatedState(true);
-      /* setCameraIconState(true); */
       setCameraState(true);
       turnOnLocalCamera(streamId);
       sendNotificationEvent('CAM_TURNED_ON', streamId);
@@ -283,47 +301,32 @@ export default defineComponent({
     //const currentVolume = ref(0.5);
 
     const toggleDesktopCapture = () => {
+      //si estoy compartiendo -> apago todo
       if (userMe.isScreenSharing) {
-        //si estoy compartiendo -> apago todo
-        setVideoActivatedState(false);
-        setScreenState(false);
+        if (!userMe.isCameraOn) {
+          setVideoActivatedState(false);
+          updateUserMe({ isVideoActivated: false });
+        }
+        updateUserMe({ isScreenSharing: false });
+        turnOffLocalCamera(streamId);
         resetDesktop();
-        sendNotificationEvent('SCREEN_SHARING_OFF', streamId);
-        if (!userMe.isHost && !userMe.isMicOn && !userMe.isCameraOn) {
+        if (!userMe.isCameraOn && !userMe.isMicOn && !userMe.isHost) {
+          stopPublishing(streamId);
           updateUserMe({ isPublishing: 0 });
-          stopPublishing(userMe.id);
         }
+        sendNotificationEvent('SCREEN_SHARING_OFF', streamId);
       } else {
-        if (userMe.isCameraOn) {
-          //apagar camara y prender captura
-          /* setCameraIconState(false); */
-          setCameraState(false);
-          turnOffLocalCamera(streamId);
-          sendNotificationEvent('CAM_TURNED_OFF', streamId);
-          if (!userMe.isHost && !userMe.isMicOn && !userMe.isScreenSharing) {
-            updateUserMe({ isPublishing: 0 });
-            stopPublishing(userMe.id);
-          }
-        }
-
         if (userMe.isPublishing == 1) {
           switchDesktopCapture(streamId);
-          setVideoActivatedState(true);
-          setScreenState(true);
-          sendNotificationEvent('SCREEN_SHARING_ON', streamId);
-        } else {
+        } else if (userMe.isPublishing == 0) {
           updateUserMe({ isPublishing: 2 });
+          switchDesktopCapture(streamId);
           publish(userMe.id, undefined, undefined, undefined, userMe.name);
-          const interval = setInterval(() => {
+          /* const interval = setInterval(() => {
             if (userMe.isPublishing == 1) {
               clearInterval(interval);
-              /* setMicIconState(true); */
-              switchDesktopCapture(streamId);
-              setVideoActivatedState(true);
-              setScreenState(true);
-              sendNotificationEvent('SCREEN_SHARING_ON', streamId);
             }
-          }, 1000);
+          }, 1000); */
         }
       }
       // if (userMe.isCameraOn && !userMe.isScreenSharing) {
@@ -362,53 +365,57 @@ export default defineComponent({
           //switchDesktopCaptureWithCamera(streamId);
           if (userMe.isPublishing == 1) {
             setScreenState(false);
-            setIDButtonSelected('');
+            setCameraState(true);
+            turnOnLocalCamera(streamId);
             resetDesktop();
-            if (!userMe.isHost && !userMe.isMicOn && !userMe.isCameraOn) {
+            /* if (!userMe.isHost && !userMe.isMicOn && !userMe.isCameraOn) {
               updateUserMe({ isPublishing: 0 });
               stopPublishing(userMe.id);
               sendNotificationEvent('SCREEN_SHARING_OFF', roomState.hostId);
-            }
+            } */
           } else {
+            /* updateUserMe({ isPublishing: 2 }); */
+            /* setCameraState(true);
+            setScreenState(false); */
+            /* publish(userMe.id, undefined, undefined, undefined, userMe.name); */
+            /* const interval = setInterval(() => {
+              if (userMe.isPublishing == 1) { */
+            /* clearInterval(interval); */
+            /* setIDButtonSelected('');
+            resetDesktop();
+            sendNotificationEvent('SCREEN_SHARING_OFF', roomState.hostId);
+            if (!userMe.isHost && !userMe.isMicOn && !userMe.isCameraOn) {
+              updateUserMe({ isPublishing: 0 });
+              stopPublishing(userMe.id);
+            } */
+            /*  }
+            }, 1000); */
+          }
+        } else {
+          if (userMe.isPublishing == 1) {
+            setVideoActivatedState(true);
+            /* setCameraIconState(true); */
+            setCameraState(true);
+            turnOnLocalCamera(streamId);
+            console.log(userMe.stream, '⭕⭕⭕');
+            sendNotificationEvent('CAM_TURNED_ON', roomState.hostId);
+          } else {
+            setCameraState(true);
             updateUserMe({ isPublishing: 2 });
+            console.log(userMe);
             publish(userMe.id, undefined, undefined, undefined, userMe.name);
+
             const interval = setInterval(() => {
               if (userMe.isPublishing == 1) {
                 clearInterval(interval);
-                setScreenState(false);
-                setIDButtonSelected('');
-                resetDesktop();
-                sendNotificationEvent('SCREEN_SHARING_OFF', roomState.hostId);
-                if (!userMe.isHost && !userMe.isMicOn && !userMe.isCameraOn) {
-                  updateUserMe({ isPublishing: 0 });
-                  stopPublishing(userMe.id);
-                }
+                setVideoActivatedState(true);
+                /* setCameraIconState(true); */
+                turnOnLocalCamera(streamId);
+                sendNotificationEvent('CAM_TURNED_ON', roomState.hostId);
+                console.log(userMe.stream, '⭕⭕⭕');
               }
             }, 1000);
           }
-        }
-        if (userMe.isPublishing == 1) {
-          setVideoActivatedState(true);
-          /* setCameraIconState(true); */
-          setCameraState(true);
-          turnOnLocalCamera(streamId);
-          console.log(userMe.stream, '⭕⭕⭕');
-          sendNotificationEvent('CAM_TURNED_ON', roomState.hostId);
-        } else {
-          updateUserMe({ isPublishing: 2 });
-          publish(userMe.id, undefined, undefined, undefined, userMe.name);
-
-          const interval = setInterval(() => {
-            if (userMe.isPublishing == 1) {
-              clearInterval(interval);
-              setVideoActivatedState(true);
-              /* setCameraIconState(true); */
-              setCameraState(true);
-              turnOnLocalCamera(streamId);
-              sendNotificationEvent('CAM_TURNED_ON', roomState.hostId);
-              console.log(userMe.stream, '⭕⭕⭕');
-            }
-          }, 1000);
         }
       }
     };
@@ -566,6 +573,7 @@ export default defineComponent({
       toggleDesktopCapture,
       handleZoidLeaveCall,
       ...toRefs(authState),
+      ...toRefs(userMe),
       roomState,
     };
   },

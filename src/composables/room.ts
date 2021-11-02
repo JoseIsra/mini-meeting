@@ -13,9 +13,7 @@ export interface Room {
   isMicBlocked: boolean;
   isCameraBlocked: boolean;
   isScreenShareBlocked: boolean;
-  roomRestriction: number;
-  // bgUrl?: string;
-  // bgMaximixed: boolean;
+  roomRestriction: number;  
   startDate: string;
   pinnedUser: null | User;
   pinnedUserId?: string;
@@ -25,28 +23,6 @@ export interface Room {
   ytTransmission?: boolean;
   rtmpTransmission?: boolean;
   boardState?: boolean;
-}
-
-export interface UpdatedRoomFields {
-  id?: string;
-  isBeingRecorded?: boolean;
-  recordingUrl?: string;
-  sharingLink?: string;
-  classroomId?: string;
-  isMicBlocked?: boolean;
-  isCameraBlocked?: boolean;
-  isScreenShareBlocked?: boolean;
-  roomRestriction?: number;
-  // bgUrl?: string;
-  // bgMaximixed: boolean;
-  startDate?: string;
-  pinnedUser?: null | User;
-  pinnedUserId?: string;
-  bgInfo?: BgInfo;
-  hostId?: string;
-  fbTransmission?: boolean;
-  ytTransmission?: boolean;
-  rtmpTransmission?: boolean;
 }
 
 export interface participantOnWait {
@@ -61,12 +37,12 @@ export function useRoom() {
     Object.assign(roomState, room);
   };
 
-  const updateRoom = (value: UpdatedRoomFields) => {
+  const updateRoom = (value: Partial<Room>) => {
     console.log('changing room', '🚀🚀🚀');
     Object.assign(roomState, { ...roomState, ...value });
   };
 
-  const setroomRestriction = (state: number) =>
+  const setRoomRestriction = (state: number) =>
     (roomState.roomRestriction = state);
 
   const setRoomMicState = (state: boolean) => (roomState.isMicBlocked = state);
@@ -93,7 +69,7 @@ export function useRoom() {
     roomState,
     updateRoom,
     setRoom,
-    setroomRestriction,
+    setRoomRestriction,
     setRoomMicState,
     setRoomCameraState,
     setRoomScreenShareState,

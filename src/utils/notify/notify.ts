@@ -1,12 +1,10 @@
 import { useInitWebRTC } from '@/composables/antMedia';
 import { useHandleParticipants } from '@/composables/participants';
 import { useRoom } from '@/composables/room';
-import { useUserMe } from '@/composables/userMe';
 import { Notify } from 'quasar';
 import { PERMISSION_STATUS } from '../enums';
 
 const { sendData } = useInitWebRTC();
-const { userMe } = useUserMe();
 
 const { updateParticipantDenied } = useHandleParticipants();
 const { roomState } = useRoom();

@@ -51,37 +51,33 @@
           :bg-color="
             message.streamId == userMe.id ? 'indigo-6' : 'deep-purple-9'
           "
-          :size="
-            message.typeMessage == 'plainText'
-              ? bubbleSize(message.content)
-              : '9'
-          "
+          :size="message.typeMessage == 'plainText' ? '' : '9'"
           text-color="white"
+          :stamp="message.date"
         >
-          <template #avatar>
-            <div class="m-chat__messagesBox__info">
-              <q-img
-                class="m-chat__messagesBox__info__avatar"
-                name="fractalup-logo"
-                :src="message.avatar"
-                style="width: 30px"
-              ></q-img>
-              <aside
-                :class="[
-                  message.streamId === userMe.id
-                    ? 'm-chat__messagesBox__info__user'
-                    : 'm-chat__messagesBox__info__secondUser',
-                ]"
-              >
-                <span class="m-chat__messagesBox__info__stamp">{{
-                  message.date
-                }}</span>
-                <span class="m-chat__messagesBox__info__name">
-                  {{ message.streamName }}</span
-                >
-              </aside>
+          <template v-slot:name v-if="!(message.streamId === userMe.id)">
+            <div class="m-chat__messagesBox__info__name">
+              <span> {{ message.streamName }} </span>
+            </div>
+
+            <div
+              class="m-chat__messagesBox__info__fullname"
+              v-if="message.streamName.length >= 20"
+            >
+              {{ message.streamName }}
             </div>
           </template>
+
+          <template v-slot:avatar>
+            <q-img
+              :class="[
+                'm-chat__messagesBox__info__avatar',
+                message.streamId == userMe.id ? '--me' : '--others',
+              ]"
+              :src="message.avatar"
+            ></q-img>
+          </template>
+
           <div class="m-chat__messagesBox__message">
             <span
               class="m-chat__messagesBox__message__text"
@@ -123,10 +119,25 @@
                 >Descargar</a
               >
             </span>
-            <span v-if="message.typeMessage === 'empty'">
-              <q-spinner-dots size="20px" />
-            </span>
           </div>
+        </q-chat-message>
+        <q-chat-message
+          v-if="fakeMessage == userMe.id"
+          :sent="true"
+          class="m-chat__messagesBox__bubble"
+          bg-color="indigo-6"
+          text-color="white"
+          size="4"
+        >
+          <template v-slot:avatar>
+            <q-img
+              class="m-chat__messagesBox__info__avatar --me"
+              :src="userMe.avatar"
+            ></q-img>
+          </template>
+          <span>
+            <q-spinner-dots size="25px" />
+          </span>
         </q-chat-message>
       </main>
       <div class="m-chat__formBox">
@@ -183,7 +194,7 @@ import moment from 'moment';
 import { useHandleMessage } from '@/composables/chat';
 import { useUserMe } from '@/composables/userMe';
 import { nanoid } from 'nanoid';
-import { useSidebarToogle, useToogleFunctions } from '@/composables';
+import { useSidebarToogle } from '@/composables';
 import { useRoom } from '@/composables/room';
 
 import { useInitWebRTC } from '@/composables/antMedia';
@@ -212,13 +223,13 @@ export default defineComponent({
     const backBlazePathFile = `https://encrypted.fractalup.com/file/MainPublic/classrooms/${roomState.classroomId}/cooperate/chat`;
     const messageContainer = ref<MessageContainer>({} as MessageContainer);
     let userInput = ref<string>('');
-    const { userMessages, setUserMessage, deleteLoadingMessage } =
-      useHandleMessage();
+    const { userMessages, setUserMessage } = useHandleMessage();
     let { setSidebarState } = useSidebarToogle();
-    const { setIDButtonSelected } = useToogleFunctions();
     const { sendData } = useInitWebRTC();
     const { userMe } = useUserMe();
     let userName = ref(window?.xprops?.streamId || route.query.streamName);
+    const fakeMessage = ref('');
+
     const sendMessage = () => {
       if (!regexp.test(userInput.value)) {
         warningMessage('Complete los campos');
@@ -269,8 +280,7 @@ export default defineComponent({
           uploadUrl: uploadUrl,
           authorizationToken: authorizationToken,
         };
-
-        addTextMessage('empty', new Date(), 'empty'); // activa loader message
+        fakeMessage.value = userMe.id;
         uploadFileToBackblaze({
           file: new File([fileInformation], encodeURIComponent(fileName)),
           path: `classrooms/${roomState.classroomId}/cooperate/chat`,
@@ -278,7 +288,7 @@ export default defineComponent({
           retries: 10,
         })
           .then(() => {
-            deleteLoadingMessage(userMe.id);
+            fakeMessage.value = '';
             const fileRoute = `${backBlazePathFile}/${fileName}`;
             if (leftType === 'image') {
               addTextMessage(fileRoute, new Date(), 'image');
@@ -297,7 +307,7 @@ export default defineComponent({
       reader.readAsArrayBuffer(fileInformation);
       e.target.value = '';
     };
-    const bubbleSize = (message: string) => {
+    /* const bubbleSize = (message: string) => {
       let numOfWords = message.split(' ').length;
       if (message.startsWith('https')) {
         return '9';
@@ -306,10 +316,9 @@ export default defineComponent({
         return '3';
       }
       return '';
-    };
+    }; */
     const closeChat = () => {
       setSidebarState(false);
-      setIDButtonSelected('');
     };
 
     const scrollToEnd = () => {
@@ -332,13 +341,13 @@ export default defineComponent({
       sendMessage,
       userMessages,
       userName,
-      bubbleSize,
       userMe,
       closeChat,
       fileSelected,
       messageContainer,
       showChatMenu,
       hideMenu,
+      fakeMessage,
     };
   },
 });

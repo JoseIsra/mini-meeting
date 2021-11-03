@@ -1329,7 +1329,7 @@ export function useInitWebRTC() {
           if (!userMe.isCameraOn) {
             setTimeout(() => {
               webRTCInstance.value.turnOffLocalCamera?.(userMe.id);
-            }, 1000);
+            }, 2000);
           }
 
           errorMessage = 'No has dado permisos para compartir tus dispositivos';
@@ -1407,7 +1407,7 @@ export function useInitWebRTC() {
         webRTCInstance.value.switchVideoCameraCapture?.(streamId, cameraId);
       })
       .catch((err) => console.log(err)); */
-    // webRTCInstance.value.switchVideoCameraCapture?.(streamId, userMe.cameraId);
+    //webRTCInstance.value.switchVideoCameraCapture?.(streamId);
     webRTCInstance.value.turnOnLocalCamera?.(streamId);
   };
 

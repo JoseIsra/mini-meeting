@@ -1098,9 +1098,11 @@ export class WebRTCAdaptor {
       console.warn('There is no audio track in local stream');
     }
     if (typeof deviceId != 'undefined') {
-      if (this.mediaConstraints.audio !== true)
+      if (this.mediaConstraints.audio !== true) {
         this.mediaConstraints.audio.deviceId = deviceId;
-      else this.mediaConstraints.audio = { deviceId: deviceId };
+      } else {
+        this.mediaConstraints.audio = { deviceId: deviceId };
+      }
     }
     this.setAudioInputSource(
       streamId,

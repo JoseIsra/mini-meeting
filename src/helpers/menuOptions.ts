@@ -25,20 +25,13 @@ export const menuOptions = {
       important: false,
     },
     */
-    // {
-    //   id: '2',
-    //   iconName: 'settings',
-    //   description: 'Configuración de dispositivos',
-    //   important: false,
-    //   interaction: INTERACTION_TYPE_MENU_OPTIONS.DEVICECONFIGURATION,
-    // },
-    // {
-    //   id: '3',
-    //   iconName: 'info',
-    //   description: 'Detalles de la reunión',
-    //   important: false,
-    //   interaction: INTERACTION_TYPE_MENU_OPTIONS.ROOMDETAILS,
-    // },
+    {
+      id: '2',
+      iconName: 'settings',
+      description: 'Configuración de dispositivos',
+      important: false,
+      interaction: INTERACTION_TYPE_MENU_OPTIONS.DEVICECONFIGURATION,
+    },
   ],
   secondSection: [
     /* {

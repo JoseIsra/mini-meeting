@@ -474,6 +474,7 @@
                   </q-btn>
 
                   <q-btn
+                    v-if="participant.roleId === 1"
                     icon="draw"
                     :color="participant.canDraw ? 'blue' : 'red'"
                     text-color="white"

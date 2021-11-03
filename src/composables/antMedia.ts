@@ -61,7 +61,7 @@ const {
   setLocalScreenShareBlock,
   setLocalVideoBlock,
   setDenied,
-  toggleDrawState
+  toggleDrawState,
 } = useUserMe();
 
 const {
@@ -1241,7 +1241,7 @@ export function useInitWebRTC() {
               updateStreamById(streamToPause, { isBeingPlayed: false });
             }
           } else if (eventType === 'BOARD_EVENT') {
-            const { event, object } = JSON.parse(obj.data) as ObjBoardEvent;    
+            const { event, object } = JSON.parse(obj.data) as ObjBoardEvent;
 
             if (!object) {
               if (event === BOARD_EVENTS.TURN_ON) {
@@ -1253,9 +1253,21 @@ export function useInitWebRTC() {
               } else if (event === BOARD_EVENTS.CLEAR) {
                 console.debug('Limpiar board');
                 clearBoard();
-              } else if (event === BOARD_EVENTS.TOGGLE_DRAW_MODE && baseDataParsed.to === userMe.id){
+              } else if (event === BOARD_EVENTS.TOGGLE_DRAW_MODE) {
                 console.debug('Toggle draw mode');
-                toggleDrawState();
+                if (baseDataParsed.to === userMe.id) {
+                  toggleDrawState();
+                } else {
+                  const participantToUpdate = participants.value.find(
+                    (p) => p.id === baseDataParsed.to
+                  );
+
+                  if (participantToUpdate) {
+                    updateParticipantById(baseDataParsed.to, {
+                      canDraw: !participantToUpdate.canDraw,
+                    });
+                  }
+                }
               }
             } else {
               handleObject(JSON.parse(object));

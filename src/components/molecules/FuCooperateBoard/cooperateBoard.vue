@@ -18,10 +18,17 @@
         class="o-board__tool"
         icon="fas fa-pencil-alt"
         @click="toggleDrawMode"
+        :color="actionSelected === 'draw' ? 'blue' : 'red'"
+        text-color="white"
         size="8px"
         dense
         :disable="!canDraw"
-      />
+      >
+        <q-tooltip class="bg-grey-10">
+          <label v-if="actionSelected === 'draw'"> Lapiz activado</label>
+          <label v-else> Lapiz desactivado</label>
+        </q-tooltip>
+      </q-btn>
       <q-btn
         class="o-board__tool"
         icon="fas fa-eraser"
@@ -29,7 +36,11 @@
         size="8px"
         dense
         :disable="!canDraw"
-      />
+      >
+        <q-tooltip class="bg-grey-10">
+          <label> Limpiar pizarra</label>
+        </q-tooltip>
+      </q-btn>
       <q-btn
         class="o-board__tool"
         icon="fas fa-democrat"
@@ -67,7 +78,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 
-import { defineComponent, onMounted, toRefs } from 'vue';
+import { defineComponent, onMounted, toRefs, ref } from 'vue';
 import { useBoard } from '@/composables/board';
 import { fabric } from 'fabric';
 import { useInitWebRTC } from '@/composables/antMedia';
@@ -78,6 +89,8 @@ import { useRoom } from '@/composables/room';
 export default defineComponent({
   name: 'FuBoard',
   setup() {
+    const actionSelected = ref('');
+
     const {
       board,
       showBoard,
@@ -87,8 +100,6 @@ export default defineComponent({
       clearBoard,
       dummylogs,
     } = useBoard();
-
-    // const context = ref(null);
 
     const { sendData } = useInitWebRTC();
 
@@ -101,9 +112,8 @@ export default defineComponent({
 
       if (userMe.roleId !== 1) {
         board.value.isDrawingMode = true;
+        actionSelected.value = 'draw';
       }
-
-      console.debug('Se monta...');
 
       const boardObjects = window?.xprops?.boardObjects || '';
 
@@ -112,12 +122,12 @@ export default defineComponent({
       }
 
       board.value.on('object:added', (options) => {
+        console.debug('Objeto agregado');
+
         const obj = options.target;
 
         if (obj) {
           if (!obj.id) {
-            console.log('Objeto nuevo sin id');
-            console.log('Object id: ', obj.id);
             obj.set('id', Date.now().toString() + '-' + userMe.id);
             obj.toJSON = (function (toJSON) {
               return function () {
@@ -133,32 +143,19 @@ export default defineComponent({
               to: 'ALL',
               event: BOARD_EVENTS.ADD,
               object: JSON.stringify(obj),
+              canvas: JSON.stringify(board.value),
             });
 
-            // if (userMe.isPublishing == 1) {
-            // } else {
-            //   updateUserMe({ isPublishing: 2 });
-            //   publish(userMe.id, undefined, undefined, undefined, userMe.name);
-            //   sendData(roomState.hostId, {
-            //     eventType: 'BOARD_EVENT',
-            //     event: BOARD_EVENTS.ADD,
-            //     object: JSON.stringify(obj),
-            //   });
-            // }
-          } else {
-            console.debug('Tiene id');
+            console.debug(obj);
+            console.debug(board.value);
           }
         }
 
-        console.debug(board.value.getObjects());
-
-        window.xprops?.updateBoardObjects?.(
-          JSON.stringify(board.value.getObjects())
-        );
+        window.xprops?.updateBoardObjects?.(JSON.stringify(board.value));
       });
 
       board.value.on('object:modified', (options) => {
-        console.log('Update: ', options);
+        console.log('Modified: ', options);
       });
 
       board.value.on('object:removed', (options) => {
@@ -166,8 +163,15 @@ export default defineComponent({
       });
     });
 
-    const toggleDrawMode = () =>
-      (board.value.isDrawingMode = !board.value.isDrawingMode);
+    const toggleDrawMode = () => {
+      board.value.isDrawingMode = !board.value.isDrawingMode;
+
+      if (actionSelected.value === 'draw') {
+        actionSelected.value = '';
+      } else {
+        actionSelected.value = 'draw';
+      }
+    };
 
     const addRect = () => {
       const rect = new fabric.Rect({
@@ -197,6 +201,7 @@ export default defineComponent({
       toggleShowBoard,
       dummylogs,
       addRect,
+      actionSelected,
       ...toRefs(userMe),
     };
   },

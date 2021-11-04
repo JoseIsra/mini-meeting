@@ -1241,7 +1241,7 @@ export function useInitWebRTC() {
               updateStreamById(streamToPause, { isBeingPlayed: false });
             }
           } else if (eventType === 'BOARD_EVENT') {
-            const { event, object } = JSON.parse(obj.data) as ObjBoardEvent;
+            const { event, object, canvas } = JSON.parse(obj.data) as ObjBoardEvent;
 
             if (!object) {
               if (event === BOARD_EVENTS.TURN_ON) {
@@ -1270,7 +1270,7 @@ export function useInitWebRTC() {
                 }
               }
             } else {
-              handleObject(JSON.parse(object));
+              handleObject(object, canvas);
             }
           }
         }

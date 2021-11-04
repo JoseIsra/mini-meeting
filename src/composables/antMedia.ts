@@ -1245,16 +1245,12 @@ export function useInitWebRTC() {
 
             if (!object) {
               if (event === BOARD_EVENTS.TURN_ON) {
-                console.debug('Enceder board');
                 updateBoardState(true);
               } else if (event === BOARD_EVENTS.TURN_OFF) {
-                console.debug('Apagar board');
                 updateBoardState(false);
               } else if (event === BOARD_EVENTS.CLEAR) {
-                console.debug('Limpiar board');
                 clearBoard();
               } else if (event === BOARD_EVENTS.TOGGLE_DRAW_MODE) {
-                console.debug('Toggle draw mode');
                 if (baseDataParsed.to === userMe.id) {
                   toggleDrawState();
                 } else {

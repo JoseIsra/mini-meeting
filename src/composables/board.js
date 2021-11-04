@@ -35,7 +35,6 @@ export const useBoard = () => {
   const handleObject = (object, canvas) => {
     const obj = JSON.parse(object);
     const board = JSON.parse(canvas);
-
     const existing = getObjectFromId(obj.id);
 
     if (obj.removed) {
@@ -48,20 +47,15 @@ export const useBoard = () => {
     if (existing) {
       existing.set(obj);
     } else {
-      board.objects.push(obj);
-
-      const autorId = obj.id.split('-').slice(-1)[0];
-
+      const autorId = obj.id.split('-').slice(-1)[0]; // object autor id
       const boardUpdate = {
         ...board,
-        objects: board.objects
-          .filter((object) => !object.id)
-          .map((obj) => {
-            return {
-              ...obj,
-              id: obj.id ?? `${Date.now().toString()}-${autorId}`,
-            };
-          }),
+        objects: board.objects.map((obj) => {
+          return {
+            ...obj,
+            id: obj.id ?? `${Date.now().toString()}-${autorId}`, // id added
+          };
+        }),
       };
 
       loadBoard(JSON.stringify(boardUpdate));

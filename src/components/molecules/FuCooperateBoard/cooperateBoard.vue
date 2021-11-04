@@ -78,7 +78,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 
-import { defineComponent, onMounted, toRefs, ref } from 'vue';
+import { defineComponent, onMounted, toRefs, ref, watch } from 'vue';
 import { useBoard } from '@/composables/board';
 import { fabric } from 'fabric';
 import { useInitWebRTC } from '@/composables/antMedia';
@@ -122,8 +122,6 @@ export default defineComponent({
       }
 
       board.value.on('object:added', (options) => {
-        console.debug('Objeto agregado');
-
         const obj = options.target;
 
         if (obj) {
@@ -146,12 +144,9 @@ export default defineComponent({
               canvas: JSON.stringify(board.value),
             });
 
-            console.debug(obj);
-            console.debug(board.value);
+            window.xprops?.updateBoardObjects?.(JSON.stringify(board.value)); // update cooperate-options field
           }
         }
-
-        window.xprops?.updateBoardObjects?.(JSON.stringify(board.value));
       });
 
       board.value.on('object:modified', (options) => {
@@ -161,6 +156,12 @@ export default defineComponent({
       board.value.on('object:removed', (options) => {
         console.log('Removed: ', options);
       });
+    });
+
+    watch(userMe, (value) => {
+      if (value.canDraw === false && actionSelected.value === 'draw') {
+        actionSelected.value = ''; // update action selected on block-draw user
+      }
     });
 
     const toggleDrawMode = () => {

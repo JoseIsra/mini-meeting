@@ -393,6 +393,7 @@ export class WebRTCAdaptor {
   }
   trackDeviceChange() {
     navigator.mediaDevices.ondevicechange = () => {
+      console.log('HOAL QUE HACES');
       this.getDevices();
     };
   }
@@ -1106,7 +1107,7 @@ export class WebRTCAdaptor {
     }
     this.setAudioInputSource(
       streamId,
-      this.mediaConstraints,
+      { audio: true, video: false },
       null,
       true,
       deviceId

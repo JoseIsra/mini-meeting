@@ -48,8 +48,6 @@
           size="13px"
           @click="toggleCamera"
         >
-          {{ userMe.isPublishing }}
-          {{ userMe.cameraPublishedState }}
           <q-tooltip class="bg-grey-10">
             <label class="a-menuBar__icon__tooltip">
               {{

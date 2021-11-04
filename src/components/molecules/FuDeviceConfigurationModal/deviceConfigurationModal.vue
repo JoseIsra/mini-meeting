@@ -25,6 +25,24 @@
             </q-list>
           </q-btn-dropdown>
         </div>
+        <div class="m-config__body__periferics__box --micro">
+          <p class="m-config__body__periferics__box__label">Salidas de audio</p>
+          <q-btn-dropdown color="primary" flat rounded :label="speakerLabel">
+            <q-list>
+              <q-item
+                clickable
+                v-close-popup
+                v-for="device in getDevicesObject(audioDevices)"
+                :key="device.deviceId"
+                @click="selectNewSpeaker(device)"
+              >
+                <q-item-section>
+                  <q-item-label>{{ device.label }}</q-item-label>
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-btn-dropdown>
+        </div>
         <div class="m-config__body__periferics__box --camera">
           <p class="m-config__body__periferics__box__label">Cámaras</p>
           <q-btn-dropdown color="primary" flat rounded :label="cameraLabel">
@@ -49,7 +67,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted } from 'vue';
+import { defineComponent, ref, onMounted, computed } from 'vue';
 import { useInitWebRTC } from '@/composables/antMedia';
 import { useUserMe } from '@/composables/userMe';
 
@@ -65,7 +83,7 @@ export default defineComponent({
   setup() {
     const audioDevices = ref<MediaDeviceInfo[]>([]);
     const videoDevices = ref<MediaDeviceInfo[]>([]);
-    const { userMe } = useUserMe();
+    const { userMe, updateUserMe } = useUserMe();
     const {
       switchAudioInputSource,
       switchVideoCameraCapture,
@@ -74,32 +92,55 @@ export default defineComponent({
     const control = ref(false);
     const cameraLabel = ref('');
     const micLabel = ref('');
+    const speakerLabel = ref('');
 
     onMounted(() => {
       turnOffLocalCamera(userMe.id);
       getDevices();
     });
 
+    const getMicLabel = computed(() => {
+      return audioDevices.value.find(
+        (device) => device.deviceId == userMe.micId
+      )?.label;
+    });
+
+    const getCameraLabel = computed(() => {
+      return videoDevices.value.find(
+        (device) => device.deviceId == userMe.cameraId
+      )?.label;
+    });
+
+    const getSpeakerLabel = computed(() => {
+      return audioDevices.value.find(
+        (device) => device.deviceId == userMe.speakerId
+      )?.label;
+    });
+
+    const gotDevices = (deviceInfo: MediaDeviceInfo[]) => {
+      videoDevices.value = deviceInfo.filter(
+        (device) => device.kind == 'videoinput'
+      );
+      if (videoDevices.value.length > 0) {
+        cameraLabel.value = getCameraLabel.value || videoDevices.value[0].label;
+      }
+      audioDevices.value = deviceInfo.filter(
+        (device) => device.kind == 'audioinput'
+      );
+
+      if (audioDevices.value.length > 0) {
+        micLabel.value = getMicLabel.value || audioDevices.value[0].label;
+        speakerLabel.value =
+          getSpeakerLabel.value || audioDevices.value[0].label;
+      }
+      control.value = true;
+    };
+
     const getDevices = () => {
       // await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
       navigator.mediaDevices
         .enumerateDevices()
-        .then((res) => {
-          videoDevices.value = res.filter(
-            (device) => device.kind == 'videoinput'
-          );
-          if (videoDevices.value.length > 0) {
-            cameraLabel.value = videoDevices.value[0].label;
-          }
-          audioDevices.value = res.filter(
-            (device) => device.kind == 'audioinput'
-          );
-
-          if (audioDevices.value.length > 0) {
-            micLabel.value = audioDevices.value[0].label;
-          }
-          control.value = true;
-        })
+        .then(gotDevices)
         .catch((err) => console.log(err));
     };
 
@@ -109,6 +150,7 @@ export default defineComponent({
       }, 2000);
       console.log(micDevice);
       micLabel.value = micDevice.label;
+      updateUserMe({ micId: micDevice.deviceId });
       switchAudioInputSource(userMe.id, micDevice.deviceId);
     };
 
@@ -127,7 +169,18 @@ export default defineComponent({
       }, 2000);
       console.log(cameraDevice);
       cameraLabel.value = cameraDevice.label;
+      updateUserMe({ cameraId: cameraDevice.deviceId });
       switchVideoCameraCapture(userMe.id, cameraDevice.deviceId);
+    };
+
+    const selectNewSpeaker = (speakerDevices: MediaDeviceInfo) => {
+      setTimeout(() => {
+        turnOffLocalCamera?.(userMe.id);
+      }, 2000);
+      console.log(speakerDevices);
+      speakerLabel.value = speakerDevices.label;
+      updateUserMe({ speakerId: speakerDevices.deviceId });
+      switchAudioInputSource(userMe.id, speakerDevices.deviceId);
     };
 
     return {
@@ -139,6 +192,8 @@ export default defineComponent({
       control,
       cameraLabel,
       micLabel,
+      selectNewSpeaker,
+      speakerLabel,
     };
   },
 });

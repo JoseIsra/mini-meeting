@@ -106,7 +106,7 @@ export default defineComponent({
           interval.value = setInterval(oneSecondElapsed, 1000);
           isRecording.value = true;
           updateRoom({
-            recordingUrl: `https://f002.backblazeb2.com/file/MainPublic/classrooms/${roomState.classroomId}/cooperate/streams/${mergedName.value}.m3u8`,
+            recordingUrl: `https://f002.backblazeb2.com/file/MainPublic/classrooms/${roomState.classroomId}/cooperate/recordings/${mergedName.value}.mp4`,
           });
         })
         .catch((e) => console.log(e));

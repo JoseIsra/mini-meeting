@@ -119,9 +119,9 @@
     </div>
 
     <div class="o-board__tools">
-      <q-color v-show="showBrushPicker" v-model="brushColor" />
-      <q-color v-show="showStrokePicker" v-model="strokeColor" />
-      <q-color v-show="showBgPicker" v-model="bgColor" />
+      <q-color class="o-board__colorPicker" v-show="showBrushPicker" v-model="brushColor" />
+      <q-color class="o-board__colorPicker" v-show="showStrokePicker" v-model="strokeColor" />
+      <q-color class="o-board__colorPicker" v-show="showBgPicker" v-model="bgColor" />
       <div class="o-board__tools__brush" v-show="brushSizeShow">
         <q-avatar
           class="o-board__tools__brush__label"

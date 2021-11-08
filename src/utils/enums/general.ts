@@ -66,5 +66,6 @@ export enum BOARD_EVENTS {
   'UPDATE',
   'REMOVE',
   'CLEAR',
-  'TOGGLE_DRAW_MODE'
+  'TOGGLE_DRAW_MODE',
+  'CHANGE_BG_COLOR'
 }

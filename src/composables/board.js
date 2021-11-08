@@ -23,6 +23,11 @@ export const useBoard = () => {
     window.xprops?.updateBoardObjects?.('{}');
   };
 
+  const changeBgColor = (color) => {
+    board.value.backgroundColor = color;
+    board.value.renderAll();
+  };
+
   const getObjectFromId = (id) => {
     const currentObjects = board.value.getObjects();
 
@@ -80,8 +85,8 @@ export const useBoard = () => {
     toggleShowBoard,
     clearBoard,
     dummylogs,
-
     handleObject,
     loadBoard,
+    changeBgColor,
   };
 };

@@ -117,7 +117,7 @@ const { updateExternalVideoState, externalVideo } = useExternalVideo();
 
 /* const { setScreenShareIconState } = useActions(); */
 
-const { handleObject, clearBoard } = useBoard();
+const { handleObject, clearBoard, changeBgColor } = useBoard();
 
 const remotePlayer = ref<videojs.Player>({} as videojs.Player);
 
@@ -1241,7 +1241,7 @@ export function useInitWebRTC() {
               updateStreamById(streamToPause, { isBeingPlayed: false });
             }
           } else if (eventType === 'BOARD_EVENT') {
-            const { event, object, canvas } = JSON.parse(obj.data) as ObjBoardEvent;
+            const { event, object, canvas, color } = JSON.parse(obj.data) as ObjBoardEvent;
 
             if (!object) {
               if (event === BOARD_EVENTS.TURN_ON) {
@@ -1264,6 +1264,8 @@ export function useInitWebRTC() {
                     });
                   }
                 }
+              } else if (event === BOARD_EVENTS.CHANGE_BG_COLOR ) {
+                changeBgColor(color);
               }
             } else {
               handleObject(object, canvas);

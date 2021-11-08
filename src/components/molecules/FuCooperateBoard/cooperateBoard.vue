@@ -217,13 +217,13 @@ export default defineComponent({
     watch(bgColor, (value) => {
       if (board) {
         changeBgColor(value);
-        // sendData(roomState.hostId, {
-        //   eventType: 'BOARD_EVENT',
-        //   from: userMe.id,
-        //   to: 'ALL',
-        //   event: BOARD_EVENTS.CHANGE_BG_COLOR,
-        //   color: value
-        // });
+        sendData(roomState.hostId, {
+          eventType: 'BOARD_EVENT',
+          from: userMe.id,
+          to: 'ALL',
+          event: BOARD_EVENTS.CHANGE_BG_COLOR,
+          color: value
+        });
       }
     });
 
@@ -350,14 +350,14 @@ export default defineComponent({
                 };
               })(obj.toJSON);
 
-              // sendData(roomState.hostId, {
-              //   eventType: 'BOARD_EVENT',
-              //   from: userMe.id,
-              //   to: 'ALL',
-              //   event: BOARD_EVENTS.ADD,
-              //   object: JSON.stringify(obj),
-              //   canvas: JSON.stringify(board.value),
-              // });
+              sendData(roomState.hostId, {
+                eventType: 'BOARD_EVENT',
+                from: userMe.id,
+                to: 'ALL',
+                event: BOARD_EVENTS.ADD,
+                object: JSON.stringify(obj),
+                canvas: JSON.stringify(board.value),
+              });
 
               window.xprops?.updateBoardObjects?.(JSON.stringify(board.value)); // update cooperate-options field
             }

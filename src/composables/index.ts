@@ -1,6 +1,19 @@
 import { ref, reactive } from 'vue';
-import { User } from '@/types/user';
 import { HandNotification } from '@/types/datachannelMessages';
+
+//export * from './actions';
+export * from './participants';
+export * from './userMe';
+export * from './room';
+
+export * from './auth';
+/* export * from './mainView'; */
+export * from './chat';
+export * from './external-video';
+export * from './screen';
+export * from './streams';
+
+export * from './antMediaMerge';
 
 interface FunctionState {
   renderChat: boolean;
@@ -49,9 +62,7 @@ const showParticipantPanel = ref<boolean>(false);
 
 const functionsOnMenuBar = reactive<FunctionState>(functionState);
 const perifericsControl = reactive<PerifericsState>(perifericsState);
-const isFullScreen = ref<boolean>(false);
-const fullScreenMode = ref('');
-const fullScreenObject = reactive<User>({} as User);
+
 export function useToogleFunctions() {
   const setShowChat = (value: boolean) => {
     functionsOnMenuBar.renderChat = value;
@@ -77,22 +88,6 @@ export function useToogleFunctions() {
       );
   };
 
-  const setFullScreen = (specificMode: string, state: boolean) => {
-    isFullScreen.value = state;
-    fullScreenMode.value = specificMode;
-  };
-
-  const setFullScreenObject = (value: User) => {
-    Object.assign(fullScreenObject, value);
-  };
-  const clearFullScreenObject = () => {
-    Object.keys(fullScreenObject).forEach((key) => {
-      delete fullScreenObject[key as keyof User];
-    });
-  };
-
- 
-
   const openOptionsMenu = (value: boolean) => {
     functionsOnMenuBar.renderPopupMenu = value;
   };
@@ -109,15 +104,9 @@ export function useToogleFunctions() {
     updateHandNotification,
     addHandNotificationInfo,
     removeHandNotification,
-    setFullScreen,
-    isFullScreen,
     openOptionsMenu,
     openFunctionResponsiveMenu,
     functionState,
-    fullScreenMode,
-    setFullScreenObject,
-    fullScreenObject,
-    clearFullScreenObject,
   };
 }
 

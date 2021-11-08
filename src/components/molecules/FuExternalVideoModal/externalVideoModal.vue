@@ -35,23 +35,26 @@
 
 <script lang="ts">
 import { defineComponent, ref, computed } from 'vue';
-import { useExternalVideo } from '@/composables/external-video';
-import { useToogleFunctions } from '@/composables';
-import { errorMessage, successMessage } from '@/utils/notify';
+import { useRoom, useUserMe, useExternalVideo } from '@/composables';
 import { useInitWebRTC } from '@/composables/antMedia';
-import { useRoom } from '@/composables/room';
+import { useMainView } from '@/composables/mainView';
+import { errorMessage, successMessage } from '@/utils/notify';
 import videojs from 'video.js';
-import { VideoID } from '@/types/datachannelMessages';
+import { VideoID } from '@/types';
+import { MAIN_VIEW_LOCKED_TYPE, MAIN_VIEW_MODE } from '@/utils/enums';
 
 export default defineComponent({
   name: 'FuExternalVideoModal',
   setup(_prop, { emit }) {
     let inputURL = ref('');
     const { updateExternalVideoState, externalVideo } = useExternalVideo();
+
+    const { updateMainViewStateForAll, cleanMainViewStateForAll } =
+      useMainView();
     const { sendData } = useInitWebRTC();
-    const { setFullScreen } = useToogleFunctions();
     const regexYoutube = /^(https?\:\/\/)?(www\.youtube\.com|youtu\.?be)\/.+$/;
     const { roomState } = useRoom();
+    const { userMe } = useUserMe();
 
     const stablishURL = () => {
       if (regexYoutube.test(inputURL.value)) {
@@ -64,7 +67,12 @@ export default defineComponent({
           videoOnRoom: true,
           urlVideo: inputURL.value,
         });
-        setFullScreen('video', true);
+        updateMainViewStateForAll({
+          mode: MAIN_VIEW_MODE.VIDEO,
+          locked: MAIN_VIEW_LOCKED_TYPE.NORMAL_USERS,
+          startedBy: userMe.id,
+        });
+        //setFullScreen('video', true);
         sendData(roomState.hostId, URLData);
         emit('init-external-video');
         successMessage('Video externo agregado');
@@ -78,12 +86,13 @@ export default defineComponent({
     });
 
     const removeVideoOnRoom = () => {
+      cleanMainViewStateForAll();
       sendData(roomState.hostId, {
         remoteInstance: externalVideo.remoteInstance,
         eventType: 'REMOVE_EXTERNAL_VIDEO',
       });
       videojs((externalVideo.remoteInstance as VideoID).playerId).dispose();
-      setFullScreen('none', false);
+      //setFullScreen('none', false);
       updateExternalVideoState({
         ...externalVideo,
         videoOnRoom: false,

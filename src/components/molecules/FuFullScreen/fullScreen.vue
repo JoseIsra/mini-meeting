@@ -1,24 +1,30 @@
 <template>
   <section class="m-full">
-    <fu-full-screen-user v-if="fullScreenMode === 'user'" />
-    <fu-external-video v-if="fullScreenMode === 'video'" />
+    <fu-full-screen-users
+      v-if="
+        mainViewState.mode === MAIN_VIEW_MODE.USER &&
+        mainViewState.pinnedUsers.length > 0
+      "
+    />
+    <fu-external-video v-if="mainViewState.mode === MAIN_VIEW_MODE.VIDEO" />
   </section>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import FuFullScreenUser from 'molecules/FuFullScreenUser';
-import { useToogleFunctions } from '@/composables';
+import FuFullScreenUsers from 'molecules/FuFullScreenUsers';
 import FuExternalVideo from 'molecules/FuExternalVideo';
+import { useMainView } from '@/composables/mainView';
+import { MAIN_VIEW_MODE } from '@/utils/enums';
 
 export default defineComponent({
   name: 'FuFullScreen',
-  components: { FuFullScreenUser, FuExternalVideo },
+  components: { FuFullScreenUsers, FuExternalVideo },
   setup() {
-    const { fullScreenMode, fullScreenObject } = useToogleFunctions();
+    const { mainViewState } = useMainView();
     return {
-      fullScreenMode,
-      fullScreenObject,
+      mainViewState,
+      MAIN_VIEW_MODE,
     };
   },
 });

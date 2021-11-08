@@ -193,11 +193,10 @@ import { useRoute } from 'vue-router';
 import moment from 'moment';
 import { useHandleMessage } from '@/composables/chat';
 import { useUserMe } from '@/composables/userMe';
-import { nanoid } from 'nanoid';
 import { useSidebarToogle } from '@/composables';
 import { useRoom } from '@/composables/room';
-
 import { useInitWebRTC } from '@/composables/antMedia';
+import { nanoid } from 'nanoid';
 import { simplifyExtension } from '@/utils/file';
 import FuCooperateMenu from 'molecules/FuCooperateMenu';
 import { renameFile } from '@/utils/file';

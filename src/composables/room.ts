@@ -1,28 +1,5 @@
 import { reactive } from 'vue';
-
-import { User } from '@/types/user';
-
-import { BgInfo } from '@/types/zoid';
-
-export interface Room {
-  id: string;
-  isBeingRecorded?: boolean;
-  recordingUrl: string;
-  sharingLink?: string;
-  classroomId: string;
-  isMicBlocked: boolean;
-  isCameraBlocked: boolean;
-  isScreenShareBlocked: boolean;
-  roomRestriction: number;  
-  startDate: string;
-  pinnedUser: null | User;
-  pinnedUserId?: string;
-  bgInfo: BgInfo;
-  hostId: string;
-  fbTransmission?: boolean;
-  ytTransmission?: boolean;
-  rtmpTransmission?: boolean;
-}
+import { Room } from '@/types';
 
 export interface participantOnWait {
   id: string;
@@ -52,7 +29,7 @@ export function useRoom() {
   const setRoomScreenShareState = (state: boolean) =>
     (roomState.isScreenShareBlocked = state);
 
-  const updateFocus = (value: null | User) => (roomState.pinnedUser = value);
+  /* const updateFocus = (value: null | User) => (roomState.pinnedUser = value); */
 
   const updateBgUrl = (url: string) => (roomState.bgInfo.url = url);
 
@@ -70,7 +47,6 @@ export function useRoom() {
     setRoomMicState,
     setRoomCameraState,
     setRoomScreenShareState,
-    updateFocus,
     updateBgUrl,
     updateBgSize,
     updateAllowResetBg,

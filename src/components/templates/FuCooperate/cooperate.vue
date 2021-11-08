@@ -50,7 +50,6 @@ import { useInitWebRTC } from '@/composables/antMedia';
 import { useAuthState } from '@/composables/auth';
 import { useRoom } from '@/composables/room';
 /* import { useActions } from '@/composables/actions'; */
-import { useToogleFunctions } from '@/composables';
 import moment from 'moment';
 
 import { RoomApiBody } from '@/types/antmediaApi';
@@ -195,11 +194,7 @@ export default defineComponent({
       };
     }
 
-    const userPinnedZoid = (window?.xprops?.pinnedUser as string) || '';
-
     const isBeingRecorded = window?.xprops?.isBeingRecorded || false;
-
-    const { setFullScreen } = useToogleFunctions();
 
     if (isCameraOn) {
       setVideoActivatedState(true);
@@ -252,8 +247,6 @@ export default defineComponent({
       bgInfo: bgInfo,
       isBeingRecorded,
       recordingUrl: '',
-      pinnedUser: null,
-      pinnedUserId: userPinnedZoid,
       startDate,
       hostId,
     });
@@ -265,10 +258,6 @@ export default defineComponent({
       setCameraState(true);
       turnOnLocalCamera(streamId);
       sendNotificationEvent('CAM_TURNED_ON', streamId);
-    }
-
-    if (userPinnedZoid) {
-      setFullScreen('user', true);
     }
 
     const publishToken =

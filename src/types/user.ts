@@ -22,6 +22,6 @@ export interface User {
   micPublishedState?: ComputedRef; //  For my own user
   screenSharingPublishedState?: ComputedRef; // For my own user
   hasLogJoin?: boolean; // Specially for others users because mine just log one time
-  cameraId: string;
-  micId: string;
+  cameraId?: string;
+  micId?: string;
 }

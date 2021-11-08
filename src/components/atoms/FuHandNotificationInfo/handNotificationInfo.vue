@@ -9,7 +9,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType, onMounted, ref } from 'vue';
-import { HandNotification } from '@/types/datachannelMessages';
+import { HandNotification } from '@/types';
 
 export default defineComponent({
   name: 'FuNotificationInfo',

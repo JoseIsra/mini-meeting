@@ -7,8 +7,10 @@
 import { ref } from 'vue';
 // import { fabric } from 'fabric';
 
+
 const showBoard = ref(true);
 const board = ref(null);
+const bgColor = ref('#ffffff');
 export const useBoard = () => {
   const setBoard = (value) => {
     board.value = value;
@@ -20,11 +22,13 @@ export const useBoard = () => {
 
   const clearBoard = () => {
     board.value.clear();
+    bgColor.value = '#ffffff';
     window.xprops?.updateBoardObjects?.('{}');
   };
 
   const changeBgColor = (color) => {
     board.value.backgroundColor = color;
+    bgColor.value= color;
     board.value.renderAll();
   };
 
@@ -76,6 +80,8 @@ export const useBoard = () => {
 
   const loadBoard = (canvas) => {
     board.value.loadFromJSON(canvas, board.value.renderAll.bind(board.value));
+    bgColor.value= canvas.background;
+    console.debug(canvas)
   };
 
   return {
@@ -88,5 +94,6 @@ export const useBoard = () => {
     handleObject,
     loadBoard,
     changeBgColor,
+    bgColor
   };
 };

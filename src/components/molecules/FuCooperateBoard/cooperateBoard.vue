@@ -85,7 +85,8 @@
           <label> Color principal</label>
         </q-tooltip>
       </q-btn>
-      <q-btn
+      
+      <!-- <q-btn
         class="o-board__toolbar__tool"
         icon="fas fa-dummy"
         :style="`background-color: ${strokeColor}`"
@@ -97,7 +98,7 @@
         <q-tooltip class="bg-grey-10">
           <label> Color Borde</label>
         </q-tooltip>
-      </q-btn>
+      </q-btn> -->
 
       <q-btn
         class="o-board__toolbar__tool"
@@ -119,9 +120,24 @@
     </div>
 
     <div class="o-board__tools">
-      <q-color class="o-board__colorPicker" v-show="showBrushPicker" v-model="brushColor" />
-      <q-color class="o-board__colorPicker" v-show="showStrokePicker" v-model="strokeColor" />
-      <q-color class="o-board__colorPicker" v-show="showBgPicker" v-model="bgColor" />
+      <q-color
+        class="o-board__colorPicker"
+        v-show="showBrushPicker"
+        v-model="brushColor"
+        @change="handleBrushColor"
+      />
+      <q-color
+        class="o-board__colorPicker"
+        v-show="showStrokePicker"
+        v-model="strokeColor"
+        @change="handleStrokeColor"
+      />
+      <q-color
+        class="o-board__colorPicker"
+        v-show="showBgPicker"
+        v-model="bgColor"
+        @change="handleBgColor"
+      />
       <div class="o-board__tools__brush" v-show="brushSizeShow">
         <q-avatar
           class="o-board__tools__brush__label"
@@ -172,7 +188,6 @@ export default defineComponent({
     const brushColor = ref('#000000');
     const strokeColor = ref('#000000');
     const fillColor = ref('#ffffff');
-    const bgColor = ref('#ffffff');
     const textEditColor = ref('#000000');
     const brushSize = ref(1);
     const strokeSize = ref(4);
@@ -192,38 +207,13 @@ export default defineComponent({
       clearBoard,
       dummylogs,
       changeBgColor,
+      bgColor,
     } = useBoard();
 
     watch(brushSize, (value) => {
       if (board) {
         console.debug(value);
         board.value.freeDrawingBrush.width = value;
-      }
-    });
-
-    watch(brushColor, (value) => {
-      if (board) {
-        board.value.freeDrawingBrush.color = value;
-      }
-    });
-
-    watch(strokeColor, (value) => {
-      if (board) {
-        console.debug(value);
-        // board.value.strokeStyle.color = value;
-      }
-    });
-
-    watch(bgColor, (value) => {
-      if (board) {
-        changeBgColor(value);
-        sendData(roomState.hostId, {
-          eventType: 'BOARD_EVENT',
-          from: userMe.id,
-          to: 'ALL',
-          event: BOARD_EVENTS.CHANGE_BG_COLOR,
-          color: value
-        });
       }
     });
 
@@ -253,7 +243,7 @@ export default defineComponent({
       const rect = new fabric.Rect({
         left: 100,
         top: 100,
-        fill: 'red',
+        fill: brushColor.value,
         width: 100,
         height: 100,
         objectCaching: false,
@@ -268,7 +258,7 @@ export default defineComponent({
     };
 
     const addCircle = () => {
-      const circle = new fabric.Circle({ radius: 75, fill: 'blue' });
+      const circle = new fabric.Circle({ radius: 75, fill: brushColor.value });
 
       if (board.value.isDrawingMode) {
         toggleDrawMode();
@@ -282,7 +272,6 @@ export default defineComponent({
       brushColor.value = '#000000';
       strokeColor.value = '#000000';
       fillColor.value = '#ffffff';
-      bgColor.value = '#ffffff';
       textEditColor.value = '#000000';
       brushSize.value = 1;
       strokeSize.value = 4;
@@ -378,11 +367,6 @@ export default defineComponent({
             console.debug('You selected an object');
           } else {
             console.debug('Just a click on the board');
-
-            // Not object click
-            // Just click on the board
-
-            // Feat: New text, close pop-ups as stroke width, color or size, new rect or circle or even an image if option is selected
           }
         },
       });
@@ -439,6 +423,29 @@ export default defineComponent({
         }
         if (showBrushPicker.value) {
           showBrushPicker.value = !showBrushPicker.value;
+        }
+      },
+      handleBrushColor: (value) => {
+        if (board) {
+          board.value.freeDrawingBrush.color = value;
+        }
+      },
+      handleStrokeColor: (value) => {
+        if (board) {
+          console.debug(value);
+          // board.value.strokeStyle.color = value;
+        }
+      },
+      handleBgColor: (value) => {
+        if (board) {
+          changeBgColor(value);
+          sendData(roomState.hostId, {
+            eventType: 'BOARD_EVENT',
+            from: userMe.id,
+            to: 'ALL',
+            event: BOARD_EVENTS.CHANGE_BG_COLOR,
+            color: value,
+          });
         }
       },
     };

@@ -284,7 +284,12 @@ export default defineComponent({
         updateUserMe({ isScreenSharing: false });
         turnOffLocalCamera(streamId);
         resetDesktop();
-        if (!userMe.isCameraOn && !userMe.isMicOn && !userMe.isHost) {
+        if (
+          !userMe.isCameraOn &&
+          !userMe.isMicOn &&
+          !userMe.isHost &&
+          !userMe.isRecording
+        ) {
           stopPublishing(streamId);
           updateUserMe({ isPublishing: 0 });
         }
@@ -328,7 +333,12 @@ export default defineComponent({
         setVideoActivatedState(false);
         setCameraState(false);
         sendNotificationEvent('CAM_TURNED_OFF', streamId);
-        if (!userMe.isHost && !userMe.isMicOn && !userMe.isScreenSharing) {
+        if (
+          !userMe.isHost &&
+          !userMe.isMicOn &&
+          !userMe.isScreenSharing &&
+          !userMe.isRecording
+        ) {
           updateUserMe({ isPublishing: 0 });
           stopPublishing(userMe.id);
         }
@@ -416,7 +426,7 @@ export default defineComponent({
         /* setMicIconState(false); */
         muteLocalMic();
         sendNotificationEvent('MIC_MUTED', roomState.hostId);
-        if (!userMe.isHost && !userMe.isVideoActivated) {
+        if (!userMe.isHost && !userMe.isVideoActivated && !userMe.isRecording) {
           updateUserMe({ isPublishing: 0 });
           stopPublishing(userMe.id);
         }

@@ -424,7 +424,12 @@ export function useInitWebRTC() {
           updateUserMe({ isScreenSharing: false });
           turnOffLocalCamera(streamId);
           resetDesktop();
-          if (!userMe.isCameraOn && !userMe.isMicOn && !userMe.isHost) {
+          if (
+            !userMe.isCameraOn &&
+            !userMe.isMicOn &&
+            !userMe.isHost &&
+            !userMe.isRecording
+          ) {
             stopPublishing(streamId);
             updateUserMe({ isPublishing: 0 });
           }
@@ -1330,7 +1335,12 @@ export function useInitWebRTC() {
           webRTCInstance.value.resetDesktop?.();
           sendNotificationEvent('SCREEN_SHARING_OFF', userMe.id);
 
-          if (!userMe.isCameraOn && !userMe.isMicOn && !userMe.isHost) {
+          if (
+            !userMe.isCameraOn &&
+            !userMe.isMicOn &&
+            !userMe.isHost &&
+            !userMe.isRecording
+          ) {
             stopPublishing(streamId);
             updateUserMe({ isPublishing: 0 });
           }

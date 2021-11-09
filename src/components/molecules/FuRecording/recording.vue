@@ -37,7 +37,7 @@
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
-import { useRoom, useUserMe, useInitWebRTC, useInitMerge } from '@/composables';
+import { useRoom, useUserMe, useInitWebRTC } from '@/composables';
 import { warningMessage, successMessage } from '@/utils/notify';
 
 export default defineComponent({
@@ -47,7 +47,7 @@ export default defineComponent({
     const recordTime = ref('00:00:00');
     const secondsElapsed = ref(0);
     const isRecording = ref<boolean>(false);
-    const { recordingStream, stopRecordingStream } = useInitMerge();
+    /* const { recordingStream, stopRecordingStream } = useInitMerge(); */
     const { sendNotificationEvent, stopPublishing } = useInitWebRTC();
     // const { participants } = useHandleParticipants();
     const { userMe, updateUserMe } = useUserMe();

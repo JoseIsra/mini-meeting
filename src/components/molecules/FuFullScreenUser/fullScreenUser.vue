@@ -106,12 +106,11 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed, watch } from 'vue';
+import { defineComponent, ref, computed } from 'vue';
 import {
   useMainView,
   useHandleParticipants,
   useUserMe,
-  useRoom,
   useScreen,
 } from '@/composables';
 import _ from 'lodash';
@@ -125,8 +124,7 @@ export default defineComponent({
   setup(props) {
     const { mainViewState, removePinnedUser, removePinnedUserForAll } =
       useMainView();
-    const { screenMinimized, isLandscape } = useScreen();
-    const { roomState } = useRoom();
+    const { screenMinimized } = useScreen();
     const { userMe } = useUserMe();
     const { participants } = useHandleParticipants();
 

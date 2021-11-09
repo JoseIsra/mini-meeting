@@ -18,8 +18,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, computed } from 'vue';
-import { useScreen, useUserMe } from '@/composables';
-import { useMainView } from '@/composables/mainView';
+import { useMainView, useScreen, useUserMe } from '@/composables';
 import FuFullScreenUser from '@/components/molecules/FuFullScreenUser';
 
 export default defineComponent({
@@ -31,11 +30,10 @@ export default defineComponent({
     userId: String,
   },
   setup() {
+    const { mainViewState } = useMainView();
     const { screenMinimized } = useScreen();
     const { userMe } = useUserMe();
     const buttonMinimizeSpecialStyle = ref(false);
-
-    const { mainViewState } = useMainView();
 
     const usersDistributionStyle = computed(
       () => `--${mainViewState.pinnedUsers.length}users`

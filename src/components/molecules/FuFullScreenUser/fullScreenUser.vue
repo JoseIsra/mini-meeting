@@ -107,13 +107,15 @@
 
 <script lang="ts">
 import { defineComponent, ref, computed, watch } from 'vue';
-import { useScreen } from '@/composables/screen';
+import {
+  useMainView,
+  useHandleParticipants,
+  useUserMe,
+  useRoom,
+  useScreen,
+} from '@/composables';
 import _ from 'lodash';
-import { useRoom } from '@/composables/room';
-import { useUserMe } from '@/composables/userMe';
-import { useHandleParticipants } from '@/composables/participants';
 import { MAIN_VIEW_LOCKED_TYPE } from '@/utils/enums';
-import { useMainView } from '@/composables/mainView';
 
 export default defineComponent({
   name: 'FuFullScreenUser',
@@ -121,12 +123,12 @@ export default defineComponent({
     userId: String,
   },
   setup(props) {
+    const { mainViewState, removePinnedUser, removePinnedUserForAll } =
+      useMainView();
     const { screenMinimized, isLandscape } = useScreen();
     const { roomState } = useRoom();
     const { userMe } = useUserMe();
     const { participants } = useHandleParticipants();
-    const { mainViewState, removePinnedUser, removePinnedUserForAll } =
-      useMainView();
 
     const buttonMinimizeSpecialStyle = ref(false);
 

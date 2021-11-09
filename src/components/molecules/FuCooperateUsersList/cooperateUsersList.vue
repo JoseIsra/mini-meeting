@@ -687,9 +687,9 @@ import {
   useSidebarToogle,
   useToogleFunctions,
   useRoom,
+  useInitWebRTC,
+  useMainView,
 } from '@/composables';
-import { useInitWebRTC } from '@/composables/antMedia';
-import { useMainView } from '@/composables/mainView';
 import { User } from '@/types';
 import {
   MAIN_VIEW_LOCKED_TYPE,
@@ -702,6 +702,13 @@ export default defineComponent({
   name: 'FuCooperateUsersList',
   setup() {
     const {
+      mainViewState,
+      addPinnedUserForAll,
+      addPinnedUser,
+      removePinnedUser,
+      removePinnedUserForAll,
+    } = useMainView();
+    const {
       setParticipantActions,
       setEveryParticipantActions,
       waitingParticipants,
@@ -713,14 +720,6 @@ export default defineComponent({
     const { userMe } = useUserMe();
 
     const { sendData } = useInitWebRTC();
-
-    const {
-      mainViewState,
-      addPinnedUserForAll,
-      addPinnedUser,
-      removePinnedUser,
-      removePinnedUserForAll,
-    } = useMainView();
 
     const {
       roomState,

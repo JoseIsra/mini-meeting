@@ -39,20 +39,16 @@ import FuCooperate from 'organisms/FuCooperate';
 import FuLobby from 'organisms/FuLobby';
 
 import { useRoute } from 'vue-router';
-import { useUserMe } from '@/composables/userMe';
+import { useRoom, useAuthState, useInitWebRTC, useUserMe } from '@/composables';
 import FuTLoading from 'organisms/FuLoading';
 import {
   PERMISSION_STATUS,
   REASON_TO_LEAVE_ROOM,
   ROOM_PRIVACY,
 } from '@/utils/enums';
-import { useInitWebRTC } from '@/composables/antMedia';
-import { useAuthState } from '@/composables/auth';
-import { useRoom } from '@/composables/room';
-/* import { useActions } from '@/composables/actions'; */
 import moment from 'moment';
 
-import { RoomApiBody } from '@/types/antmediaApi';
+import { RoomApiBody } from '@/types';
 
 export default defineComponent({
   name: 'FuTCooperate',
@@ -62,19 +58,6 @@ export default defineComponent({
     FuLobby,
   },
   setup() {
-    const {
-      createInstance,
-      turnOffLocalCamera,
-      resetDesktop,
-      switchDesktopCapture,
-      turnOnLocalCamera,
-      unmuteLocalMic,
-      muteLocalMic,
-      sendNotificationEvent,
-      publish,
-      stopPublishing,
-    } = useInitWebRTC();
-
     const {
       userMe,
       setUserMe,
@@ -95,6 +78,19 @@ export default defineComponent({
       setExistRoom,
       // setIsLoadingOrError,
     } = useAuthState();
+
+    const {
+      createInstance,
+      turnOffLocalCamera,
+      resetDesktop,
+      switchDesktopCapture,
+      turnOnLocalCamera,
+      unmuteLocalMic,
+      muteLocalMic,
+      sendNotificationEvent,
+      publish,
+      stopPublishing,
+    } = useInitWebRTC();
 
     /* const { setMicIconState, setCameraIconState } = useActions(); */
 

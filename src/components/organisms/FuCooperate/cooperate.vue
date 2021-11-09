@@ -79,10 +79,13 @@ import FuHandNotification from 'atoms/FuHandNotification';
 import FuFullScreen from 'molecules/FuFullScreen';
 import FuCooperateParticipantsPanel from '@/components/molecules/FuCooperateParticipantsPanel';
 import _ from 'lodash';
-import { useSidebarToogle, useToogleFunctions } from '@/composables';
-import { useScreen } from '@/composables/screen';
-import { useRoom } from '@/composables/room';
-import { useMainView } from '@/composables/mainView';
+import {
+  useRoom,
+  useScreen,
+  useToogleFunctions,
+  useSidebarToogle,
+  useMainView,
+} from '@/composables';
 import { MAIN_VIEW_MODE } from '@/utils/enums';
 
 export default defineComponent({
@@ -121,6 +124,7 @@ export default defineComponent({
     let showUsersVideoList = ref<boolean>(false);
     const showHeader = ref<boolean>(true);
 
+    const { mainViewState } = useMainView();
     let { isSidebarRender, setSidebarState, showParticipantPanel } =
       useSidebarToogle();
 
@@ -130,8 +134,6 @@ export default defineComponent({
       openFunctionResponsiveMenu,
       setShowChat,
     } = useToogleFunctions();
-
-    const { mainViewState } = useMainView();
 
     const { roomState } = useRoom();
 

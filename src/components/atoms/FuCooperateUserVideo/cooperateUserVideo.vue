@@ -197,16 +197,20 @@
 <script lang="ts">
 import { defineComponent, ref, computed } from 'vue';
 import { useQuasar } from 'quasar';
-import { useScreen, useHandleParticipants, useUserMe } from '@/composables';
-import { useMainView } from '@/composables/mainView';
+import {
+  useScreen,
+  useHandleParticipants,
+  useUserMe,
+  useMainView,
+} from '@/composables';
 
 import { MAIN_VIEW_LOCKED_TYPE } from '@/utils/enums';
 
 export default defineComponent({
   name: 'FuCooperateUserVideo',
   setup() {
-    const { admittedParticipants } = useHandleParticipants();
     const { addPinnedUser, removePinnedUser, mainViewState } = useMainView();
+    const { admittedParticipants } = useHandleParticipants();
 
     const { userMe } = useUserMe();
 

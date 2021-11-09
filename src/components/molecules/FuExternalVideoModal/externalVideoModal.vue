@@ -35,9 +35,13 @@
 
 <script lang="ts">
 import { defineComponent, ref, computed } from 'vue';
-import { useRoom, useUserMe, useExternalVideo } from '@/composables';
-import { useInitWebRTC } from '@/composables/antMedia';
-import { useMainView } from '@/composables/mainView';
+import {
+  useMainView,
+  useInitWebRTC,
+  useRoom,
+  useUserMe,
+  useExternalVideo,
+} from '@/composables';
 import { errorMessage, successMessage } from '@/utils/notify';
 import videojs from 'video.js';
 import { VideoID } from '@/types';
@@ -47,10 +51,10 @@ export default defineComponent({
   name: 'FuExternalVideoModal',
   setup(_prop, { emit }) {
     let inputURL = ref('');
-    const { updateExternalVideoState, externalVideo } = useExternalVideo();
-
     const { updateMainViewStateForAll, cleanMainViewStateForAll } =
       useMainView();
+    const { updateExternalVideoState, externalVideo } = useExternalVideo();
+
     const { sendData } = useInitWebRTC();
     const regexYoutube = /^(https?\:\/\/)?(www\.youtube\.com|youtu\.?be)\/.+$/;
     const { roomState } = useRoom();

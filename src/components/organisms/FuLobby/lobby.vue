@@ -46,10 +46,8 @@
 
 <script lang="ts">
 import { defineComponent, computed } from 'vue';
-// import { useInitWebRTC } from '@/composables/antMedia';
 import { useUserMe } from '@/composables';
 import { PERMISSION_STATUS } from '@/utils/enums';
-// import { nanoid } from 'nanoid';
 
 export default defineComponent({
   name: 'FuLobby',

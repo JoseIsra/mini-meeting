@@ -6,6 +6,8 @@ export * from './mainView';
 export * from './room';
 export * from './user';
 export * from './zoid';
+export * from './toggleFunctions';
+export * from './periferics';
 
 interface SoundGainType {
   gain: {

@@ -26,8 +26,12 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { useHandleParticipants, useUserMe, useRoom } from '@/composables';
-import { useInitWebRTC } from '@/composables/antMedia';
+import {
+  useInitWebRTC,
+  useHandleParticipants,
+  useUserMe,
+  useRoom,
+} from '@/composables';
 import { User } from '@/types';
 import { REASON_TO_LEAVE_ROOM } from '@/utils/enums';
 export default defineComponent({

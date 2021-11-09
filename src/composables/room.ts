@@ -14,7 +14,6 @@ export function useRoom() {
   };
 
   const updateRoom = (value: Partial<Room>) => {
-    console.log('changing room', '🚀🚀🚀');
     Object.assign(roomState, { ...roomState, ...value });
   };
 

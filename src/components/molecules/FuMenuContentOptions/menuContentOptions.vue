@@ -70,11 +70,13 @@
 import { defineComponent, ref, reactive } from 'vue';
 import { menuOptions, MenuOptions } from '@/helpers/menuOptions';
 import FuDeleteRoomModal from 'molecules/FuDeleteRoomModal';
-import { useToogleFunctions } from '@/composables';
-import { useUserMe } from '@/composables/userMe';
+import {
+  useInitWebRTC,
+  useHandleParticipants,
+  useUserMe,
+  useToogleFunctions,
+} from '@/composables';
 import { REASON_TO_LEAVE_ROOM } from '@/utils/enums';
-import { useHandleParticipants } from '@/composables/participants';
-import { useInitWebRTC } from '@/composables/antMedia';
 import FuDeviceConfigurationModal from 'molecules/FuDeviceConfigurationModal';
 
 interface OptionsClickMethods {

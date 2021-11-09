@@ -12,9 +12,9 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
+import { useMainView } from '@/composables';
 import FuFullScreenUsers from 'molecules/FuFullScreenUsers';
 import FuExternalVideo from 'molecules/FuExternalVideo';
-import { useMainView } from '@/composables/mainView';
 import { MAIN_VIEW_MODE } from '@/utils/enums';
 
 export default defineComponent({

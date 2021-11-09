@@ -37,12 +37,8 @@
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
-import { useInitMerge } from '@/composables/antMediaMerge';
-import { useInitWebRTC } from '@/composables/antMedia';
-import { useUserMe } from '@/composables/userMe';
-import { useRoom } from '@/composables/room';
+import { useRoom, useUserMe, useInitWebRTC, useInitMerge } from '@/composables';
 import { warningMessage, successMessage } from '@/utils/notify';
-// import { useHandleParticipants } from '@/composables/participants';
 
 export default defineComponent({
   name: 'FuMRecording',

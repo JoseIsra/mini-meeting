@@ -12,15 +12,18 @@ import {
   PERMISSION_STATUS,
 } from '@/utils/enums';
 
-import { useToogleFunctions } from '@/composables/index';
-import { useUserMe } from '@/composables/userMe';
-import { useStreams } from '@/composables/streams';
-import { useAuthState } from '@/composables/auth';
-import { useRoom } from '@/composables/room';
+import {
+  useToogleFunctions,
+  useUserMe,
+  useStreams,
+  useAuthState,
+  useRoom,
+  useExternalVideo,
+  useHandleMessage,
+  useHandleParticipants,
+} from '@/composables';
+
 import { useMainView } from '@/composables/mainView';
-import { useExternalVideo } from '@/composables/external-video';
-import { useHandleMessage } from '@/composables/chat';
-import { useHandleParticipants } from '@/composables/participants';
 
 import { notifyWithAction, warningMessage } from '@/utils/notify';
 import videojs from 'video.js';

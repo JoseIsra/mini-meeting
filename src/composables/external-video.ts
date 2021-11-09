@@ -1,6 +1,6 @@
 import { reactive } from 'vue';
 import videojs from 'video.js';
-import { ExternalVideoObject } from '@/types/datachannelMessages';
+import { ExternalVideoObject } from '@/types';
 
 const externalVideo = reactive<ExternalVideoObject>({
   urlVideo: '',

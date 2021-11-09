@@ -1,10 +1,9 @@
 import { reactive } from 'vue';
-import { MainViewState } from '@/types/mainView';
-import { useInitWebRTC } from '@/composables/antMedia';
+import { MainViewState } from '@/types';
+import { useInitWebRTC } from './antMedia';
 import _ from 'lodash';
 import { MAIN_VIEW_LOCKED_TYPE, MAIN_VIEW_MODE } from '@/utils/enums';
-import { useRoom } from './room';
-import { useUserMe } from './userMe';
+import { useRoom, useUserMe } from '@/composables';
 
 const { sendData } = useInitWebRTC();
 const { roomState } = useRoom();

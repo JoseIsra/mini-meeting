@@ -41,10 +41,6 @@ export default defineComponent({
 
     const localBoardState = ref(roomState.boardState);
 
-    watch(roomState, (value) => {
-      console.log(value);
-    });
-
     watch(localBoardState, (value) => {
       if (value) {
         window.xprops?.updateBoardObjects?.('{}');

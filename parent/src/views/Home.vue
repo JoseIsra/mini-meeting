@@ -66,7 +66,7 @@ export default {
         : { mic: 0, camera: 0, screenshare: 0 },
       boardObjects: localStorage.boardObjects
         ? JSON.parse(localStorage.boardObjects)
-        : '',
+        : "",
     };
   },
   methods: {

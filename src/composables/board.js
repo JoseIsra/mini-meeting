@@ -4,13 +4,20 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 
+// import { Board } from '@/types/board';
+
 import { ref } from 'vue';
 // import { fabric } from 'fabric';
 
+// const showBoard = ref<boolean>(true);
 const showBoard = ref(true);
+// const board = ref<null | Board>(null);
 const board = ref(null);
+// const bgColor = ref<string>('#ffffff');
 const bgColor = ref('#ffffff');
-export const useBoard = () => {
+
+
+export function useBoard() {
   const setBoard = (value) => {
     board.value = value;
   };
@@ -28,10 +35,11 @@ export const useBoard = () => {
   const changeBgColor = (color) => {
     board.value.backgroundColor = color;
     bgColor.value = color;
-    board.value.renderAll();
+    board.value?.renderAll();
   };
 
   const getObjectFromId = (id) => {
+    console.debug('Buscando id: ', id)
     const currentObjects = board.value.getObjects();
 
     for (let i = currentObjects.length - 1; i >= 0; i--) {
@@ -53,20 +61,22 @@ export const useBoard = () => {
     }
 
     if (existing) {
+      console.debug('Encontre objeto')
       existing.set(obj);
     } else {
       const autorId = obj.id.split('-').slice(-1)[0]; // object autor id
+
       const boardUpdate = {
         ...board,
-        objects: board.objects.map((obj) => {
+        objects: board.objects.map((obj, index) => {
           return {
             ...obj,
-            id: obj.id ?? `${Date.now().toString()}-${autorId}`, // id added
+            id: obj.id ?? `${index}-${autorId}`, // id added
           };
         }),
       };
 
-      loadBoard(JSON.stringify(boardUpdate));
+      loadBoard(JSON.stringify(boardUpdate));      
     }
 
     board.value.renderAll();

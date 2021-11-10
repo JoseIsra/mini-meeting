@@ -334,16 +334,16 @@ export default defineComponent({
       window.xprops?.updateBoardObjects?.(JSON.stringify(board.value)); // update cooperate-options field
     };
 
-    const addObjectId = (obj, id) => {
-      obj.set('id', `${id}-${userMe.id}`);
-      obj.toJSON = (function (toJSON) {
-        return function () {
-          return fabric.util.object.extend(toJSON.call(this), {
-            id: this.id,
-          });
-        };
-      })(obj.toJSON);
-    };
+    // const addObjectId = (obj, id) => {
+    //   obj.set('id', `${id}-${userMe.id}`);
+    //   obj.toJSON = (function (toJSON) {
+    //     return function () {
+    //       return fabric.util.object.extend(toJSON.call(this), {
+    //         id: this.id,
+    //       });
+    //     };
+    //   })(obj.toJSON);
+    // };
 
     onMounted(() => {
       setBoard(new fabric.Canvas('board'));
@@ -368,7 +368,23 @@ export default defineComponent({
       const boardObjects = window?.xprops?.boardObjects || '';
 
       if (boardObjects) {
-        loadBoard(boardObjects);
+        console.debug(boardObjects);
+
+        if (boardObjects.objects) {
+          const objectsUpdated = boardObjects.objects.map((obj, index) => {
+            return {
+              ...obj,
+              id: `${index}-${userMe.id}`
+            };
+          });
+
+          console.debug(objectsUpdated);
+
+          loadBoard({
+            ...boardObjects,
+            objects: objectsUpdated
+          });
+        }
       }
 
       board.value.on({
@@ -377,9 +393,9 @@ export default defineComponent({
 
           if (obj) {
             if (!obj.id) {
-              // addObjectId(obj, Date.now().toString() + '-' + userMe.id)
+              const currentLength = board.value.getObjects();
 
-              obj.set('id', Date.now().toString() + '-' + userMe.id);
+              obj.set('id', `${currentLength.length - 1}-${userMe.id}`);
               obj.toJSON = (function (toJSON) {
                 return function () {
                   return fabric.util.object.extend(toJSON.call(this), {
@@ -403,20 +419,15 @@ export default defineComponent({
         },
         'object:modified': (options) => {
           console.debug('Modified: ', options.target);
-          const objects = board.value.getObjects();
 
-          console.debug(objects);
-
-          const testIdObjects = objects.map((obj, index) => {
-            if (!obj.id) {
-              addObjectId(obj, index);
-            }
-            console.debug(obj.uid);
-
-            return obj;
-          });
-
-          console.debug(testIdObjects);
+          sendData(roomState.hostId, {
+              eventType: 'BOARD_EVENT',
+              from: userMe.id,
+              to: 'ALL',
+              event: BOARD_EVENTS.OBJECT_UPDATE,
+              object: JSON.stringify(options.target),
+              canvas: JSON.stringify(board.value),
+            });
 
           window.xprops?.updateBoardObjects?.(JSON.stringify(board.value));
         },

@@ -16,4 +16,5 @@ export interface Room {
   fbTransmission?: boolean;
   ytTransmission?: boolean;
   rtmpTransmission?: boolean;
+  boardState?: boolean;
 }

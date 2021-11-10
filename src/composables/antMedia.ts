@@ -22,12 +22,14 @@ import {
   useExternalVideo,
   useHandleMessage,
   useHandleParticipants,
-  useBoard
 } from '@/composables';
+
+import { useBoard } from '@/composables/board';
 
 import { useMainView } from '@/composables/mainView';
 
 import { notifyWithAction, warningMessage } from '@/utils/notify';
+
 import videojs from 'video.js';
 /* import { useActions } from '@/composables/actions'; */
 import _ from 'lodash';
@@ -124,8 +126,7 @@ const { updateExternalVideoState, externalVideo } = useExternalVideo();
 
 /* const { setScreenShareIconState } = useActions(); */
 
-const { handleObject, clearBoard, changeBgColor, discardSelection } =
-  useBoard();
+const { handleObject, clearBoard, changeBgColor, discardSelection } = useBoard();
 
 const remotePlayer = ref<videojs.Player>({} as videojs.Player);
 
@@ -1296,7 +1297,10 @@ export function useInitWebRTC() {
             } else {
               if (event === BOARD_EVENTS.OBJECT_ADD) {
                 handleObject(object, canvas);
-              } else if (event === BOARD_EVENTS.OBJECT_REMOVE) {
+              } else if (event === BOARD_EVENTS.OBJECT_UPDATE) {
+                console.debug(JSON.parse(object));
+                handleObject(object, canvas);
+              }else if (event === BOARD_EVENTS.OBJECT_REMOVE) {
                 console.debug(JSON.parse(object));
               }
             }

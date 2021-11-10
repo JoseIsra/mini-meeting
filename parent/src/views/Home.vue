@@ -24,8 +24,6 @@
     :setBackgroundInfo="setBackgroundImg"
     :addUserLogToState="addUserLogToState"
     fractalUserId="34i2jkd23"
-    :setPinnedUser="setPinnedUser"
-    :pinnedUser="pinnedUser"
     :isMicOn="false"
     :isCameraOn="false"
     :isBeingRecorded="isBeingRecorded"
@@ -48,10 +46,11 @@ export default {
   },
   data: function () {
     return {
-      streamId: this.$route.query.id || `u-nr-userId-${Date.now()}`,
+      streamId:
+        `u-nr-classroomId-${this.$route.query.id}-${Date.now()}` ||
+        `u-nr-classroomId-userId-${Date.now()}`,
       streamName: this.$route.query.id || `userId-${Date.now()}`,
       isMinimized: false,
-      pinnedUser: localStorage.pinnedUser,
       bgInfo: localStorage.bgInfo
         ? JSON.parse(localStorage.bgInfo)
         : { url: "", maximized: false },
@@ -117,10 +116,6 @@ export default {
     },
     addUserLogToState: function (fractalUserId, logType) {
       console.log(fractalUserId, logType);
-    },
-    setPinnedUser: function (userId) {
-      console.log("setPinnedUser");
-      window.localStorage.pinnedUser = userId;
     },
     setBackgroundImg: function (url, maximized) {
       console.log("setBackgroundImg");

@@ -174,7 +174,8 @@ export default defineComponent({
       window?.xprops?.setHostId?.(streamId);
     }
 
-    const hostId = window?.xprops?.hostId as string;
+    const hostId =
+      (window?.xprops?.hostId as string) || (route.query.hostId as string);
     console.log(hostId, '🌏HOST ID🌏🌏');
 
     let bgInfo = window?.xprops?.bgInfo || {
@@ -474,6 +475,12 @@ export default defineComponent({
       };
     };
 
+    const deleteTimestampFromId = (streamId: string) => {
+      const splitted = streamId.split('-');
+      splitted.pop();
+      return splitted.join('-');
+    };
+
     onMounted(async () => {
       if (roomId) {
         const { status, body } = await checkRoom(roomId);
@@ -484,7 +491,12 @@ export default defineComponent({
           );
           if (haveStarted || roleId === 0) {
             //El host puede ingresar a la reunión aún si no ha iniciado (Según la db de fractal).
-            if (!body.roomStreamList.includes(userMe.id)) {
+            const currentUsers = body.roomStreamList;
+            const currentUsersWithoutTimeStamp = currentUsers.map((streamId) =>
+              deleteTimestampFromId(streamId)
+            );
+            const myIdWithoutTimestamp = deleteTimestampFromId(userMe.id);
+            if (!currentUsersWithoutTimeStamp.includes(myIdWithoutTimestamp)) {
               setExistRoom(true);
               createInstance(
                 roomId,

@@ -1296,12 +1296,14 @@ export function useInitWebRTC() {
               }
             } else {
               if (event === BOARD_EVENTS.OBJECT_ADD) {
+                console.debug(JSON.parse(object));
                 handleObject(object, canvas);
               } else if (event === BOARD_EVENTS.OBJECT_UPDATE) {
                 console.debug(JSON.parse(object));
                 handleObject(object, canvas);
               }else if (event === BOARD_EVENTS.OBJECT_REMOVE) {
                 console.debug(JSON.parse(object));
+                handleObject(object, canvas);
               }
             }
           }

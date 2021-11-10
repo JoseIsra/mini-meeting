@@ -16,7 +16,6 @@ const board = ref(null);
 // const bgColor = ref<string>('#ffffff');
 const bgColor = ref('#ffffff');
 
-
 export function useBoard() {
   const setBoard = (value) => {
     board.value = value;
@@ -35,13 +34,12 @@ export function useBoard() {
   const changeBgColor = (color) => {
     board.value.backgroundColor = color;
     bgColor.value = color;
-    board.value?.renderAll();
+    board.value.requestRenderAll();
   };
 
   const getObjectFromId = (id) => {
-    console.debug('Buscando id: ', id)
     const currentObjects = board.value.getObjects();
-
+    // console.debug(id);
     for (let i = currentObjects.length - 1; i >= 0; i--) {
       if (currentObjects[i].id === id) return currentObjects[i];
     }
@@ -53,15 +51,21 @@ export function useBoard() {
     const board = JSON.parse(canvas);
     const existing = getObjectFromId(obj.id);
 
+    // console.debug(board);
+
     if (obj.removed) {
+      // console.debug('Removed en true');
+      // console.debug(obj.id);
       if (existing) {
+        // console.debug('Existe y deberia removerlo');
         board.value.remove(existing);
+        board.value.requestRenderAll();
       }
       return;
     }
 
     if (existing) {
-      console.debug('Encontre objeto')
+      // console.debug('Existe y posiciona');
       existing.set(obj);
     } else {
       const autorId = obj.id.split('-').slice(-1)[0]; // object autor id
@@ -76,27 +80,28 @@ export function useBoard() {
         }),
       };
 
-      loadBoard(JSON.stringify(boardUpdate));      
+      // boardUpdate.objects.forEach((p) => console.debug(p.id));
+      loadBoard(JSON.stringify(boardUpdate));
     }
 
-    board.value.renderAll();
+    // board.value.requestRenderAll();
   };
 
   const dummylogs = () => {
     console.debug(board.value.getObjects());
-    console.debug(board.value.getContext());
+    // console.debug(board.value.getContext());
   };
 
   const loadBoard = (canvas) => {
     board.value.loadFromJSON(canvas, board.value.renderAll.bind(board.value));
-    console.debug(board.value);
+    // console.debug(board.value);
     bgColor.value = canvas.background;
   };
 
   const discardSelection = () => {
     board.value.discardActiveObject();
     board.value.requestRenderAll();
-  }
+  };
 
   return {
     board,
@@ -109,6 +114,6 @@ export function useBoard() {
     loadBoard,
     changeBgColor,
     bgColor,
-    discardSelection
+    discardSelection,
   };
-};
+}

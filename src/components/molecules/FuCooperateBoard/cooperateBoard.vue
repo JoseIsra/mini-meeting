@@ -317,10 +317,23 @@ export default defineComponent({
     };
 
     const deleteObject = (eventData, options) => {
+      console.debug('Deleted');
+
       const target = options.target;
       const canvas = target.canvas;
+
       canvas.remove(target);
       canvas.requestRenderAll();
+
+      console.debug(target);
+
+      const dummyObject = JSON.stringify(options.target);
+
+      const dummyParse = {
+        ...JSON.parse(dummyObject),
+        id: options.target.id,
+        // removed: true
+      };
 
       // SendData OBJET REMOVED
       sendData(roomState.hostId, {
@@ -328,22 +341,12 @@ export default defineComponent({
         from: userMe.id,
         to: 'ALL',
         event: BOARD_EVENTS.OBJECT_REMOVE,
-        object: JSON.stringify(target),
+        object: JSON.stringify(dummyParse),
+        canvas: JSON.stringify(canvas),
       });
 
       window.xprops?.updateBoardObjects?.(JSON.stringify(board.value)); // update cooperate-options field
     };
-
-    // const addObjectId = (obj, id) => {
-    //   obj.set('id', `${id}-${userMe.id}`);
-    //   obj.toJSON = (function (toJSON) {
-    //     return function () {
-    //       return fabric.util.object.extend(toJSON.call(this), {
-    //         id: this.id,
-    //       });
-    //     };
-    //   })(obj.toJSON);
-    // };
 
     onMounted(() => {
       setBoard(new fabric.Canvas('board'));
@@ -374,21 +377,20 @@ export default defineComponent({
           const objectsUpdated = boardObjects.objects.map((obj, index) => {
             return {
               ...obj,
-              id: `${index}-${userMe.id}`
+              id: `${index}-${userMe.id}`,
             };
           });
 
-          console.debug(objectsUpdated);
-
           loadBoard({
             ...boardObjects,
-            objects: objectsUpdated
+            objects: objectsUpdated,
           });
         }
       }
 
       board.value.on({
         'object:added': (options) => {
+          console.debug('Added');
           const obj = options.target;
 
           if (obj) {
@@ -418,16 +420,27 @@ export default defineComponent({
           }
         },
         'object:modified': (options) => {
-          console.debug('Modified: ', options.target);
+          console.debug('Modified');
+
+          if (options.target.type === 'activeSelection') {
+            return;
+          }
+          
+          const dummyObject = JSON.stringify(options.target);
+
+          const dummyParse = {
+            ...JSON.parse(dummyObject),
+            id: options.target.id,
+          };
 
           sendData(roomState.hostId, {
-              eventType: 'BOARD_EVENT',
-              from: userMe.id,
-              to: 'ALL',
-              event: BOARD_EVENTS.OBJECT_UPDATE,
-              object: JSON.stringify(options.target),
-              canvas: JSON.stringify(board.value),
-            });
+            eventType: 'BOARD_EVENT',
+            from: userMe.id,
+            to: 'ALL',
+            event: BOARD_EVENTS.OBJECT_UPDATE,
+            object: JSON.stringify(dummyParse),
+            canvas: JSON.stringify(board.value),
+          });
 
           window.xprops?.updateBoardObjects?.(JSON.stringify(board.value));
         },

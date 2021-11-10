@@ -44,7 +44,7 @@
       <q-btn
         class="o-board__toolbar__tool"
         icon="fas fa-democrat"
-        @click="dummylogs"
+        @click="discardSelection"
         size="8px"
         dense
       />
@@ -72,6 +72,21 @@
         dense
         :disable="!canDraw"
       />
+
+      <q-btn
+        class="o-board__toolbar__tool"
+        icon="fas fa-font"
+        :color="actionSelected === 'text-box' ? 'blue' : 'red'"
+        size="8px"
+        dense
+        @click="addTextBox"
+        :disable="!canDraw"
+      >
+        <q-tooltip class="bg-grey-10">
+          <label> Caja de texto </label>
+        </q-tooltip>
+      </q-btn>
+
       <q-btn
         class="o-board__toolbar__tool"
         icon="fas fa-dummy"
@@ -85,7 +100,7 @@
           <label> Color principal</label>
         </q-tooltip>
       </q-btn>
-      
+
       <!-- <q-btn
         class="o-board__toolbar__tool"
         icon="fas fa-dummy"
@@ -170,6 +185,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/restrict-template-expressions */
 
 import { defineComponent, onMounted, toRefs, ref, watch } from 'vue';
 import { useBoard } from '@/composables/board';
@@ -208,6 +224,7 @@ export default defineComponent({
       dummylogs,
       changeBgColor,
       bgColor,
+      discardSelection,
     } = useBoard();
 
     watch(brushSize, (value) => {
@@ -299,19 +316,49 @@ export default defineComponent({
       }
     };
 
-    // const deleteObject = (eventData, transform) => {
-    //   const target = transform.target;
-    //   const canvas = target.canvas;
-    //   canvas.remove(target);
-    //   canvas.requestRenderAll();
-    // };
+    const deleteObject = (eventData, options) => {
+      const target = options.target;
+      const canvas = target.canvas;
+      canvas.remove(target);
+      canvas.requestRenderAll();
+
+      // SendData OBJET REMOVED
+      sendData(roomState.hostId, {
+        eventType: 'BOARD_EVENT',
+        from: userMe.id,
+        to: 'ALL',
+        event: BOARD_EVENTS.OBJECT_REMOVE,
+        object: JSON.stringify(target),
+      });
+
+      window.xprops?.updateBoardObjects?.(JSON.stringify(board.value)); // update cooperate-options field
+    };
+
+    const addObjectId = (obj, id) => {
+      obj.set('id', `${id}-${userMe.id}`);
+      obj.toJSON = (function (toJSON) {
+        return function () {
+          return fabric.util.object.extend(toJSON.call(this), {
+            id: this.id,
+          });
+        };
+      })(obj.toJSON);
+    };
 
     onMounted(() => {
       setBoard(new fabric.Canvas('board'));
 
       fabric.Object.prototype.transparentCorners = false;
-      fabric.Object.prototype.cornerColor = 'blue';
-      fabric.Object.prototype.cornerStyle = 'circle';
+
+      fabric.Object.prototype.controls.deleteControl = new fabric.Control({
+        x: 0.5,
+        y: -0.5,
+        offsetY: -16,
+        offsetX: 16,
+        cursorStyle: 'pointer',
+        mouseUpHandler: deleteObject,
+        cornerSize: 21,
+      });
 
       if (userMe.roleId !== 1) {
         board.value.isDrawingMode = true;
@@ -330,6 +377,8 @@ export default defineComponent({
 
           if (obj) {
             if (!obj.id) {
+              // addObjectId(obj, Date.now().toString() + '-' + userMe.id)
+
               obj.set('id', Date.now().toString() + '-' + userMe.id);
               obj.toJSON = (function (toJSON) {
                 return function () {
@@ -343,7 +392,7 @@ export default defineComponent({
                 eventType: 'BOARD_EVENT',
                 from: userMe.id,
                 to: 'ALL',
-                event: BOARD_EVENTS.ADD,
+                event: BOARD_EVENTS.OBJECT_ADD,
                 object: JSON.stringify(obj),
                 canvas: JSON.stringify(board.value),
               });
@@ -353,10 +402,23 @@ export default defineComponent({
           }
         },
         'object:modified': (options) => {
-          console.log('Modified: ', options);
-        },
-        'object:removed': (options) => {
-          console.log('Removed: ', options);
+          console.debug('Modified: ', options.target);
+          const objects = board.value.getObjects();
+
+          console.debug(objects);
+
+          const testIdObjects = objects.map((obj, index) => {
+            if (!obj.id) {
+              addObjectId(obj, index);
+            }
+            console.debug(obj.uid);
+
+            return obj;
+          });
+
+          console.debug(testIdObjects);
+
+          window.xprops?.updateBoardObjects?.(JSON.stringify(board.value));
         },
         'mouse:down': (options) => {
           if (brushSizeShow.value) {
@@ -364,9 +426,39 @@ export default defineComponent({
           }
 
           if (options.target) {
-            console.debug('You selected an object');
+            const object = options.target;
+            console.debug(object.type);
+
+            if (object.text) {
+              console.debug("It's a text");
+            } else if (object.type === 'path') {
+              console.debug("It's a path");
+            } else if (object.type === 'rect') {
+              console.debug("It's a rect");
+            } else if (object.type === 'circle') {
+              console.debug("It's a circle");
+            }
           } else {
             console.debug('Just a click on the board');
+
+            if (actionSelected.value === 'text-box') {
+              const textBox = new fabric.Textbox('Inserte texto', {
+                width: 200,
+                top: 5,
+                left: 5,
+                fontSize: 16,
+                textAlign: 'center',
+              });
+
+              if (board.value.isDrawingMode) {
+                board.value.isDrawingMode = false;
+              }
+
+              board.value.add(textBox);
+              board.value.setActiveObject(textBox);
+
+              actionSelected.value = '';
+            }
           }
         },
       });
@@ -393,6 +485,7 @@ export default defineComponent({
       eraserSize,
       fontSize,
       brushSizeShow,
+      discardSelection,
       toggleBrushSizeShow: () => (brushSizeShow.value = !brushSizeShow.value),
       handleColorBrush,
       showBgPicker,
@@ -448,6 +541,7 @@ export default defineComponent({
           });
         }
       },
+      addTextBox: () => (actionSelected.value = 'text-box'),
     };
   },
 });

@@ -62,9 +62,9 @@ export enum BEHAVIOUR_TYPE_MENU_BAR {
 export enum BOARD_EVENTS {  
   'TURN_ON',
   'TURN_OFF',
-  'ADD',
-  'UPDATE',
-  'REMOVE',
+  'OBJECT_ADD',
+  'OBJECT_UPDATE',
+  'OBJECT_REMOVE',
   'CLEAR',
   'TOGGLE_DRAW_MODE',
   'CHANGE_BG_COLOR'

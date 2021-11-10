@@ -1,23 +1,23 @@
 <template>
   <div v-if="canRecording">
     <q-btn
-      v-if="!isRecording"
+      v-if="!userMe.isRecording"
       :disable="roomState.isBeingRecorded"
       color="primary"
       icon="fas fa-record-vinyl"
       :label="
         $q.screen.lt.sm
           ? ''
-          : roomState.isBeingRecorded
-          ? 'La reunión está siendo grabada'
           : isLoading
           ? 'Cargando...'
+          : roomState.isBeingRecorded
+          ? 'La reunión está siendo grabada'
           : 'Iniciar Grabación'
       "
       @click="startRecording"
     />
     <q-btn
-      v-if="isRecording && !isLoading"
+      v-if="roomState.isBeingRecorded && !isLoading && userMe.isRecording"
       color="negative"
       icon="radio_button_checked"
       :label="$q.screen.lt.sm ? '' : `Detener Grabación ${recordTime}`"
@@ -46,7 +46,6 @@ export default defineComponent({
     const interval = ref();
     const recordTime = ref('00:00:00');
     const secondsElapsed = ref(0);
-    const isRecording = ref<boolean>(false);
     /* const { recordingStream, stopRecordingStream } = useInitMerge(); */
     const { sendNotificationEvent, stopPublishing } = useInitWebRTC();
     // const { participants } = useHandleParticipants();
@@ -114,11 +113,12 @@ export default defineComponent({
           isLoading.value = false;
           successMessage('Grabando la sesión');
           interval.value = setInterval(oneSecondElapsed, 1000);
-          isRecording.value = true;
+          /* isRecording.value = true; */
           updateUserMe({
             isRecording: true,
           });
           updateRoom({
+            isBeingRecorded: true,
             recordingUrl: `https://f002.backblazeb2.com/file/MainPublic/classrooms/${roomState.classroomId}/cooperate/recordings/${mergedName.value}.mp4`,
           });
         })
@@ -133,20 +133,24 @@ export default defineComponent({
       )
         .then(() => {
           updateRoom({ isBeingRecorded: false });
-          isRecording.value = false;
+          updateUserMe({
+            isRecording: false,
+          });
+          /* isRecording.value = false; */
           recordTime.value = '00:00:00';
           clearInterval(interval.value);
           /* stopMerge(); */
           //stopRecordingStream(mergedName.value);
           secondsElapsed.value = 0;
 
-          window.xprops?.handleStopRecording?.(roomState.recordingUrl);
+          /* window.xprops?.handleStopRecording?.(roomState.recordingUrl); */
           sendNotificationEvent('RECORDING_STOPPED', userMe.id);
 
           if (
             !userMe.isCameraOn &&
             !userMe.isScreenSharing &&
-            !userMe.isMicOn
+            !userMe.isMicOn &&
+            !userMe.isHost
           ) {
             updateUserMe({ isPublishing: 0 });
             stopPublishing(userMe.id);
@@ -158,7 +162,6 @@ export default defineComponent({
     const canRecording = ref(userMe.roleId === 0);
 
     return {
-      isRecording,
       startRecording,
       stopRecording,
       recordTime,

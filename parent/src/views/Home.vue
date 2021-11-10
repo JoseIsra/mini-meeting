@@ -26,7 +26,6 @@
     fractalUserId="34i2jkd23"
     :isMicOn="false"
     :isCameraOn="false"
-    :isBeingRecorded="isBeingRecorded"
     :setHostId="setHostId"
     :hostId="this.isHost ? streamId : hostId"
     :isHost="isHost"
@@ -54,7 +53,6 @@ export default {
       bgInfo: localStorage.bgInfo
         ? JSON.parse(localStorage.bgInfo)
         : { url: "", maximized: false },
-      isBeingRecorded: localStorage.isBeingRecorded === "true",
       hostId: localStorage.hostId,
       isHost: this.$route.query.isHost == "true" || false,
       roleId: parseInt(this.$route.query.roleId) || 0,
@@ -77,10 +75,10 @@ export default {
     },
     handleStopRecording: function (url) {
       console.log("⭐ handleStopRecording function executed with params", url);
-      window.localStorage.isBeingRecorded = false;
+      /* window.localStorage.isBeingRecorded = false; */
     },
     handleStartRecording: function () {
-      window.localStorage.isBeingRecorded = true;
+      /* window.localStorage.isBeingRecorded = true; */
     },
     toggleLockAction: function (options) {
       console.log("⭐ toggle log action with params", options);

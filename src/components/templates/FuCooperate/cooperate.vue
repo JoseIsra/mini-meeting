@@ -191,7 +191,7 @@ export default defineComponent({
       };
     }
 
-    const isBeingRecorded = window?.xprops?.isBeingRecorded || false;
+    /* const isBeingRecorded = window?.xprops?.isBeingRecorded || false; */
 
     if (isCameraOn) {
       setVideoActivatedState(true);
@@ -242,7 +242,6 @@ export default defineComponent({
       isCameraBlocked: isCameraLocked,
       isScreenShareBlocked: isScreenShareLocked,
       bgInfo: bgInfo,
-      isBeingRecorded,
       recordingUrl: '',
       startDate,
       hostId,

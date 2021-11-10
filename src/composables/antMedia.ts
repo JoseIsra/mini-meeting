@@ -922,10 +922,10 @@ export function useInitWebRTC() {
                 updateMainViewState(remoteUserInfoParsed.mainViewState);
               }
 
-              if (remoteUserInfoParsed.roomInfo.isBeingRecorded as boolean) {
-                updateRoom({ isBeingRecorded: true });
-                warningMessage('Se está grabando la sesión');
-              }
+              updateRoom({
+                isBeingRecorded: remoteUserInfoParsed.roomInfo.isBeingRecorded,
+              });
+
               if (remoteUserInfoParsed.externalVideoInfo?.videoOnRoom) {
                 initRemotePlayerInstance(
                   remoteUserInfoParsed.externalVideoInfo

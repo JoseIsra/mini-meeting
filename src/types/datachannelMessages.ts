@@ -1,6 +1,4 @@
-import { Room } from '@/composables/room';
-import { User } from './user';
-
+import { Room, User, MainViewState } from '@/types';
 export interface BaseMessage {
   streamId: string;
   data: string;
@@ -51,6 +49,7 @@ export interface ObjRemoteUserInfo extends ObjInfoRequested {
   participantsInRoom: User[];
   externalVideoInfo?: ExternalVideoObject;
   roomInfo: Room;
+  mainViewState: MainViewState;
 }
 
 export interface ObjKickedEvent {

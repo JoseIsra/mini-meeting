@@ -299,18 +299,20 @@ import { Icons, Periferics, Functionalities } from '@/types';
 
 import { iconsPeriferics, iconsFunctions } from '@/helpers/iconsMenuBar';
 
-import { useToogleFunctions, useSidebarToogle } from '@/composables';
-import { useUserMe } from '@/composables/userMe';
+import {
+  useHandleMessage,
+  useRoom,
+  useHandleParticipants,
+  useScreen,
+  useInitWebRTC,
+  useUserMe,
+  useToogleFunctions,
+  useSidebarToogle,
+} from '@/composables';
 import { nanoid } from 'nanoid';
 import FuCooperateNetworkInfo from 'molecules/FuCooperateNetworkInfo';
 
-import { useInitWebRTC } from '@/composables/antMedia';
-import { useScreen } from '@/composables/screen';
-/* import { useActions } from '@/composables/actions'; */
-import { useHandleParticipants } from '@/composables/participants';
 import FuAdminPanel from 'organisms/FuAdminPanel';
-import { useRoom } from '@/composables/room';
-import { useHandleMessage } from '@/composables/chat';
 import { iconsOptions } from '@/helpers/iconsMenuBar';
 import _ from 'lodash';
 

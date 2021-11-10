@@ -11,9 +11,8 @@
 </template>
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { useToogleFunctions } from '@/composables';
+import { useToogleFunctions, useScreen } from '@/composables';
 import FuNotificationInfo from 'atoms/FuHandNotificationInfo';
-import { useScreen } from '@/composables/screen';
 export default defineComponent({
   name: 'FuHandNotification',
   components: { FuNotificationInfo },

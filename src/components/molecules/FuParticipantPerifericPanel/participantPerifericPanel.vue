@@ -111,11 +111,13 @@
 
 <script lang="ts">
 import { defineComponent, ref, computed, watch } from 'vue';
-import { useHandleParticipants } from '@/composables/participants';
-import { useRoom } from '@/composables/room';
 import { nanoid } from 'nanoid';
-import { useUserMe } from '@/composables/userMe';
-import { useInitWebRTC } from '@/composables/antMedia';
+import {
+  useInitWebRTC,
+  useHandleParticipants,
+  useRoom,
+  useUserMe,
+} from '@/composables';
 import { warningMessage } from '@/utils/notify';
 
 // 0-> ALL, 1-> MIC, 2-> CAMERA, 3->SCREEN

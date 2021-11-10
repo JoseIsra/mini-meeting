@@ -1,30 +1,35 @@
 import { ref } from 'vue';
 import { WebRTCAdaptor } from '@/utils/webrtc/webrtc_adaptor';
-import { useUserMe } from '@/composables/userMe';
-import { useAuthState } from '@/composables/auth';
-import { objWebRTC } from '@/types/index';
+import { objWebRTC, User } from '@/types/index';
 
 import {
   REASON_TO_LEAVE_ROOM,
   LOCK_ACTION_TYPE,
   USER_ROLE,
   BOARD_EVENTS,
+  MAIN_VIEW_LOCKED_TYPE,
+  MAIN_VIEW_MODE,
+  LOG_TYPE,
+  PERMISSION_STATUS,
 } from '@/utils/enums';
-import { useHandleParticipants } from '@/composables/participants';
-import { useHandleMessage } from '@/composables/chat';
-import { useToogleFunctions } from '@/composables';
+
 import {
-  HandNotification,
-  stopPlayingStream,
-} from '@/types/datachannelMessages';
-import { useRoom } from '@/composables/room';
-import { PERMISSION_STATUS } from '@/utils/enums';
+  useToogleFunctions,
+  useUserMe,
+  useStreams,
+  useAuthState,
+  useRoom,
+  useExternalVideo,
+  useHandleMessage,
+  useHandleParticipants,
+  useBoard
+} from '@/composables';
+
+import { useMainView } from '@/composables/mainView';
+
 import { notifyWithAction, warningMessage } from '@/utils/notify';
-import { useExternalVideo } from './external-video';
 import videojs from 'video.js';
 /* import { useActions } from '@/composables/actions'; */
-import { LOG_TYPE } from '@/utils/enums/zoid';
-import { useBoard } from './board';
 import _ from 'lodash';
 /*  */
 import {
@@ -34,7 +39,6 @@ import {
   ObjBlockParticipantAction,
   ObjKickedEvent,
   ObjRemoteUserInfo,
-  ObjSetFullScreen,
   ObjUserLeavingMessageParsed,
   ObjBoardEvent,
   VideoID,
@@ -44,9 +48,10 @@ import {
   BaseData,
   Message,
   Notification,
-} from '@/types/datachannelMessages';
-
-import { useStreams } from '@/composables/streams';
+  HandNotification,
+  stopPlayingStream,
+  MainViewState,
+} from '@/types';
 
 const webRTCInstance = ref<WebRTCAdaptor>({} as WebRTCAdaptor);
 
@@ -79,12 +84,18 @@ const {
   setRoomMicState,
   setRoomCameraState,
   setRoomScreenShareState,
-  updateFocus,
   updateBgUrl,
   updateBgSize,
   updateBoardState,
   roomState,
 } = useRoom();
+
+const {
+  mainViewState,
+  updateMainViewState,
+  removePinnedUserForAll,
+  removePinnedUser,
+} = useMainView();
 
 const {
   deleteParticipantById,
@@ -103,10 +114,6 @@ const { setUserMessage, amountOfNewMessages, acumulateMessages } =
 const {
   addHandNotificationInfo,
   removeHandNotification,
-  setFullScreen,
-  setFullScreenObject,
-  isFullScreen,
-  clearFullScreenObject,
   functionsOnMenuBar,
   updateHandNotification,
 } = useToogleFunctions();
@@ -174,7 +181,7 @@ export function useInitWebRTC() {
           user.isVideoActivated = false;
           /*  */
           if (!user?.isHost && !user?.isMicOn)
-            updateStreamById(user?.id as string, { isBeingPlayed: false });
+            updateStreamById(user?.id, { isBeingPlayed: false });
         }
       },
       SCREEN_SHARING_ON: function () {
@@ -195,7 +202,7 @@ export function useInitWebRTC() {
           user.isVideoActivated = false;
           /*  */
           if (!user?.isHost && !user?.isMicOn)
-            updateStreamById(user?.id as string, { isBeingPlayed: false });
+            updateStreamById(user?.id, { isBeingPlayed: false });
         }
       },
       MIC_UNMUTED: function () {
@@ -213,7 +220,7 @@ export function useInitWebRTC() {
         if (user) {
           user.isMicOn = false;
           if (!user?.isHost && !user?.isVideoActivated)
-            updateStreamById(user?.id as string, { isBeingPlayed: false });
+            updateStreamById(user?.id, { isBeingPlayed: false });
         }
       },
       RECORDING_STARTED: function () {
@@ -285,7 +292,11 @@ export function useInitWebRTC() {
     };
 
     const initRemotePlayerInstance = (arg: ExternalVideoObject) => {
-      setFullScreen('video', true);
+      updateMainViewState({
+        mode: MAIN_VIEW_MODE.VIDEO,
+        locked: MAIN_VIEW_LOCKED_TYPE.NORMAL_USERS,
+        startedBy: userMe.id,
+      });
       updateExternalVideoState({
         ...externalVideo,
         urlVideo: arg.urlVideo,
@@ -305,7 +316,9 @@ export function useInitWebRTC() {
     const removeVideoShared = (arg: ExternalVideoObject) => {
       remotePlayer.value = videojs((arg.remoteInstance as VideoID).playerId);
       videojs((arg.remoteInstance as VideoID).playerId).dispose();
-      setFullScreen('none', false);
+      updateMainViewState({
+        mode: MAIN_VIEW_MODE.NONE,
+      });
       updateExternalVideoState({
         ...externalVideo,
         videoOnRoom: false,
@@ -406,9 +419,11 @@ export function useInitWebRTC() {
             } else {
               const isMerge = obj.streamId.split('-')[0] === 'm';
               if (!isMerge)
-                addParticipant({ id: obj.streamId, stream: obj.stream });
+                addParticipant({
+                  id: obj.streamId,
+                  stream: obj.stream,
+                } as User);
             }
-            console.log(participants.value, '🅿️🅿️');
           }
         } else if (info == 'publish_started') {
           console.debug('publish started');
@@ -422,7 +437,12 @@ export function useInitWebRTC() {
           updateUserMe({ isScreenSharing: false });
           turnOffLocalCamera(streamId);
           resetDesktop();
-          if (!userMe.isCameraOn && !userMe.isMicOn && !userMe.isHost) {
+          if (
+            !userMe.isCameraOn &&
+            !userMe.isMicOn &&
+            !userMe.isHost &&
+            !userMe.isRecording
+          ) {
             stopPublishing(streamId);
             updateUserMe({ isPublishing: 0 });
           }
@@ -585,63 +605,64 @@ export function useInitWebRTC() {
                       const isRetransmission =
                         participant.id?.split('-')[0] === 'r';
                       if (
-                        currentParticipants.includes(
-                          participant.id as string
-                        ) &&
+                        currentParticipants.includes(participant.id) &&
                         !isMerge &&
                         !isRetransmission &&
                         !participant.hasLogJoin
                       ) {
                         console.debug(
-                          `🏃‍♂️ Registrando entrada del usuario: ${
-                            participant.name as string
-                          } ${participant.id as string}`
+                          `🏃‍♂️ Registrando entrada del usuario: ${participant.name} ${participant.id}`
                         );
-                        window.xprops?.logJoined?.(
-                          participant?.fractalUserId as string
-                        );
-                        updateParticipantById(participant?.id as string, {
+                        window.xprops?.logJoined?.(participant?.fractalUserId);
+                        updateParticipantById(participant?.id, {
                           hasLogJoin: true,
                         });
                       }
 
                       /* Loguear la salida y sacar usuarios de la sala */
                       if (
-                        !currentParticipants.includes(
-                          participant.id as string
-                        ) &&
+                        !currentParticipants.includes(participant.id) &&
                         !isMerge &&
                         !isRetransmission
                       ) {
-                        offlineParticipants.push(
-                          participant.fractalUserId as string
-                        );
+                        offlineParticipants.push(participant.fractalUserId);
                       }
                     }
                     //Remueve de la lista de participantes general cuando alguien se va
                     for (const participant of participants.value) {
-                      if (
-                        !currentParticipants.includes(participant.id as string)
-                      ) {
-                        if (roomState.pinnedUser?.id === participant.id) {
+                      if (!currentParticipants.includes(participant.id)) {
+                        /* if (roomState.pinnedUser?.id === participant.id) {
                           setFullScreen('none', false);
                           clearFullScreenObject();
                           updateRoom({ pinnedUser: null });
                           window.xprops?.setPinnedUser?.('');
+                        } */
+                        if (
+                          mainViewState.pinnedUsers.includes(participant.id)
+                        ) {
+                          if (
+                            mainViewState.locked !==
+                              MAIN_VIEW_LOCKED_TYPE.ANYONE &&
+                            mainViewState.locked !== MAIN_VIEW_LOCKED_TYPE.UNSET
+                          ) {
+                            removePinnedUserForAll(participant.id);
+                          } else {
+                            removePinnedUser(participant.id);
+                          }
                         }
                         const hasHandUp =
                           functionsOnMenuBar.handNotificationInfo.find(
                             (notific) => notific.from == participant.id
                           );
                         if (hasHandUp) {
-                          removeHandNotification(participant.id as string);
+                          removeHandNotification(participant.id);
                         }
                         sendData(roomState.hostId, {
                           eventType: 'USER_LEAVING',
                           id: participant.id,
                           fractalUserId: participant.fractalUserId,
                         });
-                        removeRemoteVideo(participant.id as string);
+                        removeRemoteVideo(participant.id);
                       }
                     }
                     /* Hace el log de usuarios que se han ido */
@@ -801,6 +822,7 @@ export function useInitWebRTC() {
                   participantsInRoom,
                   externalVideoInfo: { ...externalVideo },
                   roomInfo: { ...roomState },
+                  mainViewState,
                 };
 
                 console.debug(
@@ -848,8 +870,8 @@ export function useInitWebRTC() {
 
             const newUser = {
               id: remoteUserInfoParsed.userInfo.id,
-              avatar: remoteUserInfoParsed.userInfo.avatar,
               name: remoteUserInfoParsed.userInfo.name,
+              avatar: remoteUserInfoParsed.userInfo.avatar,
               isCameraOn: remoteUserInfoParsed.userInfo.isCameraOn,
               isMicOn: remoteUserInfoParsed.userInfo.isMicOn,
               isScreenSharing: remoteUserInfoParsed.userInfo.isScreenSharing,
@@ -858,12 +880,13 @@ export function useInitWebRTC() {
               isCameraBlocked: remoteUserInfoParsed.userInfo.isCameraBlocked,
               isScreenShareBlocked:
                 remoteUserInfoParsed.userInfo.isScreenShareBlocked,
+              fractalUserId: remoteUserInfoParsed.userInfo.fractalUserId,
               denied: remoteUserInfoParsed.userInfo.denied,
               isRecording: remoteUserInfoParsed.userInfo.isRecording,
-              fractalUserId: remoteUserInfoParsed.userInfo.fractalUserId,
               roleId: remoteUserInfoParsed.userInfo.roleId,
               isHost: remoteUserInfoParsed.userInfo.isHost,
               canDraw: remoteUserInfoParsed.userInfo.canDraw,
+              isPublishing: 0,
               hasLogJoin: false,
             };
 
@@ -899,6 +922,16 @@ export function useInitWebRTC() {
                   }
                 }
               );
+
+              if (
+                remoteUserInfoParsed.mainViewState &&
+                remoteUserInfoParsed.mainViewState.locked !==
+                  MAIN_VIEW_LOCKED_TYPE.ANYONE &&
+                remoteUserInfoParsed.mainViewState.locked !==
+                  MAIN_VIEW_LOCKED_TYPE.UNSET
+              ) {
+                updateMainViewState(remoteUserInfoParsed.mainViewState);
+              }
 
               if (remoteUserInfoParsed.roomInfo.isBeingRecorded as boolean) {
                 updateRoom({ isBeingRecorded: true });
@@ -1146,7 +1179,10 @@ export function useInitWebRTC() {
             const externalVideoObject = JSON.parse(
               obj.data
             ) as ExternalVideoObject;
-            setFullScreen('video', true);
+            /* setFullScreen('video', true); */
+            /* updateMainViewState({
+              mode: MAIN_VIEW_MODE.VIDEO,
+            }); */
             updateExternalVideoState({
               urlVideo: externalVideoObject.urlVideo,
             });
@@ -1175,28 +1211,11 @@ export function useInitWebRTC() {
             ) as ExternalVideoObject;
             updateVideoTime(externalVideoInfo);
           } else if (eventType === 'SET_FULL_SCREEN') {
-            console.log('hi there');
-            const { participant, mode } = JSON.parse(
-              obj.data
-            ) as ObjSetFullScreen;
-
-            if (participant && mode === 'user') {
-              console.log('Activar fijar usuario');
-              if (isFullScreen.value) {
-                setFullScreenObject(participant);
-                updateFocus(participant);
-                return;
-              }
-              console.log('here', participant);
-              setFullScreen(mode, true);
-              setFullScreenObject(participant);
-              updateFocus(participant);
-            } else {
-              console.log('Quitar fijar usuario');
-              setFullScreen(mode, false);
-              clearFullScreenObject();
-              updateFocus(null);
-            }
+            const { mainViewState } = JSON.parse(obj.data) as Record<
+              string,
+              MainViewState
+            >;
+            updateMainViewState(mainViewState);
           } else if (eventType == 'REMOVE_EXTERNAL_VIDEO') {
             const externalVideoInfo = JSON.parse(
               obj.data
@@ -1222,11 +1241,11 @@ export function useInitWebRTC() {
               removeHandNotification(userLeavingMsgParsed.id);
             }
 
-            if (roomState.pinnedUser?.id === userLeavingMsgParsed.id) {
+            /* if (roomState.pinnedUser?.id === userLeavingMsgParsed.id) {
               setFullScreen('none', false);
               clearFullScreenObject();
               updateRoom({ pinnedUser: null });
-            }
+            } */
 
             window.xprops?.addUserLogToState?.(
               userLeavingMsgParsed.fractalUserId,
@@ -1369,7 +1388,12 @@ export function useInitWebRTC() {
           webRTCInstance.value.resetDesktop?.();
           sendNotificationEvent('SCREEN_SHARING_OFF', userMe.id);
 
-          if (!userMe.isCameraOn && !userMe.isMicOn && !userMe.isHost) {
+          if (
+            !userMe.isCameraOn &&
+            !userMe.isMicOn &&
+            !userMe.isHost &&
+            !userMe.isRecording
+          ) {
             stopPublishing(streamId);
             updateUserMe({ isPublishing: 0 });
           }

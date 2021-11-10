@@ -15,7 +15,6 @@
         icon="fa fa-clock"
         style="margin: 16px 0; text-transform: capitalize"
         @click="toggleParticipantPanel"
-        :disable="!waitingParticipants.length > 0"
       ></q-btn>
       <q-btn
         v-show="$q.screen.lt.sm"
@@ -226,13 +225,22 @@
                   <q-btn
                     v-show="userMe.roleId === 0"
                     :icon="
-                      listenFullScreen.id == userMe.id
+                      mainViewState.pinnedUsers.includes(userMe.id)
                         ? 'location_disabled'
                         : 'gps_fixed'
                     "
-                    @click="handleEveryoneFocus(userMe)"
+                    @click="
+                      mainViewState.pinnedUsers.includes(userMe.id)
+                        ? removePinnedUserForAll(userMe.id)
+                        : addPinnedUserForAll(userMe.id)
+                    "
                     color="primary"
                     text-color="white"
+                    :disable="
+                      mainViewState.locked === MAIN_VIEW_LOCKED_TYPE.ANYONE ||
+                      (mainViewState.pinnedUsers.length >= 4 &&
+                        !mainViewState.pinnedUsers.includes(userMe.id))
+                    "
                   >
                     <q-tooltip
                       class="bg-grey-10"
@@ -241,27 +249,39 @@
                       transition-show="scale"
                       transition-hide="scale"
                     >
-                      <label v-if="listenFullScreen.id === userMe.id">
-                        Desfijar usuario</label
+                      <label
+                        v-if="mainViewState.pinnedUsers.includes(userMe.id)"
                       >
-                      <label v-else> Fijarte para todos</label>
+                        Desfijar para todos</label
+                      >
+                      <label v-else> Fijar para todos</label>
                     </q-tooltip>
                   </q-btn>
 
                   <q-btn
                     :icon="
-                      listenFullScreen.id == userMe.id
+                      mainViewState.pinnedUsers.includes(userMe.id)
                         ? 'location_disabled'
                         : 'gps_fixed'
                     "
-                    @click="activeFullScreen(userMe)"
-                    :disable="!!roomState.pinnedUser"
+                    @click="
+                      mainViewState.pinnedUsers.includes(userMe.id)
+                        ? removePinnedUser(userMe.id)
+                        : addPinnedUser(userMe.id)
+                    "
+                    :disable="
+                      (mainViewState.locked !== MAIN_VIEW_LOCKED_TYPE.ANYONE &&
+                        mainViewState.locked !== MAIN_VIEW_LOCKED_TYPE.UNSET) ||
+                      (mainViewState.pinnedUsers.length >= 4 &&
+                        !mainViewState.pinnedUsers.includes(userMe.id))
+                    "
                   >
                     <q-tooltip class="bg-grey-10">
-                      <label v-if="listenFullScreen.id == userMe.id"
-                        >Desfijarte
+                      <label
+                        v-if="mainViewState.pinnedUsers.includes(userMe.id)"
+                        >Desfijar para mi
                       </label>
-                      <label v-else>Fijarte a ti mismo</label>
+                      <label v-else>Fijar para mi</label>
                     </q-tooltip>
                   </q-btn>
                 </div>
@@ -282,18 +302,23 @@
           <q-btn
             v-else
             :icon="
-              listenFullScreen.id == userMe.id
+              mainViewState.pinnedUsers.includes(userMe.id)
                 ? 'location_disabled'
                 : 'gps_fixed'
             "
-            @click="activeFullScreen(userMe)"
-            :disable="!!roomState.pinnedUser"
+            @click="addPinnedUser(userMe.id)"
+            :disable="
+              (mainViewState.locked !== MAIN_VIEW_LOCKED_TYPE.ANYONE &&
+                mainViewState.locked !== MAIN_VIEW_LOCKED_TYPE.UNSET) ||
+              (mainViewState.pinnedUsers.length >= 4 &&
+                !mainViewState.pinnedUsers.includes(userMe.id))
+            "
           >
             <q-tooltip class="bg-grey-10">
-              <label v-if="listenFullScreen.id == userMe.id"
-                >Estás fijado
+              <label v-if="mainViewState.pinnedUsers.includes(userMe.id)"
+                >Desfijar para mi
               </label>
-              <label v-else>Fijarte a ti mismo</label>
+              <label v-else>Fijar para mi</label>
             </q-tooltip>
           </q-btn>
         </div>
@@ -428,13 +453,22 @@
                 <div class="m-list__content__userBox__extra">
                   <q-btn
                     :icon="
-                      listenFullScreen.id == participant.id
+                      mainViewState.pinnedUsers.includes(participant.id)
                         ? 'location_disabled'
                         : 'gps_fixed'
                     "
-                    @click="handleEveryoneFocus(participant)"
+                    @click="
+                      mainViewState.pinnedUsers.includes(participant.id)
+                        ? removePinnedUserForAll(participant.id)
+                        : addPinnedUserForAll(participant.id)
+                    "
                     color="primary"
                     text-color="white"
+                    :disable="
+                      mainViewState.locked === MAIN_VIEW_LOCKED_TYPE.ANYONE ||
+                      (mainViewState.pinnedUsers.length >= 4 &&
+                        !mainViewState.pinnedUsers.includes(participant.id))
+                    "
                   >
                     <q-tooltip
                       class="bg-grey-10"
@@ -443,21 +477,34 @@
                       transition-show="scale"
                       transition-hide="scale"
                     >
-                      <label v-if="listenFullScreen.id === participant.id">
-                        Desfijar usuario</label
+                      <label
+                        v-if="
+                          mainViewState.pinnedUsers.includes(participant.id)
+                        "
                       >
-                      <label v-else> Fijar usuario para todos</label>
+                        Desfijar para todos</label
+                      >
+                      <label v-else> Fijar para todos</label>
                     </q-tooltip>
                   </q-btn>
 
                   <q-btn
                     :icon="
-                      listenFullScreen.id == participant.id
+                      mainViewState.pinnedUsers.includes(participant.id)
                         ? 'location_disabled'
                         : 'gps_fixed'
                     "
-                    @click="activeFullScreen(participant)"
-                    :disable="!!roomState.pinnedUser"
+                    @click="
+                      mainViewState.pinnedUsers.includes(participant.id)
+                        ? removePinnedUser(participant.id)
+                        : addPinnedUser(participant.id)
+                    "
+                    :disable="
+                      (mainViewState.locked !== MAIN_VIEW_LOCKED_TYPE.ANYONE &&
+                        mainViewState.locked !== MAIN_VIEW_LOCKED_TYPE.UNSET) ||
+                      (mainViewState.pinnedUsers.length >= 4 &&
+                        !mainViewState.pinnedUsers.includes(participant.id))
+                    "
                   >
                     <q-tooltip
                       class="bg-grey-10"
@@ -466,10 +513,14 @@
                       transition-show="scale"
                       transition-hide="scale"
                     >
-                      <label v-if="listenFullScreen.id == participant.id">
-                        Desfijar usuario</label
+                      <label
+                        v-if="
+                          mainViewState.pinnedUsers.includes(participant.id)
+                        "
                       >
-                      <label v-else>Fijar usuario</label>
+                        Desfijar para mi</label
+                      >
+                      <label v-else>Fijar para mi</label>
                     </q-tooltip>
                   </q-btn>
 
@@ -505,7 +556,7 @@
                       transition-show="scale"
                       transition-hide="scale"
                     >
-                      <label>Quitar participante</label>
+                      <label>Echar</label>
                     </q-tooltip>
                   </q-btn>
                 </div>
@@ -616,12 +667,17 @@
 
           <q-btn
             :icon="
-              listenFullScreen.id == participant.id
+              mainViewState.pinnedUsers.includes(participant.id)
                 ? 'location_disabled'
                 : 'gps_fixed'
             "
-            @click="activeFullScreen(participant)"
-            :disable="!!roomState.pinnedUser"
+            @click="addPinnedUser(participant.id)"
+            :disable="
+              (mainViewState.locked !== MAIN_VIEW_LOCKED_TYPE.ANYONE &&
+                mainViewState.locked !== MAIN_VIEW_LOCKED_TYPE.UNSET) ||
+              (mainViewState.pinnedUsers.length >= 4 &&
+                !mainViewState.pinnedUsers.includes(participant.id))
+            "
           >
             <q-tooltip
               class="bg-grey-10"
@@ -630,10 +686,10 @@
               transition-show="scale"
               transition-hide="scale"
             >
-              <label v-if="listenFullScreen.id == participant.id">
-                Desfijar usuario</label
+              <label v-if="mainViewState.pinnedUsers.includes(participant.id)">
+                Desfijar para mi</label
               >
-              <label v-else>Fijar usuario</label>
+              <label v-else>Fijar para mi</label>
             </q-tooltip>
           </q-btn>
         </div>
@@ -644,19 +700,34 @@
 
 <script lang="ts">
 import { defineComponent, computed } from 'vue';
-import { useHandleParticipants } from '@/composables/participants';
-import { useUserMe } from '@/composables/userMe';
-import { User } from '@/types/user';
-import { useInitWebRTC } from '@/composables/antMedia';
-import { BOARD_EVENTS, LOCK_ACTION_TYPE, USER_ROLE } from '@/utils/enums';
+import {
+  useHandleParticipants,
+  useUserMe,
+  useSidebarToogle,
+  useToogleFunctions,
+  useRoom,
+  useInitWebRTC,
+  useMainView,
+} from '@/composables';
+import { User } from '@/types';
+import {
+  MAIN_VIEW_LOCKED_TYPE,
+  LOCK_ACTION_TYPE,
+  USER_ROLE,
+  BOARD_EVENTS
+} from '@/utils/enums';
 import { nanoid } from 'nanoid';
-import { useSidebarToogle } from '@/composables';
-import { useToogleFunctions } from '@/composables';
-import { useRoom } from '@/composables/room';
 
 export default defineComponent({
   name: 'FuCooperateUsersList',
   setup() {
+    const {
+      mainViewState,
+      addPinnedUserForAll,
+      addPinnedUser,
+      removePinnedUser,
+      removePinnedUserForAll,
+    } = useMainView();
     const {
       setParticipantActions,
       setEveryParticipantActions,
@@ -673,27 +744,16 @@ export default defineComponent({
 
     const {
       roomState,
-      updateFocus,
       setRoomMicState,
       setRoomCameraState,
       setRoomScreenShareState,
     } = useRoom();
 
     const {
-      setFullScreen,
-      setFullScreenObject,
-      isFullScreen,
-      fullScreenObject,
-      clearFullScreenObject,
       functionsOnMenuBar,
       removeHandNotification,
       updateHandNotification,
     } = useToogleFunctions();
-
-    const listenFullScreen = computed(() => {
-      if (fullScreenObject.id) return fullScreenObject;
-      return '';
-    });
 
     const isEveryoneMicBlocked = computed(() => roomState.isMicBlocked);
 
@@ -1009,52 +1069,6 @@ export default defineComponent({
       sendData(roomState.hostId, { eventType: 'KICK', to: participant.id });
     };
 
-    const cancelEveryoneFullScreen = () => {
-      updateFocus(null);
-      setFullScreen('none', false);
-      clearFullScreenObject();
-
-      sendData(roomState.hostId, {
-        eventType: 'SET_FULL_SCREEN',
-        mode: 'none',
-      });
-
-      window.xprops?.setPinnedUser?.('');
-    };
-
-    const handleEveryoneFocus = (user: User) => {
-      if (roomState.pinnedUser?.id === user.id) {
-        cancelEveryoneFullScreen();
-      } else {
-        setFullScreen('user', true);
-        setFullScreenObject(user);
-        updateFocus(user);
-
-        sendData(roomState.hostId, {
-          eventType: 'SET_FULL_SCREEN',
-          participant: user,
-          mode: 'user',
-        });
-
-        window.xprops?.setPinnedUser?.(user.id);
-      }
-    };
-
-    const activeFullScreen = (arg: User) => {
-      if (isFullScreen.value) {
-        if (fullScreenObject.id === arg.id) {
-          setFullScreen('none', false);
-          clearFullScreenObject();
-          return;
-        } else {
-          setFullScreenObject(arg);
-          return;
-        }
-      }
-      setFullScreen('user', true);
-      setFullScreenObject(arg);
-    };
-
     const closeUserListPanel = () => {
       setSidebarState(false);
     };
@@ -1102,19 +1116,19 @@ export default defineComponent({
       isScreenShareBlocked,
       handleParticipantActions,
       LOCK_ACTION_TYPE,
-      activeFullScreen,
-      isFullScreen,
-      fullScreenObject,
-      listenFullScreen,
       handleKickParticipant,
-      handleEveryoneFocus,
-      cancelEveryoneFullScreen,
       roomState,
       closeUserListPanel,
       participantActionsToolTip,
       notificateHandUp,
       removeHandUp,
-      toggleDrawMode
+      toggleDrawMode,
+      mainViewState,
+      addPinnedUser,
+      addPinnedUserForAll,
+      removePinnedUser,
+      removePinnedUserForAll,
+      MAIN_VIEW_LOCKED_TYPE,
     };
   },
 });

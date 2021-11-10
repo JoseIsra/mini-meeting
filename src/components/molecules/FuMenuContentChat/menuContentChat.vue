@@ -19,7 +19,7 @@
 <script lang="ts">
 import { defineComponent, ref, reactive } from 'vue';
 import { chatMenuIcon, Options } from '@/helpers/menuOptions';
-import { useHandleMessage } from '@/composables/chat';
+import { useHandleMessage } from '@/composables';
 
 interface ChatMenu {
   CLEARCHAT(): () => void;

@@ -57,8 +57,7 @@
 <script lang="ts">
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 import { defineComponent, ref, computed, onMounted, reactive } from 'vue';
-import { useUserMe } from '@/composables/userMe';
-import { useRoom } from '@/composables/room';
+import { useRoom, useUserMe } from '@/composables';
 import { IStreamServiceObject, SocialMedia, objWebRTC } from '@/types';
 import { useRoute } from 'vue-router';
 import { WebRTCAdaptor } from '@/utils/webrtc/webrtc_adaptor';

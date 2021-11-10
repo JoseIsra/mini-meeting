@@ -19,7 +19,12 @@
           {{ lobbyMessage }}
         </div>
 
-        <q-btn style="margin: 12px 0" v-if="userMe.denied" label="Regresar" @click="leaveCall" />
+        <q-btn
+          style="margin: 12px 0"
+          v-if="userMe.denied"
+          label="Regresar"
+          @click="leaveCall"
+        />
 
         <q-circular-progress
           v-if="!userMe.denied"
@@ -41,10 +46,8 @@
 
 <script lang="ts">
 import { defineComponent, computed } from 'vue';
-// import { useInitWebRTC } from '@/composables/antMedia';
-import { useUserMe } from '@/composables/userMe';
+import { useUserMe } from '@/composables';
 import { PERMISSION_STATUS } from '@/utils/enums';
-// import { nanoid } from 'nanoid';
 
 export default defineComponent({
   name: 'FuLobby',

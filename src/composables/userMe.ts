@@ -11,6 +11,30 @@ const userState = {} as User;
 
 const userMe = reactive<User>(userState);
 
+userMe.cameraPublishedState = computed(() =>
+  userMe.isCameraOn && userMe.isPublishing == 1
+    ? 1
+    : userMe.isPublishing == 2 && userMe.isCameraOn
+    ? 2
+    : 0
+);
+
+userMe.micPublishedState = computed(() =>
+  userMe.isMicOn && userMe.isPublishing == 1
+    ? 1
+    : userMe.isPublishing == 2 && userMe.isMicOn
+    ? 2
+    : 0
+);
+
+userMe.screenSharingPublishedState = computed(() =>
+  userMe.isScreenSharing && userMe.isPublishing == 1
+    ? 1
+    : userMe.isPublishing == 2 && userMe.isScreenSharing
+    ? 2
+    : 0
+);
+
 export function useUserMe() {
   const setUserMe = (value: User) => {
     _.merge(userState, value);
@@ -34,30 +58,6 @@ export function useUserMe() {
     });
     _.merge(userMe, updatedUser);
   };
-
-  userMe.cameraPublishedState = computed(() =>
-    userMe.isCameraOn && userMe.isPublishing == 1
-      ? 1
-      : userMe.isPublishing == 2 && userMe.isCameraOn
-      ? 2
-      : 0
-  );
-
-  userMe.micPublishedState = computed(() =>
-    userMe.isMicOn && userMe.isPublishing == 1
-      ? 1
-      : userMe.isPublishing == 2 && userMe.isMicOn
-      ? 2
-      : 0
-  );
-
-  userMe.screenSharingPublishedState = computed(() =>
-    userMe.isScreenSharing && userMe.isPublishing == 1
-      ? 1
-      : userMe.isPublishing == 2 && userMe.isScreenSharing
-      ? 2
-      : 0
-  );
 
   const setMicState = (value: boolean) => {
     userMe.isMicOn = value;

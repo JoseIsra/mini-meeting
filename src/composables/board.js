@@ -19,6 +19,10 @@ const showBoard = ref(true);
 const board = ref(null);
 // const bgColor = ref<string>('#ffffff');
 const bgColor = ref('#ffffff');
+// const checkSUM = ref<number>(0);
+const checkSum = ref(0);
+// const objectActive = ref<boolean>(false);
+const objectActive = ref(false);
 
 export function useBoard() {
   const setBoard = (value) => {
@@ -44,54 +48,73 @@ export function useBoard() {
   const getObjectFromId = (id) => {
     const currentObjects = board.value.getObjects();
     for (let i = currentObjects.length - 1; i >= 0; i--) {
-      console.debug(currentObjects[i].id);
       if (currentObjects[i].id === id) return currentObjects[i];
     }
     return null;
   };
 
-  const handleObject = (object, canvas) => {
-    const obj = JSON.parse(object);
+  const handleObject = (obj, canvas) => {
     const boardTest = JSON.parse(canvas);
     const existing = getObjectFromId(obj.id);
-
-    console.debug(existing);
-
     if (obj.removed) {
       if (existing) {
+        if (objectActive.value) {
+          const active = board.value.getActiveObject();
+          console.debug(obj.id);
+          console.debug(active.id);
+          if (active.id === obj.id) {
+            setObjectActive(false);
+          }
+        }
+
         board.value.remove(existing);
         board.value.requestRenderAll();
       }
       return;
     }
-
     if (existing) {
       existing.set(obj);
       board.value.requestRenderAll();
     } else {
-      console.debug('Agregar al board objeto: ', obj.id);      
-
-      const boardUpdated = {
-        ...boardTest,
-        objects: boardTest.objects.map((obj, index) => {
-          return {
-            ...obj,
-            id: `${index}-${roomState.id}`
-          }
-        })
-      }  
+      console.debug(
+        `Agregar objeto recibido: ${obj.id}, tengo ${checkSum.value} objetos`
+      );
 
       if (obj.type === 'path') {
-        console.debug('Es un path, to resolve (redibujado):', obj);        
+        console.debug('Es un path, to resolve (redibujado):', obj);
+        console.debug('Disque mi canvas', boardTest);
+
+        const boardUpdated = {
+          ...boardTest,
+          objects: boardTest.objects.map((obj, index) => {
+            return {
+              ...obj,
+              id: `${index}-${obj.type}-${roomState.id}`,
+            };
+          }),
+        };
+
         loadBoard(JSON.stringify(boardUpdated));
       } else if (obj.type === 'rect') {
         console.debug('Es un rect, agregar al board');
         board.value.add(new fabric.Rect(obj));
+        checkSumIncrease();
       } else if (obj.type === 'circle') {
         console.debug('Es un circle, agregar al board');
         board.value.add(new fabric.Circle(obj));
+        checkSumIncrease();
       } else if (obj.text) {
         console.debug('Es objeto text, agregar al board(redibujado):', obj);
+        const boardUpdated = {
+          ...boardTest,
+          objects: boardTest.objects.map((obj, index) => {
+            return {
+              ...obj,
+              id: `${index}-${obj.type}-${roomState.id}`,
+            };
+          }),
+        };
+
         loadBoard(JSON.stringify(boardUpdated));
       } else {
         console.debug('Es un objeto de tipo no mapeado aun: ', obj);
@@ -102,24 +125,32 @@ export function useBoard() {
     // board.value.requestRenderAll();
   };
 
-  const dummylogs = () => {
-    const objects = board.value.getObjects();
+  const handleMultipleObjects = (canvasObjects) => {
+    const { objects, canvas } = canvasObjects;
+    const parsedObjects = JSON.parse(objects);
 
-    console.debug(objects);
-    objects.forEach((obj) => {
-      console.debug(`${obj.id} - ${obj.type}`);
+    parsedObjects.forEach((cObject) => {
+      console.debug(cObject);
+      handleObject(cObject, canvas);
     });
   };
-
+  const dummylogs = () => {
+    const objects = board.value.getObjects();
+    console.debug(checkSum.value);
+    objects.forEach((obj) => console.debug(obj.id));
+  };
   const loadBoard = (canvas) => {
     board.value.loadFromJSON(canvas, board.value.renderAll.bind(board.value));
     bgColor.value = canvas.background;
   };
-
   const discardSelection = () => {
     board.value.discardActiveObject();
     board.value.requestRenderAll();
   };
+
+  const checkSumInitialValue = (value) => (checkSum.value = value);
+  const checkSumIncrease = () => checkSum.value++;
+  const setObjectActive = (value) => (objectActive.value = value);
 
   return {
     board,
@@ -133,5 +164,11 @@ export function useBoard() {
     changeBgColor,
     bgColor,
     discardSelection,
+    handleMultipleObjects,
+    checkSum,
+    checkSumInitialValue,
+    checkSumIncrease,
+    objectActive,
+    setObjectActive,
   };
 }

@@ -128,6 +128,21 @@
           <label> Color del lienzo</label>
         </q-tooltip>
       </q-btn>
+
+      <q-btn
+        class="o-board__toolbar__tool"
+        icon="fas fa-trash-alt"
+        color="red"
+        text-color="white"
+        size="8px"
+        dense
+        :disable="!objectActive"
+        @click="deleteSelected"
+      >
+        <q-tooltip class="bg-grey-10">
+          <label> Eliminar objeto</label>
+        </q-tooltip>
+      </q-btn>
     </div>
 
     <div class="o-board__board">
@@ -225,6 +240,11 @@ export default defineComponent({
       changeBgColor,
       bgColor,
       discardSelection,
+      checkSum,
+      checkSumInitialValue,
+      checkSumIncrease,
+      objectActive,
+      setObjectActive,
     } = useBoard();
 
     watch(brushSize, (value) => {
@@ -285,22 +305,6 @@ export default defineComponent({
       board.value.setActiveObject(circle);
     };
 
-    // const addPath = () => {
-    //   const path = new fabric.Path('M 0 20', {
-    //     left: 100,
-    //     top: 100,
-    //     stroke: 'black',
-    //     fill: '',
-    //   });
-
-    //   if (board.value.isDrawingMode) {
-    //     toggleDrawMode();
-    //   }
-
-    //   board.value.add(path);
-    //   board.value.setActiveObject(path);
-    // };
-
     const callCleanBoard = () => {
       brushColor.value = '#000000';
       strokeColor.value = '#000000';
@@ -319,11 +323,6 @@ export default defineComponent({
       });
     };
 
-    const discard = () => {
-      board.value.discardActiveObject();
-      board.value.requestRenderAll();
-    };
-
     const handleColorBrush = (color) => {
       const brush = board.value.freeDrawingBrush;
       brush.color = color;
@@ -333,42 +332,79 @@ export default defineComponent({
     };
 
     const deleteObject = (eventData, options) => {
-      console.debug('Deleted');
+      console.debug('Call delete object(s)', options);
+      const object = options.target;
+      if (object.id) {
+        const canvas = object.canvas;
+        canvas.remove(object);
+        canvas.requestRenderAll();
 
-      const target = options.target;
-      const canvas = target.canvas;
+        sendData(roomState.hostId, {
+          eventType: 'BOARD_EVENT',
+          from: userMe.id,
+          to: 'ALL',
+          event: BOARD_EVENTS.OBJECT_REMOVE,
+          objects: JSON.stringify([{ ...object, removed: true }]),
+          canvas: JSON.stringify(board.value),
+        });
 
-      canvas.remove(target);
-      canvas.requestRenderAll();
+        window.xprops?.updateBoardObjects?.(JSON.stringify(board.value)); // update cooperate-options field
+        return;
+      }
 
-      const dummyObject = JSON.stringify(options.target);
+      object._objects.forEach((obj) => {
+        console.debug(obj);
+        const canvas = obj.canvas;
+        canvas.remove(obj);
+        canvas.requestRenderAll();
+      });
 
-      const dummyParse = {
-        ...JSON.parse(dummyObject),
-        id: options.target.id,
-        removed: true,
-      };
+      setObjectActive(false);
+      discardSelection();
 
-      // SendData OBJET REMOVED
       sendData(roomState.hostId, {
         eventType: 'BOARD_EVENT',
         from: userMe.id,
         to: 'ALL',
         event: BOARD_EVENTS.OBJECT_REMOVE,
-        object: JSON.stringify(dummyParse),
+        objects: JSON.stringify(
+          object._objects.map((obj) => ({ ...obj, removed: true }))
+        ),
         canvas: JSON.stringify(board.value),
       });
 
       window.xprops?.updateBoardObjects?.(JSON.stringify(board.value)); // update cooperate-options field
     };
 
+    const deleteSelected = () => {
+      const object = board.value.getActiveObject();
+      if (object) {
+        if (object.id) {
+          const canvas = object.canvas;
+          canvas.remove(object);
+          canvas.requestRenderAll();
+          setObjectActive(false);
+          discardSelection();
+
+          sendData(roomState.hostId, {
+            eventType: 'BOARD_EVENT',
+            from: userMe.id,
+            to: 'ALL',
+            event: BOARD_EVENTS.OBJECT_REMOVE,
+            objects: JSON.stringify([{ ...object, removed: true }]),
+            canvas: JSON.stringify(board.value),
+          });
+
+          window.xprops?.updateBoardObjects?.(JSON.stringify(board.value)); // update cooperate-options field
+          return;
+        }
+      }
+    };
+
     onMounted(() => {
       const boardObjects = window?.xprops?.boardObjects || '';
-
       setBoard(new fabric.Canvas('board'));
-
       fabric.Object.prototype.transparentCorners = false;
-
       fabric.Object.prototype.controls.deleteControl = new fabric.Control({
         x: 0.5,
         y: -0.5,
@@ -380,23 +416,26 @@ export default defineComponent({
       });
 
       if (userMe.roleId !== 1) {
+        // Admin with freeDrawing activated by default
         board.value.isDrawingMode = true;
         actionSelected.value = 'draw';
       }
 
       if (boardObjects) {
+        // If cooperate-options object is active this objects should initialize once board mounted
         if (boardObjects.objects) {
           const objectsUpdated = boardObjects.objects.map((obj, index) => {
             return {
               ...obj,
-              id: `${index}-${roomState.id}`,
+              id: `${index}-${obj.type}-${roomState.id}`,
             };
           });
-
           loadBoard({
             ...boardObjects,
             objects: objectsUpdated,
           });
+
+          checkSumInitialValue(boardObjects.objects.length);
         }
       }
 
@@ -411,8 +450,7 @@ export default defineComponent({
 
           if (obj) {
             if (!obj.id) {
-              const currentLength = board.value.getObjects();
-              obj.set('id', `${currentLength.length - 1}-${roomState.id}`);
+              obj.set('id', `${checkSum.value}-${obj.type}-${roomState.id}`);
               obj.toJSON = (function (toJSON) {
                 return function () {
                   return fabric.util.object.extend(toJSON.call(this), {
@@ -421,31 +459,57 @@ export default defineComponent({
                 };
               })(obj.toJSON);
 
+              console.debug(board.value.getObjects());
+              console.debug(JSON.stringify(board.value.getObjects()));
+
               sendData(roomState.hostId, {
                 eventType: 'BOARD_EVENT',
                 from: userMe.id,
                 to: 'ALL',
                 event: BOARD_EVENTS.OBJECT_ADD,
-                object: JSON.stringify(obj),
-                canvas: JSON.stringify(board.value),
+                objects: JSON.stringify([obj]),
+                canvas: JSON.stringify(board.value.getObjects()),
               });
 
+              checkSumIncrease();
               window.xprops?.updateBoardObjects?.(JSON.stringify(board.value)); // update cooperate-options field
             }
           }
         },
         'object:modified': (options) => {
-          console.debug('Modified');
+          const obj = options.target;
+          console.debug('Modified', obj);
 
-          if (options.target.type === 'activeSelection') {
+          if (obj.type === 'activeSelection') {
+            console.debug('ActiveSelection: ', obj._objects);
+            const dummyObjects = obj._objects.map((objT) => {
+              const dummyObject = JSON.stringify(objT);
+              const dummyParse = {
+                ...JSON.parse(dummyObject),
+                id: objT.id,
+              };
+
+              return dummyParse;
+            });
+
+            dummyObjects.forEach((e) => console.debug(e.id));
+
+            sendData(roomState.hostId, {
+              eventType: 'BOARD_EVENT',
+              from: userMe.id,
+              to: 'ALL',
+              event: BOARD_EVENTS.OBJECT_UPDATE,
+              objects: JSON.stringify(dummyObjects),
+              canvas: JSON.stringify(board.value),
+            });
+
             return;
           }
 
-          const dummyObject = JSON.stringify(options.target);
-
+          const dummyObject = JSON.stringify(obj);
           const dummyParse = {
             ...JSON.parse(dummyObject),
-            id: options.target.id,
+            id: obj.id,
           };
 
           sendData(roomState.hostId, {
@@ -453,33 +517,36 @@ export default defineComponent({
             from: userMe.id,
             to: 'ALL',
             event: BOARD_EVENTS.OBJECT_UPDATE,
-            object: JSON.stringify(dummyParse),
+            objects: JSON.stringify([dummyParse]),
             canvas: JSON.stringify(board.value),
           });
 
           window.xprops?.updateBoardObjects?.(JSON.stringify(board.value));
         },
         'mouse:down': (options) => {
-          if (brushSizeShow.value) {
-            brushSizeShow.value = false;
-          }
+          // Close tools on click-board ?
+          brushSizeShow.value = false;
+          showBgPicker.value = false;
+          showBrushPicker.value = false;
+          showStrokePicker.value = false;
 
           if (options.target) {
-            const object = options.target;
-            console.debug(object.type);
-
-            if (object.text) {
+            const obj = options.target;
+            setObjectActive(true);
+            if (obj.text) {
               console.debug("It's a text");
-            } else if (object.type === 'path') {
+            } else if (obj.type === 'path') {
               console.debug("It's a path");
-            } else if (object.type === 'rect') {
+            } else if (obj.type === 'rect') {
               console.debug("It's a rect");
-            } else if (object.type === 'circle') {
+            } else if (obj.type === 'circle') {
               console.debug("It's a circle");
+            } else {
+              console.debug("It's a: ", obj.type);
             }
           } else {
             console.debug('Just a click on the board');
-
+            setObjectActive(false);
             if (actionSelected.value === 'text-box') {
               const textBox = new fabric.Textbox('Inserte texto', {
                 width: 200,
@@ -492,7 +559,6 @@ export default defineComponent({
               if (board.value.isDrawingMode) {
                 board.value.isDrawingMode = false;
               }
-
               board.value.add(textBox);
               board.value.setActiveObject(textBox);
 
@@ -507,8 +573,7 @@ export default defineComponent({
 
           if (path) {
             if (!path.id) {
-              const currentLength = board.value.getObjects();
-              path.set('id', `${currentLength.length - 1}-${roomState.id}`);
+              path.set('id', `${checkSum.value}-${path.type}-${roomState.id}`);
               path.toJSON = (function (toJSON) {
                 return function () {
                   return fabric.util.object.extend(toJSON.call(this), {
@@ -516,16 +581,17 @@ export default defineComponent({
                   });
                 };
               })(path.toJSON);
-
+              
               sendData(roomState.hostId, {
                 eventType: 'BOARD_EVENT',
                 from: userMe.id,
                 to: 'ALL',
                 event: BOARD_EVENTS.OBJECT_ADD,
-                object: JSON.stringify(path),
+                objects: JSON.stringify([path]),
                 canvas: JSON.stringify(board.value),
               });
 
+              checkSumIncrease();
               window.xprops?.updateBoardObjects?.(JSON.stringify(board.value)); // update cooperate-options field
             }
           }
@@ -534,6 +600,7 @@ export default defineComponent({
     });
 
     return {
+      ...toRefs(userMe),
       toggleDrawMode,
       callCleanBoard,
       showBoard,
@@ -542,8 +609,6 @@ export default defineComponent({
       addRect,
       addCircle,
       actionSelected,
-      ...toRefs(userMe),
-      discard,
       brushColor,
       strokeColor,
       fillColor,
@@ -610,8 +675,14 @@ export default defineComponent({
           });
         }
       },
-      addTextBox: () => (actionSelected.value = 'text-box'),
-      // addPath
+      addTextBox: () => {
+        if (actionSelected.value === 'draw') {
+          toggleDrawMode();
+        }
+        actionSelected.value = 'text-box';
+      },
+      deleteSelected,
+      objectActive,
     };
   },
 });

@@ -126,7 +126,7 @@ const { updateExternalVideoState, externalVideo } = useExternalVideo();
 
 /* const { setScreenShareIconState } = useActions(); */
 
-const { handleObject, clearBoard, changeBgColor, discardSelection } = useBoard();
+const { handleMultipleObjects, clearBoard, changeBgColor, discardSelection } = useBoard();
 
 const remotePlayer = ref<videojs.Player>({} as videojs.Player);
 
@@ -1262,11 +1262,11 @@ export function useInitWebRTC() {
               updateStreamById(streamToPause, { isBeingPlayed: false });
             }
           } else if (eventType === 'BOARD_EVENT') {
-            const { event, object, color, canvas } = JSON.parse(
+            const { event, objects, color, canvas } = JSON.parse(
               obj.data
-            ) as ObjBoardEvent;
+            ) as ObjBoardEvent;            
 
-            if (!object) {
+            if (!objects) {
               if (event === BOARD_EVENTS.TURN_ON) {
                 updateBoardState(true);
               } else if (event === BOARD_EVENTS.TURN_OFF) {
@@ -1296,11 +1296,11 @@ export function useInitWebRTC() {
               }
             } else {
               if (event === BOARD_EVENTS.OBJECT_ADD) {
-                handleObject(object, canvas);
+                handleMultipleObjects({objects, canvas});
               } else if (event === BOARD_EVENTS.OBJECT_UPDATE) {
-                handleObject(object, canvas);
+                handleMultipleObjects({objects, canvas});
               }else if (event === BOARD_EVENTS.OBJECT_REMOVE) {
-                handleObject(object, canvas);
+                handleMultipleObjects({objects, canvas});
               }
             }
           }

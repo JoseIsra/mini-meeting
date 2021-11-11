@@ -680,7 +680,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, computed } from 'vue';
+import { defineComponent, computed, watch } from 'vue';
 import {
   useHandleParticipants,
   useUserMe,
@@ -761,6 +761,16 @@ export default defineComponent({
       admittedParticipants.value.find((part) => part.id === participant.id)
         ?.isScreenShareBlocked === true;
 
+    watch(waitingParticipants, (value) => {
+      if (value.length > 0) {
+        const waitingSound = new Audio(
+          'https://freesound.org/data/previews/415/415763_6090639-lq.mp3'
+        );
+        waitingSound.currentTime = 0;
+        void waitingSound.play();
+        console.log('HAY PARTICIPANTES BRO');
+      }
+    });
     const handleParticipantActions = (
       participant: Partial<User>,
       action: number

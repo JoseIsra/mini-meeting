@@ -774,9 +774,14 @@ export function useInitWebRTC() {
 
             handleNotificationMessage(notificationType, baseDataNotification);
           } else if (eventType === 'HAND') {
+            const handNotificationSound = new Audio(
+              'https://freesound.org/data/previews/411/411642_5121236-lq.mp3'
+            );
             const handNotificationParsed = JSON.parse(
               baseData
             ) as HandNotification;
+            handNotificationSound.currentTime = 0;
+            void handNotificationSound.play();
             addHandNotificationInfo(handNotificationParsed);
           } else if (eventType === 'NOHAND') {
             if (userMe.id == baseDataParsed.from) {

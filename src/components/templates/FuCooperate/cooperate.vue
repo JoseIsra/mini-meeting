@@ -50,6 +50,8 @@ import moment from 'moment';
 
 import { RoomApiBody } from '@/types';
 
+import DetectRTC from 'detectrtc';
+
 export default defineComponent({
   name: 'FuTCooperate',
   components: {
@@ -198,6 +200,13 @@ export default defineComponent({
       setCameraState(true);
       /* setCameraIconState(true); */
     }
+
+    DetectRTC.load(() => {
+      updateUserMe({
+        hasWebcam: DetectRTC.hasWebcam,
+        hasMic: DetectRTC.hasMicrophone,
+      });
+    });
 
     setUserMe({
       id: streamId,

@@ -16,7 +16,9 @@
               ? iconsPeriferics.mic.loadingState
               : iconsPeriferics.mic.offState
           "
-          :disable="userMe.isPublishing == 2 || userMe.isMicBlocked"
+          :disable="
+            userMe.isPublishing == 2 || userMe.isMicBlocked || !userMe.hasMic
+          "
           size="13px"
           @click="toggleMIC"
         >
@@ -44,7 +46,11 @@
               ? iconsPeriferics.camera.loadingState
               : iconsPeriferics.camera.offState
           "
-          :disable="userMe.isPublishing == 2 || userMe.isCameraBlocked"
+          :disable="
+            userMe.isPublishing == 2 ||
+            userMe.isCameraBlocked ||
+            !userMe.hasWebcam
+          "
           size="13px"
           @click="toggleCamera"
         >

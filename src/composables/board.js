@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/unbound-method */
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
@@ -7,7 +8,10 @@
 // import { Board } from '@/types/board';
 
 import { ref } from 'vue';
-// import { fabric } from 'fabric';
+import { fabric } from 'fabric';
+import { useRoom } from '.';
+
+const { roomState } = useRoom();
 
 // const showBoard = ref<boolean>(true);
 const showBoard = ref(true);
@@ -39,8 +43,8 @@ export function useBoard() {
 
   const getObjectFromId = (id) => {
     const currentObjects = board.value.getObjects();
-    // console.debug(id);
     for (let i = currentObjects.length - 1; i >= 0; i--) {
+      console.debug(currentObjects[i].id);
       if (currentObjects[i].id === id) return currentObjects[i];
     }
     return null;
@@ -48,16 +52,13 @@ export function useBoard() {
 
   const handleObject = (object, canvas) => {
     const obj = JSON.parse(object);
-    const board = JSON.parse(canvas);
+    const boardTest = JSON.parse(canvas);
     const existing = getObjectFromId(obj.id);
 
-    // console.debug(board);
+    console.debug(existing);
 
     if (obj.removed) {
-      // console.debug('Removed en true');
-      // console.debug(obj.id);
       if (existing) {
-        // console.debug('Existe y deberia removerlo');
         board.value.remove(existing);
         board.value.requestRenderAll();
       }
@@ -65,36 +66,53 @@ export function useBoard() {
     }
 
     if (existing) {
-      // console.debug('Existe y posiciona');
       existing.set(obj);
+      board.value.requestRenderAll();
     } else {
-      const autorId = obj.id.split('-').slice(-1)[0]; // object autor id
+      console.debug('Agregar al board objeto: ', obj.id);      
 
-      const boardUpdate = {
-        ...board,
-        objects: board.objects.map((obj, index) => {
+      const boardUpdated = {
+        ...boardTest,
+        objects: boardTest.objects.map((obj, index) => {
           return {
             ...obj,
-            id: obj.id ?? `${index}-${autorId}`, // id added
-          };
-        }),
-      };
+            id: `${index}-${roomState.id}`
+          }
+        })
+      }  
 
-      // boardUpdate.objects.forEach((p) => console.debug(p.id));
-      loadBoard(JSON.stringify(boardUpdate));
+      if (obj.type === 'path') {
+        console.debug('Es un path, to resolve (redibujado):', obj);        
+        loadBoard(JSON.stringify(boardUpdated));
+      } else if (obj.type === 'rect') {
+        console.debug('Es un rect, agregar al board');
+        board.value.add(new fabric.Rect(obj));
+      } else if (obj.type === 'circle') {
+        console.debug('Es un circle, agregar al board');
+        board.value.add(new fabric.Circle(obj));
+      } else if (obj.text) {
+        console.debug('Es objeto text, agregar al board(redibujado):', obj);
+        loadBoard(JSON.stringify(boardUpdated));
+      } else {
+        console.debug('Es un objeto de tipo no mapeado aun: ', obj);
+      }
     }
 
+    board.value.renderAll();
     // board.value.requestRenderAll();
   };
 
   const dummylogs = () => {
-    console.debug(board.value.getObjects());
-    // console.debug(board.value.getContext());
+    const objects = board.value.getObjects();
+
+    console.debug(objects);
+    objects.forEach((obj) => {
+      console.debug(`${obj.id} - ${obj.type}`);
+    });
   };
 
   const loadBoard = (canvas) => {
     board.value.loadFromJSON(canvas, board.value.renderAll.bind(board.value));
-    // console.debug(board.value);
     bgColor.value = canvas.background;
   };
 

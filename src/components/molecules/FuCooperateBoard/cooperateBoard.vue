@@ -44,7 +44,7 @@
       <q-btn
         class="o-board__toolbar__tool"
         icon="fas fa-democrat"
-        @click="discardSelection"
+        @click="dummylogs"
         size="8px"
         dense
       />
@@ -285,6 +285,22 @@ export default defineComponent({
       board.value.setActiveObject(circle);
     };
 
+    // const addPath = () => {
+    //   const path = new fabric.Path('M 0 20', {
+    //     left: 100,
+    //     top: 100,
+    //     stroke: 'black',
+    //     fill: '',
+    //   });
+
+    //   if (board.value.isDrawingMode) {
+    //     toggleDrawMode();
+    //   }
+
+    //   board.value.add(path);
+    //   board.value.setActiveObject(path);
+    // };
+
     const callCleanBoard = () => {
       brushColor.value = '#000000';
       strokeColor.value = '#000000';
@@ -325,14 +341,12 @@ export default defineComponent({
       canvas.remove(target);
       canvas.requestRenderAll();
 
-      console.debug(target);
-
       const dummyObject = JSON.stringify(options.target);
 
       const dummyParse = {
         ...JSON.parse(dummyObject),
         id: options.target.id,
-        // removed: true
+        removed: true,
       };
 
       // SendData OBJET REMOVED
@@ -342,13 +356,15 @@ export default defineComponent({
         to: 'ALL',
         event: BOARD_EVENTS.OBJECT_REMOVE,
         object: JSON.stringify(dummyParse),
-        canvas: JSON.stringify(canvas),
+        canvas: JSON.stringify(board.value),
       });
 
       window.xprops?.updateBoardObjects?.(JSON.stringify(board.value)); // update cooperate-options field
     };
 
     onMounted(() => {
+      const boardObjects = window?.xprops?.boardObjects || '';
+
       setBoard(new fabric.Canvas('board'));
 
       fabric.Object.prototype.transparentCorners = false;
@@ -368,16 +384,12 @@ export default defineComponent({
         actionSelected.value = 'draw';
       }
 
-      const boardObjects = window?.xprops?.boardObjects || '';
-
       if (boardObjects) {
-        console.debug(boardObjects);
-
         if (boardObjects.objects) {
           const objectsUpdated = boardObjects.objects.map((obj, index) => {
             return {
               ...obj,
-              id: `${index}-${userMe.id}`,
+              id: `${index}-${roomState.id}`,
             };
           });
 
@@ -390,14 +402,17 @@ export default defineComponent({
 
       board.value.on({
         'object:added': (options) => {
-          console.debug('Added');
           const obj = options.target;
+          console.debug('Added', obj);
+
+          if (options.target.type === 'path') {
+            return;
+          }
 
           if (obj) {
             if (!obj.id) {
               const currentLength = board.value.getObjects();
-
-              obj.set('id', `${currentLength.length - 1}-${userMe.id}`);
+              obj.set('id', `${currentLength.length - 1}-${roomState.id}`);
               obj.toJSON = (function (toJSON) {
                 return function () {
                   return fabric.util.object.extend(toJSON.call(this), {
@@ -425,7 +440,7 @@ export default defineComponent({
           if (options.target.type === 'activeSelection') {
             return;
           }
-          
+
           const dummyObject = JSON.stringify(options.target);
 
           const dummyParse = {
@@ -482,6 +497,36 @@ export default defineComponent({
               board.value.setActiveObject(textBox);
 
               actionSelected.value = '';
+            }
+          }
+        },
+        'path:created': (options) => {
+          console.debug('Path Created: ', options.path);
+
+          const path = options.path;
+
+          if (path) {
+            if (!path.id) {
+              const currentLength = board.value.getObjects();
+              path.set('id', `${currentLength.length - 1}-${roomState.id}`);
+              path.toJSON = (function (toJSON) {
+                return function () {
+                  return fabric.util.object.extend(toJSON.call(this), {
+                    id: this.id,
+                  });
+                };
+              })(path.toJSON);
+
+              sendData(roomState.hostId, {
+                eventType: 'BOARD_EVENT',
+                from: userMe.id,
+                to: 'ALL',
+                event: BOARD_EVENTS.OBJECT_ADD,
+                object: JSON.stringify(path),
+                canvas: JSON.stringify(board.value),
+              });
+
+              window.xprops?.updateBoardObjects?.(JSON.stringify(board.value)); // update cooperate-options field
             }
           }
         },
@@ -566,6 +611,7 @@ export default defineComponent({
         }
       },
       addTextBox: () => (actionSelected.value = 'text-box'),
+      // addPath
     };
   },
 });

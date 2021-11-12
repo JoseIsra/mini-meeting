@@ -728,11 +728,7 @@ export default defineComponent({
       setRoomScreenShareState,
     } = useRoom();
 
-    const {
-      functionsOnMenuBar,
-      removeHandNotification,
-      updateHandNotification,
-    } = useToogleFunctions();
+    const { functionsOnMenuBar, removeHandNotification } = useToogleFunctions();
 
     const isEveryoneMicBlocked = computed(() => roomState.isMicBlocked);
 
@@ -1061,7 +1057,6 @@ export default defineComponent({
     const removeHandUp = (userId: string) => {
       console.log(userId, 'bajando mano');
       removeHandNotification(userId);
-      updateHandNotification(false);
       sendData(roomState.hostId, {
         from: userId,
         eventType: 'NOHAND',

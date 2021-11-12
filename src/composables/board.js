@@ -16,8 +16,6 @@ const showBoard = ref(true);
 const board = ref(null);
 // const bgColor = ref<string>('#ffffff');
 const bgColor = ref('#ffffff');
-// const checkSUM = ref<number>(0);
-const checkSum = ref(0);
 // const objectActive = ref<boolean>(false);
 const objectActive = ref(false);
 
@@ -52,6 +50,8 @@ export function useBoard() {
 
   const handleObject = (obj) => {
     const existing = getObjectFromId(obj.id);
+    console.debug(obj);
+
     if (obj.removed) {
       if (existing) {
         if (objectActive.value) {
@@ -72,18 +72,14 @@ export function useBoard() {
     } else {
       if (obj.type === 'path') {
         console.debug('Es un path, agregar al board', obj);
-        checkSumIncrease();
         new fabric.Path.fromObject(obj, (dummy) => board.value.add(dummy));
       } else if (obj.type === 'rect') {
-        checkSumIncrease();
         console.debug('Es un rect, agregar al board');
         board.value.add(new fabric.Rect(obj));
       } else if (obj.type === 'circle') {
-        checkSumIncrease();
         console.debug('Es un circle, agregar al board');
         board.value.add(new fabric.Circle(obj));
       } else if (obj.text) {
-        checkSumIncrease();
         console.debug('Es objeto text, agregar al board', obj);
         new fabric.Textbox.fromObject(obj, (dummy) => board.value.add(dummy));
       } else {
@@ -102,10 +98,9 @@ export function useBoard() {
       handleObject(cObject, canvas);
     });
   };
-  
+
   const dummylogs = () => {
     const objects = board.value.getObjects();
-    console.debug(checkSum.value);
     objects.forEach((obj) => console.debug(obj.id));
   };
   const loadBoard = (canvas) => {
@@ -117,8 +112,6 @@ export function useBoard() {
     board.value.requestRenderAll();
   };
 
-  const checkSumInitialValue = (value) => (checkSum.value = value);
-  const checkSumIncrease = () => checkSum.value++;
   const setObjectActive = (value) => (objectActive.value = value);
 
   return {
@@ -134,9 +127,6 @@ export function useBoard() {
     bgColor,
     discardSelection,
     handleMultipleObjects,
-    checkSum,
-    checkSumInitialValue,
-    checkSumIncrease,
     objectActive,
     setObjectActive,
   };

@@ -121,7 +121,6 @@ export interface ObjRecordingStopParsed {
 
 export interface ObjBoardEvent {
   event: number;
-  canvas: string;
   objects?: string;
   color?: string;
 }

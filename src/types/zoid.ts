@@ -11,6 +11,11 @@ export interface BgInfo {
   allowResetBg: boolean;
 }
 
+// export interface boardInfo{
+//   board: string;
+//   syncData: number;
+// }
+
 export interface ZoidProps {
   streamId?: string;
   roomId: string;

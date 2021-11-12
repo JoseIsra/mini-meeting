@@ -137,7 +137,7 @@
         size="8px"
         dense
         :disable="!objectActive"
-        @click="deleteSelected"
+        @click="deleteActiveObject"
       >
         <q-tooltip class="bg-grey-10">
           <label> Eliminar objeto</label>
@@ -240,16 +240,12 @@ export default defineComponent({
       changeBgColor,
       bgColor,
       discardSelection,
-      checkSum,
-      checkSumInitialValue,
-      checkSumIncrease,
       objectActive,
       setObjectActive,
     } = useBoard();
 
     watch(brushSize, (value) => {
-      if (board) {
-        console.debug(value);
+      if (board.value) {
         board.value.freeDrawingBrush.width = value;
       }
     });
@@ -331,52 +327,73 @@ export default defineComponent({
       }
     };
 
-    const deleteObject = (eventData, options) => {
-      console.debug('Call delete object(s)', options);
-      const object = options.target;
-      if (object.id) {
-        const canvas = object.canvas;
-        canvas.remove(object);
-        canvas.requestRenderAll();
-
-        sendData(roomState.hostId, {
-          eventType: 'BOARD_EVENT',
-          from: userMe.id,
-          to: 'ALL',
-          event: BOARD_EVENTS.OBJECT_REMOVE,
-          objects: JSON.stringify([{ ...object, removed: true }]),
-          canvas: JSON.stringify(board.value),
+    const parseCurrentBoard = () => {
+      if (board.value) {
+        const parsedObjects = board.value.getObjects().map((obj) => {
+          const objParsed = obj.toObject();
+          return {
+            ...objParsed,
+            id: obj.id,
+          };
         });
 
-        window.xprops?.updateBoardObjects?.(JSON.stringify(board.value)); // update cooperate-options field
+        window.xprops?.updateBoardObjects?.(
+          JSON.stringify({
+            ...board.value.toJSON(),
+            objects: parsedObjects,
+          })
+        ); // update cooperate-options field
+
         return;
       }
-
-      object._objects.forEach((obj) => {
-        console.debug(obj);
-        const canvas = obj.canvas;
-        canvas.remove(obj);
-        canvas.requestRenderAll();
-      });
-
-      setObjectActive(false);
-      discardSelection();
-
-      sendData(roomState.hostId, {
-        eventType: 'BOARD_EVENT',
-        from: userMe.id,
-        to: 'ALL',
-        event: BOARD_EVENTS.OBJECT_REMOVE,
-        objects: JSON.stringify(
-          object._objects.map((obj) => ({ ...obj, removed: true }))
-        ),
-        canvas: JSON.stringify(board.value),
-      });
-
-      window.xprops?.updateBoardObjects?.(JSON.stringify(board.value)); // update cooperate-options field
     };
 
-    const deleteSelected = () => {
+    // const deleteObject = (eventData, options) => {
+    //   console.debug('Call delete object(s)', options);
+    //   const object = options.target;
+    //   if (object.id) {
+    //     const canvas = object.canvas;
+    //     canvas.remove(object);
+    //     canvas.requestRenderAll();
+
+    //     sendData(roomState.hostId, {
+    //       eventType: 'BOARD_EVENT',
+    //       from: userMe.id,
+    //       to: 'ALL',
+    //       event: BOARD_EVENTS.OBJECT_REMOVE,
+    //       objects: JSON.stringify([{ ...object, removed: true }]),
+    //       canvas: JSON.stringify(board.value),
+    //     });
+
+    //     parseCurrentBoard(); // update cooperate-options field
+    //     return;
+    //   }
+
+    //   object._objects.forEach((obj) => {
+    //     console.debug(obj);
+    //     const canvas = obj.canvas;
+    //     canvas.remove(obj);
+    //     canvas.requestRenderAll();
+    //   });
+
+    //   setObjectActive(false);
+    //   discardSelection();
+
+    //   sendData(roomState.hostId, {
+    //     eventType: 'BOARD_EVENT',
+    //     from: userMe.id,
+    //     to: 'ALL',
+    //     event: BOARD_EVENTS.OBJECT_REMOVE,
+    //     objects: JSON.stringify(
+    //       object._objects.map((obj) => ({ ...obj, removed: true }))
+    //     ),
+    //     canvas: JSON.stringify(board.value),
+    //   });
+
+    //   window.xprops?.updateBoardObjects?.(JSON.stringify(board.value)); // update cooperate-options field
+    // };
+
+    const deleteActiveObject = () => {
       const object = board.value.getActiveObject();
       if (object) {
         if (object.id) {
@@ -386,16 +403,19 @@ export default defineComponent({
           setObjectActive(false);
           discardSelection();
 
+          const objectHelper = object.toObject();
+
           sendData(roomState.hostId, {
             eventType: 'BOARD_EVENT',
             from: userMe.id,
             to: 'ALL',
             event: BOARD_EVENTS.OBJECT_REMOVE,
-            objects: JSON.stringify([{ ...object, removed: true }]),
-            canvas: JSON.stringify(board.value),
+            objects: JSON.stringify([
+              { ...objectHelper, id: object.id, removed: true },
+            ]),
           });
 
-          window.xprops?.updateBoardObjects?.(JSON.stringify(board.value)); // update cooperate-options field
+          parseCurrentBoard(); // update cooperate-options field
           return;
         }
       }
@@ -403,17 +423,18 @@ export default defineComponent({
 
     onMounted(() => {
       const boardObjects = window?.xprops?.boardObjects || '';
+      console.debug('XXX Load board XXX');
       setBoard(new fabric.Canvas('board'));
       fabric.Object.prototype.transparentCorners = false;
-      fabric.Object.prototype.controls.deleteControl = new fabric.Control({
-        x: 0.5,
-        y: -0.5,
-        offsetY: -16,
-        offsetX: 16,
-        cursorStyle: 'pointer',
-        mouseUpHandler: deleteObject,
-        cornerSize: 21,
-      });
+      // fabric.Object.prototype.controls.deleteControl = new fabric.Control({
+      //   x: 0.5,
+      //   y: -0.5,
+      //   offsetY: -16,
+      //   offsetX: 16,
+      //   cursorStyle: 'pointer',
+      //   mouseUpHandler: deleteObject,
+      //   cornerSize: 21,
+      // });
 
       if (userMe.roleId !== 1) {
         // Admin with freeDrawing activated by default
@@ -424,18 +445,7 @@ export default defineComponent({
       if (boardObjects) {
         // If cooperate-options object is active this objects should initialize once board mounted
         if (boardObjects.objects) {
-          const objectsUpdated = boardObjects.objects.map((obj, index) => {
-            return {
-              ...obj,
-              id: `${index}-${obj.type}-${roomState.id}`,
-            };
-          });
-          loadBoard({
-            ...boardObjects,
-            objects: objectsUpdated,
-          });
-
-          checkSumInitialValue(boardObjects.objects.length);
+          loadBoard(boardObjects);
         }
       }
 
@@ -449,7 +459,7 @@ export default defineComponent({
 
           if (obj) {
             if (!obj.id) {
-              obj.set('id', `${checkSum.value}-${obj.type}-${roomState.id}`);
+              obj.set('id', `${Date.now().toString()}-${userMe.id}`);
               obj.toJSON = (function (toJSON) {
                 return function () {
                   return fabric.util.object.extend(toJSON.call(this), {
@@ -465,9 +475,7 @@ export default defineComponent({
                 event: BOARD_EVENTS.OBJECT_ADD,
                 objects: JSON.stringify([obj]),
               });
-
-              checkSumIncrease();
-              window.xprops?.updateBoardObjects?.(JSON.stringify(board.value)); // update cooperate-options field
+              parseCurrentBoard(); // update cooperate-options field
             }
           }
         },
@@ -500,7 +508,7 @@ export default defineComponent({
             return;
           }
 
-          console.debug('Object modified ');
+          console.debug('Object modified');
 
           const parsedObject = obj.toObject();
 
@@ -515,10 +523,9 @@ export default defineComponent({
                 id: obj.id,
               },
             ]),
-            canvas: JSON.stringify(board.value),
           });
 
-          window.xprops?.updateBoardObjects?.(JSON.stringify(board.value));
+          parseCurrentBoard();
         },
         'mouse:down': (options) => {
           // Close tools on click-board ?
@@ -568,7 +575,7 @@ export default defineComponent({
 
           if (path) {
             if (!path.id) {
-              path.set('id', `${checkSum.value}-${path.type}-${roomState.id}`);
+              path.set('id', `${Date.now().toString()}-${userMe.id}`);
               path.toJSON = (function (toJSON) {
                 return function () {
                   return fabric.util.object.extend(toJSON.call(this), {
@@ -585,8 +592,7 @@ export default defineComponent({
                 objects: JSON.stringify([path]),
               });
 
-              checkSumIncrease();
-              window.xprops?.updateBoardObjects?.(JSON.stringify(board.value)); // update cooperate-options field
+              parseCurrentBoard(); // update cooperate-options field
             }
           }
         },
@@ -675,7 +681,7 @@ export default defineComponent({
         }
         actionSelected.value = 'text-box';
       },
-      deleteSelected,
+      deleteActiveObject,
       objectActive,
     };
   },

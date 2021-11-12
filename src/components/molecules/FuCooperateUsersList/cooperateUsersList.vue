@@ -697,6 +697,7 @@ import {
   USER_ROLE,
 } from '@/utils/enums';
 import { nanoid } from 'nanoid';
+import _ from 'lodash';
 
 export default defineComponent({
   name: 'FuCooperateUsersList',
@@ -760,13 +761,15 @@ export default defineComponent({
       admittedParticipants.value.find((part) => part.id === participant.id)
         ?.isScreenShareBlocked === true;
 
-    watch(waitingParticipants, (value) => {
-      if (value.length > 0) {
-        waitingSound.currentTime = 0;
-        void waitingSound.play();
-        console.log('HAY PARTICIPANTES BRO');
+    watch(
+      () => _.cloneDeep(waitingParticipants.value),
+      (current, prev) => {
+        if (prev.length < current.length) {
+          waitingSound.currentTime = 0;
+          void waitingSound.play();
+        }
       }
-    });
+    );
     const handleParticipantActions = (
       participant: Partial<User>,
       action: number

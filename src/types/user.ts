@@ -24,4 +24,6 @@ export interface User {
   hasLogJoin?: boolean; // Specially for others users because mine just log one time
   cameraId?: string;
   micId?: string;
+  hasWebcam?: boolean;
+  hasMic?: boolean;
 }

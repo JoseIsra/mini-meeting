@@ -50,8 +50,14 @@
         :class="[
           'm-fuser__stream',
           orientationClass,
-          { '--coverMode': userPinned?.isCameraOn },
-          { '--fillMode': userPinned?.isScreenSharing },
+          { '--coverMode': userPinned?.isCameraOn && $q.platform.is.desktop },
+          {
+            '--fillMode': userPinned?.isScreenSharing && $q.platform.is.desktop,
+          },
+          {
+            '--containMode':
+              userPinned?.isScreenSharing && $q.platform.is.mobile,
+          },
         ]"
         autoplay
         @mousemove="toggleMinimizeMessage"

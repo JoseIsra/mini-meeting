@@ -10,6 +10,7 @@ import {
   MAIN_VIEW_MODE,
   LOG_TYPE,
   PERMISSION_STATUS,
+  ROOM_PRIVACY,
 } from '@/utils/enums';
 
 import {
@@ -337,10 +338,10 @@ export function useInitWebRTC() {
 
           joinRoom(roomId, streamId);
         } else if (info == 'joinedTheRoom') {
-          if (!userMe.isCameraOn) {
+          if (!userMe.isCameraOn && userMe.hasWebcam) {
             webRTCInstance.value.turnOffLocalCamera?.(streamId);
           }
-          if (!userMe.isMicOn) {
+          if (!userMe.isMicOn && userMe.hasMic) {
             muteLocalMic();
           }
 
@@ -850,7 +851,7 @@ export function useInitWebRTC() {
             if (
               userMe.roleId === 0 &&
               remoteUserInfoParsed.userInfo.denied === 0 &&
-              !roomState.roomRestriction
+              roomState.roomRestriction === ROOM_PRIVACY.PRIVATE
             ) {
               notifyWithAction(
                 remoteUserInfoParsed.userInfo.name,
@@ -1311,7 +1312,7 @@ export function useInitWebRTC() {
           error.indexOf('NotAllowedError') != -1 ||
           error.indexOf('PermissionDeniedError') != -1
         ) {
-          errorMessage = 'You are not allowed to access camera and mic.';
+          errorMessage = 'No ha habilitado los permisos de cámara y micrófono.';
           setExistRoom(false);
           setLoadingOrErrorMessage(errorMessage);
         } else if (error.indexOf('TypeError') != -1) {

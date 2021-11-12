@@ -119,6 +119,10 @@ const { updateExternalVideoState, externalVideo } = useExternalVideo();
 
 const remotePlayer = ref<videojs.Player>({} as videojs.Player);
 
+const handNotificationSound = new Audio(
+  'https://freesound.org/data/previews/411/411642_5121236-lq.mp3'
+);
+
 export function useInitWebRTC() {
   const joinRoom = (roomId: string, streamId: string) => {
     webRTCInstance.value.joinRoom?.(roomId, streamId, 'legacy');
@@ -774,9 +778,6 @@ export function useInitWebRTC() {
 
             handleNotificationMessage(notificationType, baseDataNotification);
           } else if (eventType === 'HAND') {
-            const handNotificationSound = new Audio(
-              'https://freesound.org/data/previews/411/411642_5121236-lq.mp3'
-            );
             const handNotificationParsed = JSON.parse(
               baseData
             ) as HandNotification;

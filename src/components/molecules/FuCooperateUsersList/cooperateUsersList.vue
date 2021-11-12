@@ -728,12 +728,11 @@ export default defineComponent({
       setRoomScreenShareState,
     } = useRoom();
 
-    const {
-      functionsOnMenuBar,
-      removeHandNotification,
-      updateHandNotification,
-    } = useToogleFunctions();
+    const { functionsOnMenuBar, removeHandNotification } = useToogleFunctions();
 
+    const waitingSound = new Audio(
+      'https://freesound.org/data/previews/415/415763_6090639-lq.mp3'
+    );
     const isEveryoneMicBlocked = computed(() => roomState.isMicBlocked);
 
     const isEveryoneVideoBlocked = computed(() => roomState.isCameraBlocked);
@@ -763,9 +762,6 @@ export default defineComponent({
 
     watch(waitingParticipants, (value) => {
       if (value.length > 0) {
-        const waitingSound = new Audio(
-          'https://freesound.org/data/previews/415/415763_6090639-lq.mp3'
-        );
         waitingSound.currentTime = 0;
         void waitingSound.play();
         console.log('HAY PARTICIPANTES BRO');
@@ -1071,7 +1067,7 @@ export default defineComponent({
     const removeHandUp = (userId: string) => {
       console.log(userId, 'bajando mano');
       removeHandNotification(userId);
-      updateHandNotification(false);
+      // updateHandNotification(false);
       sendData(roomState.hostId, {
         from: userId,
         eventType: 'NOHAND',

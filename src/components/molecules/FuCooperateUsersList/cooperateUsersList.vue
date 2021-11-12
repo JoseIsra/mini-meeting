@@ -526,6 +526,7 @@
 
                   <q-btn
                     v-if="participant.roleId === 1"
+                    v-show="roomState.boardState"
                     icon="draw"
                     :color="participant.canDraw ? 'blue' : 'red'"
                     text-color="white"
@@ -538,7 +539,9 @@
                       transition-show="scale"
                       transition-hide="scale"
                     >
-                      <label v-if="participant.canDraw">Dibujar habilitado</label>
+                      <label v-if="participant.canDraw"
+                        >Dibujar habilitado</label
+                      >
                       <label v-else>Dibujar deshabilitado</label>
                     </q-tooltip>
                   </q-btn>
@@ -714,7 +717,7 @@ import {
   MAIN_VIEW_LOCKED_TYPE,
   LOCK_ACTION_TYPE,
   USER_ROLE,
-  BOARD_EVENTS
+  BOARD_EVENTS,
 } from '@/utils/enums';
 import { nanoid } from 'nanoid';
 
@@ -733,7 +736,7 @@ export default defineComponent({
       setEveryParticipantActions,
       waitingParticipants,
       admittedParticipants,
-      updateParticipantById
+      updateParticipantById,
     } = useHandleParticipants();
 
     const { toggleParticipantPanel, setSidebarState } = useSidebarToogle();
@@ -1090,16 +1093,15 @@ export default defineComponent({
     };
 
     const toggleDrawMode = (arg: User) => {
-
-      updateParticipantById(arg.id, { canDraw:  !arg.canDraw});
+      updateParticipantById(arg.id, { canDraw: !arg.canDraw });
 
       sendData(roomState.hostId, {
         eventType: 'BOARD_EVENT',
         from: userMe.id,
         to: arg.id,
-        event: BOARD_EVENTS.TOGGLE_DRAW_MODE
+        event: BOARD_EVENTS.TOGGLE_DRAW_MODE,
       });
-    }
+    };
 
     return {
       waitingParticipants,

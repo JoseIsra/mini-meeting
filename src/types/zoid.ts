@@ -32,7 +32,6 @@ export interface ZoidProps {
   classroomId?: string;
   isMicOn?: boolean;
   bgInfo?: BgInfo;
-  isBeingRecorded?: boolean;
   roomRestriction?: number;
   isHost?: boolean;
   hostId?: string;

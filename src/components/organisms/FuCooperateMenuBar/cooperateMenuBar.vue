@@ -16,7 +16,9 @@
               ? iconsPeriferics.mic.loadingState
               : iconsPeriferics.mic.offState
           "
-          :disable="userMe.isPublishing == 2 || userMe.isMicBlocked"
+          :disable="
+            userMe.isPublishing == 2 || userMe.isMicBlocked || !userMe.hasMic
+          "
           size="13px"
           @click="toggleMIC"
         >
@@ -44,7 +46,11 @@
               ? iconsPeriferics.camera.loadingState
               : iconsPeriferics.camera.offState
           "
-          :disable="userMe.isPublishing == 2 || userMe.isCameraBlocked"
+          :disable="
+            userMe.isPublishing == 2 ||
+            userMe.isCameraBlocked ||
+            !userMe.hasWebcam
+          "
           size="13px"
           @click="toggleCamera"
         >
@@ -138,7 +144,7 @@
           <q-badge
             rounded
             floating
-            v-show="notificationCount > 0"
+            v-show="notificationCount > 0 || amountHandNotification > 0"
             :class="[
               'a-menuBar__icon__topin',
               { '--roleOne': userMe.roleId == 1 },
@@ -147,7 +153,7 @@
                 : '--noparticipants',
             ]"
           >
-            {{ notificationCount }}
+            {{ notificationCount + amountHandNotification }}
           </q-badge>
           <q-tooltip class="bg-grey-10">
             <label class="a-menuBar__icon__tooltip">
@@ -376,10 +382,20 @@ export default defineComponent({
     } = useToogleFunctions();
 
     const notificationCount = computed(() => {
-      return userMe.roleId === 0
-        ? waitingParticipants.value.length +
-            functionsOnMenuBar.handNotificationInfo.length
+      return userMe.roleId === 0 ? waitingParticipants.value.length : '';
+    });
+
+    const amountHandNotification = computed(() => {
+      return notificateHandUp.value
+        ? functionsOnMenuBar.handNotificationInfo.filter(
+            (notific) => notific.from !== userMe.id
+          ).length
         : functionsOnMenuBar.handNotificationInfo.length;
+    });
+    const notificateHandUp = computed(() => {
+      return functionsOnMenuBar.handNotificationInfo.some(
+        (notific) => notific.from == userMe.id
+      );
     });
 
     let { isSidebarRender, setSidebarState } = useSidebarToogle();
@@ -621,6 +637,7 @@ export default defineComponent({
       minimizeScreen,
       iconsOptions,
       amountOfNewMessages,
+      amountHandNotification,
     };
   },
 });

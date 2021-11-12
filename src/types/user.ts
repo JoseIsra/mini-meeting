@@ -25,4 +25,6 @@ export interface User {
   cameraId?: string;
   micId?: string;
   canDraw: boolean;
+  hasWebcam?: boolean;
+  hasMic?: boolean;
 }

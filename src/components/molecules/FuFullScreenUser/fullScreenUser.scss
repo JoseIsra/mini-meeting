@@ -91,6 +91,9 @@
     &.--fillMode {
       object-fit: fill;
     }
+    &.--containMode {
+      object-fit: contain;
+    }
   }
   /* .landscapeMode {
     object-fit: fill;

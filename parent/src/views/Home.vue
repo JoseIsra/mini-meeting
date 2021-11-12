@@ -18,7 +18,7 @@
     :isScreenShareLocked="actions.screenshare === 1"
     :getB2Info="getB2Info"
     :roleId="roleId"
-    :roomRestriction="0"
+    :roomRestriction="roomRestriction"
     photoURL="https://encrypted.fractalup.com/file/MainPublic/classrooms/1/users/44/assets/1623873430710.png"
     :bgInfo="bgInfo"
     :setBackgroundInfo="setBackgroundImg"
@@ -26,7 +26,6 @@
     fractalUserId="34i2jkd23"
     :isMicOn="false"
     :isCameraOn="false"
-    :isBeingRecorded="isBeingRecorded"
     :setHostId="setHostId"
     :hostId="this.isHost ? streamId : hostId"
     :isHost="isHost"
@@ -49,14 +48,12 @@ export default {
   data: function () {
     return {
       streamId:
-        `u-nr-classroomId-${this.$route.query.id}-${Date.now()}` ||
-        `u-nr-classroomId-userId-${Date.now()}`,
+        `u-nr-classroomId-${this.$route.query.id}` || `u-nr-classroomId-userId`,
       streamName: this.$route.query.id || `userId-${Date.now()}`,
       isMinimized: false,
       bgInfo: localStorage.bgInfo
         ? JSON.parse(localStorage.bgInfo)
         : { url: "", maximized: false },
-      isBeingRecorded: localStorage.isBeingRecorded === "true",
       hostId: localStorage.hostId,
       isHost: this.$route.query.isHost == "true" || false,
       roleId: parseInt(this.$route.query.roleId) || 0,
@@ -67,6 +64,7 @@ export default {
       boardObjects: localStorage.boardObjects
         ? JSON.parse(localStorage.boardObjects)
         : "",
+      roomRestriction: parseInt(this.$route.query.roomRestriction) || 0,
     };
   },
   methods: {
@@ -82,10 +80,10 @@ export default {
     },
     handleStopRecording: function (url) {
       console.log("⭐ handleStopRecording function executed with params", url);
-      window.localStorage.isBeingRecorded = false;
+      /* window.localStorage.isBeingRecorded = false; */
     },
     handleStartRecording: function () {
-      window.localStorage.isBeingRecorded = true;
+      /* window.localStorage.isBeingRecorded = true; */
     },
     toggleLockAction: function (options) {
       console.log("⭐ toggle log action with params", options);

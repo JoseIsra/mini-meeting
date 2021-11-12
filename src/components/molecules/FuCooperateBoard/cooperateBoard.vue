@@ -442,7 +442,6 @@ export default defineComponent({
       board.value.on({
         'object:added': (options) => {
           const obj = options.target;
-          console.debug('Added', obj);
 
           if (options.target.type === 'path') {
             return;
@@ -459,16 +458,12 @@ export default defineComponent({
                 };
               })(obj.toJSON);
 
-              console.debug(board.value.getObjects());
-              console.debug(JSON.stringify(board.value.getObjects()));
-
               sendData(roomState.hostId, {
                 eventType: 'BOARD_EVENT',
                 from: userMe.id,
                 to: 'ALL',
                 event: BOARD_EVENTS.OBJECT_ADD,
                 objects: JSON.stringify([obj]),
-                canvas: JSON.stringify(board.value.getObjects()),
               });
 
               checkSumIncrease();
@@ -481,7 +476,7 @@ export default defineComponent({
           console.debug('Modified', obj);
 
           if (obj.type === 'activeSelection') {
-            console.debug('ActiveSelection: ', obj._objects);
+            console.debug('ActiveSelection:');
             const dummyObjects = obj._objects.map((objT) => {
               const dummyObject = JSON.stringify(objT);
               const dummyParse = {
@@ -492,32 +487,34 @@ export default defineComponent({
               return dummyParse;
             });
 
-            dummyObjects.forEach((e) => console.debug(e.id));
+            console.debug(dummyObjects);
 
-            sendData(roomState.hostId, {
-              eventType: 'BOARD_EVENT',
-              from: userMe.id,
-              to: 'ALL',
-              event: BOARD_EVENTS.OBJECT_UPDATE,
-              objects: JSON.stringify(dummyObjects),
-              canvas: JSON.stringify(board.value),
-            });
+            // sendData(roomState.hostId, {
+            //   eventType: 'BOARD_EVENT',
+            //   from: userMe.id,
+            //   to: 'ALL',
+            //   event: BOARD_EVENTS.OBJECT_UPDATE,
+            //   objects: JSON.stringify(dummyObjects),
+            // });
 
             return;
           }
 
-          const dummyObject = JSON.stringify(obj);
-          const dummyParse = {
-            ...JSON.parse(dummyObject),
-            id: obj.id,
-          };
+          console.debug('Object modified ');
+
+          const parsedObject = obj.toObject();
 
           sendData(roomState.hostId, {
             eventType: 'BOARD_EVENT',
             from: userMe.id,
             to: 'ALL',
             event: BOARD_EVENTS.OBJECT_UPDATE,
-            objects: JSON.stringify([dummyParse]),
+            objects: JSON.stringify([
+              {
+                ...parsedObject,
+                id: obj.id,
+              },
+            ]),
             canvas: JSON.stringify(board.value),
           });
 
@@ -567,8 +564,6 @@ export default defineComponent({
           }
         },
         'path:created': (options) => {
-          console.debug('Path Created: ', options.path);
-
           const path = options.path;
 
           if (path) {
@@ -581,14 +576,13 @@ export default defineComponent({
                   });
                 };
               })(path.toJSON);
-              
+
               sendData(roomState.hostId, {
                 eventType: 'BOARD_EVENT',
                 from: userMe.id,
                 to: 'ALL',
                 event: BOARD_EVENTS.OBJECT_ADD,
                 objects: JSON.stringify([path]),
-                canvas: JSON.stringify(board.value),
               });
 
               checkSumIncrease();

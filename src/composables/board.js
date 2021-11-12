@@ -9,9 +9,6 @@
 
 import { ref } from 'vue';
 import { fabric } from 'fabric';
-import { useRoom } from '.';
-
-const { roomState } = useRoom();
 
 // const showBoard = ref<boolean>(true);
 const showBoard = ref(true);
@@ -53,15 +50,12 @@ export function useBoard() {
     return null;
   };
 
-  const handleObject = (obj, canvas) => {
-    const boardTest = JSON.parse(canvas);
+  const handleObject = (obj) => {
     const existing = getObjectFromId(obj.id);
     if (obj.removed) {
       if (existing) {
         if (objectActive.value) {
           const active = board.value.getActiveObject();
-          console.debug(obj.id);
-          console.debug(active.id);
           if (active.id === obj.id) {
             setObjectActive(false);
           }
@@ -76,53 +70,28 @@ export function useBoard() {
       existing.set(obj);
       board.value.requestRenderAll();
     } else {
-      console.debug(
-        `Agregar objeto recibido: ${obj.id}, tengo ${checkSum.value} objetos`
-      );
-
       if (obj.type === 'path') {
-        console.debug('Es un path, to resolve (redibujado):', obj);
-        console.debug('Disque mi canvas', boardTest);
-
-        const boardUpdated = {
-          ...boardTest,
-          objects: boardTest.objects.map((obj, index) => {
-            return {
-              ...obj,
-              id: `${index}-${obj.type}-${roomState.id}`,
-            };
-          }),
-        };
-
-        loadBoard(JSON.stringify(boardUpdated));
+        console.debug('Es un path, agregar al board', obj);
+        checkSumIncrease();
+        new fabric.Path.fromObject(obj, (dummy) => board.value.add(dummy));
       } else if (obj.type === 'rect') {
+        checkSumIncrease();
         console.debug('Es un rect, agregar al board');
         board.value.add(new fabric.Rect(obj));
-        checkSumIncrease();
       } else if (obj.type === 'circle') {
+        checkSumIncrease();
         console.debug('Es un circle, agregar al board');
         board.value.add(new fabric.Circle(obj));
-        checkSumIncrease();
       } else if (obj.text) {
-        console.debug('Es objeto text, agregar al board(redibujado):', obj);
-        const boardUpdated = {
-          ...boardTest,
-          objects: boardTest.objects.map((obj, index) => {
-            return {
-              ...obj,
-              id: `${index}-${obj.type}-${roomState.id}`,
-            };
-          }),
-        };
-
-        loadBoard(JSON.stringify(boardUpdated));
+        checkSumIncrease();
+        console.debug('Es objeto text, agregar al board', obj);
+        new fabric.Textbox.fromObject(obj, (dummy) => board.value.add(dummy));
       } else {
         console.debug('Es un objeto de tipo no mapeado aun: ', obj);
       }
     }
 
     board.value.renderAll();
-    // board.value.requestRenderAll();
   };
 
   const handleMultipleObjects = (canvasObjects) => {
@@ -130,10 +99,10 @@ export function useBoard() {
     const parsedObjects = JSON.parse(objects);
 
     parsedObjects.forEach((cObject) => {
-      console.debug(cObject);
       handleObject(cObject, canvas);
     });
   };
+  
   const dummylogs = () => {
     const objects = board.value.getObjects();
     console.debug(checkSum.value);

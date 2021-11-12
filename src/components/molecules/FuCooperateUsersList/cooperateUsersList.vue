@@ -1057,7 +1057,6 @@ export default defineComponent({
     const removeHandUp = (userId: string) => {
       console.log(userId, 'bajando mano');
       removeHandNotification(userId);
-      // updateHandNotification(false);
       sendData(roomState.hostId, {
         from: userId,
         eventType: 'NOHAND',

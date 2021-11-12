@@ -246,7 +246,7 @@ export default defineComponent({
       id: roomId,
       sharingLink,
       classroomId,
-      roomRestriction: roleId === 1 ? roomRestriction : ROOM_PRIVACY.PUBLIC,
+      roomRestriction,
       isMicBlocked: isMicLocked,
       isCameraBlocked: isCameraLocked,
       isScreenShareBlocked: isScreenShareLocked,

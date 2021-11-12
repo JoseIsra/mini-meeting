@@ -10,6 +10,7 @@ import {
   MAIN_VIEW_MODE,
   LOG_TYPE,
   PERMISSION_STATUS,
+  ROOM_PRIVACY,
 } from '@/utils/enums';
 
 import {
@@ -850,7 +851,7 @@ export function useInitWebRTC() {
             if (
               userMe.roleId === 0 &&
               remoteUserInfoParsed.userInfo.denied === 0 &&
-              !roomState.roomRestriction
+              roomState.roomRestriction === ROOM_PRIVACY.PRIVATE
             ) {
               notifyWithAction(
                 remoteUserInfoParsed.userInfo.name,

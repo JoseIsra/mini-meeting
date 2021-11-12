@@ -131,6 +131,10 @@ const { handleMultipleObjects, clearBoard, changeBgColor, discardSelection } = u
 
 const remotePlayer = ref<videojs.Player>({} as videojs.Player);
 
+const handNotificationSound = new Audio(
+  'https://freesound.org/data/previews/411/411642_5121236-lq.mp3'
+);
+
 export function useInitWebRTC() {
   const joinRoom = (roomId: string, streamId: string) => {
     webRTCInstance.value.joinRoom?.(roomId, streamId, 'legacy');
@@ -789,6 +793,8 @@ export function useInitWebRTC() {
             const handNotificationParsed = JSON.parse(
               baseData
             ) as HandNotification;
+            handNotificationSound.currentTime = 0;
+            void handNotificationSound.play();
             addHandNotificationInfo(handNotificationParsed);
           } else if (eventType === 'NOHAND') {
             if (userMe.id == baseDataParsed.from) {

@@ -7,6 +7,10 @@ const { sendData } = useInitWebRTC();
 const { updateParticipantDenied } = useHandleParticipants();
 const { roomState } = useRoom();
 
+const waitingSound = new Audio(
+  'https://freesound.org/data/previews/415/415763_6090639-lq.mp3'
+);
+
 export interface notifyAction {
   label: string;
   color: string;
@@ -25,6 +29,8 @@ const notify =
   };
 
 export const notifyWithAction = (name: string, id: string): void => {
+  waitingSound.currentTime = 0;
+  void waitingSound.play();
   Notify.create({
     position: 'bottom',
     message: `${name} ha solicitado unirse`,

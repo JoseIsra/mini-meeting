@@ -32,16 +32,18 @@ import {
   computed,
   onBeforeUnmount,
 } from 'vue';
-import { useExternalVideo } from '@/composables/external-video';
+import {
+  useRoom,
+  useScreen,
+  useUserMe,
+  useInitWebRTC,
+  useExternalVideo,
+} from '@/composables';
 import videojs from 'video.js';
 import 'video.js/dist/video.min.js';
 import 'videojs-youtube/dist/Youtube.min.js';
 import 'video.js/dist/video-js.css';
-import { useInitWebRTC } from '@/composables/antMedia';
-import { useUserMe } from '@/composables/userMe';
-import { useScreen } from '@/composables/screen';
 import { useQuasar } from 'quasar';
-import { useRoom } from '@/composables/room';
 
 export default defineComponent({
   name: 'FuExternalVideo',

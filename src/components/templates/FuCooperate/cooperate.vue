@@ -39,21 +39,18 @@ import FuCooperate from 'organisms/FuCooperate';
 import FuLobby from 'organisms/FuLobby';
 
 import { useRoute } from 'vue-router';
-import { useUserMe } from '@/composables/userMe';
+import { useRoom, useAuthState, useInitWebRTC, useUserMe } from '@/composables';
 import FuTLoading from 'organisms/FuLoading';
 import {
   PERMISSION_STATUS,
   REASON_TO_LEAVE_ROOM,
   ROOM_PRIVACY,
 } from '@/utils/enums';
-import { useInitWebRTC } from '@/composables/antMedia';
-import { useAuthState } from '@/composables/auth';
-import { useRoom } from '@/composables/room';
-/* import { useActions } from '@/composables/actions'; */
-import { useToogleFunctions } from '@/composables';
 import moment from 'moment';
 
-import { RoomApiBody } from '@/types/antmediaApi';
+import { RoomApiBody } from '@/types';
+
+import DetectRTC from 'detectrtc';
 
 export default defineComponent({
   name: 'FuTCooperate',
@@ -63,19 +60,6 @@ export default defineComponent({
     FuLobby,
   },
   setup() {
-    const {
-      createInstance,
-      turnOffLocalCamera,
-      resetDesktop,
-      switchDesktopCapture,
-      turnOnLocalCamera,
-      unmuteLocalMic,
-      muteLocalMic,
-      sendNotificationEvent,
-      publish,
-      stopPublishing,
-    } = useInitWebRTC();
-
     const {
       userMe,
       setUserMe,
@@ -96,6 +80,19 @@ export default defineComponent({
       setExistRoom,
       // setIsLoadingOrError,
     } = useAuthState();
+
+    const {
+      createInstance,
+      turnOffLocalCamera,
+      resetDesktop,
+      switchDesktopCapture,
+      turnOnLocalCamera,
+      unmuteLocalMic,
+      muteLocalMic,
+      sendNotificationEvent,
+      publish,
+      stopPublishing,
+    } = useInitWebRTC();
 
     /* const { setMicIconState, setCameraIconState } = useActions(); */
 
@@ -181,7 +178,8 @@ export default defineComponent({
       window?.xprops?.setHostId?.(streamId);
     }
 
-    const hostId = window?.xprops?.hostId as string;
+    const hostId =
+      (window?.xprops?.hostId as string) || (route.query.hostId as string);
     console.log(hostId, '🌏HOST ID🌏🌏');
 
     let bgInfo = window?.xprops?.bgInfo || {
@@ -197,17 +195,20 @@ export default defineComponent({
       };
     }
 
-    const userPinnedZoid = (window?.xprops?.pinnedUser as string) || '';
-
-    const isBeingRecorded = window?.xprops?.isBeingRecorded || false;
-
-    const { setFullScreen } = useToogleFunctions();
+    /* const isBeingRecorded = window?.xprops?.isBeingRecorded || false; */
 
     if (isCameraOn) {
       setVideoActivatedState(true);
       setCameraState(true);
       /* setCameraIconState(true); */
     }
+
+    DetectRTC.load(() => {
+      updateUserMe({
+        hasWebcam: DetectRTC.hasWebcam,
+        hasMic: DetectRTC.hasMicrophone,
+      });
+    });
 
     setUserMe({
       id: streamId,
@@ -248,15 +249,12 @@ export default defineComponent({
       id: roomId,
       sharingLink,
       classroomId,
-      roomRestriction: roleId === 1 ? roomRestriction : ROOM_PRIVACY.PUBLIC,
+      roomRestriction,
       isMicBlocked: isMicLocked,
       isCameraBlocked: isCameraLocked,
       isScreenShareBlocked: isScreenShareLocked,
       bgInfo: bgInfo,
-      isBeingRecorded,
       recordingUrl: '',
-      pinnedUser: null,
-      pinnedUserId: userPinnedZoid,
       startDate,
       hostId,
     });
@@ -268,10 +266,6 @@ export default defineComponent({
       setCameraState(true);
       turnOnLocalCamera(streamId);
       sendNotificationEvent('CAM_TURNED_ON', streamId);
-    }
-
-    if (userPinnedZoid) {
-      setFullScreen('user', true);
     }
 
     const publishToken =
@@ -298,7 +292,12 @@ export default defineComponent({
         updateUserMe({ isScreenSharing: false });
         turnOffLocalCamera(streamId);
         resetDesktop();
-        if (!userMe.isCameraOn && !userMe.isMicOn && !userMe.isHost) {
+        if (
+          !userMe.isCameraOn &&
+          !userMe.isMicOn &&
+          !userMe.isHost &&
+          !userMe.isRecording
+        ) {
           stopPublishing(streamId);
           updateUserMe({ isPublishing: 0 });
         }
@@ -342,7 +341,12 @@ export default defineComponent({
         setVideoActivatedState(false);
         setCameraState(false);
         sendNotificationEvent('CAM_TURNED_OFF', streamId);
-        if (!userMe.isHost && !userMe.isMicOn && !userMe.isScreenSharing) {
+        if (
+          !userMe.isHost &&
+          !userMe.isMicOn &&
+          !userMe.isScreenSharing &&
+          !userMe.isRecording
+        ) {
           updateUserMe({ isPublishing: 0 });
           stopPublishing(userMe.id);
         }
@@ -430,7 +434,7 @@ export default defineComponent({
         /* setMicIconState(false); */
         muteLocalMic();
         sendNotificationEvent('MIC_MUTED', roomState.hostId);
-        if (!userMe.isHost && !userMe.isVideoActivated) {
+        if (!userMe.isHost && !userMe.isVideoActivated && !userMe.isRecording) {
           updateUserMe({ isPublishing: 0 });
           stopPublishing(userMe.id);
         }
@@ -482,6 +486,12 @@ export default defineComponent({
       };
     };
 
+    /* const deleteTimestampFromId = (streamId: string) => {
+      const splitted = streamId.split('-');
+      splitted.pop();
+      return splitted.join('-');
+    }; */
+
     onMounted(async () => {
       if (roomId) {
         const { status, body } = await checkRoom(roomId);
@@ -490,21 +500,36 @@ export default defineComponent({
           const haveStarted = moment(nowTime).isSameOrAfter(
             roomState.startDate
           );
-          if (haveStarted || roleId === 0) {
+          if (haveStarted || userMe.isHost) {
             //El host puede ingresar a la reunión aún si no ha iniciado (Según la db de fractal).
-            if (!body.roomStreamList.includes(userMe.id)) {
-              setExistRoom(true);
-              createInstance(
-                roomId,
-                streamId,
-                streamName,
-                publishToken,
-                playToken,
-                subscriberId,
-                subscriberCode
+            const currentUsers = body.roomStreamList;
+            /* const currentUsersWithoutTimeStamp = currentUsers.map((streamId) =>
+              deleteTimestampFromId(streamId)
+            ); */
+
+            const hostIsNotPresent = !currentUsers.includes(roomState.hostId);
+
+            if (hostIsNotPresent && !userMe.isHost) {
+              setLoadingOrErrorMessage(
+                'El anfitrión no se encuentra en la reunión'
               );
             } else {
-              setLoadingOrErrorMessage('Ya te encuentras en la reunión');
+              //const myIdWithoutTimestamp = deleteTimestampFromId(userMe.id);
+
+              if (!currentUsers.includes(userMe.id)) {
+                setExistRoom(true);
+                createInstance(
+                  roomId,
+                  streamId,
+                  streamName,
+                  publishToken,
+                  playToken,
+                  subscriberId,
+                  subscriberCode
+                );
+              } else {
+                setLoadingOrErrorMessage('Ya te encuentras en la reunión');
+              }
             }
           } else {
             setLoadingOrErrorMessage('La conferencia aún no ha iniciado');

@@ -68,8 +68,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, onMounted, computed } from 'vue';
-import { useInitWebRTC } from '@/composables/antMedia';
-import { useUserMe } from '@/composables/userMe';
+import { useInitWebRTC, useUserMe } from '@/composables';
 
 type MediaDeviceKind = 'audioinput' | 'audiooutput' | 'videoinput';
 interface MediaDeviceInfo {

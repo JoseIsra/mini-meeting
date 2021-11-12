@@ -23,8 +23,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import FuParticipantRequest from '@/components/atoms/FuParticipantRequest';
-import { useHandleParticipants } from '@/composables/participants';
-import { useSidebarToogle } from '@/composables';
+import { useHandleParticipants, useSidebarToogle } from '@/composables';
 
 export default defineComponent({
   name: 'FuCooperateParticipantPanel',

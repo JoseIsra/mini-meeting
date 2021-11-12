@@ -1,6 +1,6 @@
 import { ref } from 'vue';
 import { WebRTCAdaptor } from '@/utils/webrtc/webrtc_adaptor';
-import { useUserMe } from '@/composables/userMe';
+import { useUserMe } from '@/composables';
 import { objWebRTC } from '@/types/index';
 import { User } from '@/types/user';
 import { StreamMerger } from '@/utils/webrtc/stream_merger';

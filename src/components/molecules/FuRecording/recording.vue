@@ -1,23 +1,23 @@
 <template>
   <div v-if="canRecording">
     <q-btn
-      v-if="!isRecording"
+      v-if="!userMe.isRecording"
       :disable="roomState.isBeingRecorded"
       color="primary"
       icon="fas fa-record-vinyl"
       :label="
         $q.screen.lt.sm
           ? ''
-          : roomState.isBeingRecorded
-          ? 'La reunión está siendo grabada'
           : isLoading
           ? 'Cargando...'
+          : roomState.isBeingRecorded
+          ? 'La reunión está siendo grabada'
           : 'Iniciar Grabación'
       "
       @click="startRecording"
     />
     <q-btn
-      v-if="isRecording && !isLoading"
+      v-if="roomState.isBeingRecorded && !isLoading && userMe.isRecording"
       color="negative"
       icon="radio_button_checked"
       :label="$q.screen.lt.sm ? '' : `Detener Grabación ${recordTime}`"
@@ -37,12 +37,8 @@
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
-import { useInitMerge } from '@/composables/antMediaMerge';
-import { useInitWebRTC } from '@/composables/antMedia';
-import { useUserMe } from '@/composables/userMe';
-import { useRoom } from '@/composables/room';
+import { useRoom, useUserMe, useInitWebRTC } from '@/composables';
 import { warningMessage, successMessage } from '@/utils/notify';
-// import { useHandleParticipants } from '@/composables/participants';
 
 export default defineComponent({
   name: 'FuMRecording',
@@ -50,11 +46,10 @@ export default defineComponent({
     const interval = ref();
     const recordTime = ref('00:00:00');
     const secondsElapsed = ref(0);
-    const isRecording = ref<boolean>(false);
-    const { recordingStream, stopRecordingStream } = useInitMerge();
-    const { sendNotificationEvent } = useInitWebRTC();
+    /* const { recordingStream, stopRecordingStream } = useInitMerge(); */
+    const { sendNotificationEvent, stopPublishing } = useInitWebRTC();
     // const { participants } = useHandleParticipants();
-    const { userMe } = useUserMe();
+    const { userMe, updateUserMe } = useUserMe();
 
     const { roomState, updateRoom } = useRoom();
     /* const { admittedParticipants } = useHandleParticipants(); */
@@ -99,14 +94,32 @@ export default defineComponent({
         })
         .catch((e) => console.log(e)); */
 
-      recordingStream(mergedName.value, mergedName.value, roomState.id)
+      /* recordingStream(mergedName.value, mergedName.value, roomState.id)
         .then(() => {
           isLoading.value = false;
           successMessage('Grabando la sesión');
           interval.value = setInterval(oneSecondElapsed, 1000);
           isRecording.value = true;
           updateRoom({
-            recordingUrl: `https://f002.backblazeb2.com/file/MainPublic/classrooms/${roomState.classroomId}/cooperate/streams/${mergedName.value}.m3u8`,
+            recordingUrl: `https://f002.backblazeb2.com/file/MainPublic/classrooms/${roomState.classroomId}/cooperate/recordings/${mergedName.value}.mp4`,
+          });
+        })
+        .catch((e) => console.log(e)); */
+      fetch(
+        `https://cooperate.fractalup.com/WebRTCAppEE/rest/v2/broadcasts/${userMe.id}/recording/true?recordType=mp4`,
+        { method: 'PUT' }
+      )
+        .then(() => {
+          isLoading.value = false;
+          successMessage('Grabando la sesión');
+          interval.value = setInterval(oneSecondElapsed, 1000);
+          /* isRecording.value = true; */
+          updateUserMe({
+            isRecording: true,
+          });
+          updateRoom({
+            isBeingRecorded: true,
+            recordingUrl: `https://f002.backblazeb2.com/file/MainPublic/classrooms/${roomState.classroomId}/cooperate/recordings/${mergedName.value}.mp4`,
           });
         })
         .catch((e) => console.log(e));
@@ -114,23 +127,41 @@ export default defineComponent({
 
     const stopRecording = () => {
       /* watchParticipants.value?.(); */
-      updateRoom({ isBeingRecorded: false });
-      isRecording.value = false;
-      recordTime.value = '00:00:00';
-      clearInterval(interval.value);
-      /* stopMerge(); */
-      stopRecordingStream(mergedName.value);
-      secondsElapsed.value = 0;
+      fetch(
+        `https://cooperate.fractalup.com/WebRTCAppEE/rest/v2/broadcasts/${userMe.id}/recording/false?recordType=mp4`,
+        { method: 'PUT' }
+      )
+        .then(() => {
+          updateRoom({ isBeingRecorded: false });
+          updateUserMe({
+            isRecording: false,
+          });
+          /* isRecording.value = false; */
+          recordTime.value = '00:00:00';
+          clearInterval(interval.value);
+          /* stopMerge(); */
+          //stopRecordingStream(mergedName.value);
+          secondsElapsed.value = 0;
 
-      window.xprops?.handleStopRecording?.(roomState.recordingUrl);
+          /* window.xprops?.handleStopRecording?.(roomState.recordingUrl); */
+          sendNotificationEvent('RECORDING_STOPPED', userMe.id);
 
-      sendNotificationEvent('RECORDING_STOPPED', userMe.id);
+          if (
+            !userMe.isCameraOn &&
+            !userMe.isScreenSharing &&
+            !userMe.isMicOn &&
+            !userMe.isHost
+          ) {
+            updateUserMe({ isPublishing: 0 });
+            stopPublishing(userMe.id);
+          }
+        })
+        .catch((e) => console.log(e));
     };
 
     const canRecording = ref(userMe.roleId === 0);
 
     return {
-      isRecording,
       startRecording,
       stopRecording,
       recordTime,

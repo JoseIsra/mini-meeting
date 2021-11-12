@@ -25,7 +25,9 @@
       @click="updateScreenState"
       v-show="screenMinimized"
     />
-    <fu-cooperate-header v-show="!screenMinimized" />
+    <fu-cooperate-header
+      v-show="!screenMinimized && $q.screen.lt.md ? showHeader : true"
+    />
     <fu-cooperate-menu-bar
       v-show="showMenuBar && !screenMinimized"
       :toggleLocalCamera="toggleLocalCamera"
@@ -48,7 +50,7 @@
       "
     />
 
-    <fu-full-screen v-if="isFullScreen" />
+    <fu-full-screen v-if="mainViewState.mode !== MAIN_VIEW_MODE.NONE" />
 
     <q-dialog
       v-model="showParticipantPanel"
@@ -77,9 +79,14 @@ import FuHandNotification from 'atoms/FuHandNotification';
 import FuFullScreen from 'molecules/FuFullScreen';
 import FuCooperateParticipantsPanel from '@/components/molecules/FuCooperateParticipantsPanel';
 import _ from 'lodash';
-import { useSidebarToogle, useToogleFunctions } from '@/composables';
-import { useScreen } from '@/composables/screen';
-import { useRoom } from '@/composables/room';
+import {
+  useRoom,
+  useScreen,
+  useToogleFunctions,
+  useSidebarToogle,
+  useMainView,
+} from '@/composables';
+import { MAIN_VIEW_MODE } from '@/utils/enums';
 
 export default defineComponent({
   name: 'FuCooperate',
@@ -115,13 +122,14 @@ export default defineComponent({
 
     let showMenuBar = ref<boolean>(false);
     let showUsersVideoList = ref<boolean>(false);
+    const showHeader = ref<boolean>(true);
 
+    const { mainViewState } = useMainView();
     let { isSidebarRender, setSidebarState, showParticipantPanel } =
       useSidebarToogle();
 
     const {
       functionsOnMenuBar,
-      isFullScreen,
       openOptionsMenu,
       openFunctionResponsiveMenu,
       setShowChat,
@@ -135,7 +143,8 @@ export default defineComponent({
     const hideMenuBar = _.debounce(() => {
       showMenuBar.value = false;
       showUsersVideoList.value = false;
-    }, 6000);
+      showHeader.value = false;
+    }, 5000);
 
     watch(
       () => screenMinimized.value,
@@ -149,6 +158,7 @@ export default defineComponent({
       if (!showMenuBar.value) {
         showMenuBar.value = true;
         showUsersVideoList.value = true;
+        showHeader.value = true;
       } else {
         hideMenuBar();
       }
@@ -176,13 +186,15 @@ export default defineComponent({
       ...toRefs(props),
       isSidebarRender,
       functionsOnMenuBar,
-      isFullScreen,
       closePanels,
       screenMinimized,
       updateScreenState,
       ...toRefs(roomState),
       showParticipantPanel,
       showUsersVideoList,
+      mainViewState,
+      MAIN_VIEW_MODE,
+      showHeader,
     };
   },
 });

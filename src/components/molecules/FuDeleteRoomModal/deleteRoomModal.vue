@@ -26,12 +26,14 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { useUserMe } from '@/composables/userMe';
-import { useRoom } from '@/composables/room';
-import { useInitWebRTC } from '@/composables/antMedia';
-import { User } from '@/types/user';
+import {
+  useInitWebRTC,
+  useHandleParticipants,
+  useUserMe,
+  useRoom,
+} from '@/composables';
+import { User } from '@/types';
 import { REASON_TO_LEAVE_ROOM } from '@/utils/enums';
-import { useHandleParticipants } from '@/composables/participants';
 export default defineComponent({
   name: 'FuDeleteRoom',
   setup() {

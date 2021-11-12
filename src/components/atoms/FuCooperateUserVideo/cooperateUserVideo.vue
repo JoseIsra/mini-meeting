@@ -6,7 +6,7 @@
   >
     <div
       class="a-userVideo__box"
-      :class="{ fade: fullScreenObject.id == userMe.id }"
+      :class="{ fade: mainViewState.pinnedUsers.includes(userMe.id) }"
     >
       <div v-show="!userMe.isVideoActivated" class="a-userVideo__box__avatar">
         <figure class="a-userVideo__box__avatar__imageBox">
@@ -42,10 +42,24 @@
         flat
         round
         :ripple="false"
-        icon="launch"
+        :icon="
+          mainViewState.pinnedUsers.includes(userMe.id)
+            ? 'location_disabled'
+            : 'gps_fixed'
+        "
         color="white"
         class="a-userVideo__box__avatar__screenBtn"
-        @click="goFullScreen(userMe)"
+        @click="
+          mainViewState.pinnedUsers.includes(userMe.id)
+            ? removePinnedUser(userMe.id)
+            : addPinnedUser(userMe.id)
+        "
+        :disable="
+          (mainViewState.locked !== MAIN_VIEW_LOCKED_TYPE.ANYONE &&
+            mainViewState.locked !== MAIN_VIEW_LOCKED_TYPE.UNSET) ||
+          (mainViewState.pinnedUsers.length >= 4 &&
+            !mainViewState.pinnedUsers.includes(userMe.id))
+        "
       >
         <q-tooltip
           anchor="top middle"
@@ -55,9 +69,11 @@
           transition-show="scale"
           transition-hide="scale"
         >
-          <label class="a-userVideo__box__avatar__screenBtn__label"
-            >Pantalla completa</label
-          >
+          <label class="a-userVideo__box__avatar__screenBtn__label">{{
+            mainViewState.pinnedUsers.includes(userMe.id)
+              ? 'Desfijar para mi'
+              : 'Fijar para mi'
+          }}</label>
         </q-tooltip>
       </q-btn>
     </div>
@@ -65,7 +81,7 @@
       class="a-userVideo__box"
       v-for="participant in controlUserToRender"
       :key="participant.id"
-      :class="{ fade: fullScreenObject.id == participant.id }"
+      :class="{ fade: mainViewState.pinnedUsers.includes(participant.id) }"
     >
       <div
         v-show="!participant.isVideoActivated"
@@ -112,10 +128,24 @@
         flat
         round
         :ripple="false"
-        icon="launch"
+        :icon="
+          mainViewState.pinnedUsers.includes(participant?.id)
+            ? 'location_disabled'
+            : 'gps_fixed'
+        "
         color="white"
         class="a-userVideo__box__avatar__screenBtn"
-        @click="goFullScreen(participant)"
+        @click="
+          mainViewState.pinnedUsers.includes(participant?.id)
+            ? removePinnedUser(participant?.id)
+            : addPinnedUser(participant?.id)
+        "
+        :disable="
+          (mainViewState.locked !== MAIN_VIEW_LOCKED_TYPE.ANYONE &&
+            mainViewState.locked !== MAIN_VIEW_LOCKED_TYPE.UNSET) ||
+          (mainViewState.pinnedUsers.length >= 4 &&
+            !mainViewState.pinnedUsers.includes(participant?.id))
+        "
       >
         <q-tooltip
           anchor="top middle"
@@ -125,9 +155,11 @@
           transition-show="scale"
           transition-hide="scale"
         >
-          <label class="a-userVideo__box__avatar__screenBtn__label"
-            >Pantalla completa</label
-          >
+          <label class="a-userVideo__box__avatar__screenBtn__label">{{
+            mainViewState.pinnedUsers.includes(participant?.id)
+              ? 'Desfijar para mi'
+              : 'Fijar para mi'
+          }}</label>
         </q-tooltip>
       </q-btn>
     </div>
@@ -164,39 +196,27 @@
 
 <script lang="ts">
 import { defineComponent, ref, computed } from 'vue';
-import { useToogleFunctions } from '@/composables';
-import { useUserMe } from '@/composables/userMe';
-import { User } from '@/types/user';
-import { useHandleParticipants } from '@/composables/participants';
 import { useQuasar } from 'quasar';
-import { useScreen } from '@/composables/screen';
+import {
+  useScreen,
+  useHandleParticipants,
+  useUserMe,
+  useMainView,
+} from '@/composables';
+
+import { MAIN_VIEW_LOCKED_TYPE } from '@/utils/enums';
 
 export default defineComponent({
   name: 'FuCooperateUserVideo',
   setup() {
+    const { addPinnedUser, removePinnedUser, mainViewState } = useMainView();
     const { admittedParticipants } = useHandleParticipants();
-
-    const {
-      setFullScreen,
-      setFullScreenObject,
-      fullScreenObject,
-      isFullScreen,
-    } = useToogleFunctions();
 
     const { userMe } = useUserMe();
 
     const streamIdPinned = ref('');
     const $q = useQuasar();
     const { screenMinimized } = useScreen();
-
-    const goFullScreen = (arg: User | string) => {
-      if (isFullScreen.value) {
-        setFullScreenObject(arg as User);
-        return;
-      }
-      setFullScreen('user', true);
-      setFullScreenObject(arg as User);
-    };
 
     const controlUserToRender = computed(() => {
       return $q.screen.lt.md
@@ -212,13 +232,15 @@ export default defineComponent({
 
     return {
       userMe,
-      goFullScreen,
       admittedParticipants,
       streamIdPinned,
-      fullScreenObject,
       controlUserToRender,
       styleOnMobile,
       screenMinimized,
+      addPinnedUser,
+      removePinnedUser,
+      mainViewState,
+      MAIN_VIEW_LOCKED_TYPE,
     };
   },
 });

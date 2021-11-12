@@ -82,9 +82,9 @@
 
 <script lang="ts">
 import { defineComponent, ref, toRefs, computed, watch } from 'vue';
-import { useRoom } from '@/composables/room';
+
+import { useInitWebRTC, useRoom } from '@/composables';
 import FuFileCatcherCooperate from 'atoms/FuFileCatcherCooperate';
-import { useInitWebRTC } from '@/composables/antMedia';
 import { backBlazePath } from '@/config/constants';
 import { simplifyExtension, renameFile } from '@/utils/file';
 import backblazeService from '@/services/backblaze';

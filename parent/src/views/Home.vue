@@ -18,17 +18,14 @@
     :isScreenShareLocked="actions.screenshare === 1"
     :getB2Info="getB2Info"
     :roleId="roleId"
-    :roomRestriction="0"
+    :roomRestriction="roomRestriction"
     photoURL="https://encrypted.fractalup.com/file/MainPublic/classrooms/1/users/44/assets/1623873430710.png"
     :bgInfo="bgInfo"
     :setBackgroundInfo="setBackgroundImg"
     :addUserLogToState="addUserLogToState"
     fractalUserId="34i2jkd23"
-    :setPinnedUser="setPinnedUser"
-    :pinnedUser="pinnedUser"
     :isMicOn="false"
     :isCameraOn="false"
-    :isBeingRecorded="isBeingRecorded"
     :setHostId="setHostId"
     :hostId="this.isHost ? streamId : hostId"
     :isHost="isHost"
@@ -48,14 +45,13 @@ export default {
   },
   data: function () {
     return {
-      streamId: this.$route.query.id || `u-nr-userId-${Date.now()}`,
+      streamId:
+        `u-nr-classroomId-${this.$route.query.id}` || `u-nr-classroomId-userId`,
       streamName: this.$route.query.id || `userId-${Date.now()}`,
       isMinimized: false,
-      pinnedUser: localStorage.pinnedUser,
       bgInfo: localStorage.bgInfo
         ? JSON.parse(localStorage.bgInfo)
         : { url: "", maximized: false },
-      isBeingRecorded: localStorage.isBeingRecorded === "true",
       hostId: localStorage.hostId,
       isHost: this.$route.query.isHost == "true" || false,
       roleId: parseInt(this.$route.query.roleId) || 0,
@@ -63,6 +59,7 @@ export default {
       actions: localStorage.actions
         ? JSON.parse(localStorage.actions)
         : { mic: 0, camera: 0, screenshare: 0 },
+      roomRestriction: parseInt(this.$route.query.roomRestriction) || 0,
     };
   },
   methods: {
@@ -78,10 +75,10 @@ export default {
     },
     handleStopRecording: function (url) {
       console.log("⭐ handleStopRecording function executed with params", url);
-      window.localStorage.isBeingRecorded = false;
+      /* window.localStorage.isBeingRecorded = false; */
     },
     handleStartRecording: function () {
-      window.localStorage.isBeingRecorded = true;
+      /* window.localStorage.isBeingRecorded = true; */
     },
     toggleLockAction: function (options) {
       console.log("⭐ toggle log action with params", options);
@@ -117,10 +114,6 @@ export default {
     },
     addUserLogToState: function (fractalUserId, logType) {
       console.log(fractalUserId, logType);
-    },
-    setPinnedUser: function (userId) {
-      console.log("setPinnedUser");
-      window.localStorage.pinnedUser = userId;
     },
     setBackgroundImg: function (url, maximized) {
       console.log("setBackgroundImg");

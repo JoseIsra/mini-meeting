@@ -4,10 +4,10 @@ import { LOCK_ACTION_TYPE, PERMISSION_STATUS, USER_ROLE } from '@/utils/enums';
 import _ from 'lodash';
 import { User } from '@/types/user';
 
-const participants = ref<Partial<User>[]>([]);
+const participants = ref<User[]>([]);
 
 export function useHandleParticipants() {
-  const addParticipant = (value: Partial<User>) => {
+  const addParticipant = (value: User) => {
     const newParticipants = _.cloneDeep(participants.value);
     newParticipants.push(value);
     participants.value = newParticipants;

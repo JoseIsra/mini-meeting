@@ -22,7 +22,9 @@ export interface User {
   micPublishedState?: ComputedRef; //  For my own user
   screenSharingPublishedState?: ComputedRef; // For my own user
   hasLogJoin?: boolean; // Specially for others users because mine just log one time
-  cameraId: string;
-  micId: string;
-  speakerId: string;
+  speakerId?: string;
+  cameraId?: string;
+  micId?: string;
+  hasWebcam?: boolean;
+  hasMic?: boolean;
 }

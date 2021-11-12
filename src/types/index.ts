@@ -1,4 +1,14 @@
-import { User } from '@/types/user';
+import { User } from '@/types';
+
+export * from './antmediaApi';
+export * from './datachannelMessages';
+export * from './mainView';
+export * from './room';
+export * from './user';
+export * from './zoid';
+export * from './toggleFunctions';
+export * from './periferics';
+
 interface SoundGainType {
   gain: {
     value: number;

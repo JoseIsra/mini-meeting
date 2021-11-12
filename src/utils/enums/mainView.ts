@@ -1,0 +1,12 @@
+export enum MAIN_VIEW_LOCKED_TYPE {
+  UNSET,
+  ANYONE,
+  NORMAL_USERS,
+  ALL_USERS,
+}
+
+export enum MAIN_VIEW_MODE {
+  NONE,
+  USER,
+  VIDEO,
+}

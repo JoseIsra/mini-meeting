@@ -31,12 +31,10 @@
 </template>
 
 <script lang="ts">
-import { useInitWebRTC } from '@/composables/antMedia';
-import { useHandleParticipants } from '@/composables/participants';
-import { PERMISSION_STATUS } from '@/utils/enums/general';
-import { User } from '@/types/user';
+import { useRoom, useHandleParticipants, useInitWebRTC } from '@/composables';
+import { PERMISSION_STATUS } from '@/utils/enums';
+import { User } from '@/types';
 import { defineComponent, PropType } from 'vue';
-import { useRoom } from '@/composables/room';
 
 export default defineComponent({
   name: 'FuParticipantRequest',

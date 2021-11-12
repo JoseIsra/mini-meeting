@@ -680,7 +680,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, computed, watch } from 'vue';
+import { defineComponent, computed } from 'vue';
 import {
   useHandleParticipants,
   useUserMe,
@@ -697,7 +697,6 @@ import {
   USER_ROLE,
 } from '@/utils/enums';
 import { nanoid } from 'nanoid';
-import _ from 'lodash';
 
 export default defineComponent({
   name: 'FuCooperateUsersList',
@@ -731,9 +730,6 @@ export default defineComponent({
 
     const { functionsOnMenuBar, removeHandNotification } = useToogleFunctions();
 
-    const waitingSound = new Audio(
-      'https://freesound.org/data/previews/415/415763_6090639-lq.mp3'
-    );
     const isEveryoneMicBlocked = computed(() => roomState.isMicBlocked);
 
     const isEveryoneVideoBlocked = computed(() => roomState.isCameraBlocked);
@@ -761,15 +757,6 @@ export default defineComponent({
       admittedParticipants.value.find((part) => part.id === participant.id)
         ?.isScreenShareBlocked === true;
 
-    watch(
-      () => _.cloneDeep(waitingParticipants.value),
-      (current, prev) => {
-        if (prev.length < current.length) {
-          waitingSound.currentTime = 0;
-          void waitingSound.play();
-        }
-      }
-    );
     const handleParticipantActions = (
       participant: Partial<User>,
       action: number

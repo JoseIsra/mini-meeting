@@ -483,11 +483,11 @@ export default defineComponent({
       };
     };
 
-    const deleteTimestampFromId = (streamId: string) => {
+    /* const deleteTimestampFromId = (streamId: string) => {
       const splitted = streamId.split('-');
       splitted.pop();
       return splitted.join('-');
-    };
+    }; */
 
     onMounted(async () => {
       if (roomId) {
@@ -497,26 +497,36 @@ export default defineComponent({
           const haveStarted = moment(nowTime).isSameOrAfter(
             roomState.startDate
           );
-          if (haveStarted || roleId === 0) {
+          if (haveStarted || userMe.isHost) {
             //El host puede ingresar a la reunión aún si no ha iniciado (Según la db de fractal).
             const currentUsers = body.roomStreamList;
-            const currentUsersWithoutTimeStamp = currentUsers.map((streamId) =>
+            /* const currentUsersWithoutTimeStamp = currentUsers.map((streamId) =>
               deleteTimestampFromId(streamId)
-            );
-            const myIdWithoutTimestamp = deleteTimestampFromId(userMe.id);
-            if (!currentUsersWithoutTimeStamp.includes(myIdWithoutTimestamp)) {
-              setExistRoom(true);
-              createInstance(
-                roomId,
-                streamId,
-                streamName,
-                publishToken,
-                playToken,
-                subscriberId,
-                subscriberCode
+            ); */
+
+            const hostIsNotPresent = !currentUsers.includes(roomState.hostId);
+
+            if (hostIsNotPresent && !userMe.isHost) {
+              setLoadingOrErrorMessage(
+                'El anfitrión no se encuentra en la reunión'
               );
             } else {
-              setLoadingOrErrorMessage('Ya te encuentras en la reunión');
+              //const myIdWithoutTimestamp = deleteTimestampFromId(userMe.id);
+
+              if (!currentUsers.includes(userMe.id)) {
+                setExistRoom(true);
+                createInstance(
+                  roomId,
+                  streamId,
+                  streamName,
+                  publishToken,
+                  playToken,
+                  subscriberId,
+                  subscriberCode
+                );
+              } else {
+                setLoadingOrErrorMessage('Ya te encuentras en la reunión');
+              }
             }
           } else {
             setLoadingOrErrorMessage('La conferencia aún no ha iniciado');

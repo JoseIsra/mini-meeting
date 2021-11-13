@@ -89,7 +89,6 @@ const {
   setRoomScreenShareState,
   updateBgUrl,
   updateBgSize,
-  updateBoardState,
   roomState,
 } = useRoom();
 
@@ -98,6 +97,7 @@ const {
   updateMainViewState,
   removePinnedUserForAll,
   removePinnedUser,
+  setBoardState
 } = useMainView();
 
 const {
@@ -127,7 +127,8 @@ const { updateExternalVideoState, externalVideo } = useExternalVideo();
 
 /* const { setScreenShareIconState } = useActions(); */
 
-const { handleMultipleObjects, clearBoard, changeBgColor, discardSelection } = useBoard();
+const { handleMultipleObjects, clearBoard, changeBgColor, discardSelection } =
+  useBoard();
 
 const remotePlayer = ref<videojs.Player>({} as videojs.Player);
 
@@ -1271,13 +1272,13 @@ export function useInitWebRTC() {
           } else if (eventType === 'BOARD_EVENT') {
             const { event, objects, color } = JSON.parse(
               obj.data
-            ) as ObjBoardEvent;            
+            ) as ObjBoardEvent;
 
             if (!objects) {
               if (event === BOARD_EVENTS.TURN_ON) {
-                updateBoardState(true);
+                setBoardState(true);
               } else if (event === BOARD_EVENTS.TURN_OFF) {
-                updateBoardState(false);
+                setBoardState(false);
               } else if (event === BOARD_EVENTS.CLEAR) {
                 clearBoard();
               } else if (event === BOARD_EVENTS.TOGGLE_DRAW_MODE) {
@@ -1303,11 +1304,11 @@ export function useInitWebRTC() {
               }
             } else {
               if (event === BOARD_EVENTS.OBJECT_ADD) {
-                handleMultipleObjects({objects});
+                handleMultipleObjects({ objects });
               } else if (event === BOARD_EVENTS.OBJECT_UPDATE) {
-                handleMultipleObjects({objects});
-              }else if (event === BOARD_EVENTS.OBJECT_REMOVE) {
-                handleMultipleObjects({objects});
+                handleMultipleObjects({ objects });
+              } else if (event === BOARD_EVENTS.OBJECT_REMOVE) {
+                handleMultipleObjects({ objects });
               }
             }
           }

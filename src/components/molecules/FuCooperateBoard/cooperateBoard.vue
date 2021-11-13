@@ -146,7 +146,7 @@
     </div>
 
     <div class="o-board__board">
-      <canvas id="board" width="750" height="500"></canvas>
+      <canvas id="board" width="1000" height="600"></canvas>
     </div>
 
     <div class="o-board__tools">
@@ -185,6 +185,7 @@
       </div>
     </div>
   </div>
+
   <div
     v-show="!showBoard"
     class="o-board__activeBoard"
@@ -422,10 +423,11 @@ export default defineComponent({
     };
 
     onMounted(() => {
-      const boardObjects = window?.xprops?.boardObjects || '';
-      console.debug('XXX Load board XXX');
-      setBoard(new fabric.Canvas('board'));
+
+      const boardObjects = window?.xprops?.boardObjects || ''; // This should be a call to prop.objects (boardObjects)
+      setBoard(new fabric.Canvas('board', { backgroundColor: '#ffffff' }));
       fabric.Object.prototype.transparentCorners = false;
+      
       // fabric.Object.prototype.controls.deleteControl = new fabric.Control({
       //   x: 0.5,
       //   y: -0.5,

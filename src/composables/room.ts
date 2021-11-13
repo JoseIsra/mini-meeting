@@ -38,8 +38,6 @@ export function useRoom() {
   const updateAllowResetBg = (value: boolean) =>
     (roomState.bgInfo.allowResetBg = value);
 
-    const updateBoardState = (state: boolean) => roomState.boardState = state;
-
   return {
     roomState,
     updateRoom,
@@ -51,6 +49,5 @@ export function useRoom() {
     updateBgUrl,
     updateBgSize,
     updateAllowResetBg,
-    updateBoardState
   };
 }

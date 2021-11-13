@@ -50,7 +50,7 @@
       "
     />
 
-    <fu-board v-if="boardState" />
+    <!-- <fu-board v-if="boardState" /> -->
 
     <fu-full-screen v-if="mainViewState.mode !== MAIN_VIEW_MODE.NONE" />
 
@@ -78,7 +78,6 @@ import FuCooperateHeader from 'molecules/FuCooperateHeader';
 import FuCooperateUserVideo from 'atoms/FuCooperateUserVideo';
 import FuCooperateSideBar from 'molecules/FuCooperateSideBar';
 import FuHandNotification from 'atoms/FuHandNotification';
-import FuBoard from '@/components/molecules/FuCooperateBoard';
 import FuFullScreen from 'molecules/FuFullScreen';
 import FuCooperateParticipantsPanel from '@/components/molecules/FuCooperateParticipantsPanel';
 import _ from 'lodash';
@@ -89,6 +88,7 @@ import {
   useSidebarToogle,
   useMainView,
 } from '@/composables';
+
 import { MAIN_VIEW_MODE } from '@/utils/enums';
 
 export default defineComponent({
@@ -111,7 +111,6 @@ export default defineComponent({
     FuCooperateUserVideo,
     FuHandNotification,
     FuFullScreen,
-    FuBoard,
     FuCooperateParticipantsPanel,
   },
   setup(props, { emit }) {

@@ -31,12 +31,13 @@ export function useBoard() {
   const clearBoard = () => {
     board.value.clear();
     bgColor.value = '#ffffff';
+    board.value.backgroundColor = bgColor.value;
     window.xprops?.updateBoardObjects?.('{}');
   };
 
   const changeBgColor = (color) => {
-    board.value.backgroundColor = color;
     bgColor.value = color;
+    board.value.backgroundColor = bgColor.value;
     board.value.requestRenderAll();
   };
 
@@ -103,10 +104,12 @@ export function useBoard() {
     const objects = board.value.getObjects();
     objects.forEach((obj) => console.debug(obj.id));
   };
+
   const loadBoard = (canvas) => {
     board.value.loadFromJSON(canvas, board.value.renderAll.bind(board.value));
     bgColor.value = canvas.background;
   };
+
   const discardSelection = () => {
     board.value.discardActiveObject();
     board.value.requestRenderAll();

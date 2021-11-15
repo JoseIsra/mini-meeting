@@ -14,7 +14,12 @@
             v-for="panel in panelOptions"
             :class="[
               'o-panel__body__options__option',
-              { '--active': panel.id == panelSelected.id },
+              {
+                '--active': panel.id == panelSelected.id && !$q.screen.lt.sm,
+              },
+              {
+                '--responsiveStyle': $q.screen.lt.sm,
+              },
             ]"
             :key="panel.id"
             @click="selectPanel(panel)"

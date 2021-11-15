@@ -1,6 +1,7 @@
 .o-panel {
   width: 800px;
-  height: 500px;
+  height: 520px;
+  min-height: 540px;
   max-width: 900px;
   border-radius: 8px;
   background-color: #202125;
@@ -33,6 +34,9 @@
         .--active {
           background-color: #009bf4;
           box-shadow: -20px 0 0 #009bf4;
+        }
+        .--responsiveStyle {
+          border-left: 3px solid #009bf4;
         }
       }
       &__option {
@@ -77,9 +81,10 @@
         flex-direction: column;
         align-items: flex-start;
         padding: 10px;
-        width: 95%;
-        height: 95%;
+        width: 100%;
+        height: 100%;
         overflow-y: auto;
+
         &::-webkit-scrollbar {
           width: 5px;
         }

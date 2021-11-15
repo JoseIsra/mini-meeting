@@ -148,6 +148,7 @@
         >
           <q-input
             class="m-chat__formBox__form__input"
+            ref="inputUser"
             autofocus
             dense
             v-model="userInput"
@@ -208,9 +209,14 @@ import { warningMessage } from '@/utils/notify';
 interface HTMLInputEvent extends Event {
   target: HTMLInputElement & EventTarget;
 }
+
 type MessageContainer = VueElement & {
   scrollTop: number;
   scrollHeight: number;
+};
+
+type InputChat = VueElement & {
+  focus(): void;
 };
 
 export default defineComponent({
@@ -229,10 +235,11 @@ export default defineComponent({
     const { userMe } = useUserMe();
     let userName = ref(window?.xprops?.streamId || route.query.streamName);
     const fakeMessage = ref('');
+    const inputUser = ref<InputChat>({} as InputChat);
 
     const sendMessage = () => {
       if (!regexp.test(userInput.value)) {
-        warningMessage('Complete los campos');
+        warningMessage('No hay mensaje para enviar');
         return;
       }
 
@@ -261,6 +268,7 @@ export default defineComponent({
       setUserMessage(userLocalMessage);
       sendData(roomState.hostId, userLocalMessage);
       userInput.value = '';
+      void nextTick(() => inputUser.value.focus());
     };
 
     const fileSelected = (e: HTMLInputEvent) => {
@@ -307,16 +315,7 @@ export default defineComponent({
       reader.readAsArrayBuffer(fileInformation);
       e.target.value = '';
     };
-    /* const bubbleSize = (message: string) => {
-      let numOfWords = message.split(' ').length;
-      if (message.startsWith('https')) {
-        return '9';
-      }
-      if (numOfWords <= 1) {
-        return '3';
-      }
-      return '';
-    }; */
+
     const closeChat = () => {
       setSidebarState(false);
     };
@@ -324,6 +323,7 @@ export default defineComponent({
     const scrollToEnd = () => {
       messageContainer.value.scrollTop = messageContainer.value.scrollHeight;
     };
+
     onUpdated(async () => {
       try {
         await nextTick(() => scrollToEnd());
@@ -348,6 +348,7 @@ export default defineComponent({
       showChatMenu,
       hideMenu,
       fakeMessage,
+      inputUser,
     };
   },
 });

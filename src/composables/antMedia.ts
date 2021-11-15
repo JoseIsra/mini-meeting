@@ -22,6 +22,7 @@ import {
   useExternalVideo,
   useHandleMessage,
   useHandleParticipants,
+  usePerifericsControls,
 } from '@/composables';
 
 import { useMainView } from '@/composables/mainView';
@@ -113,6 +114,8 @@ const {
   functionsOnMenuBar,
   updateHandNotification,
 } = useToogleFunctions();
+
+const { setDevicesDetected } = usePerifericsControls();
 
 const roomTimerId = ref<ReturnType<typeof setInterval> | null>(null);
 
@@ -394,6 +397,10 @@ export function useInitWebRTC() {
           roomTimerId.value = setInterval(() => {
             webRTCInstance.value.getRoomInfo?.(roomId, streamId);
           }, 2000);
+        } else if (info == 'available_devices') {
+          const devices = obj as unknown;
+          console.log('DEVICES ENCONTRADOS 🤭->', obj);
+          setDevicesDetected(devices as MediaDeviceInfo[]);
         } else if (info == 'newStreamAvailable') {
           console.debug('New stream available', obj);
 

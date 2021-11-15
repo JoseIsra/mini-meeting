@@ -62,7 +62,7 @@ export class WebRTCAdaptor {
     this.viewerInfo = '';
     this.publishStreamId = null;
     this.blackFrameTimer = null;
-
+    this.lolis = null;
     //FractalUp
     this.isScreenshared = false;
     this.isScreensharedWithCamera = false;
@@ -121,7 +121,7 @@ export class WebRTCAdaptor {
 
     //this.localVideo = document.getElementById(this.localVideoId);
     this.remoteVideo = document.getElementById(this.remoteVideoId);
-
+    this.lolis = document.querySelectorAll('video');
     //A dummy stream created to replace the tracks when camera is turned off.
     this.dummyCanvas = document.createElement('canvas');
 
@@ -147,7 +147,7 @@ export class WebRTCAdaptor {
 
       // Get devices only in publish mode.
       this.getDevices();
-      this.trackDeviceChange();
+      // this.trackDeviceChange();
 
       if (
         typeof this.mediaConstraints.video != 'undefined' &&
@@ -393,8 +393,8 @@ export class WebRTCAdaptor {
   }
   trackDeviceChange() {
     navigator.mediaDevices.ondevicechange = () => {
-      console.log('HOAL QUE HACES');
-      this.getDevices();
+      console.log('LINE 396 -> CAMBIOS DE DISPOSITIVOS');
+      // this.getDevices();
     };
   }
   getDevices() {
@@ -404,7 +404,11 @@ export class WebRTCAdaptor {
         let deviceArray = new Array();
         let checkAudio = false;
         devices.forEach((device) => {
-          if (device.kind == 'audioinput' || device.kind == 'videoinput') {
+          if (
+            device.kind == 'audioinput' ||
+            device.kind == 'videoinput' ||
+            device.kind == 'audiooutput'
+          ) {
             deviceArray.push(device);
             if (device.kind == 'audioinput') {
               checkAudio = true;
@@ -923,11 +927,7 @@ export class WebRTCAdaptor {
     this.checkWebSocketConnection();
     this.getDevices();
   }
-  metodoDePrueba() {
-    //TODO: POR REFACTORIZAR
-    console.log('metodo de prueba');
-    return this.localVideo;
-  }
+
   getLocalStream(): MediaStream {
     //TODO: POR REFACTORIZAR
     return this.localStream as MediaStream;
@@ -1095,23 +1095,26 @@ export class WebRTCAdaptor {
     var audioTrack = this.localStream.getAudioTracks()[0];
     if (audioTrack) {
       audioTrack.stop();
+      console.log('DETENIENDO SONIDO DEL TRACK CREO LINE 1102->');
     } else {
       console.warn('There is no audio track in local stream');
     }
     if (typeof deviceId != 'undefined') {
       if (this.mediaConstraints.audio !== true) {
-        this.mediaConstraints.audio.deviceId = deviceId;
+        this.mediaConstraints.audio.deviceId = { exact: deviceId };
+        console.log(
+          'line 1109 SI MEDIACONSTRAINTS.AUDIO ES FALSE->',
+          this.mediaConstraints.audio
+        );
       } else {
-        this.mediaConstraints.audio = { deviceId: deviceId };
+        this.mediaConstraints.audio = { deviceId: { exact: deviceId } };
+        console.log(
+          'line 1112 SI MEDIACONSTRAINTS.AUDIO ES TRUE ->',
+          this.mediaConstraints.audio
+        );
       }
     }
-    this.setAudioInputSource(
-      streamId,
-      { audio: true, video: false },
-      null,
-      true,
-      deviceId
-    );
+    this.setAudioInputSource(streamId, this.mediaConstraints, null, deviceId);
   }
 
   switchVideoCameraCapture(streamId, deviceId) {
@@ -1160,6 +1163,8 @@ export class WebRTCAdaptor {
    * and add the audio track in `stream` parameter to the local stream
    */
   updateLocalAudioStream(stream, onEndedCallback) {
+    console.log('LINE 1171 STREAM REEMPĹAZADO', stream.getTracks());
+    console.log('LINE 1172 LOCALSTREAM', this.localStream.getTracks());
     var newAudioTrack = stream.getAudioTracks()[0];
 
     if (
@@ -1173,6 +1178,10 @@ export class WebRTCAdaptor {
       });
       newAudioTrack.enabled = enabled;
       this.localStream.addTrack(newAudioTrack);
+      console.log(
+        'LINE 1186 LOCALSTREAM luego de agregar track',
+        this.localStream.getTracks()
+      );
     } else if (this.localStream != null) {
       this.localStream.addTrack(newAudioTrack);
     } else {
@@ -1231,7 +1240,10 @@ export class WebRTCAdaptor {
    * This method sets Audio Input Source.
    * It calls updateAudioTrack function for the update local audio stream.
    */
-  setAudioInputSource(streamId, mediaConstraints, onEndedCallback) {
+  setAudioInputSource(streamId, mediaConstraints, onEndedCallback, deviceId) {
+    console.log('LOCAL STREAM BRO ->', this.localStream);
+    console.log('LOLIS VIDEO BRO ->', this.lolis);
+
     this.navigatorUserMedia(
       mediaConstraints,
       (stream) => {
@@ -1280,6 +1292,7 @@ export class WebRTCAdaptor {
 
   updateAudioTrack(stream, streamId, onEndedCallback) {
     if (this.remotePeerConnection[streamId] != null) {
+      console.log('LINE 1296 STREAM DE GETUSERMEDIA ->', stream.getTracks());
       var audioTrackSender = this.remotePeerConnection[streamId]
         .getSenders()
         .find(function (s) {
@@ -1348,6 +1361,7 @@ export class WebRTCAdaptor {
         track: event.track,
         streamId: streamId,
       };
+      console.log('LINE 1355 -> ONTRACK', event);
       this.callback('newStreamAvailable', dataObj);
     }
   }

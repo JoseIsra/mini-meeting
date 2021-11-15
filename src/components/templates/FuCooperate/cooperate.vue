@@ -146,7 +146,8 @@ export default defineComponent({
 
     const micId = window.xprops?.micId || (route.query.micId as string);
 
-    const speakerId = window.xprops?.speakerId || (route.query.speakerId as string);
+    const speakerId =
+      window.xprops?.speakerId || (route.query.speakerId as string);
 
     const isCameraLocked = window.xprops?.isCameraLocked || false;
 

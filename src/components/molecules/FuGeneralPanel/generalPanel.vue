@@ -10,7 +10,7 @@
       </p>
       <div class="m-generalPanel__linkBox__actions">
         <p class="m-generalPanel__linkBox__actions__link">
-          {{ linkToShareWithYourHommies }}
+          {{ sharedRoomLink }}
         </p>
         <q-btn
           no-caps
@@ -104,7 +104,7 @@ export default defineComponent({
     const isLoading = ref(false);
 
     //*******COMPUTEDSSS */
-    const linkToShareWithYourHommies = computed(() => {
+    const sharedRoomLink = computed(() => {
       return roomState.sharingLink || 'https://localhost:8081/';
     });
 
@@ -115,7 +115,7 @@ export default defineComponent({
     //*******************METHODS  */
     const copyingLink = () => {
       navigator.clipboard
-        .writeText(linkToShareWithYourHommies.value)
+        .writeText(sharedRoomLink.value)
         .then(() => {
           linkCopied.value = true;
           let thetime = setTimeout(() => {
@@ -214,7 +214,7 @@ export default defineComponent({
     return {
       maximizeBg,
       ...toRefs(roomState),
-      linkToShareWithYourHommies,
+      sharedRoomLink,
       copySharedLink,
       linkCopied,
       fileWasDroppped,

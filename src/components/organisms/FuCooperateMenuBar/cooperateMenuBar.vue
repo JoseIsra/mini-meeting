@@ -411,6 +411,9 @@ export default defineComponent({
       amountOfNewMessages,
       acumulateMessages,
     } = useHandleMessage();
+    const newChatMessageSound = new Audio(
+      'https://freesound.org/data/previews/342/342749_5260872-lq.mp3'
+    );
 
     const lastMessageOwner = computed(() => {
       return userMessages.value[userMessages.value.length - 1].streamId;
@@ -425,6 +428,10 @@ export default defineComponent({
           lastMessageOwner.value !== userMe.id
         ) {
           showChatNotification(true);
+          if (amountOfNewMessages.value == 1) {
+            newChatMessageSound.currentTime = 0;
+            void newChatMessageSound.play();
+          }
         } else {
           showChatNotification(false);
         }

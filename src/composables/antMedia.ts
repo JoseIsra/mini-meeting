@@ -123,6 +123,10 @@ const { updateExternalVideoState, externalVideo } = useExternalVideo();
 
 const remotePlayer = ref<videojs.Player>({} as videojs.Player);
 
+const handNotificationSound = new Audio(
+  'https://freesound.org/data/previews/411/411642_5121236-lq.mp3'
+);
+
 export function useInitWebRTC() {
   const joinRoom = (roomId: string, streamId: string) => {
     webRTCInstance.value.joinRoom?.(roomId, streamId, 'legacy');
@@ -673,7 +677,7 @@ export function useInitWebRTC() {
                     }
                   })
                   .catch((e) => console.log(e));
-              }, 3500);
+              }, 2000);
             }
           }
 
@@ -708,7 +712,9 @@ export function useInitWebRTC() {
           //Si no es el host y el canal que se ha abierto es el del mismo usuario cuando empiece a hacer el publish de su stream se actualizará su campo de isPublishing
           if (user === userMe.id && !userMe.isHost) {
             webRTCInstance.value.turnOffLocalCamera?.(userMe.id);
-            updateUserMe({ isPublishing: 1 });
+            setTimeout(() => {
+              updateUserMe({ isPublishing: 1 });
+            }, 2000);
           }
 
           setIsLoadingOrError(false);
@@ -785,6 +791,8 @@ export function useInitWebRTC() {
             const handNotificationParsed = JSON.parse(
               baseData
             ) as HandNotification;
+            handNotificationSound.currentTime = 0;
+            void handNotificationSound.play();
             addHandNotificationInfo(handNotificationParsed);
           } else if (eventType === 'NOHAND') {
             if (userMe.id == baseDataParsed.from) {

@@ -1093,8 +1093,10 @@ export class WebRTCAdaptor {
   switchAudioInputSource(streamId, deviceId) {
     //stop the track because in some android devices need to close the current camera stream
     var audioTrack = this.localStream.getAudioTracks()[0];
+    const videoTrack = this.localStream.getVideoTracks()[0];
     if (audioTrack) {
       audioTrack.stop();
+      videoTrack.stop();
       console.log('DETENIENDO SONIDO DEL TRACK CREO LINE 1102->');
     } else {
       console.warn('There is no audio track in local stream');
@@ -1162,11 +1164,11 @@ export class WebRTCAdaptor {
    * This method updates the local stream. It removes existant audio track from the local stream
    * and add the audio track in `stream` parameter to the local stream
    */
-  updateLocalAudioStream(stream, onEndedCallback) {
+  updateLocalAudioStream(stream, onEndedCallback, streamId) {
     console.log('LINE 1171 STREAM REEMPĹAZADO', stream.getTracks());
     console.log('LINE 1172 LOCALSTREAM', this.localStream.getTracks());
     var newAudioTrack = stream.getAudioTracks()[0];
-
+    // turnOffLocalCamera(streamId);
     if (
       this.localStream != null &&
       this.localStream.getAudioTracks()[0] != null
@@ -1184,6 +1186,7 @@ export class WebRTCAdaptor {
       );
     } else if (this.localStream != null) {
       this.localStream.addTrack(newAudioTrack);
+      this.localStream.addTrack(newVideoTrack);
     } else {
       this.localStream = stream;
     }
@@ -1241,9 +1244,6 @@ export class WebRTCAdaptor {
    * It calls updateAudioTrack function for the update local audio stream.
    */
   setAudioInputSource(streamId, mediaConstraints, onEndedCallback, deviceId) {
-    console.log('LOCAL STREAM BRO ->', this.localStream);
-    console.log('LOLIS VIDEO BRO ->', this.lolis);
-
     this.navigatorUserMedia(
       mediaConstraints,
       (stream) => {
@@ -1303,7 +1303,7 @@ export class WebRTCAdaptor {
         audioTrackSender
           .replaceTrack(stream.getAudioTracks()[0])
           .then((result) => {
-            this.updateLocalAudioStream(stream, onEndedCallback);
+            this.updateLocalAudioStream(stream, onEndedCallback, streamId);
           })
           .catch(function (error) {
             console.log(error.name);
@@ -1650,6 +1650,7 @@ export class WebRTCAdaptor {
   }
 
   turnOffLocalCamera(streamId) {
+    console.log('LINE 1651 ACTIVANDO APAGADO DE CÁMARA BRO HOLYMOLY 📱');
     //Initialize the first dummy frame for switching.
     this.initializeDummyFrame();
 

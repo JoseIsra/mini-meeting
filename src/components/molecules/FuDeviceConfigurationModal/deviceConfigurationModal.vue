@@ -24,7 +24,7 @@
             </q-list>
           </q-btn-dropdown>
         </div>
-        <div class="m-config__body__periferics__box --micro">
+        <!-- <div class="m-config__body__periferics__box --micro">
           <p class="m-config__body__periferics__box__label">Salidas de audio</p>
           <q-btn-dropdown color="primary" flat rounded :label="getSpeakerLabel">
             <q-list>
@@ -41,7 +41,7 @@
               </q-item>
             </q-list>
           </q-btn-dropdown>
-        </div>
+        </div> -->
         <div class="m-config__body__periferics__box --camera">
           <p class="m-config__body__periferics__box__label">Cámaras</p>
           <q-btn-dropdown color="primary" flat rounded :label="getCameraLabel">
@@ -94,13 +94,13 @@ export default defineComponent({
       );
     });
 
-    const getSpeakerLabel = computed(() => {
-      return (
-        getAudioDevices.value.find(
-          (device) => device.deviceId == userMe.speakerId
-        )?.label || getAudioDevices.value[0].label
-      );
-    });
+    // const getSpeakerLabel = computed(() => {
+    //   return (
+    //     getAudioOuputDevices.value.find(
+    //       (device) => device.deviceId == userMe.speakerId
+    //     )?.label || getAudioOuputDevices.value[0].label
+    //   );
+    // });
 
     const getAudioDevices = computed(() => {
       return userDevicesDetected.value.filter(
@@ -108,11 +108,11 @@ export default defineComponent({
       );
     });
 
-    const getAudioOuputDevices = computed(() => {
-      return userDevicesDetected.value.filter(
-        (device) => device.kind == 'audiooutput'
-      );
-    });
+    // const getAudioOuputDevices = computed(() => {
+    //   return userDevicesDetected.value.filter(
+    //     (device) => device.kind == 'audiooutput'
+    //   );
+    // });
 
     const getVideoDevices = computed(() => {
       return userDevicesDetected.value.filter(
@@ -129,7 +129,7 @@ export default defineComponent({
     const selectNewCamera = (cameraDevice: MediaDeviceInfo) => {
       console.log(cameraDevice);
       updateUserMe({ cameraId: cameraDevice.deviceId });
-      // switchVideoCameraCapture(userMe.id, cameraDevice.deviceId);
+      switchVideoCameraCapture(userMe.id, cameraDevice.deviceId);
     };
 
     const selectNewSpeaker = (speakerDevices: MediaDeviceInfo) => {
@@ -149,8 +149,6 @@ export default defineComponent({
       getVideoDevices,
       getMicLabel,
       getCameraLabel,
-      getSpeakerLabel,
-      getAudioOuputDevices,
     };
   },
 });

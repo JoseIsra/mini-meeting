@@ -185,15 +185,6 @@
       </div>
     </div>
   </div>
-
-  <div
-    v-show="!showBoard"
-    class="o-board__activeBoard"
-    @click="toggleShowBoard"
-  >
-    <q-icon style="margin-right: 10px" name="fas fa-drafting-compass" />
-    Pizarra activa
-  </div>
 </template>
 
 <script>
@@ -287,7 +278,6 @@ export default defineComponent({
         fill: brushColor.value,
         width: 100,
         height: 100,
-        objectCaching: false,
       });
 
       if (board.value.isDrawingMode) {
@@ -429,11 +419,21 @@ export default defineComponent({
       }
     };
 
+    const groupObjects = () => {
+      if (!board.value.getActiveObject()) {
+        return;
+      }
+      if (board.value.getActiveObject().type !== 'activeSelection') {
+        return;
+      }
+      board.value.getActiveObject().toGroup();
+      board.value.requestRenderAll();
+    };
+
     onMounted(() => {
       const boardObjects = window?.xprops?.boardObjects || ''; // This should be a call to prop.objects (boardObjects)
       setBoard(new fabric.Canvas('board', { backgroundColor: '#ffffff' }));
-      fabric.Object.prototype.transparentCorners = false;
-
+      // fabric.Object.prototype.transparentCorners = false;
       // fabric.Object.prototype.controls.deleteControl = new fabric.Control({
       //   x: 0.5,
       //   y: -0.5,
@@ -699,6 +699,7 @@ export default defineComponent({
       },
       deleteActiveObject,
       objectActive,
+      groupObjects,
     };
   },
 });

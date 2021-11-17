@@ -14,13 +14,18 @@
     <!-- Para el botoón de minimizar -->
     <!-- <q-btn color="primary" icon="check" label="Minimizar" /> -->
     <!-- </div> -->
+
     <div
       v-show="!showBoard"
       class="m-header__activeBoard"
       @click="toggleShowBoard"
     >
-      <q-icon style="margin-right: 10px" name="fas fa-drafting-compass" />
-      Pizarra activa
+      <q-icon
+        style="margin-right: 10px"
+        name="fas fa-drafting-compass"
+        v-if="!showBoard"
+      />
+      <span v-if="!showBoard"> Pizarra activa</span>
     </div>
   </header>
 </template>
@@ -39,7 +44,7 @@ export default defineComponent({
     const { showBoard, toggleShowBoard } = useBoard();
     return {
       showBoard,
-      toggleShowBoard
+      toggleShowBoard,
     };
   },
 });

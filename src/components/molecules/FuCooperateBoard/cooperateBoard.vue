@@ -203,7 +203,14 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
 
-import { defineComponent, onMounted, toRefs, ref, watch } from 'vue';
+import {
+  defineComponent,
+  onMounted,
+  onBeforeUnmount,
+  toRefs,
+  ref,
+  watch,
+} from 'vue';
 import { useBoard } from '@/composables/board';
 import { fabric } from 'fabric';
 import { useInitWebRTC } from '@/composables/antMedia';
@@ -423,11 +430,10 @@ export default defineComponent({
     };
 
     onMounted(() => {
-
       const boardObjects = window?.xprops?.boardObjects || ''; // This should be a call to prop.objects (boardObjects)
       setBoard(new fabric.Canvas('board', { backgroundColor: '#ffffff' }));
       fabric.Object.prototype.transparentCorners = false;
-      
+
       // fabric.Object.prototype.controls.deleteControl = new fabric.Control({
       //   x: 0.5,
       //   y: -0.5,
@@ -439,13 +445,11 @@ export default defineComponent({
       // });
 
       if (userMe.roleId !== 1) {
-        // Admin with freeDrawing activated by default
         board.value.isDrawingMode = true;
         actionSelected.value = 'draw';
       }
 
       if (boardObjects) {
-        // If cooperate-options object is active this objects should initialize once board mounted
         if (boardObjects.objects) {
           loadBoard(boardObjects);
         }
@@ -599,6 +603,16 @@ export default defineComponent({
           }
         },
       });
+
+      window.addEventListener('keypress', (e) => {
+        if (e.key === 'Delete') {
+          deleteActiveObject();
+        }
+      });
+    });
+
+    onBeforeUnmount(() => {
+      window.removeEventListener('keypress');
     });
 
     return {

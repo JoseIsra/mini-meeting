@@ -14,6 +14,7 @@
           <label> Minimizar</label>
         </q-tooltip>
       </q-btn>
+
       <q-btn
         class="o-board__toolbar__tool"
         icon="fas fa-pencil-alt"
@@ -29,6 +30,7 @@
           <label v-else> Lapiz desactivado</label>
         </q-tooltip>
       </q-btn>
+
       <q-btn
         class="o-board__toolbar__tool"
         icon="fas fa-eraser"
@@ -41,6 +43,7 @@
           <label> Limpiar pizarra</label>
         </q-tooltip>
       </q-btn>
+
       <q-btn
         class="o-board__toolbar__tool"
         icon="fas fa-democrat"
@@ -48,6 +51,7 @@
         size="8px"
         dense
       />
+
       <q-btn
         class="o-board__toolbar__tool"
         icon="fas fa-square"
@@ -55,7 +59,12 @@
         size="8px"
         dense
         :disable="!canDraw"
-      />
+      >
+        <q-tooltip class="bg-grey-10">
+          <label> Agregar Rectangulo</label>
+        </q-tooltip>
+      </q-btn>
+
       <q-btn
         class="o-board__toolbar__tool"
         icon="fas fa-circle"
@@ -63,27 +72,37 @@
         size="8px"
         dense
         :disable="!canDraw"
-      />
-      <q-btn
-        class="o-board__toolbar__tool"
-        icon="fas fa-brush"
-        @click="toggleBrushSizeShow"
-        size="8px"
-        dense
-        :disable="!canDraw"
-      />
-
-      <q-btn
-        class="o-board__toolbar__tool"
-        icon="fas fa-font"
-        :color="actionSelected === 'text-box' ? 'blue' : 'red'"
-        size="8px"
-        dense
-        @click="addTextBox"
-        :disable="!canDraw"
       >
         <q-tooltip class="bg-grey-10">
-          <label> Caja de texto </label>
+          <label> Agregar circulo</label>
+        </q-tooltip>
+      </q-btn>
+
+      <q-btn
+        :color="actionSelected === 'brushSize' ? 'blue' : 'red'"
+        :disable="!canDraw"
+        @click="toggleBrushSizeShow"
+        class="o-board__toolbar__tool"
+        dense
+        icon="fas fa-brush"
+        size="8px"
+      >
+        <q-tooltip class="bg-grey-10">
+          <label> Tamaño brocha </label>
+        </q-tooltip>
+      </q-btn>
+
+      <q-btn
+        :color="actionSelected === 'text-box' ? 'blue' : 'red'"
+        :disable="!canDraw"
+        @click="addTextBox"
+        class="o-board__toolbar__tool"
+        dense
+        icon="fas fa-font"
+        size="8px"
+      >
+        <q-tooltip class="bg-grey-10">
+          <label> Agregar texto </label>
         </q-tooltip>
       </q-btn>
 
@@ -430,6 +449,23 @@ export default defineComponent({
       board.value.requestRenderAll();
     };
 
+    const toggleBrushSizeShow = () => {
+      if (showBrushPicker.value) {
+        showBrushPicker.value = !showBrushPicker.value;
+      }
+      if (showBgPicker.value) {
+        showBgPicker.value = !showBgPicker.value;
+      }
+      // Stroke picker not handled yet
+      if (actionSelected.value === 'brushSize') {
+        actionSelected.value = '';
+      } else {
+        actionSelected.value = 'brushSize';
+      }
+
+      brushSizeShow.value = !brushSizeShow.value;
+    };
+
     onMounted(() => {
       const boardObjects = window?.xprops?.boardObjects || ''; // This should be a call to prop.objects (boardObjects)
       setBoard(new fabric.Canvas('board', { backgroundColor: '#ffffff' }));
@@ -636,7 +672,7 @@ export default defineComponent({
       fontSize,
       brushSizeShow,
       discardSelection,
-      toggleBrushSizeShow: () => (brushSizeShow.value = !brushSizeShow.value),
+      toggleBrushSizeShow,
       handleColorBrush,
       showBgPicker,
       toggleBgPicker: () => {
@@ -647,6 +683,10 @@ export default defineComponent({
         if (showStrokePicker.value) {
           showStrokePicker.value = !showStrokePicker.value;
         }
+        if (brushSizeShow.value) {
+          brushSizeShow.value = !brushSizeShow.value;
+          actionSelected.value = '';
+        }
       },
       showBrushPicker,
       toggleBrushPicker: () => {
@@ -656,6 +696,10 @@ export default defineComponent({
         }
         if (showStrokePicker.value) {
           showStrokePicker.value = !showStrokePicker.value;
+        }
+        if (brushSizeShow.value) {
+          brushSizeShow.value = !brushSizeShow.value;
+          actionSelected.value = '';
         }
       },
       showStrokePicker,

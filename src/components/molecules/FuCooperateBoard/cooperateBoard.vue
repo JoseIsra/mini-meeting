@@ -162,6 +162,34 @@
           <label> Eliminar objeto</label>
         </q-tooltip>
       </q-btn>
+
+      <!-- <q-btn
+        class="o-board__toolbar__tool"
+        icon="fas fa-object-group"
+        color="green"
+        text-color="white"
+        size="8px"
+        dense
+        @click="groupObjects"
+      >
+        <q-tooltip class="bg-grey-10">
+          <label> Agrupar objetos</label>
+        </q-tooltip>
+      </q-btn>
+
+       <q-btn
+        class="o-board__toolbar__tool"
+        icon="fas fa-object-ungroup"
+        color="green"
+        text-color="white"
+        size="8px"
+        dense
+        @click="ungroupObjects"
+      >
+        <q-tooltip class="bg-grey-10">
+          <label> Desagrupar objetos</label>
+        </q-tooltip>
+      </q-btn> -->
     </div>
 
     <div class="o-board__board">
@@ -445,9 +473,21 @@ export default defineComponent({
       if (board.value.getActiveObject().type !== 'activeSelection') {
         return;
       }
+
       board.value.getActiveObject().toGroup();
       board.value.requestRenderAll();
     };
+
+   const ungroupObjects = () => {
+      if (!board.value.getActiveObject()) {
+          return;
+        }
+        if (board.value.getActiveObject().type !== 'group') {
+          return;
+        }
+        board.value.getActiveObject().toActiveSelection();
+        board.value.requestRenderAll();
+   }
 
     const toggleBrushSizeShow = () => {
       if (showBrushPicker.value) {
@@ -468,7 +508,7 @@ export default defineComponent({
 
     onMounted(() => {
       const boardObjects = window?.xprops?.boardObjects || ''; // This should be a call to prop.objects (boardObjects)
-      setBoard(new fabric.Canvas('board', { backgroundColor: '#ffffff' }));
+      setBoard(new fabric.Canvas('board', { backgroundColor: '#ffffff', selection: false }));
       // fabric.Object.prototype.transparentCorners = false;
       // fabric.Object.prototype.controls.deleteControl = new fabric.Control({
       //   x: 0.5,
@@ -494,6 +534,7 @@ export default defineComponent({
       board.value.on({
         'object:added': (options) => {
           const obj = options.target;
+          // console.debug('Object added: ', options.target.type)
 
           if (options.target.type === 'path') {
             return;
@@ -638,6 +679,9 @@ export default defineComponent({
             }
           }
         },
+        'object:removed': (options) => {
+          console.debug('Object removed: ', options.target)
+        }
       });
 
       window.addEventListener('keypress', (e) => {
@@ -744,6 +788,7 @@ export default defineComponent({
       deleteActiveObject,
       objectActive,
       groupObjects,
+      ungroupObjects
     };
   },
 });

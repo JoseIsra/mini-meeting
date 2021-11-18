@@ -526,7 +526,7 @@
 
                   <q-btn
                     v-if="participant.roleId === 1"
-                    v-show="roomState.boardState"
+                    v-show="mainViewState.mode === MAIN_VIEW_MODE.BOARD"
                     icon="draw"
                     :color="participant.canDraw ? 'blue' : 'red'"
                     text-color="white"
@@ -715,10 +715,12 @@ import {
 import { User } from '@/types';
 import {
   MAIN_VIEW_LOCKED_TYPE,
+  MAIN_VIEW_MODE,
   LOCK_ACTION_TYPE,
   USER_ROLE,
   BOARD_EVENTS,
 } from '@/utils/enums';
+
 import { nanoid } from 'nanoid';
 
 export default defineComponent({
@@ -1126,6 +1128,7 @@ export default defineComponent({
       removePinnedUser,
       removePinnedUserForAll,
       MAIN_VIEW_LOCKED_TYPE,
+      MAIN_VIEW_MODE
     };
   },
 });

@@ -682,7 +682,7 @@ export function useInitWebRTC() {
                     }
                   })
                   .catch((e) => console.log(e));
-              }, 3500);
+              }, 2000);
             }
           }
 
@@ -717,7 +717,9 @@ export function useInitWebRTC() {
           //Si no es el host y el canal que se ha abierto es el del mismo usuario cuando empiece a hacer el publish de su stream se actualizará su campo de isPublishing
           if (user === userMe.id && !userMe.isHost) {
             webRTCInstance.value.turnOffLocalCamera?.(userMe.id);
-            updateUserMe({ isPublishing: 1 });
+            setTimeout(() => {
+              updateUserMe({ isPublishing: 1 });
+            }, 2000);
           }
 
           setIsLoadingOrError(false);

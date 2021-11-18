@@ -1100,9 +1100,9 @@ export class WebRTCAdaptor {
     }
     if (typeof deviceId != 'undefined') {
       if (this.mediaConstraints.audio !== true) {
-        this.mediaConstraints.audio.deviceId = { exact: deviceId };
+        this.mediaConstraints.audio.deviceId = deviceId;
       } else {
-        this.mediaConstraints.audio = { deviceId: { exact: deviceId } };
+        this.mediaConstraints.audio = { deviceId: deviceId };
       }
     }
     this.setAudioInputSource(streamId, this.mediaConstraints, null, deviceId);
@@ -1121,10 +1121,10 @@ export class WebRTCAdaptor {
 
     if (typeof deviceId != 'undefined') {
       if (this.mediaConstraints.video !== true) {
-        this.mediaConstraints.video.deviceId = { exact: deviceId };
+        this.mediaConstraints.video.deviceId = deviceId;
       } else {
         this.mediaConstraints.video = {
-          deviceId: { exact: deviceId },
+          deviceId: deviceId,
         };
       }
     }

@@ -1,5 +1,5 @@
 <template>
-  <section class="m-full">
+  <section class="m-full" @click.self="closePanels">
     <fu-full-screen-users
       v-if="
         mainViewState.mode === MAIN_VIEW_MODE.USER &&
@@ -13,7 +13,11 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import { useMainView } from '@/composables';
+import {
+  useMainView,
+  useSidebarToogle,
+  useToogleFunctions,
+} from '@/composables';
 import FuFullScreenUsers from 'molecules/FuFullScreenUsers';
 import FuExternalVideo from 'molecules/FuExternalVideo';
 import FuBoard from 'molecules/FuCooperateBoard';
@@ -25,9 +29,25 @@ export default defineComponent({
   components: { FuFullScreenUsers, FuExternalVideo, FuBoard },
   setup() {
     const { mainViewState } = useMainView();
+
+    const { isSidebarRender, setSidebarState } = useSidebarToogle();
+
+    const { openOptionsMenu, openFunctionResponsiveMenu, setShowChat } =
+      useToogleFunctions();
+
+    const closePanels = () => {
+      if (isSidebarRender.value) {
+        setSidebarState(false);
+        openOptionsMenu(false);
+        openFunctionResponsiveMenu(false);
+        setShowChat(false);
+      }
+    };
+
     return {
       mainViewState,
       MAIN_VIEW_MODE,
+      closePanels,
     };
   },
 });

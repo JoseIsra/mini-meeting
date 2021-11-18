@@ -1,6 +1,10 @@
 <template>
   <div class="o-board" v-show="showBoard">
-    <div class="o-board__mask" v-if="!canDraw && roleId === 1"></div>
+    <div
+      class="o-board__mask"
+      v-if="!canDraw && roleId === 1"
+      @click.self="closePanels"
+    ></div>
 
     <div class="o-board__toolbar">
       <q-btn
@@ -255,6 +259,7 @@ import { useInitWebRTC } from '@/composables/antMedia';
 import { useUserMe } from '@/composables/userMe';
 import { BOARD_EVENTS } from '@/utils/enums';
 import { useRoom } from '@/composables/room';
+import { useSidebarToogle, useToogleFunctions } from '@/composables';
 
 export default defineComponent({
   name: 'FuBoard',
@@ -289,6 +294,11 @@ export default defineComponent({
       objectActive,
       setObjectActive,
     } = useBoard();
+
+    const { isSidebarRender, setSidebarState } = useSidebarToogle();
+
+    const { openOptionsMenu, openFunctionResponsiveMenu, setShowChat } =
+      useToogleFunctions();
 
     watch(brushSize, (value) => {
       if (board.value) {
@@ -478,16 +488,16 @@ export default defineComponent({
       board.value.requestRenderAll();
     };
 
-   const ungroupObjects = () => {
+    const ungroupObjects = () => {
       if (!board.value.getActiveObject()) {
-          return;
-        }
-        if (board.value.getActiveObject().type !== 'group') {
-          return;
-        }
-        board.value.getActiveObject().toActiveSelection();
-        board.value.requestRenderAll();
-   }
+        return;
+      }
+      if (board.value.getActiveObject().type !== 'group') {
+        return;
+      }
+      board.value.getActiveObject().toActiveSelection();
+      board.value.requestRenderAll();
+    };
 
     const toggleBrushSizeShow = () => {
       if (showBrushPicker.value) {
@@ -506,9 +516,23 @@ export default defineComponent({
       brushSizeShow.value = !brushSizeShow.value;
     };
 
+    const closePanels = () => {
+      if (isSidebarRender.value) {
+        setSidebarState(false);
+        openOptionsMenu(false);
+        openFunctionResponsiveMenu(false);
+        setShowChat(false);
+      }
+    };
+
     onMounted(() => {
       const boardObjects = window?.xprops?.boardObjects || ''; // This should be a call to prop.objects (boardObjects)
-      setBoard(new fabric.Canvas('board', { backgroundColor: '#ffffff', selection: false }));
+      setBoard(
+        new fabric.Canvas('board', {
+          backgroundColor: '#ffffff',
+          selection: false,
+        })
+      );
       // fabric.Object.prototype.transparentCorners = false;
       // fabric.Object.prototype.controls.deleteControl = new fabric.Control({
       //   x: 0.5,
@@ -617,6 +641,8 @@ export default defineComponent({
           showBrushPicker.value = false;
           showStrokePicker.value = false;
 
+          closePanels();
+
           if (options.target) {
             const obj = options.target;
             setObjectActive(true);
@@ -680,8 +706,8 @@ export default defineComponent({
           }
         },
         'object:removed': (options) => {
-          console.debug('Object removed: ', options.target)
-        }
+          console.debug('Object removed: ', options.target);
+        },
       });
 
       window.addEventListener('keypress', (e) => {
@@ -692,7 +718,7 @@ export default defineComponent({
     });
 
     onBeforeUnmount(() => {
-      window.removeEventListener('keypress');
+      window.removeEventListener('keypress', null);
     });
 
     return {
@@ -788,7 +814,8 @@ export default defineComponent({
       deleteActiveObject,
       objectActive,
       groupObjects,
-      ungroupObjects
+      ungroupObjects,
+      closePanels,
     };
   },
 });

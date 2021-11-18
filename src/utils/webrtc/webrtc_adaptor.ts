@@ -10,6 +10,7 @@ import { WebSocketAdaptor } from './websocket_adaptor.js';
 import adapter from 'webrtc-adapter';
 import { WebRTCAdaptorType } from '@/types/index';
 import { indexOf } from 'lodash';
+import { useUserMe } from '@/composables';
 
 interface WebRTCInitialValues {
   websocket_url?: string;
@@ -32,6 +33,7 @@ class ReceivingMessage {
     this.data = new ArrayBuffer(size);
   }
 }
+const { userMe } = useUserMe();
 
 export class WebRTCAdaptor {
   constructor(initialValues: WebRTCInitialValues) {
@@ -1103,8 +1105,6 @@ export class WebRTCAdaptor {
         this.mediaConstraints.audio = { deviceId: { exact: deviceId } };
       }
     }
-
-    this.mediaConstraints.video = false;
     this.setAudioInputSource(streamId, this.mediaConstraints, null, deviceId);
   }
 
@@ -1169,7 +1169,7 @@ export class WebRTCAdaptor {
       });
       newAudioTrack.enabled = enabled;
       this.localStream.addTrack(newAudioTrack);
-      this.mediaConstraints.video = true;
+      console.log('LOCAL UPDATED', this.localStream.getTracks());
     } else if (this.localStream != null) {
       this.localStream.addTrack(newAudioTrack);
     } else {
@@ -1198,7 +1198,6 @@ export class WebRTCAdaptor {
     }
 
     var newVideoTrack = stream.getVideoTracks()[0];
-    console.log('NEWVIDETRACK DE STREAM NUEVO SE SUPONE', newVideoTrack);
     if (
       this.localStream != null &&
       this.localStream.getVideoTracks()[0] != null
@@ -1207,13 +1206,8 @@ export class WebRTCAdaptor {
       this.localStream.removeTrack(videoTrack);
       videoTrack.stop();
       this.localStream.addTrack(newVideoTrack);
-      console.log(
-        ' LOCAL STREAM updated on video',
-        this.localStream.getTracks()
-      );
     } else if (this.localStream != null) {
       this.localStream.addTrack(newVideoTrack);
-      this.mediaConstraints.video = true;
     } else {
       this.localStream = stream;
     }
@@ -1233,14 +1227,17 @@ export class WebRTCAdaptor {
    * This method sets Audio Input Source.
    * It calls updateAudioTrack function for the update local audio stream.
    */
-  setAudioInputSource(streamId, mediaConstraints, onEndedCallback, deviceId) {
+  setAudioInputSource(streamId, mediaConstraints, onEndedCallback) {
+    if (!userMe.isCameraOn) {
+      this.turnOffLocalCamera(streamId);
+    }
     this.navigatorUserMedia(
-      mediaConstraints,
+      { audio: mediaConstraints.audio, video: false },
       (stream) => {
         this.updateAudioTrack(
           stream,
           streamId,
-          mediaConstraints,
+          { audio: mediaConstraints.audio, video: false },
           onEndedCallback
         );
       },
@@ -1261,7 +1258,6 @@ export class WebRTCAdaptor {
     this.navigatorUserMedia(
       mediaConstraints,
       (stream) => {
-        console.log('LINE 1259 STREAM EN SETCAMERASOURCE', stream.getTracks());
         stream = this.setGainNodeStream(stream);
         this.updateVideoTrack(
           stream,
@@ -1276,6 +1272,9 @@ export class WebRTCAdaptor {
           mediaConstraints,
           onEndedCallback
         );
+        if (!userMe.isCameraOn) {
+          this.turnOffLocalCamera(streamId);
+        }
       },
       true
     );
@@ -1314,7 +1313,6 @@ export class WebRTCAdaptor {
     stopDesktop
   ) {
     if (this.remotePeerConnection[streamId] != null) {
-      console.log('LINE 1315 STREAM RECIBIDO ->', stream.getTracks());
       var videoTrackSender = this.remotePeerConnection[streamId]
         .getSenders()
         .find(function (s) {
@@ -1325,7 +1323,6 @@ export class WebRTCAdaptor {
         videoTrackSender
           .replaceTrack(stream.getVideoTracks()[0])
           .then((result) => {
-            console.log('LINE 1323 SENDER NUEVO', videoTrackSender);
             this.updateLocalVideoStream(stream, onEndedCallback, stopDesktop);
           })
           .catch((error) => {
@@ -1651,6 +1648,7 @@ export class WebRTCAdaptor {
       } else {
         choosenId = this.publishStreamId;
       }
+
       this.updateVideoTrack(
         this.replacementStream,
         choosenId,
@@ -1701,10 +1699,6 @@ export class WebRTCAdaptor {
     }
     //This method will get the camera track and replace it with dummy track
     else if (this.remotePeerConnection != null) {
-      console.log(
-        'LINE 1698 leyendo localStream estado actual',
-        this.localStream.getTracks()
-      );
       this.navigatorUserMedia(
         this.mediaConstraints,
         (stream) => {
@@ -1743,10 +1737,6 @@ export class WebRTCAdaptor {
    */
   unmuteLocalMic() {
     if (this.remotePeerConnection != null) {
-      console.log(
-        'LOCAL STREAM AL ENCENDER MICRO BRO',
-        this.localStream.getTracks()
-      );
       var track = this.localStream.getAudioTracks()[0];
       track.enabled = true;
     } else {

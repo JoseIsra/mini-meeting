@@ -65,7 +65,6 @@ export class WebRTCAdaptor {
     this.viewerInfo = '';
     this.publishStreamId = null;
     this.blackFrameTimer = null;
-    this.tempsound = null;
     //FractalUp
     this.isScreenshared = false;
     this.isScreensharedWithCamera = false;
@@ -150,7 +149,7 @@ export class WebRTCAdaptor {
 
       // Get devices only in publish mode.
       this.getDevices();
-      // this.trackDeviceChange();
+      this.trackDeviceChange();
 
       if (
         typeof this.mediaConstraints.video != 'undefined' &&
@@ -396,8 +395,7 @@ export class WebRTCAdaptor {
   }
   trackDeviceChange() {
     navigator.mediaDevices.ondevicechange = () => {
-      console.log('LINE 396 -> CAMBIOS DE DISPOSITIVOS');
-      // this.getDevices();
+      this.getDevices();
     };
   }
   getDevices() {

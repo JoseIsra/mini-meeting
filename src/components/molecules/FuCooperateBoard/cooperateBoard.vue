@@ -35,7 +35,7 @@
         </q-tooltip>
       </q-btn>
 
-       <q-btn
+      <q-btn
         class="o-board__toolbar__tool"
         icon="fas fa-eraser"
         size="8px"
@@ -47,8 +47,6 @@
           <label> Eliminar objeto</label>
         </q-tooltip>
       </q-btn>
-
-    
 
       <q-btn
         class="o-board__toolbar__tool"
@@ -154,7 +152,7 @@
         </q-tooltip>
       </q-btn>
 
-        <q-btn
+      <q-btn
         class="o-board__toolbar__tool"
         icon="fas fa-trash-alt"
         color="red"
@@ -168,8 +166,6 @@
           <label> Limpiar pizarra</label>
         </q-tooltip>
       </q-btn>
-
-     
 
       <!-- <q-btn
         class="o-board__toolbar__tool"
@@ -513,6 +509,9 @@ export default defineComponent({
       // Stroke picker not handled yet
       if (actionSelected.value === 'brushSize') {
         actionSelected.value = '';
+      } else if (actionSelected.value === 'draw') {
+        actionSelected.value = 'brushSize';
+        board.value.isDrawingMode = !board.value.isDrawingMode;
       } else {
         actionSelected.value = 'brushSize';
       }
@@ -536,19 +535,18 @@ export default defineComponent({
       const wasPreviuslyMounted = board.value === null;
 
       setBoard(
-          new fabric.Canvas('board', {
-            backgroundColor: '#ffffff',
-            selection: false,
-          })
-        );
+        new fabric.Canvas('board', {
+          backgroundColor: '#ffffff',
+          selection: false,
+        })
+      );
 
-        if (userMe.roleId !== 1) {
-          board.value.isDrawingMode = true;
-          actionSelected.value = 'draw';
-        }
+      if (userMe.roleId !== 1) {
+        board.value.isDrawingMode = true;
+        actionSelected.value = 'draw';
+      }
 
-
-      if (wasPreviuslyMounted) {        
+      if (wasPreviuslyMounted) {
         if (boardObjects) {
           if (boardObjects.objects) {
             loadBoard(boardObjects);

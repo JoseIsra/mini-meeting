@@ -4,12 +4,15 @@
     v-on="{ mousemove: !screenMinimized ? toogleMenuBar : null }"
     v-touch:tap="toogleMenuBar"
     @click.self="closePanels"
-    :style="`
+    :style="[
+      `
       background: url('${bgInfo.url}') #36393f;
       background-size: ${bgInfo.maximized ? 100 : 50}vw;
       background-position: 50% center;
       background-repeat: no-repeat;
-    `"
+    `,
+      heightObjectStyle,
+    ]"
   >
     <!-- <q-img
       class="o-cooperate__background"
@@ -72,6 +75,7 @@ import {
   onMounted,
   onBeforeUnmount,
   watch,
+  computed,
 } from 'vue';
 import FuCooperateMenuBar from 'organisms/FuCooperateMenuBar';
 import FuCooperateHeader from 'molecules/FuCooperateHeader';
@@ -114,13 +118,26 @@ export default defineComponent({
     FuCooperateParticipantsPanel,
   },
   setup(props, { emit }) {
+    let vh = ref(window.innerHeight * 0.01);
+
     onMounted(() => {
       emit('mounted');
       window.addEventListener('orientationchange', handleOrientationChange);
+      window.addEventListener('resize', handleDeviceHeight);
     });
+
+    const handleDeviceHeight = () => {
+      vh.value = window.innerHeight * 0.01;
+      document.documentElement.style.setProperty('--vh', `${vh.value}px`);
+    };
+
+    const heightObjectStyle = computed(() => ({
+      '--vh': String(vh.value) + 'px',
+    }));
 
     onBeforeUnmount(() => {
       window.removeEventListener('orientationchange', handleOrientationChange);
+      window.removeEventListener('resize', handleDeviceHeight);
     });
 
     let showMenuBar = ref<boolean>(false);
@@ -198,6 +215,7 @@ export default defineComponent({
       mainViewState,
       MAIN_VIEW_MODE,
       showHeader,
+      heightObjectStyle,
     };
   },
 });

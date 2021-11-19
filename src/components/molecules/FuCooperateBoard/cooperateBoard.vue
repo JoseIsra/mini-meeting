@@ -35,18 +35,20 @@
         </q-tooltip>
       </q-btn>
 
-      <q-btn
+       <q-btn
         class="o-board__toolbar__tool"
         icon="fas fa-eraser"
-        @click="callCleanBoard"
         size="8px"
         dense
-        :disable="!canDraw"
+        :disable="!objectActive"
+        @click="deleteActiveObject"
       >
         <q-tooltip class="bg-grey-10">
-          <label> Limpiar pizarra</label>
+          <label> Eliminar objeto</label>
         </q-tooltip>
       </q-btn>
+
+    
 
       <q-btn
         class="o-board__toolbar__tool"
@@ -152,20 +154,22 @@
         </q-tooltip>
       </q-btn>
 
-      <q-btn
+        <q-btn
         class="o-board__toolbar__tool"
         icon="fas fa-trash-alt"
         color="red"
         text-color="white"
+        @click="callCleanBoard"
         size="8px"
         dense
-        :disable="!objectActive"
-        @click="deleteActiveObject"
+        :disable="!canDraw"
       >
         <q-tooltip class="bg-grey-10">
-          <label> Eliminar objeto</label>
+          <label> Limpiar pizarra</label>
         </q-tooltip>
       </q-btn>
+
+     
 
       <!-- <q-btn
         class="o-board__toolbar__tool"

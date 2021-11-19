@@ -23,6 +23,7 @@ import {
   useExternalVideo,
   useHandleMessage,
   useHandleParticipants,
+  usePerifericsControls,
 } from '@/composables';
 
 import { useBoard } from '@/composables/board';
@@ -97,7 +98,7 @@ const {
   updateMainViewState,
   removePinnedUserForAll,
   removePinnedUser,
-  setBoardState
+  setBoardState,
 } = useMainView();
 
 const {
@@ -120,6 +121,8 @@ const {
   functionsOnMenuBar,
   updateHandNotification,
 } = useToogleFunctions();
+
+const { setDevicesDetected } = usePerifericsControls();
 
 const roomTimerId = ref<ReturnType<typeof setInterval> | null>(null);
 
@@ -404,6 +407,10 @@ export function useInitWebRTC() {
           roomTimerId.value = setInterval(() => {
             webRTCInstance.value.getRoomInfo?.(roomId, streamId);
           }, 2000);
+        } else if (info == 'available_devices') {
+          const devices = obj as unknown;
+          console.log('DEVICES ENCONTRADOS 🤭->', obj);
+          setDevicesDetected(devices as MediaDeviceInfo[]);
         } else if (info == 'newStreamAvailable') {
           console.debug('New stream available', obj);
 
@@ -1492,7 +1499,7 @@ export function useInitWebRTC() {
         webRTCInstance.value.switchVideoCameraCapture?.(streamId, cameraId);
       })
       .catch((err) => console.log(err)); */
-    // webRTCInstance.value.switchVideoCameraCapture?.(streamId, userMe.cameraId);
+    //webRTCInstance.value.switchVideoCameraCapture?.(streamId);
     webRTCInstance.value.turnOnLocalCamera?.(streamId);
   };
 

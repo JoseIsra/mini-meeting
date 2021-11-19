@@ -9,6 +9,8 @@ import { PeerStats } from './peer_stats.js';
 import { WebSocketAdaptor } from './websocket_adaptor.js';
 import adapter from 'webrtc-adapter';
 import { WebRTCAdaptorType } from '@/types/index';
+import { indexOf } from 'lodash';
+import { useUserMe } from '@/composables';
 
 interface WebRTCInitialValues {
   websocket_url?: string;
@@ -32,6 +34,7 @@ class ReceivingMessage {
     this.data = new ArrayBuffer(size);
   }
 }
+const { userMe } = useUserMe();
 
 export class WebRTCAdaptor {
   constructor(initialValues: WebRTCInitialValues) {
@@ -63,7 +66,6 @@ export class WebRTCAdaptor {
     this.viewerInfo = '';
     this.publishStreamId = null;
     this.blackFrameTimer = null;
-
     //FractalUp
     this.isScreenshared = false;
     this.isScreensharedWithCamera = false;
@@ -923,11 +925,7 @@ export class WebRTCAdaptor {
     this.checkWebSocketConnection();
     this.getDevices();
   }
-  metodoDePrueba() {
-    //TODO: POR REFACTORIZAR
-    console.log('metodo de prueba');
-    return this.localVideo;
-  }
+
   getLocalStream(): MediaStream {
     //TODO: POR REFACTORIZAR
     return this.localStream as MediaStream;
@@ -1093,30 +1091,26 @@ export class WebRTCAdaptor {
   switchAudioInputSource(streamId, deviceId) {
     //stop the track because in some android devices need to close the current camera stream
     var audioTrack = this.localStream.getAudioTracks()[0];
+
     if (audioTrack) {
       audioTrack.stop();
     } else {
       console.warn('There is no audio track in local stream');
     }
     if (typeof deviceId != 'undefined') {
-      if (this.mediaConstraints.audio !== true)
+      if (this.mediaConstraints.audio !== true) {
         this.mediaConstraints.audio.deviceId = deviceId;
-      else this.mediaConstraints.audio = { deviceId: deviceId };
+      } else {
+        this.mediaConstraints.audio = { deviceId: deviceId };
+      }
     }
-    this.setAudioInputSource(
-      streamId,
-      this.mediaConstraints,
-      null,
-      true,
-      deviceId
-    );
+    this.setAudioInputSource(streamId, this.mediaConstraints, null, deviceId);
   }
 
   switchVideoCameraCapture(streamId, deviceId) {
     //stop the track because in some android devices need to close the current camera stream
     var videoTrack = this.localStream.getVideoTracks()[0];
     if (videoTrack) {
-      console.log('VIDEOTRACK TRUE 🚀');
       videoTrack.stop();
     } else {
       console.warn('There is no video track in local stream');
@@ -1126,11 +1120,14 @@ export class WebRTCAdaptor {
 
     if (typeof deviceId != 'undefined') {
       if (this.mediaConstraints.video !== true) {
-        this.mediaConstraints.video.deviceId = { exact: deviceId };
+        this.mediaConstraints.video.deviceId = deviceId;
       } else {
-        this.mediaConstraints.video = { deviceId: { exact: deviceId } };
+        this.mediaConstraints.video = {
+          deviceId: deviceId,
+        };
       }
     }
+
     this.setVideoCameraSource(
       streamId,
       this.mediaConstraints,
@@ -1171,6 +1168,7 @@ export class WebRTCAdaptor {
       });
       newAudioTrack.enabled = enabled;
       this.localStream.addTrack(newAudioTrack);
+      console.log('LOCAL UPDATED', this.localStream.getTracks());
     } else if (this.localStream != null) {
       this.localStream.addTrack(newAudioTrack);
     } else {
@@ -1199,7 +1197,6 @@ export class WebRTCAdaptor {
     }
 
     var newVideoTrack = stream.getVideoTracks()[0];
-
     if (
       this.localStream != null &&
       this.localStream.getVideoTracks()[0] != null
@@ -1230,13 +1227,16 @@ export class WebRTCAdaptor {
    * It calls updateAudioTrack function for the update local audio stream.
    */
   setAudioInputSource(streamId, mediaConstraints, onEndedCallback) {
+    if (!userMe.isCameraOn) {
+      this.turnOffLocalCamera(streamId);
+    }
     this.navigatorUserMedia(
-      mediaConstraints,
+      { audio: mediaConstraints.audio, video: false },
       (stream) => {
         this.updateAudioTrack(
           stream,
           streamId,
-          mediaConstraints,
+          { audio: mediaConstraints.audio, video: false },
           onEndedCallback
         );
       },
@@ -1271,6 +1271,9 @@ export class WebRTCAdaptor {
           mediaConstraints,
           onEndedCallback
         );
+        if (!userMe.isCameraOn) {
+          this.turnOffLocalCamera(streamId);
+        }
       },
       true
     );
@@ -1644,6 +1647,7 @@ export class WebRTCAdaptor {
       } else {
         choosenId = this.publishStreamId;
       }
+
       this.updateVideoTrack(
         this.replacementStream,
         choosenId,
@@ -1682,6 +1686,7 @@ export class WebRTCAdaptor {
       clearInterval(this.blackFrameTimer);
       this.blackFrameTimer = null;
     }
+
     if (this.localStream == null) {
       this.navigatorUserMedia(
         this.mediaConstraints,

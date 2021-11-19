@@ -118,3 +118,9 @@ export interface ObjUserLeavingMessageParsed {
 export interface ObjRecordingStopParsed {
   state: Record<string, string>;
 }
+
+export interface ObjBoardEvent {
+  event: number;
+  objects?: string;
+  color?: string;
+}

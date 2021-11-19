@@ -74,6 +74,8 @@ import {
 import FuGeneralPanel from 'molecules/FuGeneralPanel';
 import FuParticipantPerifericPanel from 'molecules/FuParticipantPerifericPanel';
 import FuRetransmissionPanel from 'molecules/FuRetransmissionPanel';
+import FuBoardPanel from 'molecules/FuBoardPanel';
+
 
 interface List {
   id: string;
@@ -87,6 +89,7 @@ export default defineComponent({
     FuGeneralPanel,
     FuParticipantPerifericPanel,
     FuRetransmissionPanel,
+    FuBoardPanel
   },
   setup() {
     const panelOptions = ref<Options[]>(adminPanelOptions);

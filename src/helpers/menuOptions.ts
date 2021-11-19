@@ -135,6 +135,12 @@ export const adminPanelOptions = [
     iconName: 'live_tv',
     important: false,
   },
+  {
+    id: '4',
+    description: 'Pizarra',
+    iconName: 'note_alt',
+    important: false,
+  },
 ];
 
 export const componentList = [
@@ -152,5 +158,10 @@ export const componentList = [
     id: '3',
     name: 'fu-retransmission-panel',
     respondToOption: 'Retransmisión',
+  },
+  {
+    id: '4',
+    name: 'fu-board-panel',
+    respondToOption: 'Pizarra',
   },
 ];

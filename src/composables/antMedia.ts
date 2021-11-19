@@ -6,6 +6,7 @@ import {
   REASON_TO_LEAVE_ROOM,
   LOCK_ACTION_TYPE,
   USER_ROLE,
+  BOARD_EVENTS,
   MAIN_VIEW_LOCKED_TYPE,
   MAIN_VIEW_MODE,
   LOG_TYPE,
@@ -24,9 +25,12 @@ import {
   useHandleParticipants,
 } from '@/composables';
 
+import { useBoard } from '@/composables/board';
+
 import { useMainView } from '@/composables/mainView';
 
 import { notifyWithAction, warningMessage } from '@/utils/notify';
+
 import videojs from 'video.js';
 /* import { useActions } from '@/composables/actions'; */
 import _ from 'lodash';
@@ -39,6 +43,7 @@ import {
   ObjKickedEvent,
   ObjRemoteUserInfo,
   ObjUserLeavingMessageParsed,
+  ObjBoardEvent,
   VideoID,
   backgroundInfo,
   backgroundSize,
@@ -64,6 +69,7 @@ const {
   setLocalScreenShareBlock,
   setLocalVideoBlock,
   setDenied,
+  toggleDrawState,
 } = useUserMe();
 
 const {
@@ -91,6 +97,7 @@ const {
   updateMainViewState,
   removePinnedUserForAll,
   removePinnedUser,
+  setBoardState
 } = useMainView();
 
 const {
@@ -117,6 +124,11 @@ const {
 const roomTimerId = ref<ReturnType<typeof setInterval> | null>(null);
 
 const { updateExternalVideoState, externalVideo } = useExternalVideo();
+
+/* const { setScreenShareIconState } = useActions(); */
+
+const { handleMultipleObjects, clearBoard, changeBgColor, discardSelection } =
+  useBoard();
 
 const remotePlayer = ref<videojs.Player>({} as videojs.Player);
 
@@ -889,6 +901,7 @@ export function useInitWebRTC() {
               isRecording: remoteUserInfoParsed.userInfo.isRecording,
               roleId: remoteUserInfoParsed.userInfo.roleId,
               isHost: remoteUserInfoParsed.userInfo.isHost,
+              canDraw: remoteUserInfoParsed.userInfo.canDraw,
               isPublishing: 0,
               hasLogJoin: false,
             };
@@ -1263,8 +1276,49 @@ export function useInitWebRTC() {
               webRTCInstance.value.stop(streamToPause);
               updateStreamById(streamToPause, { isBeingPlayed: false });
             }
+          } else if (eventType === 'BOARD_EVENT') {
+            const { event, objects, color } = JSON.parse(
+              obj.data
+            ) as ObjBoardEvent;
+
+            if (!objects) {
+              if (event === BOARD_EVENTS.TURN_ON) {
+                setBoardState(true);
+              } else if (event === BOARD_EVENTS.TURN_OFF) {
+                setBoardState(false);
+              } else if (event === BOARD_EVENTS.CLEAR) {
+                clearBoard();
+              } else if (event === BOARD_EVENTS.TOGGLE_DRAW_MODE) {
+                if (baseDataParsed.to === userMe.id) {
+                  if (userMe.canDraw) {
+                    discardSelection();
+                  }
+
+                  toggleDrawState();
+                } else {
+                  const participantToUpdate = participants.value.find(
+                    (p) => p.id === baseDataParsed.to
+                  );
+
+                  if (participantToUpdate) {
+                    updateParticipantById(baseDataParsed.to, {
+                      canDraw: !participantToUpdate.canDraw,
+                    });
+                  }
+                }
+              } else if (event === BOARD_EVENTS.CHANGE_BG_COLOR) {
+                changeBgColor(color);
+              }
+            } else {
+              if (event === BOARD_EVENTS.OBJECT_ADD) {
+                handleMultipleObjects({ objects });
+              } else if (event === BOARD_EVENTS.OBJECT_UPDATE) {
+                handleMultipleObjects({ objects });
+              } else if (event === BOARD_EVENTS.OBJECT_REMOVE) {
+                handleMultipleObjects({ objects });
+              }
+            }
           }
-          console.log(obj);
         }
       },
       callbackError: function (

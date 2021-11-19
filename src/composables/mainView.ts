@@ -138,6 +138,29 @@ export function useMainView() {
     });
   };
 
+  const setBoardState = (state: boolean) => {
+    if (state) {
+      updateMainViewState({
+        mode: MAIN_VIEW_MODE.BOARD,
+        locked: MAIN_VIEW_LOCKED_TYPE.ALL_USERS,
+      });
+    } else {
+      if (mainViewState.pinnedUsers.length > 0) {
+        updateMainViewState({
+          mode: MAIN_VIEW_MODE.USER,
+          locked: MAIN_VIEW_LOCKED_TYPE.ANYONE,
+        });
+
+        return;
+      }
+
+      updateMainViewState({
+        mode: MAIN_VIEW_MODE.NONE,
+        locked: MAIN_VIEW_LOCKED_TYPE.UNSET,
+      });
+    }
+  };
+
   return {
     mainViewState,
     setMainViewState,
@@ -149,5 +172,6 @@ export function useMainView() {
     addPinnedUserForAll,
     removePinnedUserForAll,
     cleanMainViewStateForAll,
+    setBoardState,
   };
 }

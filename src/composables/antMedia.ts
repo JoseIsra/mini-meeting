@@ -98,7 +98,7 @@ const {
   updateMainViewState,
   removePinnedUserForAll,
   removePinnedUser,
-  setBoardState
+  setBoardState,
 } = useMainView();
 
 const {
@@ -1407,11 +1407,13 @@ export function useInitWebRTC() {
         } else if (error.indexOf('data_channel_error') != -1) {
           errorMessage = 'There was a error during data channel communication';
         } else if (error.indexOf('ScreenSharePermissionDenied') != -1) {
+          if (userMe.isCameraOn) {
+            webRTCInstance.value.turnOnLocalCamera?.(userMe.id);
+          }
           updateUserMe({
             isScreenSharing: false,
           });
           webRTCInstance.value.resetDesktop?.();
-          sendNotificationEvent('SCREEN_SHARING_OFF', userMe.id);
 
           if (
             !userMe.isCameraOn &&
@@ -1423,14 +1425,7 @@ export function useInitWebRTC() {
             updateUserMe({ isPublishing: 0 });
           }
 
-          if (!userMe.isCameraOn) {
-            setTimeout(() => {
-              webRTCInstance.value.turnOffLocalCamera?.(userMe.id);
-            }, 2000);
-          }
-
           errorMessage = 'No has dado permisos para compartir tus dispositivos';
-          //screen_share_checkbox.checked = false;
         } else if (error.indexOf('AbortError') !== -1) {
           setExistRoom(false);
           setLoadingOrErrorMessage(

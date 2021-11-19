@@ -572,16 +572,16 @@ export class WebRTCAdaptor {
               this.callbackError('ScreenSharePermissionDenied');
 
               // Redirect Default Stream Camera
-              if (this.localStream == null) {
-                var mediaConstraints = {
-                  video: false, //cambio de prueba here
-                  audio: true,
-                };
+              // if (this.localStream == null) {
+              //   var mediaConstraints = {
+              //     video: false, //cambio de prueba here
+              //     audio: true,
+              //   };
 
-                this.openStream(mediaConstraints);
-              } else {
-                this.switchVideoCameraCapture(streamId);
-              }
+              //   this.openStream(mediaConstraints);
+              // } else {
+              //   this.switchVideoCameraCapture(streamId);
+              // }
             }
           });
       }
@@ -1154,7 +1154,7 @@ export class WebRTCAdaptor {
    * This method updates the local stream. It removes existant audio track from the local stream
    * and add the audio track in `stream` parameter to the local stream
    */
-  updateLocalAudioStream(stream, onEndedCallback, streamId) {
+  updateLocalAudioStream(stream, onEndedCallback) {
     var newAudioTrack = stream.getAudioTracks()[0];
 
     if (
@@ -1291,7 +1291,7 @@ export class WebRTCAdaptor {
         audioTrackSender
           .replaceTrack(stream.getAudioTracks()[0])
           .then((result) => {
-            this.updateLocalAudioStream(stream, onEndedCallback, streamId);
+            this.updateLocalAudioStream(stream, onEndedCallback);
           })
           .catch(function (error) {
             console.log(error.name);

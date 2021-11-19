@@ -1,11 +1,5 @@
 <template>
   <div class="o-board" v-show="showBoard">
-    <div
-      class="o-board__mask"
-      v-if="!canDraw && roleId === 1"
-      @click.self="closePanels"
-    ></div>
-
     <div class="o-board__toolbar">
       <q-btn
         class="o-board__toolbar__tool"
@@ -38,13 +32,13 @@
       <q-btn
         class="o-board__toolbar__tool"
         icon="fas fa-eraser"
-        @click="callCleanBoard"
         size="8px"
         dense
-        :disable="!canDraw"
+        :disable="!objectActive || !canDraw"
+        @click="deleteActiveObject"
       >
         <q-tooltip class="bg-grey-10">
-          <label> Limpiar pizarra</label>
+          <label> Eliminar objeto</label>
         </q-tooltip>
       </q-btn>
 
@@ -54,6 +48,7 @@
         @click="dummylogs"
         size="8px"
         dense
+        :disable="!canDraw"
       />
 
       <q-btn
@@ -157,13 +152,13 @@
         icon="fas fa-trash-alt"
         color="red"
         text-color="white"
+        @click="callCleanBoard"
         size="8px"
         dense
-        :disable="!objectActive"
-        @click="deleteActiveObject"
+        :disable="!canDraw"
       >
         <q-tooltip class="bg-grey-10">
-          <label> Eliminar objeto</label>
+          <label> Limpiar pizarra</label>
         </q-tooltip>
       </q-btn>
 
@@ -198,6 +193,12 @@
 
     <div class="o-board__board">
       <canvas id="board" width="1000" height="600"></canvas>
+
+      <div
+        class="o-board__board__mask"
+        v-if="!canDraw && roleId === 1"
+        @click.self="closePanels"
+      ></div>
     </div>
 
     <div class="o-board__tools">
@@ -509,6 +510,9 @@ export default defineComponent({
       // Stroke picker not handled yet
       if (actionSelected.value === 'brushSize') {
         actionSelected.value = '';
+      } else if (actionSelected.value === 'draw') {
+        actionSelected.value = 'brushSize';
+        board.value.isDrawingMode = !board.value.isDrawingMode;
       } else {
         actionSelected.value = 'brushSize';
       }
@@ -527,31 +531,27 @@ export default defineComponent({
 
     onMounted(() => {
       const boardObjects = window?.xprops?.boardObjects || ''; // This should be a call to prop.objects (boardObjects)
+      console.debug('OnMounted: ', board.value);
+
+      const wasPreviuslyMounted = board.value === null;
+
       setBoard(
         new fabric.Canvas('board', {
           backgroundColor: '#ffffff',
           selection: false,
         })
       );
-      // fabric.Object.prototype.transparentCorners = false;
-      // fabric.Object.prototype.controls.deleteControl = new fabric.Control({
-      //   x: 0.5,
-      //   y: -0.5,
-      //   offsetY: -16,
-      //   offsetX: 16,
-      //   cursorStyle: 'pointer',
-      //   mouseUpHandler: deleteObject,
-      //   cornerSize: 21,
-      // });
 
       if (userMe.roleId !== 1) {
         board.value.isDrawingMode = true;
         actionSelected.value = 'draw';
       }
 
-      if (boardObjects) {
-        if (boardObjects.objects) {
-          loadBoard(boardObjects);
+      if (wasPreviuslyMounted) {
+        if (boardObjects) {
+          if (boardObjects.objects) {
+            loadBoard(boardObjects);
+          }
         }
       }
 
@@ -715,6 +715,17 @@ export default defineComponent({
           deleteActiveObject();
         }
       });
+
+      // fabric.Object.prototype.transparentCorners = false;
+      // fabric.Object.prototype.controls.deleteControl = new fabric.Control({
+      //   x: 0.5,
+      //   y: -0.5,
+      //   offsetY: -16,
+      //   offsetX: 16,
+      //   cursorStyle: 'pointer',
+      //   mouseUpHandler: deleteObject,
+      //   cornerSize: 21,
+      // });
     });
 
     onBeforeUnmount(() => {

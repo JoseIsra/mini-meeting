@@ -1,11 +1,5 @@
 <template>
   <div class="o-board" v-show="showBoard">
-    <div
-      class="o-board__mask"
-      v-if="!canDraw && roleId === 1"
-      @click.self="closePanels"
-    ></div>
-
     <div class="o-board__toolbar">
       <q-btn
         class="o-board__toolbar__tool"
@@ -40,7 +34,7 @@
         icon="fas fa-eraser"
         size="8px"
         dense
-        :disable="!objectActive"
+        :disable="!objectActive || !canDraw"
         @click="deleteActiveObject"
       >
         <q-tooltip class="bg-grey-10">
@@ -54,6 +48,7 @@
         @click="dummylogs"
         size="8px"
         dense
+        :disable="!canDraw"
       />
 
       <q-btn
@@ -198,6 +193,12 @@
 
     <div class="o-board__board">
       <canvas id="board" width="1000" height="600"></canvas>
+
+      <div
+        class="o-board__board__mask"
+        v-if="!canDraw && roleId === 1"
+        @click.self="closePanels"
+      ></div>
     </div>
 
     <div class="o-board__tools">

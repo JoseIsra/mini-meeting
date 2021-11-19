@@ -1,15 +1,10 @@
 .o-cooperate {
   width: 100vw;
-  height: 100vh;
-  position: relative;
+  height: calc(var(--vh, 1vh) * 100);
   display: flex;
   flex-direction: column;
   align-items: center;
-
-  background: #36393f;
-  // background-size: 70vw;
-  // background-position: 50% center;
-  // background-repeat: no-repeat;
+  position: relative;
 
   &__background {
     position: absolute;

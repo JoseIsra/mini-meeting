@@ -11,6 +11,11 @@ export interface BgInfo {
   allowResetBg: boolean;
 }
 
+// export interface boardInfo{
+//   board: string;
+//   syncData: number;
+// }
+
 export interface ZoidProps {
   streamId?: string;
   roomId: string;
@@ -35,6 +40,8 @@ export interface ZoidProps {
   cameraId?: string;
   micId?: string;
   speakerId: string;
+  boardObjects?: unknown;
+  updateBoardObjects?: (objects: string) => void;
   handleLeaveCall?: (
     arg: number,
     remainingParticipantsFractalUserIds?: string[]

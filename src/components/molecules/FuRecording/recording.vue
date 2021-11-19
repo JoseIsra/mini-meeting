@@ -106,7 +106,7 @@ export default defineComponent({
         })
         .catch((e) => console.log(e)); */
       fetch(
-        `https://cooperate.fractalup.com/WebRTCAppEE/rest/v2/broadcasts/${userMe.id}/recording/true?recordType=mp4`,
+        `https://cooperate.fractalup.com/WebRTCAppEE/rest/v2/broadcasts/${userMe.id}/recording/true?recordType=webm`,
         { method: 'PUT' }
       )
         .then(() => {
@@ -128,7 +128,7 @@ export default defineComponent({
     const stopRecording = () => {
       /* watchParticipants.value?.(); */
       fetch(
-        `https://cooperate.fractalup.com/WebRTCAppEE/rest/v2/broadcasts/${userMe.id}/recording/false?recordType=mp4`,
+        `https://cooperate.fractalup.com/WebRTCAppEE/rest/v2/broadcasts/${userMe.id}/recording/false?recordType=webm`,
         { method: 'PUT' }
       )
         .then(() => {

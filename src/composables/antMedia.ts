@@ -341,9 +341,10 @@ export function useInitWebRTC() {
       mediaConstraints: mediaConstraints,
       peerconnection_config: pc_config,
       sdp_constraints: sdpConstraints,
-      isPlayMode: userMe.isHost ? false : false,
+      isPlayMode: false,
       debug: true,
       dataChannelEnabled: true,
+      bandwidth: 'unlimited',
       callback: (info: string, obj: objWebRTC) => {
         if (info == 'initialized') {
           console.debug('initialized');
@@ -354,13 +355,6 @@ export function useInitWebRTC() {
 
           joinRoom(roomId, streamId);
         } else if (info == 'joinedTheRoom') {
-          if (!userMe.isCameraOn && userMe.hasWebcam) {
-            webRTCInstance.value.turnOffLocalCamera?.(streamId);
-          }
-          if (!userMe.isMicOn && userMe.hasMic) {
-            muteLocalMic();
-          }
-
           window.addEventListener('unload', () => {
             /* sendData(roomState.hostId, {
               eventType: 'USER_LEAVING',
@@ -434,8 +428,19 @@ export function useInitWebRTC() {
           }
         } else if (info == 'publish_started') {
           console.debug('publish started');
+
           if (userMe.isHost) {
             updateUserMe({ isPublishing: 1 });
+          }
+          if (
+            !userMe.isCameraOn &&
+            userMe.hasWebcam &&
+            userMe.isPublishing === 1
+          ) {
+            webRTCInstance.value.turnOffLocalCamera?.(streamId);
+          }
+          if (!userMe.isMicOn && userMe.hasMic && userMe.isPublishing === 1) {
+            muteLocalMic();
           }
         } else if (info == 'publish_finished') {
           console.debug('publish finished');

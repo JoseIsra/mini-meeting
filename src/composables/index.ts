@@ -13,3 +13,4 @@ export * from './toggleFunctions';
 export * from './antMediaMerge';
 export * from './antMedia';
 export * from './mainView';
+export * from './board';

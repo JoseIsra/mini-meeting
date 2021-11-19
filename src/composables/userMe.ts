@@ -83,6 +83,10 @@ export function useUserMe() {
     userMe.isScreenShareBlocked = value;
   };
 
+  const toggleDrawState = () => {
+    userMe.canDraw = !userMe.canDraw;
+  };
+
   // const setCameraDevice = (value: string) => {
   //   userMe.cameraId = value;
   // };
@@ -105,5 +109,6 @@ export function useUserMe() {
     setLocalVideoBlock,
     setLocalScreenShareBlock,
     setDenied,
+    toggleDrawState,
   };
 }

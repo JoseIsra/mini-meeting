@@ -567,18 +567,6 @@ export class WebRTCAdaptor {
             if (error.name === 'NotAllowedError') {
               console.debug('Permission denied error');
               this.callbackError('ScreenSharePermissionDenied');
-
-              // Redirect Default Stream Camera
-              if (this.localStream == null) {
-                var mediaConstraints = {
-                  video: false, //cambio de prueba here
-                  audio: true,
-                };
-
-                this.openStream(mediaConstraints);
-              } else {
-                this.switchVideoCameraCapture(streamId);
-              }
             }
           });
       }

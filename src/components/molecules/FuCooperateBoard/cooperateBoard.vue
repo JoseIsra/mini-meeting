@@ -527,31 +527,28 @@ export default defineComponent({
 
     onMounted(() => {
       const boardObjects = window?.xprops?.boardObjects || ''; // This should be a call to prop.objects (boardObjects)
+      console.debug('OnMounted: ', board.value);
+
+      const wasPreviuslyMounted = board.value === null;
+
       setBoard(
-        new fabric.Canvas('board', {
-          backgroundColor: '#ffffff',
-          selection: false,
-        })
-      );
-      // fabric.Object.prototype.transparentCorners = false;
-      // fabric.Object.prototype.controls.deleteControl = new fabric.Control({
-      //   x: 0.5,
-      //   y: -0.5,
-      //   offsetY: -16,
-      //   offsetX: 16,
-      //   cursorStyle: 'pointer',
-      //   mouseUpHandler: deleteObject,
-      //   cornerSize: 21,
-      // });
+          new fabric.Canvas('board', {
+            backgroundColor: '#ffffff',
+            selection: false,
+          })
+        );
 
-      if (userMe.roleId !== 1) {
-        board.value.isDrawingMode = true;
-        actionSelected.value = 'draw';
-      }
+        if (userMe.roleId !== 1) {
+          board.value.isDrawingMode = true;
+          actionSelected.value = 'draw';
+        }
 
-      if (boardObjects) {
-        if (boardObjects.objects) {
-          loadBoard(boardObjects);
+
+      if (wasPreviuslyMounted) {        
+        if (boardObjects) {
+          if (boardObjects.objects) {
+            loadBoard(boardObjects);
+          }
         }
       }
 
@@ -715,6 +712,17 @@ export default defineComponent({
           deleteActiveObject();
         }
       });
+
+      // fabric.Object.prototype.transparentCorners = false;
+      // fabric.Object.prototype.controls.deleteControl = new fabric.Control({
+      //   x: 0.5,
+      //   y: -0.5,
+      //   offsetY: -16,
+      //   offsetX: 16,
+      //   cursorStyle: 'pointer',
+      //   mouseUpHandler: deleteObject,
+      //   cornerSize: 21,
+      // });
     });
 
     onBeforeUnmount(() => {

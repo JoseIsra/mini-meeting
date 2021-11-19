@@ -9,4 +9,5 @@ export enum MAIN_VIEW_MODE {
   NONE,
   USER,
   VIDEO,
+  BOARD,
 }

@@ -525,6 +525,28 @@
                   </q-btn>
 
                   <q-btn
+                    v-if="participant.roleId === 1"
+                    v-show="mainViewState.mode === MAIN_VIEW_MODE.BOARD"
+                    icon="draw"
+                    :color="participant.canDraw ? 'blue' : 'red'"
+                    text-color="white"
+                    @click="toggleDrawMode(participant)"
+                  >
+                    <q-tooltip
+                      class="bg-grey-10"
+                      anchor="bottom middle"
+                      self="top middle"
+                      transition-show="scale"
+                      transition-hide="scale"
+                    >
+                      <label v-if="participant.canDraw"
+                        >Dibujar habilitado</label
+                      >
+                      <label v-else>Dibujar deshabilitado</label>
+                    </q-tooltip>
+                  </q-btn>
+
+                  <q-btn
                     icon="fas fa-sign-out-alt"
                     @click="handleKickParticipant(participant)"
                     color="red"
@@ -693,9 +715,12 @@ import {
 import { User } from '@/types';
 import {
   MAIN_VIEW_LOCKED_TYPE,
+  MAIN_VIEW_MODE,
   LOCK_ACTION_TYPE,
   USER_ROLE,
+  BOARD_EVENTS,
 } from '@/utils/enums';
+
 import { nanoid } from 'nanoid';
 
 export default defineComponent({
@@ -713,6 +738,7 @@ export default defineComponent({
       setEveryParticipantActions,
       waitingParticipants,
       admittedParticipants,
+      updateParticipantById,
     } = useHandleParticipants();
 
     const { toggleParticipantPanel, setSidebarState } = useSidebarToogle();
@@ -1063,6 +1089,17 @@ export default defineComponent({
       });
     };
 
+    const toggleDrawMode = (arg: User) => {
+      updateParticipantById(arg.id, { canDraw: !arg.canDraw });
+
+      sendData(roomState.hostId, {
+        eventType: 'BOARD_EVENT',
+        from: userMe.id,
+        to: arg.id,
+        event: BOARD_EVENTS.TOGGLE_DRAW_MODE,
+      });
+    };
+
     return {
       waitingParticipants,
       admittedParticipants,
@@ -1084,12 +1121,14 @@ export default defineComponent({
       participantActionsToolTip,
       notificateHandUp,
       removeHandUp,
+      toggleDrawMode,
       mainViewState,
       addPinnedUser,
       addPinnedUserForAll,
       removePinnedUser,
       removePinnedUserForAll,
       MAIN_VIEW_LOCKED_TYPE,
+      MAIN_VIEW_MODE
     };
   },
 });

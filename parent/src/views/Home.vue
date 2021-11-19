@@ -31,6 +31,8 @@
     :isHost="isHost"
     :logUserExits="logUserExits"
     :logJoined="logJoined"
+    :boardObjects="boardObjects"
+    :updateBoardObjects="updateBoardObjects"
   />
 </template>
 
@@ -59,6 +61,9 @@ export default {
       actions: localStorage.actions
         ? JSON.parse(localStorage.actions)
         : { mic: 0, camera: 0, screenshare: 0 },
+      boardObjects: localStorage.boardObjects
+        ? JSON.parse(localStorage.boardObjects)
+        : "",
       roomRestriction: parseInt(this.$route.query.roomRestriction) || 0,
     };
   },
@@ -133,6 +138,10 @@ export default {
         "Registrando la entra del participante: ",
         participantLeaving
       );
+    },
+    updateBoardObjects: function (objects) {
+      console.debug("Update board objects");
+      window.localStorage.boardObjects = objects;
     },
   },
 };

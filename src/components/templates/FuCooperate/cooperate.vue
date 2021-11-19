@@ -39,7 +39,13 @@ import FuCooperate from 'organisms/FuCooperate';
 import FuLobby from 'organisms/FuLobby';
 
 import { useRoute } from 'vue-router';
-import { useRoom, useAuthState, useInitWebRTC, useUserMe } from '@/composables';
+import {
+  useRoom,
+  useAuthState,
+  useInitWebRTC,
+  useUserMe,
+  useMainView,
+} from '@/composables';
 import FuTLoading from 'organisms/FuLoading';
 import {
   PERMISSION_STATUS,
@@ -185,6 +191,7 @@ export default defineComponent({
       maximized: false,
       allowResetBg: false,
     };
+
     if (window?.xprops?.bgInfo?.url === '' || !window?.xprops?.bgInfo?.url) {
       bgInfo = {
         url: 'https://encrypted.fractalup.com/file/MainPublic/fractalup_assets/landing/main.png',
@@ -194,6 +201,14 @@ export default defineComponent({
     }
 
     /* const isBeingRecorded = window?.xprops?.isBeingRecorded || false; */
+
+    const boardObjects = window?.xprops?.boardObjects || '';
+    // boardState:
+    console.debug(!(boardObjects === ''));
+
+    const { setBoardState } = useMainView();
+
+    setBoardState(!(boardObjects === ''));
 
     if (isCameraOn) {
       setVideoActivatedState(true);
@@ -234,6 +249,7 @@ export default defineComponent({
       cameraId,
       micId,
       isPublishing: isHost ? 1 : 0,
+      canDraw: roleId === 1 ? false : true,
     });
 
     /* setMicIconState(isMicLocked ? false : isMicOn); */

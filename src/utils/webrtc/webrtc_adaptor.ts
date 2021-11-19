@@ -12,7 +12,7 @@ import { WebRTCAdaptorType } from '@/types/index';
 
 interface WebRTCInitialValues {
   websocket_url?: string;
-  mediaConstraints?: Record<string, boolean>;
+  mediaConstraints?: Record<string, string | boolean>;
   peerconnection_config?: Record<string, Record<string, string>[]>;
   sdp_constraints?: Record<string, boolean>;
   localVideoId?: string;
@@ -22,6 +22,7 @@ interface WebRTCInitialValues {
   callback?: unknown;
   callbackError?: unknown;
   onlyDataChannel?: boolean;
+  bandwidth?: string | number;
 }
 
 class ReceivingMessage {
@@ -53,7 +54,7 @@ export class WebRTCAdaptor {
     this.soundOriginGainNode = null;
     this.secondStreamGainNode = null;
     this.localStream = null;
-    this.bandwidth = 900; //default bandwidth kbps
+    this.bandwidth = 'unlimited'; //default bandwidth kbps 900
     this.isMultiPeer = false; //used for multiple peer client
     this.multiPeerStreamId = null; //used for multiple peer client
     this.webSocketAdaptor = null;

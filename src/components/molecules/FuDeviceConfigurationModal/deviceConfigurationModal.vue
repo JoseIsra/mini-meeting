@@ -8,17 +8,12 @@
         <p class="m-config__body__periferics__title">Mis dispositivos</p>
         <div class="m-config__body__periferics__box --micro">
           <p class="m-config__body__periferics__box__label">Microfonos</p>
-          <q-btn-dropdown
-            color="primary"
-            flat
-            rounded
-            :label="microphoneSelected.label"
-          >
+          <q-btn-dropdown color="primary" flat rounded :label="getMicLabel">
             <q-list>
               <q-item
                 clickable
                 v-close-popup
-                v-for="device in getDevicesObject(audioDevices)"
+                v-for="device in getAudioDevices"
                 :key="device.deviceId"
                 @click="selectNewMicrophone(device)"
               >
@@ -29,19 +24,32 @@
             </q-list>
           </q-btn-dropdown>
         </div>
-        <div class="m-config__body__periferics__box --camera">
-          <p class="m-config__body__periferics__box__label">Cámaras</p>
-          <q-btn-dropdown
-            color="primary"
-            flat
-            rounded
-            :label="cameraSelected.label"
-          >
+        <!-- <div class="m-config__body__periferics__box --micro">
+          <p class="m-config__body__periferics__box__label">Salidas de audio</p>
+          <q-btn-dropdown color="primary" flat rounded :label="getSpeakerLabel">
             <q-list>
               <q-item
                 clickable
                 v-close-popup
-                v-for="device in getDevicesObject(videoDevices)"
+                v-for="device in getAudioOuputDevices"
+                :key="device.deviceId"
+                @click="selectNewSpeaker(device)"
+              >
+                <q-item-section>
+                  <q-item-label>{{ device.label }}</q-item-label>
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-btn-dropdown>
+        </div> -->
+        <div class="m-config__body__periferics__box --camera">
+          <p class="m-config__body__periferics__box__label">Cámaras</p>
+          <q-btn-dropdown color="primary" flat rounded :label="getCameraLabel">
+            <q-list>
+              <q-item
+                clickable
+                v-close-popup
+                v-for="device in getVideoDevices"
                 :key="device.deviceId"
                 @click="selectNewCamera(device)"
               >
@@ -58,88 +66,89 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, reactive, onMounted } from 'vue';
-import { useInitWebRTC, useUserMe } from '@/composables';
-
-type MediaDeviceKind = 'audioinput' | 'audiooutput' | 'videoinput';
-interface MediaDeviceInfo {
-  deviceId: string;
-  groupId: string;
-  kind: MediaDeviceKind;
-  label: string;
-}
+import { defineComponent, ref, computed } from 'vue';
+import { useInitWebRTC, useUserMe, usePerifericsControls } from '@/composables';
 
 export default defineComponent({
   setup() {
-    let microphoneSelected = reactive<MediaDeviceInfo>({
-      label: 'Default',
-    } as MediaDeviceInfo);
-
-    let cameraSelected = reactive<MediaDeviceInfo>({
-      label: 'Default',
-    } as MediaDeviceInfo);
-
     const audioDevices = ref<MediaDeviceInfo[]>([]);
     const videoDevices = ref<MediaDeviceInfo[]>([]);
-    const { updateUserMe, userMe } = useUserMe();
-    const {
-      switchAudioInputSource,
-      switchVideoCameraCapture,
-      turnOffLocalCamera,
-      muteLocalMic,
-    } = useInitWebRTC();
+    const { userMe, updateUserMe } = useUserMe();
+    const { switchAudioInputSource, switchVideoCameraCapture } =
+      useInitWebRTC();
 
-    onMounted(async () => {
-      await getDevices();
+    const { userDevicesDetected } = usePerifericsControls();
+
+    const getMicLabel = computed(() => {
+      return (
+        getAudioDevices.value.find((device) => device.deviceId == userMe.micId)
+          ?.label || getAudioDevices.value[0].label
+      );
     });
 
-    const getDevices = async () => {
-      await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
-      navigator.mediaDevices
-        .enumerateDevices()
-        .then((res) => {
-          videoDevices.value = res.filter(
-            (device) => device.kind == 'videoinput'
-          );
+    const getCameraLabel = computed(() => {
+      return (
+        getVideoDevices.value.find(
+          (device) => device.deviceId == userMe.cameraId
+        )?.label || getVideoDevices.value[0].label
+      );
+    });
 
-          audioDevices.value = res.filter(
-            (device) => device.kind == 'audioinput'
-          );
-        })
-        .catch((err) => console.log(err));
-    };
+    // const getSpeakerLabel = computed(() => {
+    //   return (
+    //     getAudioOuputDevices.value.find(
+    //       (device) => device.deviceId == userMe.speakerId
+    //     )?.label || getAudioOuputDevices.value[0].label
+    //   );
+    // });
+
+    const getAudioDevices = computed(() => {
+      return userDevicesDetected.value.filter(
+        (device) => device.kind == 'audioinput'
+      );
+    });
+
+    // const getAudioOuputDevices = computed(() => {
+    //   return userDevicesDetected.value.filter(
+    //     (device) => device.kind == 'audiooutput'
+    //   );
+    // });
+
+    const getVideoDevices = computed(() => {
+      return userDevicesDetected.value.filter(
+        (device) => device.kind == 'videoinput'
+      );
+    });
 
     const selectNewMicrophone = (micDevice: MediaDeviceInfo) => {
-      muteLocalMic();
+      console.log(micDevice);
       updateUserMe({ micId: micDevice.deviceId });
-      Object.assign(microphoneSelected, micDevice);
       switchAudioInputSource(userMe.id, micDevice.deviceId);
     };
 
-    const getDevicesObject = (devices: MediaDeviceInfo[]) => {
-      return devices.map((device) => ({
-        label: device.label,
-        deviceId: device.deviceId,
-        groupId: device.groupId,
-        kind: device.kind,
-      }));
-    };
-
     const selectNewCamera = (cameraDevice: MediaDeviceInfo) => {
-      turnOffLocalCamera(userMe.id);
+      console.log(cameraDevice);
       updateUserMe({ cameraId: cameraDevice.deviceId });
-      Object.assign(cameraSelected, cameraDevice);
       switchVideoCameraCapture(userMe.id, cameraDevice.deviceId);
     };
 
+    const selectNewSpeaker = (speakerDevices: MediaDeviceInfo) => {
+      console.log(speakerDevices);
+      updateUserMe({ speakerId: speakerDevices.deviceId });
+      switchAudioInputSource(userMe.id, speakerDevices.deviceId);
+    };
+
     return {
-      microphoneSelected,
-      getDevicesObject,
       audioDevices,
       selectNewMicrophone,
-      cameraSelected,
       selectNewCamera,
       videoDevices,
+      selectNewSpeaker,
+      userDevicesDetected,
+      getAudioDevices,
+      getVideoDevices,
+      getMicLabel,
+      getCameraLabel,
     };
   },
 });

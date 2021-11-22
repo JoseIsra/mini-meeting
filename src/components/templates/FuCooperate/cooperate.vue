@@ -152,6 +152,9 @@ export default defineComponent({
 
     const micId = window.xprops?.micId || (route.query.micId as string);
 
+    const speakerId =
+      window.xprops?.speakerId || (route.query.speakerId as string);
+
     const isCameraLocked = window.xprops?.isCameraLocked || false;
 
     const isScreenShareLocked = window.xprops?.isScreenShareLocked || false;
@@ -249,6 +252,7 @@ export default defineComponent({
       cameraId,
       micId,
       isPublishing: isHost ? 1 : 0,
+      speakerId,
       canDraw: roleId === 1 ? false : true,
     });
 

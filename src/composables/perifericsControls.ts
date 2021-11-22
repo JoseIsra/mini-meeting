@@ -1,4 +1,4 @@
-import { reactive } from 'vue';
+import { reactive, ref } from 'vue';
 import { PerifericsState } from '@/types/periferics';
 
 const perifericsState = {
@@ -10,7 +10,7 @@ const perifericsState = {
 };
 
 const perifericsControl = reactive<PerifericsState>(perifericsState);
-
+const userDevicesDetected = ref<MediaDeviceInfo[]>([]);
 export function usePerifericsControls() {
   const setMicState = (value: boolean) => {
     perifericsControl.isMicOn = value;
@@ -31,6 +31,10 @@ export function usePerifericsControls() {
     perifericsControl.isVideoActivated = value;
   };
 
+  const setDevicesDetected = (value: MediaDeviceInfo[]) => {
+    userDevicesDetected.value = value;
+  };
+
   return {
     perifericsControl,
     setMicState,
@@ -38,5 +42,7 @@ export function usePerifericsControls() {
     setScreenState,
     setCameraDevice,
     setVideoActivatedState,
+    setDevicesDetected,
+    userDevicesDetected,
   };
 }

@@ -147,9 +147,9 @@
           @submit.prevent="sendMessage"
         >
           <q-input
+            autofocus
             class="m-chat__formBox__form__input"
             ref="inputUser"
-            autofocus
             dense
             v-model="userInput"
             color="grey"
@@ -171,15 +171,14 @@
             dense
             @click="$refs.fileInput.click()"
           />
-          <q-btn
-            class="m-chat__formBox__form__saveBtn"
-            icon="send"
-            round
+
+          <button
             type="submit"
-            color="indigo-8"
-            :disable="!userInput"
-            @click="sendMessage"
-          />
+            :disabled="!userInput"
+            class="m-chat__formBox__form__saveBtn"
+          >
+            <q-icon name="send" size="20px" color="white" />
+          </button>
         </form>
       </div>
     </section>
@@ -265,10 +264,12 @@ export default defineComponent({
         fileExtension,
         fileName,
       };
-      setUserMessage(userLocalMessage);
-      sendData(roomState.hostId, userLocalMessage);
       userInput.value = '';
-      void nextTick(() => inputUser.value.focus());
+
+      setUserMessage(userLocalMessage);
+
+      sendData(roomState.hostId, userLocalMessage);
+      inputUser.value.focus();
     };
 
     const fileSelected = (e: HTMLInputEvent) => {
@@ -324,9 +325,9 @@ export default defineComponent({
       messageContainer.value.scrollTop = messageContainer.value.scrollHeight;
     };
 
-    onUpdated(async () => {
+    onUpdated(() => {
       try {
-        await nextTick(() => scrollToEnd());
+        void nextTick(() => scrollToEnd());
       } catch (error) {
         console.error(error);
       }

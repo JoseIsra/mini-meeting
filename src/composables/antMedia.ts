@@ -97,7 +97,7 @@ const {
   updateMainViewState,
   removePinnedUserForAll,
   removePinnedUser,
-  setBoardState
+  setBoardState,
 } = useMainView();
 
 const {

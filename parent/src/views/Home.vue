@@ -11,7 +11,7 @@
     :handleStartRecording="handleStartRecording"
     :toggleMinimize="toggleMinimize"
     :toggleLockAction="toggleLockAction"
-    sharedLink="sharedLinkTest"
+    sharedLink="sharingLink"
     classroomId="1"
     :isMicLocked="actions.mic === 1"
     :isCameraLocked="actions.camera === 1"

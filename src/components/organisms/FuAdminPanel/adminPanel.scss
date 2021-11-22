@@ -1,6 +1,7 @@
 .o-panel {
   width: 800px;
-  height: 500px;
+  height: 520px;
+  min-height: 540px;
   max-width: 900px;
   border-radius: 8px;
   background-color: #202125;
@@ -30,10 +31,6 @@
         margin: 0;
         padding: 0;
         width: 100%;
-        .--active {
-          background-color: #009bf4;
-          box-shadow: -20px 0 0 #009bf4;
-        }
       }
       &__option {
         position: relative;
@@ -45,8 +42,18 @@
         cursor: pointer;
         margin: 1rem 0;
         border-radius: 0 50px 50px 0;
+        &.--active {
+          background-color: #009bf4;
+          box-shadow: -20px 0 0 #009bf4;
+        }
+        &.--responsiveStyle {
+          border-radius: 0;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
         &__icon {
-          flex: 0.2;
+          &.--mainIcon {
+            flex: 0.2;
+          }
         }
         &__name {
           font-size: clamp(0.6rem, 2.5vw, 0.8rem);
@@ -71,15 +78,17 @@
         align-items: center;
         width: 100%;
         height: 100%;
+        margin: 10px 0;
       }
       &__innerContainer {
         display: flex;
         flex-direction: column;
         align-items: flex-start;
         padding: 10px;
-        width: 95%;
-        height: 95%;
+        width: 100%;
+        height: 100%;
         overflow-y: auto;
+
         &::-webkit-scrollbar {
           width: 5px;
         }

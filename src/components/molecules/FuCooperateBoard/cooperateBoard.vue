@@ -284,7 +284,6 @@ export default defineComponent({
     const {
       board,
       showBoard,
-      loadBoard,
       setBoard,
       toggleShowBoard,
       clearBoard,
@@ -294,6 +293,7 @@ export default defineComponent({
       discardSelection,
       objectActive,
       setObjectActive,
+      parseCurrentBoard
     } = useBoard();
 
     const { isSidebarRender, setSidebarState } = useSidebarToogle();
@@ -380,27 +380,6 @@ export default defineComponent({
       brush.color = color;
       if (brush.getPatternSrc) {
         brush.source = brush.getPatternSrc.call(brush);
-      }
-    };
-
-    const parseCurrentBoard = () => {
-      if (board.value) {
-        const parsedObjects = board.value.getObjects().map((obj) => {
-          const objParsed = obj.toObject();
-          return {
-            ...objParsed,
-            id: obj.id,
-          };
-        });
-
-        window.xprops?.updateBoardObjects?.(
-          JSON.stringify({
-            ...board.value.toJSON(),
-            objects: parsedObjects,
-          })
-        ); // update cooperate-options field
-
-        return;
       }
     };
 
@@ -530,10 +509,7 @@ export default defineComponent({
     };
 
     onMounted(() => {
-      const boardObjects = window?.xprops?.boardObjects || ''; // This should be a call to prop.objects (boardObjects)
       console.debug('OnMounted: ', board.value);
-
-      const wasPreviuslyMounted = board.value === null;
 
       setBoard(
         new fabric.Canvas('board', {
@@ -546,15 +522,7 @@ export default defineComponent({
         board.value.isDrawingMode = true;
         actionSelected.value = 'draw';
       }
-
-      if (wasPreviuslyMounted) {
-        if (boardObjects) {
-          if (boardObjects.objects) {
-            loadBoard(boardObjects);
-          }
-        }
-      }
-
+      
       board.value.on({
         'object:added': (options) => {
           const obj = options.target;

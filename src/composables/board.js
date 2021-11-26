@@ -24,6 +24,11 @@ export function useBoard() {
     board.value = value;
   };
 
+  const loadBoard = (canvas) => {
+    board.value.loadFromJSON(canvas, board.value.renderAll.bind(board.value));
+    bgColor.value = canvas.background;
+  };
+
   const toggleShowBoard = () => {
     showBoard.value = !showBoard.value;
   };
@@ -32,7 +37,6 @@ export function useBoard() {
     board.value.clear();
     bgColor.value = '#ffffff';
     board.value.backgroundColor = bgColor.value;
-    window.xprops?.updateBoardObjects?.('{}');
   };
 
   const changeBgColor = (color) => {
@@ -105,17 +109,31 @@ export function useBoard() {
     objects.forEach((obj) => console.debug(obj.id));
   };
 
-  const loadBoard = (canvas) => {
-    board.value.loadFromJSON(canvas, board.value.renderAll.bind(board.value));
-    bgColor.value = canvas.background;
-  };
-
   const discardSelection = () => {
     board.value.discardActiveObject();
     board.value.requestRenderAll();
   };
 
   const setObjectActive = (value) => (objectActive.value = value);
+
+  const parseCurrentBoard = () => {
+    if (board.value) {
+      const parsedObjects = board.value.getObjects().map((obj) => {
+        const objParsed = obj.toObject();
+        return {
+          ...objParsed,
+          id: obj.id,
+        };
+      });
+
+      const parsedBoard = JSON.stringify({
+        ...board.value.toJSON(),
+        objects: parsedObjects,
+      });
+
+      return parsedBoard;
+    }
+  };
 
   return {
     board,
@@ -132,5 +150,6 @@ export function useBoard() {
     handleMultipleObjects,
     objectActive,
     setObjectActive,
+    parseCurrentBoard,
   };
 }

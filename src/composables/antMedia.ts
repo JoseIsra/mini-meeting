@@ -130,7 +130,7 @@ const { updateExternalVideoState, externalVideo } = useExternalVideo();
 
 /* const { setScreenShareIconState } = useActions(); */
 
-const { handleMultipleObjects, clearBoard, changeBgColor, discardSelection } =
+const { handleMultipleObjects, clearBoard, changeBgColor, discardSelection, loadBoard, parseCurrentBoard } =
   useBoard();
 
 const remotePlayer = ref<videojs.Player>({} as videojs.Player);
@@ -838,6 +838,8 @@ export function useInitWebRTC() {
                   ...modifiedParticipants,
                 ];
 
+                const parsedBoard = parseCurrentBoard();
+
                 const message = {
                   eventType: 'HOST:PARTICIPANTS_IN_ROOM_INFO',
                   from: infoRequestParsed.to,
@@ -846,6 +848,7 @@ export function useInitWebRTC() {
                   externalVideoInfo: { ...externalVideo },
                   roomInfo: { ...roomState },
                   mainViewState,
+                  boardInfo: parsedBoard
                 };
 
                 console.debug(
@@ -954,6 +957,12 @@ export function useInitWebRTC() {
                   MAIN_VIEW_LOCKED_TYPE.UNSET
               ) {
                 updateMainViewState(remoteUserInfoParsed.mainViewState);
+
+                if (remoteUserInfoParsed.mainViewState.mode === MAIN_VIEW_MODE.BOARD && remoteUserInfoParsed.boardInfo) {
+                  // Si el estado es pizarra pues deberia actualizarse la pizarra
+                  console.debug('Board: ', remoteUserInfoParsed.boardInfo);
+                  loadBoard(remoteUserInfoParsed.boardInfo);
+                }
               }
 
               updateRoom({

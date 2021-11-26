@@ -31,17 +31,21 @@ import { useRoom } from '@/composables/room';
 import { BOARD_EVENTS } from '@/utils/enums';
 import { useInitWebRTC } from '@/composables/antMedia';
 import { useUserMe } from '@/composables/userMe';
-import { useMainView } from '@/composables';
+import { useBoard, useMainView } from '@/composables';
 import { MAIN_VIEW_MODE } from '@/utils/enums';
 
 export default defineComponent({
   name: 'FuBoardPanel',
   setup() {
     const { userMe, updateUserMe } = useUserMe();
+
     const { roomState } = useRoom();
+
     const { sendData, publish } = useInitWebRTC();
 
     const { mainViewState, setBoardState } = useMainView();
+
+    const { setBoard } = useBoard();
 
     const localBoardState = ref<boolean>(
       mainViewState.mode === MAIN_VIEW_MODE.BOARD
@@ -49,7 +53,6 @@ export default defineComponent({
 
     watch(localBoardState, (value: boolean) => {
       if (value) {
-        window.xprops?.updateBoardObjects?.('{}');
         setBoardState(true);
 
         if (userMe.isPublishing == 1) {
@@ -72,8 +75,8 @@ export default defineComponent({
           }, 1000);
         }
       } else {
-        window.xprops?.updateBoardObjects?.('');
         setBoardState(false);
+        setBoard(null);
 
         if (userMe.isPublishing == 1) {
           sendData(roomState.hostId, {

@@ -40,8 +40,6 @@ export interface ZoidProps {
   cameraId?: string;
   micId?: string;
   speakerId: string;
-  boardObjects?: unknown;
-  updateBoardObjects?: (objects: string) => void;
   handleLeaveCall?: (
     arg: number,
     remainingParticipantsFractalUserIds?: string[]

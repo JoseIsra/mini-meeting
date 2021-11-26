@@ -53,8 +53,6 @@
       "
     />
 
-    <!-- <fu-board v-if="boardState" /> -->
-
     <fu-full-screen v-if="mainViewState.mode !== MAIN_VIEW_MODE.NONE" />
 
     <q-dialog

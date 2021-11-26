@@ -15,7 +15,7 @@ interface Board {
   discardActiveObject: () => void;
   add: (object: BoardObject | unknown) => void;
   remove: (object: BoardObject) => void;
-  renderAll: {    
+  renderAll: {
     bind: (board: Board) => void; // Setter on ts ?
   };
   requestRenderAll: () => void;
@@ -43,23 +43,28 @@ interface dummyBoard {
 
 const showBoard = ref<boolean>(true);
 const board = ref<null | Board>(null);
+const syncBoard = ref<dummyBoard | null>(null);
 const bgColor = ref<string>('#ffffff');
 const objectActive = ref<boolean>(false);
 const actionSelected = ref<string>('');
 const brushColor = ref<string>('#000000');
 
 export function useBoard() {
-  const setBoard = (value: Board|null) => {
+  const setBoard = (value: Board | null) => {
     board.value = value;
   };
 
-  const loadBoard = (canvas: dummyBoard | string) => {
-    if (typeof canvas !== 'string') {
-      bgColor.value = canvas.background ?? '#ffffff';      
-    }
-    
-    return board.value?.loadFromJSON(canvas, board.value?.renderAll.bind(board.value));    
+  const readIncomingBoard = (canvas: string) => {
+    const incomingBoard = JSON.parse(canvas) as dummyBoard;
+    syncBoard.value = incomingBoard;
+    bgColor.value = incomingBoard.background ?? '#ffffff';
   };
+
+  const loadBoard = (incomingBoard: dummyBoard) => {
+    if (board.value) {
+      board.value.loadFromJSON(JSON.stringify(incomingBoard), board.value.renderAll.bind(board.value));
+    }
+  }
 
   const toggleShowBoard = () => {
     showBoard.value = !showBoard.value;
@@ -119,7 +124,9 @@ export function useBoard() {
     } else {
       if (obj.type === 'path') {
         console.debug('Es un path, agregar al board', obj);
-        fabric.Path.fromObject(obj, (dummy: BoardObject)  => board.value?.add(dummy));
+        fabric.Path.fromObject(obj, (dummy: BoardObject) =>
+          board.value?.add(dummy)
+        );
       } else if (obj.type === 'rect') {
         console.debug('Es un rect, agregar al board');
         board.value?.add(new fabric.Rect(obj));
@@ -128,7 +135,9 @@ export function useBoard() {
         board.value?.add(new fabric.Circle(obj));
       } else if (obj.text) {
         console.debug('Es objeto text, agregar al board', obj);
-        fabric.Textbox.fromObject(obj, (dummy: BoardObject) => board.value?.add(dummy));
+        fabric.Textbox.fromObject(obj, (dummy: BoardObject) =>
+          board.value?.add(dummy)
+        );
       } else {
         console.debug('Es un objeto de tipo no mapeado aun: ', obj);
       }
@@ -212,8 +221,7 @@ export function useBoard() {
     }
 
     return;
-   
-  };   
+  };
 
   const addCircle = () => {
     const circle = new fabric.Circle({ radius: 75, fill: brushColor.value });
@@ -251,7 +259,9 @@ export function useBoard() {
     clearBoard,
     dummylogs,
     handleObject,
+    readIncomingBoard,
     loadBoard,
+    syncBoard,
     changeBgColor,
     bgColor,
     discardSelection,
@@ -265,6 +275,6 @@ export function useBoard() {
     addCircle,
     addRect,
     actionSelected,
-    brushColor
+    brushColor,
   };
 }

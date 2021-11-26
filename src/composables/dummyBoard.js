@@ -27,7 +27,7 @@ export function useBoard() {
     board.value = value;
   };
 
-  const loadBoard = (canvas) => {
+  const readIncomingBoard = (canvas) => {
     board.value.loadFromJSON(canvas, board.value.renderAll.bind(board.value));
     bgColor.value = canvas.background;
   };
@@ -207,7 +207,7 @@ export function useBoard() {
     clearBoard,
     dummylogs,
     handleObject,
-    loadBoard,
+    readIncomingBoard,
     changeBgColor,
     bgColor,
     discardSelection,

@@ -130,7 +130,7 @@ const { updateExternalVideoState, externalVideo } = useExternalVideo();
 
 /* const { setScreenShareIconState } = useActions(); */
 
-const { handleMultipleObjects, clearBoard, changeBgColor, discardSelection, loadBoard, parseCurrentBoard } =
+const { handleMultipleObjects, clearBoard, changeBgColor, discardSelection, readIncomingBoard, parseCurrentBoard } =
   useBoard();
 
 const remotePlayer = ref<videojs.Player>({} as videojs.Player);
@@ -959,9 +959,7 @@ export function useInitWebRTC() {
                 updateMainViewState(remoteUserInfoParsed.mainViewState);
 
                 if (remoteUserInfoParsed.mainViewState.mode === MAIN_VIEW_MODE.BOARD && remoteUserInfoParsed.boardInfo) {
-                  // Si el estado es pizarra pues deberia actualizarse la pizarra
-                  console.debug('Board: ', remoteUserInfoParsed.boardInfo);
-                  loadBoard(remoteUserInfoParsed.boardInfo);
+                  readIncomingBoard(remoteUserInfoParsed.boardInfo);
                 }
               }
 

@@ -295,7 +295,9 @@ export default defineComponent({
       addCircle,
       addRect,
       actionSelected,
-      brushColor
+      brushColor,
+      syncBoard,
+      loadBoard
     } = useBoard();
 
     const { isSidebarRender, setSidebarState } = useSidebarToogle();
@@ -458,6 +460,10 @@ export default defineComponent({
           selection: false,
         })
       );
+
+      if (syncBoard.value) {
+        loadBoard(syncBoard.value);
+      }
 
       if (userMe.roleId !== 1) {
         board.value.isDrawingMode = true;

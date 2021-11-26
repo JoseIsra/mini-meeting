@@ -48,15 +48,17 @@ const objectActive = ref<boolean>(false);
 const actionSelected = ref<string>('');
 const brushColor = ref<string>('#000000');
 
-
 export function useBoard() {
   const setBoard = (value: Board|null) => {
     board.value = value;
   };
 
   const loadBoard = (canvas: dummyBoard | string) => {
-    board.value?.loadFromJSON(canvas, board.value?.renderAll.bind(board.value));
-    // bgColor.value = canvas.background ?? '#ffffff';
+    if (typeof canvas !== 'string') {
+      bgColor.value = canvas.background ?? '#ffffff';      
+    }
+    
+    return board.value?.loadFromJSON(canvas, board.value?.renderAll.bind(board.value));    
   };
 
   const toggleShowBoard = () => {
@@ -264,6 +266,5 @@ export function useBoard() {
     addRect,
     actionSelected,
     brushColor
-
   };
 }

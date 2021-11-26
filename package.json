@@ -15,10 +15,6 @@
   },
   "dependencies": {
     "@quasar/extras": "^1.0.0",
-    "@types/crypto-js": "^4.0.2",
-    "@types/fabric": "^4.5.3",
-    "@types/lodash": "^4.14.172",
-    "@types/video.js": "^7.3.27",
     "crypto-js": "^4.1.1",
     "fabric": "^4.6.0",
     "detectrtc": "^1.4.1",
@@ -35,6 +31,10 @@
     "zoid": "9.0.73"
   },
   "devDependencies": {
+    "@types/crypto-js": "^4.0.2",
+    "@types/fabric": "^4.5.3",
+    "@types/lodash": "^4.14.172",
+    "@types/video.js": "^7.3.27",
     "@babel/eslint-parser": "^7.13.14",
     "@quasar/app": "^3.0.0",
     "@quasar/quasar-app-extension-dotenv": "^1.1.0",

@@ -1,82 +1,80 @@
 <template>
   <section class="m-generalPanel">
-    <div class="m-generalPanel__inner">
-      <fieldset class="m-generalPanel__linkBox">
-        <legend class="m-generalPanel__linkBox__text --mainTitle">
-          Enlace de la sala
-        </legend>
-        <p class="m-generalPanel__linkBox__text --subTitle">
-          Puedes compartir este enlace de la sala con las personas que quieras
-          que se unan
+    <fieldset class="m-generalPanel__linkBox">
+      <legend class="m-generalPanel__linkBox__text --mainTitle">
+        Enlace de la sala
+      </legend>
+      <p class="m-generalPanel__linkBox__text --subTitle">
+        Puedes compartir este enlace de la sala con las personas que quieras que
+        se unan
+      </p>
+      <div class="m-generalPanel__linkBox__actions">
+        <p class="m-generalPanel__linkBox__actions__link">
+          {{ sharedRoomLink }}
         </p>
-        <div class="m-generalPanel__linkBox__actions">
-          <p class="m-generalPanel__linkBox__actions__link">
-            {{ linkToShareWithYourHommies }}
-          </p>
-          <q-btn
-            no-caps
-            push
-            :class="[
-              'm-generalPanel__linkBox__actions__copyBtn',
-              { '--copied': linkCopied },
-            ]"
-            :label="linkCopied ? 'Enlace copiado' : 'Copiar enlace'"
-            @click="copySharedLink"
-          />
-        </div>
-      </fieldset>
-      <fieldset class="m-generalPanel__externalVideo">
-        <legend class="m-generalPanel__externalVideo__text --mainTitle">
-          Video externo
-        </legend>
-        <fu-external-video-modal />
-      </fieldset>
-      <fieldset class="m-generalPanel__bgBox">
-        <legend class="m-generalPanel__bgBox__text --mainTitle">
-          Fondo de Cooperate
-        </legend>
-        <fu-file-catcher-cooperate @file-dropped="fileWasDroppped" />
-        <div class="m-generalPanel__bgBox__fileInfo" v-show="tempFileName">
-          <p class="m-generalPanel__bgBox__fileInfo__name">
-            {{ fileNameDroppedMessage }}
-          </p>
-          <q-btn
-            :loading="isLoading"
-            push
-            label="Cargar imagen"
-            class="m-generalPanel__bgBox__btn --fileBtn"
-            @click="changeBgImage"
-          >
-            <template v-slot:loading>
-              <q-spinner-hourglass color="blue-6" size="30px" />
-              Procesando...
-            </template>
-          </q-btn>
-        </div>
-        <div class="m-generalPanel__bgBox__actions">
-          <q-checkbox
-            v-model="maximizeBg"
-            label="Maximizar fondo de pantalla"
-            dense
-            dark
-            class="m-generalPanel__bgBox__actions__check"
-            left-label
-            color="primary"
-          />
-          <p class="m-generalPanel__bgBox__actions__hint">
-            La imagen de fondo ocupa todo el alto y ancho de la pantalla
-          </p>
-          <q-btn
-            push
-            class="m-generalPanel__bgBox__btn --reset"
-            :class="{ '--off': !roomState.bgInfo.allowResetBg }"
-            label="Restablecer fondo de pantalla"
-            :disable="!roomState.bgInfo.allowResetBg"
-            @click="resetCooperateBg"
-          />
-        </div>
-      </fieldset>
-    </div>
+        <q-btn
+          no-caps
+          push
+          :class="[
+            'm-generalPanel__linkBox__actions__copyBtn',
+            { '--copied': linkCopied },
+          ]"
+          :label="linkCopied ? 'Enlace copiado' : 'Copiar enlace'"
+          @click="copySharedLink"
+        />
+      </div>
+    </fieldset>
+    <fieldset class="m-generalPanel__externalVideo">
+      <legend class="m-generalPanel__externalVideo__text --mainTitle">
+        Video externo
+      </legend>
+      <fu-external-video-modal />
+    </fieldset>
+    <fieldset class="m-generalPanel__bgBox">
+      <legend class="m-generalPanel__bgBox__text --mainTitle">
+        Fondo de Cooperate
+      </legend>
+      <fu-file-catcher-cooperate @file-dropped="fileWasDroppped" />
+      <div class="m-generalPanel__bgBox__fileInfo" v-show="tempFileName">
+        <p class="m-generalPanel__bgBox__fileInfo__name">
+          {{ fileNameDroppedMessage }}
+        </p>
+        <q-btn
+          :loading="isLoading"
+          push
+          label="Cargar imagen"
+          class="m-generalPanel__bgBox__btn --fileBtn"
+          @click="changeBgImage"
+        >
+          <template v-slot:loading>
+            <q-spinner-hourglass color="blue-6" size="30px" />
+            Procesando...
+          </template>
+        </q-btn>
+      </div>
+      <div class="m-generalPanel__bgBox__actions">
+        <q-checkbox
+          v-model="maximizeBg"
+          label="Maximizar fondo de pantalla"
+          dense
+          dark
+          class="m-generalPanel__bgBox__actions__check"
+          left-label
+          color="primary"
+        />
+        <p class="m-generalPanel__bgBox__actions__hint">
+          La imagen de fondo ocupa todo el alto y ancho de la pantalla
+        </p>
+        <q-btn
+          push
+          class="m-generalPanel__bgBox__btn --reset"
+          :class="{ '--off': !roomState.bgInfo.allowResetBg }"
+          label="Restablecer fondo de pantalla"
+          :disable="!roomState.bgInfo.allowResetBg"
+          @click="resetCooperateBg"
+        />
+      </div>
+    </fieldset>
   </section>
 </template>
 
@@ -106,7 +104,7 @@ export default defineComponent({
     const isLoading = ref(false);
 
     //*******COMPUTEDSSS */
-    const linkToShareWithYourHommies = computed(() => {
+    const sharedRoomLink = computed(() => {
       return roomState.sharingLink || 'https://localhost:8081/';
     });
 
@@ -117,7 +115,7 @@ export default defineComponent({
     //*******************METHODS  */
     const copyingLink = () => {
       navigator.clipboard
-        .writeText(linkToShareWithYourHommies.value)
+        .writeText(sharedRoomLink.value)
         .then(() => {
           linkCopied.value = true;
           let thetime = setTimeout(() => {
@@ -216,7 +214,7 @@ export default defineComponent({
     return {
       maximizeBg,
       ...toRefs(roomState),
-      linkToShareWithYourHommies,
+      sharedRoomLink,
       copySharedLink,
       linkCopied,
       fileWasDroppped,

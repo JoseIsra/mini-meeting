@@ -14,20 +14,32 @@
             v-for="panel in panelOptions"
             :class="[
               'o-panel__body__options__option',
-              { '--active': panel.id == panelSelected.id },
+              {
+                '--active': panel.id == panelSelected.id && !$q.screen.lt.sm,
+              },
+              {
+                '--responsiveStyle': $q.screen.lt.sm,
+              },
             ]"
             :key="panel.id"
             @click="selectPanel(panel)"
           >
             <q-icon
               :name="panel.iconName"
-              class="o-panel__body__options__option__icon"
+              class="o-panel__body__options__option__icon --mainIcon"
               color="white"
               size="25px"
             />
             <p class="o-panel__body__options__option__name">
               {{ panel.description }}
             </p>
+            <q-icon
+              v-show="$q.screen.lt.sm"
+              name="navigate_next"
+              class="o-panel__body__options__option__icon --subIcon"
+              color="white"
+              size="25px"
+            />
           </li>
         </ul>
       </q-card-section>
@@ -76,7 +88,6 @@ import FuParticipantPerifericPanel from 'molecules/FuParticipantPerifericPanel';
 import FuRetransmissionPanel from 'molecules/FuRetransmissionPanel';
 import FuBoardPanel from 'molecules/FuBoardPanel';
 
-
 interface List {
   id: string;
   name: string;
@@ -89,7 +100,7 @@ export default defineComponent({
     FuGeneralPanel,
     FuParticipantPerifericPanel,
     FuRetransmissionPanel,
-    FuBoardPanel
+    FuBoardPanel,
   },
   setup() {
     const panelOptions = ref<Options[]>(adminPanelOptions);

@@ -147,8 +147,9 @@
           @submit.prevent="sendMessage"
         >
           <q-input
-            class="m-chat__formBox__form__input"
             autofocus
+            class="m-chat__formBox__form__input"
+            ref="inputUser"
             dense
             v-model="userInput"
             color="grey"
@@ -170,15 +171,14 @@
             dense
             @click="$refs.fileInput.click()"
           />
-          <q-btn
-            class="m-chat__formBox__form__saveBtn"
-            icon="send"
-            round
+
+          <button
             type="submit"
-            color="indigo-8"
-            :disable="!userInput"
-            @click="sendMessage"
-          />
+            :disabled="!userInput"
+            class="m-chat__formBox__form__saveBtn"
+          >
+            <q-icon name="send" size="20px" color="white" />
+          </button>
         </form>
       </div>
     </section>
@@ -208,9 +208,14 @@ import { warningMessage } from '@/utils/notify';
 interface HTMLInputEvent extends Event {
   target: HTMLInputElement & EventTarget;
 }
+
 type MessageContainer = VueElement & {
   scrollTop: number;
   scrollHeight: number;
+};
+
+type InputChat = VueElement & {
+  focus(): void;
 };
 
 export default defineComponent({
@@ -229,10 +234,11 @@ export default defineComponent({
     const { userMe } = useUserMe();
     let userName = ref(window?.xprops?.streamId || route.query.streamName);
     const fakeMessage = ref('');
+    const inputUser = ref<InputChat>({} as InputChat);
 
     const sendMessage = () => {
       if (!regexp.test(userInput.value)) {
-        warningMessage('Complete los campos');
+        warningMessage('No hay mensaje para enviar');
         return;
       }
 
@@ -258,9 +264,12 @@ export default defineComponent({
         fileExtension,
         fileName,
       };
-      setUserMessage(userLocalMessage);
-      sendData(roomState.hostId, userLocalMessage);
       userInput.value = '';
+
+      setUserMessage(userLocalMessage);
+
+      sendData(roomState.hostId, userLocalMessage);
+      inputUser.value.focus();
     };
 
     const fileSelected = (e: HTMLInputEvent) => {
@@ -307,16 +316,7 @@ export default defineComponent({
       reader.readAsArrayBuffer(fileInformation);
       e.target.value = '';
     };
-    /* const bubbleSize = (message: string) => {
-      let numOfWords = message.split(' ').length;
-      if (message.startsWith('https')) {
-        return '9';
-      }
-      if (numOfWords <= 1) {
-        return '3';
-      }
-      return '';
-    }; */
+
     const closeChat = () => {
       setSidebarState(false);
     };
@@ -324,9 +324,10 @@ export default defineComponent({
     const scrollToEnd = () => {
       messageContainer.value.scrollTop = messageContainer.value.scrollHeight;
     };
-    onUpdated(async () => {
+
+    onUpdated(() => {
       try {
-        await nextTick(() => scrollToEnd());
+        void nextTick(() => scrollToEnd());
       } catch (error) {
         console.error(error);
       }
@@ -348,6 +349,7 @@ export default defineComponent({
       showChatMenu,
       hideMenu,
       fakeMessage,
+      inputUser,
     };
   },
 });

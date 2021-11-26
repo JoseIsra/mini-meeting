@@ -18,6 +18,9 @@ const board = ref(null);
 const bgColor = ref('#ffffff');
 // const objectActive = ref<boolean>(false);
 const objectActive = ref(false);
+const actionSelected = ref('');
+const brushColor = ref('#000000');
+
 
 export function useBoard() {
   const setBoard = (value) => {
@@ -135,6 +138,67 @@ export function useBoard() {
     }
   };
 
+  const groupObjects = () => {
+    if (!board.value.getActiveObject()) {
+      return;
+    }
+    if (board.value.getActiveObject().type !== 'activeSelection') {
+      return;
+    }
+
+    board.value.getActiveObject().toGroup();
+    board.value.requestRenderAll();
+  };
+
+  const ungroupObjects = () => {
+    if (!board.value.getActiveObject()) {
+      return;
+    }
+    if (board.value.getActiveObject().type !== 'group') {
+      return;
+    }
+    board.value.getActiveObject().toActiveSelection();
+    board.value.requestRenderAll();
+  };
+
+  const toggleDrawMode = () => {
+    board.value.isDrawingMode = !board.value.isDrawingMode;
+
+    if (actionSelected.value === 'draw') {
+      actionSelected.value = '';
+    } else {
+      actionSelected.value = 'draw';
+    }
+  };   
+
+  const addCircle = () => {
+    const circle = new fabric.Circle({ radius: 75, fill: brushColor.value });
+
+    if (board.value.isDrawingMode) {
+      toggleDrawMode();
+    }
+
+    board.value.add(circle);
+    board.value.setActiveObject(circle);
+  };
+
+  const addRect = () => {
+    const rect = new fabric.Rect({
+      left: 100,
+      top: 100,
+      fill: brushColor.value,
+      width: 100,
+      height: 100,
+    });
+
+    if (board.value.isDrawingMode) {
+      toggleDrawMode();
+    }
+
+    board.value.add(rect);
+    board.value.setActiveObject(rect);
+  };
+
   return {
     board,
     setBoard,
@@ -151,5 +215,12 @@ export function useBoard() {
     objectActive,
     setObjectActive,
     parseCurrentBoard,
+    groupObjects,
+    ungroupObjects,
+    toggleDrawMode,
+    addCircle,
+    addRect,
+    actionSelected,
+    brushColor
   };
 }

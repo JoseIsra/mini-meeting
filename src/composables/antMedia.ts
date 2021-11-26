@@ -1323,15 +1323,17 @@ export function useInitWebRTC() {
                   }
                 }
               } else if (event === BOARD_EVENTS.CHANGE_BG_COLOR) {
-                changeBgColor(color);
+                if (color) {
+                  changeBgColor(color);
+                }
               }
             } else {
               if (event === BOARD_EVENTS.OBJECT_ADD) {
-                handleMultipleObjects({ objects });
+                handleMultipleObjects(objects);
               } else if (event === BOARD_EVENTS.OBJECT_UPDATE) {
-                handleMultipleObjects({ objects });
+                handleMultipleObjects(objects);
               } else if (event === BOARD_EVENTS.OBJECT_REMOVE) {
-                handleMultipleObjects({ objects });
+                handleMultipleObjects(objects);
               }
             }
           }

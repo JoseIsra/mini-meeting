@@ -265,10 +265,7 @@ import { useSidebarToogle, useToogleFunctions } from '@/composables';
 export default defineComponent({
   name: 'FuBoard',
   setup() {
-    const actionSelected = ref('');
     const brushSizeShow = ref(false);
-
-    const brushColor = ref('#000000');
     const strokeColor = ref('#000000');
     const fillColor = ref('#ffffff');
     const textEditColor = ref('#000000');
@@ -293,7 +290,12 @@ export default defineComponent({
       discardSelection,
       objectActive,
       setObjectActive,
-      parseCurrentBoard
+      parseCurrentBoard,
+      toggleDrawMode,
+      addCircle,
+      addRect,
+      actionSelected,
+      brushColor
     } = useBoard();
 
     const { isSidebarRender, setSidebarState } = useSidebarToogle();
@@ -318,44 +320,6 @@ export default defineComponent({
         actionSelected.value = ''; // update action selected on block-draw user
       }
     });
-
-    const toggleDrawMode = () => {
-      board.value.isDrawingMode = !board.value.isDrawingMode;
-
-      if (actionSelected.value === 'draw') {
-        actionSelected.value = '';
-      } else {
-        actionSelected.value = 'draw';
-      }
-    };
-
-    const addRect = () => {
-      const rect = new fabric.Rect({
-        left: 100,
-        top: 100,
-        fill: brushColor.value,
-        width: 100,
-        height: 100,
-      });
-
-      if (board.value.isDrawingMode) {
-        toggleDrawMode();
-      }
-
-      board.value.add(rect);
-      board.value.setActiveObject(rect);
-    };
-
-    const addCircle = () => {
-      const circle = new fabric.Circle({ radius: 75, fill: brushColor.value });
-
-      if (board.value.isDrawingMode) {
-        toggleDrawMode();
-      }
-
-      board.value.add(circle);
-      board.value.setActiveObject(circle);
-    };
 
     const callCleanBoard = () => {
       brushColor.value = '#000000';
@@ -456,29 +420,6 @@ export default defineComponent({
       }
     };
 
-    const groupObjects = () => {
-      if (!board.value.getActiveObject()) {
-        return;
-      }
-      if (board.value.getActiveObject().type !== 'activeSelection') {
-        return;
-      }
-
-      board.value.getActiveObject().toGroup();
-      board.value.requestRenderAll();
-    };
-
-    const ungroupObjects = () => {
-      if (!board.value.getActiveObject()) {
-        return;
-      }
-      if (board.value.getActiveObject().type !== 'group') {
-        return;
-      }
-      board.value.getActiveObject().toActiveSelection();
-      board.value.requestRenderAll();
-    };
-
     const toggleBrushSizeShow = () => {
       if (showBrushPicker.value) {
         showBrushPicker.value = !showBrushPicker.value;
@@ -522,7 +463,7 @@ export default defineComponent({
         board.value.isDrawingMode = true;
         actionSelected.value = 'draw';
       }
-      
+
       board.value.on({
         'object:added': (options) => {
           const obj = options.target;
@@ -792,8 +733,6 @@ export default defineComponent({
       },
       deleteActiveObject,
       objectActive,
-      groupObjects,
-      ungroupObjects,
       closePanels,
     };
   },

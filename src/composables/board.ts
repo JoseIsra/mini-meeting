@@ -6,28 +6,32 @@ interface Board {
   objects: BoardObject[];
   canvas: unknown;
   backgroundColor: string;
-  loadFromJSON: (canvas: dummyBoard, callBack: void) => void;
+  isDrawingMode: boolean;
+  loadFromJSON: (canvas: dummyBoard | string, callBack: void) => void;
   clear: () => void;
   getObjects: () => BoardObject[] | null;
+  setActiveObject: (object: BoardObject | unknown) => void;
   getActiveObject: () => BoardObject | null;
   discardActiveObject: () => void;
   add: (object: BoardObject | unknown) => void;
   remove: (object: BoardObject) => void;
   renderAll: {    
-    bind: (board: Board) => void;
+    bind: (board: Board) => void; // Setter on ts ?
   };
   requestRenderAll: () => void;
   toJSON: () => dummyBoard;
-
 }
 
+// extends fabric.Object
 interface BoardObject {
   id: string;
   type: string;
   text?: string;
   removed?: boolean;
   set: (object: BoardObject) => void;
+  toGroup: () => void;
   toObject: () => BoardObject;
+  toActiveSelection: () => void;
 }
 
 interface dummyBoard {
@@ -41,15 +45,18 @@ const showBoard = ref<boolean>(true);
 const board = ref<null | Board>(null);
 const bgColor = ref<string>('#ffffff');
 const objectActive = ref<boolean>(false);
+const actionSelected = ref<string>('');
+const brushColor = ref<string>('#000000');
+
 
 export function useBoard() {
-  const setBoard = (value: Board) => {
+  const setBoard = (value: Board|null) => {
     board.value = value;
   };
 
-  const loadBoard = (canvas: dummyBoard) => {
+  const loadBoard = (canvas: dummyBoard | string) => {
     board.value?.loadFromJSON(canvas, board.value?.renderAll.bind(board.value));
-    bgColor.value = canvas.background ?? '#ffffff';
+    // bgColor.value = canvas.background ?? '#ffffff';
   };
 
   const toggleShowBoard = () => {
@@ -129,9 +136,8 @@ export function useBoard() {
     board.value?.requestRenderAll();
   };
 
-  const handleMultipleObjects = (canvasObjects: dummyBoard) => {
-    const { objects } = canvasObjects;
-    const parsedObjects = JSON.parse(objects) as BoardObject[];
+  const handleMultipleObjects = (canvasObjects: string) => {
+    const parsedObjects = JSON.parse(canvasObjects) as BoardObject[];
 
     parsedObjects.forEach((cObject) => {
       handleObject(cObject);
@@ -169,6 +175,72 @@ export function useBoard() {
     }
   };
 
+  const groupObjects = () => {
+    if (!board.value?.getActiveObject()) {
+      return;
+    }
+    if (board.value?.getActiveObject()?.type !== 'activeSelection') {
+      return;
+    }
+
+    board.value?.getActiveObject()?.toGroup();
+    board.value.requestRenderAll();
+  };
+
+  const ungroupObjects = () => {
+    if (!board.value?.getActiveObject()) {
+      return;
+    }
+    if (board.value?.getActiveObject()?.type !== 'group') {
+      return;
+    }
+    board.value.getActiveObject()?.toActiveSelection();
+    board.value.requestRenderAll();
+  };
+
+  const toggleDrawMode = () => {
+    if (board.value) {
+      board.value.isDrawingMode = !board.value.isDrawingMode;
+
+      if (actionSelected.value === 'draw') {
+        actionSelected.value = '';
+      } else {
+        actionSelected.value = 'draw';
+      }
+    }
+
+    return;
+   
+  };   
+
+  const addCircle = () => {
+    const circle = new fabric.Circle({ radius: 75, fill: brushColor.value });
+
+    if (board.value?.isDrawingMode) {
+      toggleDrawMode();
+    }
+
+    board.value?.add(circle);
+    board.value?.setActiveObject(circle);
+  };
+
+  const addRect = () => {
+    const rect = new fabric.Rect({
+      left: 100,
+      top: 100,
+      fill: brushColor.value,
+      width: 100,
+      height: 100,
+    });
+
+    if (board.value?.isDrawingMode) {
+      toggleDrawMode();
+    }
+
+    board.value?.add(rect);
+    board.value?.setActiveObject(rect);
+  };
+
   return {
     board,
     setBoard,
@@ -185,5 +257,13 @@ export function useBoard() {
     objectActive,
     setObjectActive,
     parseCurrentBoard,
+    groupObjects,
+    ungroupObjects,
+    toggleDrawMode,
+    addCircle,
+    addRect,
+    actionSelected,
+    brushColor
+
   };
 }

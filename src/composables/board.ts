@@ -1,45 +1,6 @@
 import { ref } from 'vue';
 import { fabric } from 'fabric';
-
-interface Board {
-  version: string;
-  objects: BoardObject[];
-  canvas: unknown;
-  backgroundColor: string;
-  isDrawingMode: boolean;
-  loadFromJSON: (canvas: dummyBoard | string, callBack: void) => void;
-  clear: () => void;
-  getObjects: () => BoardObject[] | null;
-  setActiveObject: (object: BoardObject | unknown) => void;
-  getActiveObject: () => BoardObject | null;
-  discardActiveObject: () => void;
-  add: (object: BoardObject | unknown) => void;
-  remove: (object: BoardObject) => void;
-  renderAll: {
-    bind: (board: Board) => void; // Setter on ts ?
-  };
-  requestRenderAll: () => void;
-  toJSON: () => dummyBoard;
-}
-
-// extends fabric.Object
-interface BoardObject {
-  id: string;
-  type: string;
-  text?: string;
-  removed?: boolean;
-  set: (object: BoardObject) => void;
-  toGroup: () => void;
-  toObject: () => BoardObject;
-  toActiveSelection: () => void;
-}
-
-interface dummyBoard {
-  version: string;
-  objects: string;
-  canvas: unknown;
-  background?: string;
-}
+import { Board, dummyBoard, BoardObject} from '@/types/board'
 
 const showBoard = ref<boolean>(true);
 const board = ref<null | Board>(null);

@@ -1169,7 +1169,7 @@ export class WebRTCAdaptor {
         });
         newAudioTrack.enabled = enabled;
         this.localStream.addTrack(newAudioTrack);
-      } else if (audioTab && this.secondStreamGainNode) {
+      } else if (audioTab && this.secondStreamGainNode && userMe.isMicOn) {
         this.secondStreamGainNode.gain.value = 1;
       }
     } else if (this.localStream != null) {

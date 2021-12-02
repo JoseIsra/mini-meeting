@@ -66,6 +66,7 @@ export class WebRTCAdaptor {
     this.viewerInfo = '';
     this.publishStreamId = null;
     this.blackFrameTimer = null;
+
     //FractalUp
     this.isScreenshared = false;
     this.isScreensharedWithCamera = false;
@@ -461,9 +462,9 @@ export class WebRTCAdaptor {
                 audioStream,
                 streamId
               );
-              this.updateAudioTrack(mixedStream, streamId, null);
+              this.updateAudioTrack(mixedStream, streamId, null, true);
             } else {
-              this.updateAudioTrack(audioStream, streamId, null);
+              this.updateAudioTrack(audioStream, streamId, null, false);
             }
           } else if (this.publishMode == 'screen+camera') {
             audioStream = this.setGainNodeStream(audioStream);
@@ -1014,7 +1015,7 @@ export class WebRTCAdaptor {
       this.secondStreamGainNode = this.audioContext.createGain();
 
       //Adjust the gain for second sound
-      this.secondStreamGainNode.gain.value = 1;
+      this.secondStreamGainNode.gain.value = 0;
 
       var audioSource2 =
         this.audioContext.createMediaStreamSource(secondStream);
@@ -1027,7 +1028,6 @@ export class WebRTCAdaptor {
 
     audioDestionation.stream.getAudioTracks().forEach(function (track) {
       composedStream.addTrack(track);
-      console.log('audio destination add track');
     });
 
     return composedStream;
@@ -1154,21 +1154,24 @@ export class WebRTCAdaptor {
    * This method updates the local stream. It removes existant audio track from the local stream
    * and add the audio track in `stream` parameter to the local stream
    */
-  updateLocalAudioStream(stream, onEndedCallback) {
+  updateLocalAudioStream(stream, onEndedCallback, audioTab) {
     var newAudioTrack = stream.getAudioTracks()[0];
 
     if (
       this.localStream != null &&
       this.localStream.getAudioTracks()[0] != null
     ) {
-      const enabled = this.localStream.getAudioTracks()[0].enabled;
-      this.localStream.getAudioTracks().forEach((audio) => {
-        this.localStream.removeTrack(audio);
-        audio.stop();
-      });
-      newAudioTrack.enabled = enabled;
-      this.localStream.addTrack(newAudioTrack);
-      console.log('LOCAL UPDATED', this.localStream.getTracks());
+      if (!audioTab) {
+        const enabled = this.localStream.getAudioTracks()[0].enabled;
+        this.localStream.getAudioTracks().forEach((audio) => {
+          this.localStream.removeTrack(audio);
+          audio.stop();
+        });
+        newAudioTrack.enabled = enabled;
+        this.localStream.addTrack(newAudioTrack);
+      } else if (audioTab && this.secondStreamGainNode && userMe.isMicOn) {
+        this.secondStreamGainNode.gain.value = 1;
+      }
     } else if (this.localStream != null) {
       this.localStream.addTrack(newAudioTrack);
     } else {
@@ -1233,12 +1236,7 @@ export class WebRTCAdaptor {
     this.navigatorUserMedia(
       { audio: mediaConstraints.audio, video: false },
       (stream) => {
-        this.updateAudioTrack(
-          stream,
-          streamId,
-          { audio: mediaConstraints.audio, video: false },
-          onEndedCallback
-        );
+        this.updateAudioTrack(stream, streamId, onEndedCallback, false);
       },
       true
     );
@@ -1265,12 +1263,7 @@ export class WebRTCAdaptor {
           onEndedCallback,
           stopDesktop
         );
-        this.updateAudioTrack(
-          stream,
-          streamId,
-          mediaConstraints,
-          onEndedCallback
-        );
+        this.updateAudioTrack(stream, streamId, onEndedCallback, false);
         if (!userMe.isCameraOn) {
           this.turnOffLocalCamera(streamId);
         }
@@ -1279,7 +1272,7 @@ export class WebRTCAdaptor {
     );
   }
 
-  updateAudioTrack(stream, streamId, onEndedCallback) {
+  updateAudioTrack(stream, streamId, onEndedCallback, audioTab) {
     if (this.remotePeerConnection[streamId] != null) {
       var audioTrackSender = this.remotePeerConnection[streamId]
         .getSenders()
@@ -1291,7 +1284,7 @@ export class WebRTCAdaptor {
         audioTrackSender
           .replaceTrack(stream.getAudioTracks()[0])
           .then((result) => {
-            this.updateLocalAudioStream(stream, onEndedCallback);
+            this.updateLocalAudioStream(stream, onEndedCallback, audioTab);
           })
           .catch(function (error) {
             console.log(error.name);
@@ -1725,6 +1718,11 @@ export class WebRTCAdaptor {
   muteLocalMic() {
     if (this.remotePeerConnection != null) {
       var track = this.localStream.getAudioTracks()[0];
+
+      if (this.secondStreamGainNode) {
+        this.secondStreamGainNode.gain.value = 0;
+      }
+
       track.enabled = false;
     } else {
       this.callbackError('NoActiveConnection');
@@ -1737,6 +1735,11 @@ export class WebRTCAdaptor {
   unmuteLocalMic() {
     if (this.remotePeerConnection != null) {
       var track = this.localStream.getAudioTracks()[0];
+
+      if (this.secondStreamGainNode) {
+        this.secondStreamGainNode.gain.value = 1;
+      }
+
       track.enabled = true;
     } else {
       this.callbackError('NoActiveConnection');

@@ -11,7 +11,8 @@
     "build": "quasar build",
     "lint": "eslint --ext .js,.ts,.vue ./",
     "test": "echo \"No test specified\" && exit 0",
-    "deploy": "quasar build && netlify deploy --dir=dist/spa --prod"
+    "deploy": "quasar build && netlify deploy --dir=dist/spa --prod",
+    "deploy-stage": "vercel --prod"
   },
   "dependencies": {
     "@quasar/extras": "^1.0.0",

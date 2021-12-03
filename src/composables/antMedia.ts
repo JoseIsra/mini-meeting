@@ -130,7 +130,7 @@ const { updateExternalVideoState, externalVideo } = useExternalVideo();
 
 /* const { setScreenShareIconState } = useActions(); */
 
-const { handleMultipleObjects, clearBoard, changeBgColor, discardSelection } =
+const { handleMultipleObjects, clearBoard, changeBgColor, discardSelection, readIncomingBoard, parseCurrentBoard } =
   useBoard();
 
 const remotePlayer = ref<videojs.Player>({} as videojs.Player);
@@ -838,6 +838,8 @@ export function useInitWebRTC() {
                   ...modifiedParticipants,
                 ];
 
+                const parsedBoard = parseCurrentBoard();
+
                 const message = {
                   eventType: 'HOST:PARTICIPANTS_IN_ROOM_INFO',
                   from: infoRequestParsed.to,
@@ -846,6 +848,7 @@ export function useInitWebRTC() {
                   externalVideoInfo: { ...externalVideo },
                   roomInfo: { ...roomState },
                   mainViewState,
+                  boardInfo: parsedBoard
                 };
 
                 console.debug(
@@ -954,6 +957,10 @@ export function useInitWebRTC() {
                   MAIN_VIEW_LOCKED_TYPE.UNSET
               ) {
                 updateMainViewState(remoteUserInfoParsed.mainViewState);
+
+                if (remoteUserInfoParsed.mainViewState.mode === MAIN_VIEW_MODE.BOARD && remoteUserInfoParsed.boardInfo) {
+                  readIncomingBoard(remoteUserInfoParsed.boardInfo);
+                }
               }
 
               updateRoom({
@@ -1314,15 +1321,17 @@ export function useInitWebRTC() {
                   }
                 }
               } else if (event === BOARD_EVENTS.CHANGE_BG_COLOR) {
-                changeBgColor(color);
+                if (color) {
+                  changeBgColor(color);
+                }
               }
             } else {
               if (event === BOARD_EVENTS.OBJECT_ADD) {
-                handleMultipleObjects({ objects });
+                handleMultipleObjects(objects);
               } else if (event === BOARD_EVENTS.OBJECT_UPDATE) {
-                handleMultipleObjects({ objects });
+                handleMultipleObjects(objects);
               } else if (event === BOARD_EVENTS.OBJECT_REMOVE) {
-                handleMultipleObjects({ objects });
+                handleMultipleObjects(objects);
               }
             }
           }

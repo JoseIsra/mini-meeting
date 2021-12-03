@@ -265,10 +265,7 @@ import { useSidebarToogle, useToogleFunctions } from '@/composables';
 export default defineComponent({
   name: 'FuBoard',
   setup() {
-    const actionSelected = ref('');
     const brushSizeShow = ref(false);
-
-    const brushColor = ref('#000000');
     const strokeColor = ref('#000000');
     const fillColor = ref('#ffffff');
     const textEditColor = ref('#000000');
@@ -284,7 +281,6 @@ export default defineComponent({
     const {
       board,
       showBoard,
-      loadBoard,
       setBoard,
       toggleShowBoard,
       clearBoard,
@@ -294,6 +290,14 @@ export default defineComponent({
       discardSelection,
       objectActive,
       setObjectActive,
+      parseCurrentBoard,
+      toggleDrawMode,
+      addCircle,
+      addRect,
+      actionSelected,
+      brushColor,
+      syncBoard,
+      loadBoard
     } = useBoard();
 
     const { isSidebarRender, setSidebarState } = useSidebarToogle();
@@ -319,44 +323,6 @@ export default defineComponent({
       }
     });
 
-    const toggleDrawMode = () => {
-      board.value.isDrawingMode = !board.value.isDrawingMode;
-
-      if (actionSelected.value === 'draw') {
-        actionSelected.value = '';
-      } else {
-        actionSelected.value = 'draw';
-      }
-    };
-
-    const addRect = () => {
-      const rect = new fabric.Rect({
-        left: 100,
-        top: 100,
-        fill: brushColor.value,
-        width: 100,
-        height: 100,
-      });
-
-      if (board.value.isDrawingMode) {
-        toggleDrawMode();
-      }
-
-      board.value.add(rect);
-      board.value.setActiveObject(rect);
-    };
-
-    const addCircle = () => {
-      const circle = new fabric.Circle({ radius: 75, fill: brushColor.value });
-
-      if (board.value.isDrawingMode) {
-        toggleDrawMode();
-      }
-
-      board.value.add(circle);
-      board.value.setActiveObject(circle);
-    };
-
     const callCleanBoard = () => {
       brushColor.value = '#000000';
       strokeColor.value = '#000000';
@@ -380,27 +346,6 @@ export default defineComponent({
       brush.color = color;
       if (brush.getPatternSrc) {
         brush.source = brush.getPatternSrc.call(brush);
-      }
-    };
-
-    const parseCurrentBoard = () => {
-      if (board.value) {
-        const parsedObjects = board.value.getObjects().map((obj) => {
-          const objParsed = obj.toObject();
-          return {
-            ...objParsed,
-            id: obj.id,
-          };
-        });
-
-        window.xprops?.updateBoardObjects?.(
-          JSON.stringify({
-            ...board.value.toJSON(),
-            objects: parsedObjects,
-          })
-        ); // update cooperate-options field
-
-        return;
       }
     };
 
@@ -477,29 +422,6 @@ export default defineComponent({
       }
     };
 
-    const groupObjects = () => {
-      if (!board.value.getActiveObject()) {
-        return;
-      }
-      if (board.value.getActiveObject().type !== 'activeSelection') {
-        return;
-      }
-
-      board.value.getActiveObject().toGroup();
-      board.value.requestRenderAll();
-    };
-
-    const ungroupObjects = () => {
-      if (!board.value.getActiveObject()) {
-        return;
-      }
-      if (board.value.getActiveObject().type !== 'group') {
-        return;
-      }
-      board.value.getActiveObject().toActiveSelection();
-      board.value.requestRenderAll();
-    };
-
     const toggleBrushSizeShow = () => {
       if (showBrushPicker.value) {
         showBrushPicker.value = !showBrushPicker.value;
@@ -530,10 +452,7 @@ export default defineComponent({
     };
 
     onMounted(() => {
-      const boardObjects = window?.xprops?.boardObjects || ''; // This should be a call to prop.objects (boardObjects)
       console.debug('OnMounted: ', board.value);
-
-      const wasPreviuslyMounted = board.value === null;
 
       setBoard(
         new fabric.Canvas('board', {
@@ -542,17 +461,13 @@ export default defineComponent({
         })
       );
 
+      if (syncBoard.value) {
+        loadBoard(syncBoard.value);
+      }
+
       if (userMe.roleId !== 1) {
         board.value.isDrawingMode = true;
         actionSelected.value = 'draw';
-      }
-
-      if (wasPreviuslyMounted) {
-        if (boardObjects) {
-          if (boardObjects.objects) {
-            loadBoard(boardObjects);
-          }
-        }
       }
 
       board.value.on({
@@ -824,8 +739,6 @@ export default defineComponent({
       },
       deleteActiveObject,
       objectActive,
-      groupObjects,
-      ungroupObjects,
       closePanels,
     };
   },

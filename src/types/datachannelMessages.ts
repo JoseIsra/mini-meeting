@@ -48,6 +48,7 @@ export interface ObjRemoteUserInfo extends ObjInfoRequested {
   userInfo: User;
   participantsInRoom: User[];
   externalVideoInfo?: ExternalVideoObject;
+  boardInfo?:string;
   roomInfo: Room;
   mainViewState: MainViewState;
 }
@@ -56,9 +57,11 @@ export interface ObjKickedEvent {
   eventType: string;
   to: string;
 }
+
 export interface VideoID {
   playerId: string;
 }
+
 export interface ExternalVideoObject {
   eventType?: string;
   urlVideo?: string;

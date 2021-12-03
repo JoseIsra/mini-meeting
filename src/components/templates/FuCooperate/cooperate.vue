@@ -44,7 +44,6 @@ import {
   useAuthState,
   useInitWebRTC,
   useUserMe,
-  useMainView,
 } from '@/composables';
 import FuTLoading from 'organisms/FuLoading';
 import {
@@ -204,14 +203,6 @@ export default defineComponent({
     }
 
     /* const isBeingRecorded = window?.xprops?.isBeingRecorded || false; */
-
-    const boardObjects = window?.xprops?.boardObjects || '';
-    // boardState:
-    console.debug(!(boardObjects === ''));
-
-    const { setBoardState } = useMainView();
-
-    setBoardState(!(boardObjects === ''));
 
     if (isCameraOn) {
       setVideoActivatedState(true);

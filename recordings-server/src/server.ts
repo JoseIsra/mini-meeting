@@ -1,3 +1,6 @@
+//@ts-ignore
+//@ts-nocheck
+
 import backblaze from 'backblaze-b2'
 import fs from 'fs'
 import fetch from 'node-fetch'

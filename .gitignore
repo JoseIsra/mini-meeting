@@ -37,3 +37,4 @@ yarn-error.log*
 parent/node_modules
 parent/.vscode
 recordings-server/updatefu.sh
+.vercel

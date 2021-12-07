@@ -39,12 +39,7 @@ import FuCooperate from 'organisms/FuCooperate';
 import FuLobby from 'organisms/FuLobby';
 
 import { useRoute } from 'vue-router';
-import {
-  useRoom,
-  useAuthState,
-  useInitWebRTC,
-  useUserMe,
-} from '@/composables';
+import { useRoom, useAuthState, useInitWebRTC, useUserMe } from '@/composables';
 import FuTLoading from 'organisms/FuLoading';
 import {
   PERMISSION_STATUS,
@@ -557,6 +552,9 @@ export default defineComponent({
 
     //TODO: Dont dissapear loading until the host accept the user. Needed to implement logic for that (dont publish neither play streams)
     const fuCooperateMountedHandler = () => {
+      console.log(
+        document.querySelector('.t-cooperate')?.parentElement?.parentElement
+      );
       // createInstance(
       //   roomId,
       //   streamId,

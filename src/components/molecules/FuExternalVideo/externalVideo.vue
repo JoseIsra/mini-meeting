@@ -4,17 +4,18 @@
     :style="redimensionVideoSize"
   >
     <!-- <q-btn
-      :style="[simpleMortal ? { visibility: 'hidden' } : '']"
       icon="play_arrow"
       v-show="showPlayButton"
       class="m-video__btn --playVideo"
       @click="handlePlaying"
     /> -->
+
     <video
       id="specialId"
       ref="videoPlayer"
       class="video-js"
       :class="[{ 'vjs-poster': posterClass }, { 'vjs-youtube': posterClass }]"
+      @loadstart="start"
     ></video>
   </section>
 </template>
@@ -64,13 +65,13 @@ export default defineComponent({
     const player = ref<videojs.Player>({} as videojs.Player);
     const showPlayButton = ref(false);
     const canManipulateVideo = ref(userMe.roleId === 0);
+    const simpleMortal = ref(userMe.roleId == 1);
     const { screenMinimized, goplaying } = useScreen();
     const optionsForPlayer = reactive<videojs.PlayerOptions & Test>({
       controls: !screenMinimized.value,
       bigPlayButton: false,
-      autoplay: false,
+      autoplay: userMe.roleId == 1,
       responsive: true,
-      preload: 'auto',
       controlBar: {
         progressControl: {
           seekBar: true,
@@ -113,7 +114,10 @@ export default defineComponent({
           });
           player.value.on('ready', () => {
             posterClass.value = true;
-            // void player.value.play();
+            showPlayButton.value = true;
+            const a1 = document.querySelector('.video-js');
+            const iframe = a1?.querySelector('iframe');
+            console.log(iframe);
           });
           player.value.controlBar.on('mouseup', () => {
             if (canManipulateVideo.value) {
@@ -123,7 +127,7 @@ export default defineComponent({
                   videoCurrentTime: calculateCurrentSelectedTime.value,
                   eventType: 'UPDATE_VIDEOTIME',
                 });
-              }, 500);
+              }, 200);
             }
           });
         }
@@ -140,6 +144,7 @@ export default defineComponent({
       if (canManipulateVideo.value) {
         sendData(roomState.hostId, {
           remoteInstance: videoPlayer.value,
+          videoCurrentTime: externalVideo.videoCurrentTime,
           eventType: 'PLAYING_VIDEO',
         });
       }
@@ -180,8 +185,9 @@ export default defineComponent({
     watch(goplaying, (value) => {
       if (value) {
         console.log('SE OYÓ EL TRICKER');
-        void videoPlayer.value.play();
-        videoPlayer.value.click();
+        const a1 = document.querySelector('.video-js');
+        const iframe = a1?.querySelector('iframe') as HTMLIFrameElement;
+        iframe.allow += 'autoplay';
       }
     });
 
@@ -205,6 +211,10 @@ export default defineComponent({
           };
     });
 
+    const start = () => {
+      console.log('empezó a cargar');
+    };
+
     return {
       externalVideo,
       videoPlayer,
@@ -216,6 +226,8 @@ export default defineComponent({
       posterClass,
       redimensionVideoSize,
       goplaying,
+      simpleMortal,
+      start,
     };
   },
 });

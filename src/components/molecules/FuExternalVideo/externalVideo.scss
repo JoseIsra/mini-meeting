@@ -25,6 +25,7 @@
     }
   }
 }
+
 .miniMode {
   width: 82%;
   height: 82%;
@@ -41,7 +42,12 @@
     display: none !important;
   }
 }
-
+.vjs-loading-spinner {
+  display: none !important;
+}
+// .vjs-tech {
+//   pointer-events: none;
+// }
 // .vjs-loading-spinner {
 //   display: none !important;
 // }

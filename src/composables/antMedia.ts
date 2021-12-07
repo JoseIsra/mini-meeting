@@ -297,6 +297,7 @@ export function useInitWebRTC() {
       console.log('playing external video bro');
       tricker(true);
       remotePlayer.value = videojs((arg.remoteInstance as VideoID).playerId);
+      void remotePlayer.value.currentTime(arg.videoCurrentTime as number);
       void remotePlayer.value.play();
     };
 

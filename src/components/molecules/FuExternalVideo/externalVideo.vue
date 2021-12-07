@@ -10,12 +10,12 @@
       @click="handlePlaying"
     /> -->
 
+    <!-- :autoplay="userMe.roleId == 1" -->
     <video
       id="specialId"
       ref="videoPlayer"
       class="video-js"
       :class="[{ 'vjs-poster': posterClass }, { 'vjs-youtube': posterClass }]"
-      @loadstart="start"
     ></video>
   </section>
 </template>
@@ -45,6 +45,7 @@ import { useQuasar } from 'quasar';
 interface TestProp {
   enablejsapi: number;
   origin: string;
+  widget_referrer: string;
 }
 interface Test {
   youtube: TestProp;
@@ -70,8 +71,9 @@ export default defineComponent({
     const optionsForPlayer = reactive<videojs.PlayerOptions & Test>({
       controls: !screenMinimized.value,
       bigPlayButton: false,
-      autoplay: userMe.roleId == 1,
+      autoplay: userMe.roleId != 0,
       responsive: true,
+      muted: userMe.roleId != 0,
       controlBar: {
         progressControl: {
           seekBar: true,
@@ -84,7 +86,11 @@ export default defineComponent({
           src: externalVideo.urlVideo as string,
         },
       ],
-      youtube: { enablejsapi: 1, origin: window.location.href },
+      youtube: {
+        enablejsapi: 1,
+        origin: window.location.href,
+        widget_referrer: window.location.href,
+      },
     });
 
     const { roomState } = useRoom();
@@ -185,9 +191,6 @@ export default defineComponent({
     watch(goplaying, (value) => {
       if (value) {
         console.log('SE OYÓ EL TRICKER');
-        const a1 = document.querySelector('.video-js');
-        const iframe = a1?.querySelector('iframe') as HTMLIFrameElement;
-        iframe.allow += 'autoplay';
       }
     });
 
@@ -211,10 +214,6 @@ export default defineComponent({
           };
     });
 
-    const start = () => {
-      console.log('empezó a cargar');
-    };
-
     return {
       externalVideo,
       videoPlayer,
@@ -227,7 +226,6 @@ export default defineComponent({
       redimensionVideoSize,
       goplaying,
       simpleMortal,
-      start,
     };
   },
 });

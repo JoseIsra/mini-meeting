@@ -1233,6 +1233,15 @@ export function useInitWebRTC() {
             updateMainViewState({
               mode: MAIN_VIEW_MODE.VIDEO,
             });
+
+            setTimeout(() => {
+              remotePlayer.value = videojs(
+                (externalVideo.remoteInstance as VideoID).playerId
+              );
+              if (remotePlayer.value.hasStarted()) {
+                remotePlayer.value.pause();
+              }
+            }, 1000);
           } else if (eventType == 'PLAYING_VIDEO') {
             const externalVideoInfo = JSON.parse(
               obj.data

@@ -3,22 +3,21 @@
     :class="['m-video', { miniMode: watchMinimized }]"
     :style="redimensionVideoSize"
   >
-    <q-btn
+    <!-- <q-btn
+      :style="[simpleMortal ? { visibility: 'hidden' } : '']"
       icon="play_arrow"
       v-show="showPlayButton"
       class="m-video__btn --playVideo"
       @click="handlePlaying"
-    />
+    /> -->
     <video
       id="specialId"
-      :class="[{ 'vjs-poster': posterClass }, { 'vjs-youtube': posterClass }]"
-      autoplay
       ref="videoPlayer"
       class="video-js"
+      :class="[{ 'vjs-poster': posterClass }, { 'vjs-youtube': posterClass }]"
     ></video>
   </section>
 </template>
-
 <script lang="ts">
 import {
   defineComponent,
@@ -27,6 +26,7 @@ import {
   reactive,
   computed,
   onBeforeUnmount,
+  watch,
 } from 'vue';
 import {
   useRoom,
@@ -40,6 +40,14 @@ import 'video.js/dist/video.min.js';
 import 'videojs-youtube/dist/Youtube.min.js';
 import 'video.js/dist/video-js.css';
 import { useQuasar } from 'quasar';
+
+interface TestProp {
+  enablejsapi: number;
+  origin: string;
+}
+interface Test {
+  youtube: TestProp;
+}
 
 export default defineComponent({
   name: 'FuExternalVideo',
@@ -56,24 +64,26 @@ export default defineComponent({
     const player = ref<videojs.Player>({} as videojs.Player);
     const showPlayButton = ref(false);
     const canManipulateVideo = ref(userMe.roleId === 0);
-    const { screenMinimized } = useScreen();
-    const optionsForPlayer = reactive<videojs.PlayerOptions>({
+    const { screenMinimized, goplaying } = useScreen();
+    const optionsForPlayer = reactive<videojs.PlayerOptions & Test>({
       controls: !screenMinimized.value,
       bigPlayButton: false,
-      autoplay: true,
+      autoplay: false,
       responsive: true,
+      preload: 'auto',
       controlBar: {
         progressControl: {
           seekBar: true,
         },
       },
-      techOrder: ['youtube', 'html5'],
+      techOrder: ['youtube'],
       sources: [
         {
           type: 'video/youtube',
           src: externalVideo.urlVideo as string,
         },
       ],
+      youtube: { enablejsapi: 1, origin: window.location.href },
     });
 
     const { roomState } = useRoom();
@@ -103,7 +113,7 @@ export default defineComponent({
           });
           player.value.on('ready', () => {
             posterClass.value = true;
-            void player.value.play();
+            // void player.value.play();
           });
           player.value.controlBar.on('mouseup', () => {
             if (canManipulateVideo.value) {
@@ -125,10 +135,8 @@ export default defineComponent({
         ...externalVideo,
         isVideoPlaying: true,
       });
-
       showPlayButton.value = false;
       void player.value.play();
-
       if (canManipulateVideo.value) {
         sendData(roomState.hostId, {
           remoteInstance: videoPlayer.value,
@@ -169,6 +177,14 @@ export default defineComponent({
       return screenMinimized.value;
     });
 
+    watch(goplaying, (value) => {
+      if (value) {
+        console.log('SE OYÓ EL TRICKER');
+        void videoPlayer.value.play();
+        videoPlayer.value.click();
+      }
+    });
+
     const redimensionVideoSize = computed(() => {
       return $q.screen.lt.sm
         ? {
@@ -199,6 +215,7 @@ export default defineComponent({
       watchMinimized,
       posterClass,
       redimensionVideoSize,
+      goplaying,
     };
   },
 });

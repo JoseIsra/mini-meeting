@@ -36,6 +36,12 @@
   height: 90% !important;
 }
 
-.video-js .vjs-youtube .vjs-poster {
-  display: none !important;
+.video-js {
+  &.vjs-poster {
+    display: none !important;
+  }
 }
+
+// .vjs-loading-spinner {
+//   display: none !important;
+// }

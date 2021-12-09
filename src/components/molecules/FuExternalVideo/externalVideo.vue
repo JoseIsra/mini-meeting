@@ -27,7 +27,6 @@ import {
   reactive,
   computed,
   onBeforeUnmount,
-  watch,
 } from 'vue';
 import {
   useRoom,
@@ -67,13 +66,13 @@ export default defineComponent({
     const showPlayButton = ref(false);
     const canManipulateVideo = ref(userMe.roleId === 0);
     const simpleMortal = ref(userMe.roleId == 1);
-    const { screenMinimized, goplaying } = useScreen();
+    const { screenMinimized } = useScreen();
     const optionsForPlayer = reactive<videojs.PlayerOptions & Test>({
       controls: !screenMinimized.value,
       bigPlayButton: false,
-      autoplay: userMe.roleId != 0,
+      autoplay: true,
       responsive: true,
-      muted: userMe.roleId != 0,
+      muted: true,
       controlBar: {
         progressControl: {
           seekBar: true,
@@ -120,10 +119,6 @@ export default defineComponent({
           });
           player.value.on('ready', () => {
             posterClass.value = true;
-            showPlayButton.value = true;
-            const a1 = document.querySelector('.video-js');
-            const iframe = a1?.querySelector('iframe');
-            console.log(iframe);
           });
           player.value.controlBar.on('mouseup', () => {
             if (canManipulateVideo.value) {
@@ -188,12 +183,6 @@ export default defineComponent({
       return screenMinimized.value;
     });
 
-    watch(goplaying, (value) => {
-      if (value) {
-        console.log('SE OYÓ EL TRICKER');
-      }
-    });
-
     const redimensionVideoSize = computed(() => {
       return $q.screen.lt.sm
         ? {
@@ -224,7 +213,6 @@ export default defineComponent({
       watchMinimized,
       posterClass,
       redimensionVideoSize,
-      goplaying,
       simpleMortal,
     };
   },

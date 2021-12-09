@@ -24,7 +24,6 @@ import {
   useHandleMessage,
   useHandleParticipants,
   usePerifericsControls,
-  useScreen,
 } from '@/composables';
 
 import { useBoard } from '@/composables/board';
@@ -144,7 +143,6 @@ const remotePlayer = ref<videojs.Player>({} as videojs.Player);
 const handNotificationSound = new Audio(
   'https://freesound.org/data/previews/411/411642_5121236-lq.mp3'
 );
-const { tricker } = useScreen();
 
 export function useInitWebRTC() {
   const joinRoom = (roomId: string, streamId: string) => {
@@ -294,8 +292,6 @@ export function useInitWebRTC() {
     };
 
     const playExternalVideo = (arg: ExternalVideoObject) => {
-      console.log('playing external video bro');
-      tricker(true);
       remotePlayer.value = videojs((arg.remoteInstance as VideoID).playerId);
       void remotePlayer.value.currentTime(arg.videoCurrentTime as number);
       void remotePlayer.value.play();
@@ -1233,15 +1229,6 @@ export function useInitWebRTC() {
             updateMainViewState({
               mode: MAIN_VIEW_MODE.VIDEO,
             });
-
-            setTimeout(() => {
-              remotePlayer.value = videojs(
-                (externalVideo.remoteInstance as VideoID).playerId
-              );
-              if (remotePlayer.value.hasStarted()) {
-                remotePlayer.value.pause();
-              }
-            }, 1000);
           } else if (eventType == 'PLAYING_VIDEO') {
             const externalVideoInfo = JSON.parse(
               obj.data

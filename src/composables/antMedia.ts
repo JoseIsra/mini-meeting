@@ -299,7 +299,7 @@ export function useInitWebRTC() {
 
     const pauseExternalVideo = (arg: ExternalVideoObject) => {
       remotePlayer.value = videojs((arg.remoteInstance as VideoID).playerId);
-
+      void remotePlayer.value.currentTime(arg.videoCurrentTime as number);
       void remotePlayer.value.pause();
     };
     const updateVideoTime = (arg: ExternalVideoObject) => {

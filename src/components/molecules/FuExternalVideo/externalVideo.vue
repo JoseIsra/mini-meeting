@@ -3,19 +3,16 @@
     :class="['m-video', { miniMode: watchMinimized }]"
     :style="redimensionVideoSize"
   >
-    <!-- <q-btn
-      icon="play_arrow"
-      v-show="showPlayButton"
-      class="m-video__btn --playVideo"
-      @click="handlePlaying"
-    /> -->
-
-    <!-- :autoplay="userMe.roleId == 1" -->
+    <p v-show="infoMessage" class="m-video__message">
+      Detenga el video para sincronizar
+    </p>
     <video
       id="specialId"
       ref="videoPlayer"
+      webkit-playsinline="true"
       class="video-js"
       :class="[{ 'vjs-poster': posterClass }, { 'vjs-youtube': posterClass }]"
+      playsinline
     ></video>
   </section>
 </template>
@@ -40,11 +37,11 @@ import 'video.js/dist/video.min.js';
 import 'videojs-youtube/dist/Youtube.min.js';
 import 'video.js/dist/video-js.css';
 import { useQuasar } from 'quasar';
+import { successMessage } from '@/utils/notify';
 
 interface TestProp {
   enablejsapi: number;
   origin: string;
-  widget_referrer: string;
 }
 interface Test {
   youtube: TestProp;
@@ -63,10 +60,10 @@ export default defineComponent({
       useExternalVideo();
     const videoPlayer = ref({} as HTMLMediaElement & { playerId: string });
     const player = ref<videojs.Player>({} as videojs.Player);
-    const showPlayButton = ref(false);
     const canManipulateVideo = ref(userMe.roleId === 0);
-    const simpleMortal = ref(userMe.roleId == 1);
     const { screenMinimized } = useScreen();
+    const infoMessage = ref(true);
+
     const optionsForPlayer = reactive<videojs.PlayerOptions & Test>({
       controls: !screenMinimized.value,
       bigPlayButton: false,
@@ -88,7 +85,6 @@ export default defineComponent({
       youtube: {
         enablejsapi: 1,
         origin: window.location.href,
-        widget_referrer: window.location.href,
       },
     });
 
@@ -100,7 +96,6 @@ export default defineComponent({
         videoPlayer.value,
         optionsForPlayer,
         function onPlayerReady() {
-          showPlayButton.value = true;
           setvideoOptions(optionsForPlayer as videojs.PlayerOptions);
           updateExternalVideoState({
             ...externalVideo,
@@ -140,7 +135,6 @@ export default defineComponent({
         ...externalVideo,
         isVideoPlaying: true,
       });
-      showPlayButton.value = false;
       void player.value.play();
       if (canManipulateVideo.value) {
         sendData(roomState.hostId, {
@@ -156,13 +150,18 @@ export default defineComponent({
         ...externalVideo,
         isVideoPlaying: false,
       });
-      showPlayButton.value = true;
 
-      if (canManipulateVideo.value) {
+      if (canManipulateVideo.value && !infoMessage.value) {
         sendData(roomState.hostId, {
           remoteInstance: videoPlayer.value,
+          videoCurrentTime: externalVideo.videoCurrentTime,
           eventType: 'PAUSE_VIDEO',
         });
+      }
+      if (infoMessage.value) {
+        infoMessage.value = false;
+        player.value.muted(false);
+        successMessage('Sincronización exitosa, puede continuar');
       }
     };
 
@@ -208,12 +207,11 @@ export default defineComponent({
       videoPlayer,
       player,
       handlePlaying,
-      showPlayButton,
       userMe,
       watchMinimized,
       posterClass,
       redimensionVideoSize,
-      simpleMortal,
+      infoMessage,
     };
   },
 });

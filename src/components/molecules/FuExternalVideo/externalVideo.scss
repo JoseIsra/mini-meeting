@@ -9,20 +9,17 @@
   justify-content: center;
   align-items: center;
   z-index: 3;
-  &__btn {
+  &__message {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 2;
-    &.--playVideo {
-      padding: 15px;
-      width: 80px;
-      color: white;
-      border-radius: 7px !important;
-      border: 1px solid #fffffe;
-      background-color: rgba(0, 0, 0, 0.6);
-    }
+    top: -25px;
+    left: 0;
+    font-size: clamp(0.65rem, 2.5vw, 0.7rem);
+    padding: 14px;
+    width: 100%;
+    background: #0b1a32;
+    color: #93abff;
+    line-height: 1;
+    border-radius: 4px;
   }
 }
 
@@ -42,13 +39,3 @@
     display: none !important;
   }
 }
-
-// .vjs-loading-spinner {
-//   display: none !important;
-// }
-// .vjs-tech {
-//   pointer-events: none;
-// }
-// .vjs-loading-spinner {
-//   display: none !important;
-// }

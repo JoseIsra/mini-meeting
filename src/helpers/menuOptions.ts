@@ -122,12 +122,12 @@ export const adminPanelOptions = [
     iconName: 'toggle_on',
     important: false,
   },
-  {
-    id: '3',
-    description: 'Retransmisión',
-    iconName: 'live_tv',
-    important: false,
-  },
+  // {
+  //   id: '3',
+  //   description: 'Retransmisión',
+  //   iconName: 'live_tv',
+  //   important: false,
+  // },
   {
     id: '4',
     description: 'Pizarra',

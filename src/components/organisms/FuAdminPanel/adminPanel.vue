@@ -85,7 +85,7 @@ import {
 } from '@/helpers/menuOptions';
 import FuGeneralPanel from 'molecules/FuGeneralPanel';
 import FuParticipantPerifericPanel from 'molecules/FuParticipantPerifericPanel';
-import FuRetransmissionPanel from 'molecules/FuRetransmissionPanel';
+// import FuRetransmissionPanel from 'molecules/FuRetransmissionPanel';
 import FuBoardPanel from 'molecules/FuBoardPanel';
 
 interface List {
@@ -99,7 +99,7 @@ export default defineComponent({
   components: {
     FuGeneralPanel,
     FuParticipantPerifericPanel,
-    FuRetransmissionPanel,
+    // FuRetransmissionPanel
     FuBoardPanel,
   },
   setup() {

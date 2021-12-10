@@ -223,7 +223,34 @@
           round
           color="white"
           @click="openResponsiveMenuOfFunctions"
-        />
+        >
+          <q-badge
+            v-show="
+              chatNotification &&
+              (notificationCount == 0 || amountHandNotification == 0)
+            "
+            color="red"
+            class="a-menuBar__icon__chatbadge"
+            rounded
+            floating
+          >
+            {{ amountOfNewMessages }}
+          </q-badge>
+          <q-badge
+            rounded
+            floating
+            v-show="notificationCount > 0 || amountHandNotification > 0"
+            :class="[
+              'a-menuBar__icon__topin',
+              { '--roleOne': userMe.roleId == 1 },
+              waitingParticipants.length > 0
+                ? '--participants'
+                : '--noparticipants',
+            ]"
+          >
+            {{ notificationCount + amountHandNotification }}
+          </q-badge>
+        </q-btn>
         <q-btn
           icon="pan_tool"
           class="a-menuBar__functions__responsive__handBtn"

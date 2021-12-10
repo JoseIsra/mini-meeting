@@ -34,11 +34,13 @@
         icon="fas fa-eraser"
         size="8px"
         dense
-        :disable="!objectActive || !canDraw"
         @click="deleteActiveObject"
       >
         <q-tooltip class="bg-grey-10">
           <label> Eliminar objeto</label>
+        </q-tooltip>
+        <q-tooltip class="bg-grey-10" v-show="!objectActive || !canDraw">
+          <label> Borrador (Debes seleccionar un elemento)</label>
         </q-tooltip>
       </q-btn>
 
@@ -297,7 +299,7 @@ export default defineComponent({
       actionSelected,
       brushColor,
       syncBoard,
-      loadBoard
+      loadBoard,
     } = useBoard();
 
     const { isSidebarRender, setSidebarState } = useSidebarToogle();

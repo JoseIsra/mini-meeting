@@ -63,7 +63,6 @@ export default defineComponent({
     const canManipulateVideo = ref(userMe.roleId === 0);
     const { screenMinimized } = useScreen();
     const infoMessage = ref(true);
-
     const optionsForPlayer = reactive<videojs.PlayerOptions & Test>({
       controls: !screenMinimized.value,
       bigPlayButton: false,
@@ -71,7 +70,6 @@ export default defineComponent({
       responsive: true,
       preload: 'auto',
       muted: true,
-      nativeControlsForTouch: false,
       controlBar: {
         progressControl: {
           seekBar: true,
@@ -81,10 +79,6 @@ export default defineComponent({
       sources: [
         {
           type: 'video/youtube',
-          src: externalVideo.urlVideo as string,
-        },
-        {
-          type: 'video/webm',
           src: externalVideo.urlVideo as string,
         },
       ],
@@ -98,6 +92,10 @@ export default defineComponent({
 
     onMounted(() => {
       window.addEventListener('orientationchange', handleOrientationChange);
+      initVideoJs();
+    });
+
+    const initVideoJs = () => {
       player.value = videojs(
         videoPlayer.value,
         optionsForPlayer,
@@ -134,7 +132,7 @@ export default defineComponent({
           });
         }
       );
-    });
+    };
 
     const handlePlaying = () => {
       updateExternalVideoState({

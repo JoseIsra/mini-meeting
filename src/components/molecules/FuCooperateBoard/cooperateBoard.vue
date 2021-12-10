@@ -37,11 +37,14 @@
         @click="deleteActiveObject"
       >
         <q-tooltip class="bg-grey-10">
-          <label> Eliminar objeto</label>
+          <label v-if="!objectActive || !canDraw">
+            Borrador (Debes seleccionar un elemento)</label
+          >
+          <label v-else> Eliminar objeto</label>
         </q-tooltip>
-        <q-tooltip class="bg-grey-10" v-show="!objectActive || !canDraw">
+        <!-- <q-tooltip class="bg-grey-10" v-show="!objectActive">
           <label> Borrador (Debes seleccionar un elemento)</label>
-        </q-tooltip>
+        </q-tooltip> -->
       </q-btn>
 
       <q-btn

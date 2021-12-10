@@ -69,7 +69,9 @@ export default defineComponent({
       bigPlayButton: false,
       autoplay: true,
       responsive: true,
+      preload: 'auto',
       muted: true,
+      nativeControlsForTouch: false,
       controlBar: {
         progressControl: {
           seekBar: true,
@@ -79,6 +81,10 @@ export default defineComponent({
       sources: [
         {
           type: 'video/youtube',
+          src: externalVideo.urlVideo as string,
+        },
+        {
+          type: 'video/webm',
           src: externalVideo.urlVideo as string,
         },
       ],
@@ -161,6 +167,7 @@ export default defineComponent({
       if (infoMessage.value) {
         infoMessage.value = false;
         player.value.muted(false);
+        void player.value.play();
         successMessage('Sincronización exitosa, puede continuar');
       }
     };

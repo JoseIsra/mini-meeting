@@ -326,7 +326,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, reactive, watch, computed } from 'vue';
+import { defineComponent, ref, reactive, watch, computed, provide } from 'vue';
 import FuCooperateMenu from 'molecules/FuCooperateMenu';
 import { Icons, Periferics, Functionalities } from '@/types';
 
@@ -419,11 +419,15 @@ export default defineComponent({
           ).length
         : functionsOnMenuBar.handNotificationInfo.length;
     });
+
     const notificateHandUp = computed(() => {
       return functionsOnMenuBar.handNotificationInfo.some(
         (notific) => notific.from == userMe.id
       );
     });
+
+    provide('amountHandNotification', amountHandNotification);
+    provide('notificationCount', notificationCount);
 
     let { isSidebarRender, setSidebarState } = useSidebarToogle();
 

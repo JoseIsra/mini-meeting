@@ -39,12 +39,7 @@ import FuCooperate from 'organisms/FuCooperate';
 import FuLobby from 'organisms/FuLobby';
 
 import { useRoute } from 'vue-router';
-import {
-  useRoom,
-  useAuthState,
-  useInitWebRTC,
-  useUserMe,
-} from '@/composables';
+import { useRoom, useAuthState, useInitWebRTC, useUserMe } from '@/composables';
 import FuTLoading from 'organisms/FuLoading';
 import {
   PERMISSION_STATUS,

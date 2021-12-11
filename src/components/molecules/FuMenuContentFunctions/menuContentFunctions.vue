@@ -18,6 +18,12 @@
         <label class="a-menu__actionList__item__description">{{
           iconsFunctions.chat.toolTipMessage
         }}</label>
+        <label
+          v-show="chatNotification"
+          class="a-menu__actionList__item__description --chatNotification"
+        >
+          (Hay mensajes nuevos)
+        </label>
       </li>
       <li
         class="a-menu__actionList__item"
@@ -36,7 +42,7 @@
 import { defineComponent, PropType } from 'vue';
 import { iconsFunctions } from '@/helpers/iconsMenuBar';
 import { Functionalities } from '@/types';
-import { useToogleFunctions } from '@/composables';
+import { useToogleFunctions, useHandleMessage } from '@/composables';
 import { INTERACTION_TYPE_MENU_BAR } from '@/utils/enums';
 
 export default defineComponent({
@@ -48,6 +54,7 @@ export default defineComponent({
   },
   setup(props) {
     const { openFunctionResponsiveMenu } = useToogleFunctions();
+    const { chatNotification } = useHandleMessage();
 
     const handleFunctionSelected = (interaction: string) => {
       props?.objectFunctionalities?.[interaction as keyof Functionalities]?.();
@@ -58,6 +65,7 @@ export default defineComponent({
       iconsFunctions,
       INTERACTION_TYPE_MENU_BAR,
       handleFunctionSelected,
+      chatNotification,
     };
   },
 });

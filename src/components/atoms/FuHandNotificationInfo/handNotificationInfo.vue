@@ -26,6 +26,7 @@ export default defineComponent({
         disappear.value = true;
       }, 5000);
     });
+
     return {
       disappear,
     };

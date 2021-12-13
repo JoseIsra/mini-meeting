@@ -191,7 +191,7 @@ export default defineComponent({
       return $q.screen.lt.sm
         ? {
             '--top': '40%',
-            '--width': '100vw',
+            '--width': '90vw',
             '--height': '40vh',
           }
         : orientationScreenAdvice.value

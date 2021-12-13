@@ -4,6 +4,7 @@
       Agrega el link de un video en YouTube y compártelo con todos los
       participantes
     </p>
+
     <form class="m-external__content">
       <input
         v-show="!externalVideo.videoOnRoom"
@@ -30,6 +31,10 @@
         "
       />
     </form>
+    <p class="m-external__message --hint">
+      Nota: No todos los videos podrán reproducirse en todos los dispositivos
+      móviles
+    </p>
   </section>
 </template>
 

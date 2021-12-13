@@ -1,5 +1,9 @@
 <template>
-  <div class="a-notification" :class="{ faded: disappear }">
+  <div
+    class="a-notification"
+    :class="{ faded: disappear }"
+    :style="handBackground"
+  >
     <q-icon name="pan_tool" size="20px" color="white" />
     <label class="a-notification__message"
       >{{ notification.streamName }} levantó la mano</label
@@ -8,8 +12,9 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, onMounted, ref } from 'vue';
+import { defineComponent, PropType, onMounted, ref, computed } from 'vue';
 import { HandNotification } from '@/types';
+import { useQuasar } from 'quasar';
 
 export default defineComponent({
   name: 'FuNotificationInfo',
@@ -20,6 +25,7 @@ export default defineComponent({
   },
   setup() {
     let disappear = ref(false);
+    const $q = useQuasar();
 
     onMounted(() => {
       setTimeout(() => {
@@ -27,8 +33,19 @@ export default defineComponent({
       }, 5000);
     });
 
+    const handBackground = computed(() => {
+      return $q.screen.lt.sm
+        ? {
+            backgroundColor: 'black',
+          }
+        : {
+            backgroundColor: 'rgba(0,0,0,.4)',
+          };
+    });
+
     return {
       disappear,
+      handBackground,
     };
   },
 });

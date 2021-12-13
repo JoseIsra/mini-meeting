@@ -19,6 +19,7 @@ export default defineComponent({
   setup() {
     const { functionsOnMenuBar } = useToogleFunctions();
     const { screenMinimized } = useScreen();
+
     return {
       functionsOnMenuBar,
       screenMinimized,

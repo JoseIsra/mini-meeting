@@ -223,7 +223,34 @@
           round
           color="white"
           @click="openResponsiveMenuOfFunctions"
-        />
+        >
+          <q-badge
+            v-show="
+              chatNotification &&
+              (notificationCount == 0 || amountHandNotification == 0)
+            "
+            color="red"
+            class="a-menuBar__icon__chatbadge"
+            rounded
+            floating
+          >
+            {{ amountOfNewMessages }}
+          </q-badge>
+          <q-badge
+            rounded
+            floating
+            v-show="notificationCount > 0 || amountHandNotification > 0"
+            :class="[
+              'a-menuBar__icon__topin',
+              { '--roleOne': userMe.roleId == 1 },
+              waitingParticipants.length > 0
+                ? '--participants'
+                : '--noparticipants',
+            ]"
+          >
+            {{ notificationCount + amountHandNotification }}
+          </q-badge>
+        </q-btn>
         <q-btn
           icon="pan_tool"
           class="a-menuBar__functions__responsive__handBtn"
@@ -299,7 +326,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, reactive, watch, computed } from 'vue';
+import { defineComponent, ref, reactive, watch, computed, provide } from 'vue';
 import FuCooperateMenu from 'molecules/FuCooperateMenu';
 import { Icons, Periferics, Functionalities } from '@/types';
 
@@ -392,11 +419,15 @@ export default defineComponent({
           ).length
         : functionsOnMenuBar.handNotificationInfo.length;
     });
+
     const notificateHandUp = computed(() => {
       return functionsOnMenuBar.handNotificationInfo.some(
         (notific) => notific.from == userMe.id
       );
     });
+
+    provide('amountHandNotification', amountHandNotification);
+    provide('notificationCount', notificationCount);
 
     let { isSidebarRender, setSidebarState } = useSidebarToogle();
 

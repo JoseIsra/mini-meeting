@@ -6,9 +6,14 @@
         @click="handleFunctionSelected(INTERACTION_TYPE_MENU_BAR.USERLIST)"
       >
         <q-icon :name="iconsFunctions.users.onState" size="18px" />
-        <label class="a-menu__actionList__item__description">{{
-          iconsFunctions.users.toolTipMessage
-        }}</label>
+        <label class="a-menu__actionList__item__description"
+          >{{ iconsFunctions.users.toolTipMessage }}
+        </label>
+        <q-badge
+          v-show="amountHandNotification > 0 || notificationCount > 0"
+          :style="{ backgroundColor: '#0099ff' }"
+          rounded
+        />
       </li>
       <li
         class="a-menu__actionList__item"
@@ -22,7 +27,7 @@
           v-show="chatNotification"
           class="a-menu__actionList__item__description --chatNotification"
         >
-          (Hay mensajes nuevos)
+          <q-badge color="red" rounded />
         </label>
       </li>
       <li
@@ -39,7 +44,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue';
+import { defineComponent, PropType, inject } from 'vue';
 import { iconsFunctions } from '@/helpers/iconsMenuBar';
 import { Functionalities } from '@/types';
 import { useToogleFunctions, useHandleMessage } from '@/composables';
@@ -55,6 +60,8 @@ export default defineComponent({
   setup(props) {
     const { openFunctionResponsiveMenu } = useToogleFunctions();
     const { chatNotification } = useHandleMessage();
+    const amountHandNotification = inject('amountHandNotification');
+    const notificationCount = inject('notificationCount');
 
     const handleFunctionSelected = (interaction: string) => {
       props?.objectFunctionalities?.[interaction as keyof Functionalities]?.();
@@ -66,6 +73,8 @@ export default defineComponent({
       INTERACTION_TYPE_MENU_BAR,
       handleFunctionSelected,
       chatNotification,
+      amountHandNotification,
+      notificationCount,
     };
   },
 });

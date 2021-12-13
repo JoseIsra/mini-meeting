@@ -19,9 +19,6 @@
 
       &__description {
         margin: 0 8px;
-        &.--chatNotification {
-          font-size: clamp(0.75rem, 2.5vw, 0.8rem);
-        }
       }
     }
   }

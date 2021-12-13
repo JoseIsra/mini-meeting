@@ -28,9 +28,11 @@
       @click="updateScreenState"
       v-show="screenMinimized"
     />
+
     <fu-cooperate-header
       v-show="!screenMinimized && $q.screen.lt.md ? showHeader : true"
     />
+
     <fu-cooperate-menu-bar
       v-show="showMenuBar && !screenMinimized"
       :toggleLocalCamera="toggleLocalCamera"
@@ -41,18 +43,13 @@
       <fu-cooperate-side-bar v-show="isSidebarRender" />
     </transition>
     <fu-cooperate-user-video
-      v-show="
+      v-if="
         !screenMinimized && $q.screen.lt.md
           ? showUsersVideoList
           : !screenMinimized
       "
     />
-    <fu-hand-notification
-      v-show="
-        functionsOnMenuBar.handNotificationInfo.length > 0 && !screenMinimized
-      "
-    />
-
+    <fu-hand-notification v-show="handActives && !screenMinimized" />
     <fu-full-screen v-if="mainViewState.mode !== MAIN_VIEW_MODE.NONE" />
 
     <q-dialog
@@ -171,6 +168,7 @@ export default defineComponent({
         }
       }
     );
+
     const toogleMenuBar = () => {
       if (!showMenuBar.value) {
         showMenuBar.value = true;
@@ -197,6 +195,10 @@ export default defineComponent({
       }
     };
 
+    const handActives = computed(() => {
+      return functionsOnMenuBar.handNotificationInfo.length > 0;
+    });
+
     return {
       toogleMenuBar,
       showMenuBar,
@@ -213,6 +215,7 @@ export default defineComponent({
       MAIN_VIEW_MODE,
       showHeader,
       heightObjectStyle,
+      handActives,
     };
   },
 });

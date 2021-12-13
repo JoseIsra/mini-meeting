@@ -3,26 +3,19 @@
     :class="['m-video', { miniMode: watchMinimized }]"
     :style="redimensionVideoSize"
   >
-    <q-btn
-      :style="[simpleMortal ? { visibility: 'hidden' } : '']"
-      icon="play_arrow"
-      v-show="showPlayButton"
-      class="m-video__btn --playVideo"
-      @click="handlePlaying"
-    />
+    <p v-show="infoMessage" class="m-video__message">
+      Detenga el video para sincronizar
+    </p>
     <video
       id="specialId"
-      :class="[
-        { 'vjs-poster': posterClass },
-        { 'vjs-youtube': posterClass },
-        { 'vjs-tech': simpleMortal },
-      ]"
       ref="videoPlayer"
+      webkit-playsinline="true"
       class="video-js"
+      :class="[{ 'vjs-poster': posterClass }, { 'vjs-youtube': posterClass }]"
+      playsinline
     ></video>
   </section>
 </template>
-
 <script lang="ts">
 import {
   defineComponent,
@@ -44,6 +37,15 @@ import 'video.js/dist/video.min.js';
 import 'videojs-youtube/dist/Youtube.min.js';
 import 'video.js/dist/video-js.css';
 import { useQuasar } from 'quasar';
+import { successMessage } from '@/utils/notify';
+
+interface TestProp {
+  enablejsapi: number;
+  origin: string;
+}
+interface Test {
+  youtube: TestProp;
+}
 
 export default defineComponent({
   name: 'FuExternalVideo',
@@ -58,37 +60,46 @@ export default defineComponent({
       useExternalVideo();
     const videoPlayer = ref({} as HTMLMediaElement & { playerId: string });
     const player = ref<videojs.Player>({} as videojs.Player);
-    const showPlayButton = ref(false);
     const canManipulateVideo = ref(userMe.roleId === 0);
-    const simpleMortal = ref(userMe.roleId == 1);
     const { screenMinimized } = useScreen();
-    const optionsForPlayer = reactive<videojs.PlayerOptions>({
-      controls: canManipulateVideo.value || screenMinimized.value,
+    const infoMessage = ref(true);
+    const optionsForPlayer = reactive<videojs.PlayerOptions & Test>({
+      controls: !screenMinimized.value,
       bigPlayButton: false,
+      autoplay: true,
       responsive: true,
+      preload: 'auto',
+      muted: true,
       controlBar: {
         progressControl: {
           seekBar: true,
         },
       },
-      techOrder: ['youtube', 'html5'],
+      techOrder: ['youtube'],
       sources: [
         {
           type: 'video/youtube',
           src: externalVideo.urlVideo as string,
         },
       ],
+      youtube: {
+        enablejsapi: 1,
+        origin: window.location.href,
+      },
     });
 
     const { roomState } = useRoom();
 
     onMounted(() => {
       window.addEventListener('orientationchange', handleOrientationChange);
+      initVideoJs();
+    });
+
+    const initVideoJs = () => {
       player.value = videojs(
         videoPlayer.value,
         optionsForPlayer,
         function onPlayerReady() {
-          showPlayButton.value = true;
           setvideoOptions(optionsForPlayer as videojs.PlayerOptions);
           updateExternalVideoState({
             ...externalVideo,
@@ -107,34 +118,35 @@ export default defineComponent({
           });
           player.value.on('ready', () => {
             posterClass.value = true;
-            console.log('go on video go on🤭', posterClass.value);
-            void player.value.play();
           });
           player.value.controlBar.on('mouseup', () => {
-            setTimeout(() => {
-              sendData(roomState.hostId, {
-                remoteInstance: videoPlayer.value,
-                videoCurrentTime: calculateCurrentSelectedTime.value,
-                eventType: 'UPDATE_VIDEOTIME',
-              });
-            }, 500);
+            if (canManipulateVideo.value) {
+              setTimeout(() => {
+                sendData(roomState.hostId, {
+                  remoteInstance: videoPlayer.value,
+                  videoCurrentTime: calculateCurrentSelectedTime.value,
+                  eventType: 'UPDATE_VIDEOTIME',
+                });
+              }, 200);
+            }
           });
         }
       );
-    });
+    };
 
     const handlePlaying = () => {
       updateExternalVideoState({
         ...externalVideo,
         isVideoPlaying: true,
       });
-
-      showPlayButton.value = false;
       void player.value.play();
-      sendData(roomState.hostId, {
-        remoteInstance: videoPlayer.value,
-        eventType: 'PLAYING_VIDEO',
-      });
+      if (canManipulateVideo.value) {
+        sendData(roomState.hostId, {
+          remoteInstance: videoPlayer.value,
+          videoCurrentTime: externalVideo.videoCurrentTime,
+          eventType: 'PLAYING_VIDEO',
+        });
+      }
     };
 
     const handlePause = () => {
@@ -142,11 +154,20 @@ export default defineComponent({
         ...externalVideo,
         isVideoPlaying: false,
       });
-      showPlayButton.value = true;
-      sendData(roomState.hostId, {
-        remoteInstance: videoPlayer.value,
-        eventType: 'PAUSE_VIDEO',
-      });
+
+      if (canManipulateVideo.value && !infoMessage.value) {
+        sendData(roomState.hostId, {
+          remoteInstance: videoPlayer.value,
+          videoCurrentTime: externalVideo.videoCurrentTime,
+          eventType: 'PAUSE_VIDEO',
+        });
+      }
+      if (infoMessage.value) {
+        infoMessage.value = false;
+        player.value.muted(false);
+        void player.value.play();
+        successMessage('Sincronización exitosa, puede continuar');
+      }
     };
 
     onBeforeUnmount(() => {
@@ -191,20 +212,19 @@ export default defineComponent({
       videoPlayer,
       player,
       handlePlaying,
-      showPlayButton,
       userMe,
-      simpleMortal,
       watchMinimized,
       posterClass,
       redimensionVideoSize,
+      infoMessage,
     };
   },
 });
 </script>
 
-<style lang="scss" scoped>
-// .vjs-youtube .vjs-poster {
-//   display: none !important;
-// }
+<style lang="scss">
+.vjs-youtube .vjs-poster {
+  display: none !important;
+}
 @import './externalVideo.scss';
 </style>

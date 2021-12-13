@@ -11,7 +11,7 @@ const FractalUpCooperate = zoid.create({
   attributes: {
     iframe: {
       scrolling: "no",
-      allow: "camera *; microphone *; display-capture *",
+      allow: "camera *; microphone *; display-capture *;",
       allowFullScreen: "true",
       allowusermedia: "true",
     },

@@ -19,15 +19,15 @@
     &__input {
       padding: 10px;
       border-radius: 5px;
-      background-color: #2f3136;      
+      background-color: #2f3136;
       color: #fffffe;
       text-align: center;
       outline: none;
       margin: 0.5rem 0;
       border: none;
       flex: 0.6;
-      &::placeholder{
-        color: #fffffe
+      &::placeholder {
+        color: #fffffe;
       }
     }
     &__hint {

@@ -39,26 +39,23 @@ import {
   useMainView,
   useInitWebRTC,
   useRoom,
-  useUserMe,
   useExternalVideo,
 } from '@/composables';
 import { errorMessage, successMessage } from '@/utils/notify';
 import videojs from 'video.js';
 import { VideoID } from '@/types';
-import { MAIN_VIEW_LOCKED_TYPE, MAIN_VIEW_MODE } from '@/utils/enums';
+import { MAIN_VIEW_MODE } from '@/utils/enums';
 
 export default defineComponent({
   name: 'FuExternalVideoModal',
-  setup(_prop, { emit }) {
+  setup() {
     let inputURL = ref('');
-    const { updateMainViewStateForAll, cleanMainViewStateForAll } =
-      useMainView();
+    const { updateMainViewState } = useMainView();
     const { updateExternalVideoState, externalVideo } = useExternalVideo();
 
     const { sendData } = useInitWebRTC();
     const regexYoutube = /^(https?\:\/\/)?(www\.youtube\.com|youtu\.?be)\/.+$/;
     const { roomState } = useRoom();
-    const { userMe } = useUserMe();
 
     const stablishURL = () => {
       if (regexYoutube.test(inputURL.value)) {
@@ -70,15 +67,12 @@ export default defineComponent({
           ...externalVideo,
           videoOnRoom: true,
           urlVideo: inputURL.value,
+          isVideoPlaying: true,
         });
-        updateMainViewStateForAll({
+        updateMainViewState({
           mode: MAIN_VIEW_MODE.VIDEO,
-          locked: MAIN_VIEW_LOCKED_TYPE.NORMAL_USERS,
-          startedBy: userMe.id,
         });
-        //setFullScreen('video', true);
         sendData(roomState.hostId, URLData);
-        emit('init-external-video');
         successMessage('Video externo agregado');
         return;
       }
@@ -90,13 +84,14 @@ export default defineComponent({
     });
 
     const removeVideoOnRoom = () => {
-      cleanMainViewStateForAll();
+      updateMainViewState({
+        mode: MAIN_VIEW_MODE.NONE,
+      });
+      videojs((externalVideo.remoteInstance as VideoID).playerId).dispose();
       sendData(roomState.hostId, {
         remoteInstance: externalVideo.remoteInstance,
         eventType: 'REMOVE_EXTERNAL_VIDEO',
       });
-      videojs((externalVideo.remoteInstance as VideoID).playerId).dispose();
-      //setFullScreen('none', false);
       updateExternalVideoState({
         ...externalVideo,
         videoOnRoom: false,

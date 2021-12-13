@@ -130,11 +130,16 @@ const { updateExternalVideoState, externalVideo } = useExternalVideo();
 
 /* const { setScreenShareIconState } = useActions(); */
 
-const { handleMultipleObjects, clearBoard, changeBgColor, discardSelection, readIncomingBoard, parseCurrentBoard } =
-  useBoard();
+const {
+  handleMultipleObjects,
+  clearBoard,
+  changeBgColor,
+  discardSelection,
+  readIncomingBoard,
+  parseCurrentBoard,
+} = useBoard();
 
 const remotePlayer = ref<videojs.Player>({} as videojs.Player);
-
 const handNotificationSound = new Audio(
   'https://freesound.org/data/previews/411/411642_5121236-lq.mp3'
 );
@@ -288,11 +293,13 @@ export function useInitWebRTC() {
 
     const playExternalVideo = (arg: ExternalVideoObject) => {
       remotePlayer.value = videojs((arg.remoteInstance as VideoID).playerId);
+      void remotePlayer.value.currentTime(arg.videoCurrentTime as number);
       void remotePlayer.value.play();
     };
 
     const pauseExternalVideo = (arg: ExternalVideoObject) => {
       remotePlayer.value = videojs((arg.remoteInstance as VideoID).playerId);
+      void remotePlayer.value.currentTime(arg.videoCurrentTime as number);
       void remotePlayer.value.pause();
     };
     const updateVideoTime = (arg: ExternalVideoObject) => {
@@ -318,6 +325,8 @@ export function useInitWebRTC() {
           remotePlayer.value.currentTime(arg.videoCurrentTime as number);
           if (!arg.isVideoPlaying) {
             remotePlayer.value.pause();
+          } else {
+            void remotePlayer.value.play();
           }
         }, 500);
       }, 1000);
@@ -325,6 +334,7 @@ export function useInitWebRTC() {
 
     const removeVideoShared = (arg: ExternalVideoObject) => {
       remotePlayer.value = videojs((arg.remoteInstance as VideoID).playerId);
+      remotePlayer.value = {} as videojs.Player;
       videojs((arg.remoteInstance as VideoID).playerId).dispose();
       updateMainViewState({
         mode: MAIN_VIEW_MODE.NONE,
@@ -848,7 +858,7 @@ export function useInitWebRTC() {
                   externalVideoInfo: { ...externalVideo },
                   roomInfo: { ...roomState },
                   mainViewState,
-                  boardInfo: parsedBoard
+                  boardInfo: parsedBoard,
                 };
 
                 console.debug(
@@ -958,7 +968,11 @@ export function useInitWebRTC() {
               ) {
                 updateMainViewState(remoteUserInfoParsed.mainViewState);
 
-                if (remoteUserInfoParsed.mainViewState.mode === MAIN_VIEW_MODE.BOARD && remoteUserInfoParsed.boardInfo) {
+                if (
+                  remoteUserInfoParsed.mainViewState.mode ===
+                    MAIN_VIEW_MODE.BOARD &&
+                  remoteUserInfoParsed.boardInfo
+                ) {
                   readIncomingBoard(remoteUserInfoParsed.boardInfo);
                 }
               }
@@ -1209,22 +1223,12 @@ export function useInitWebRTC() {
             const externalVideoObject = JSON.parse(
               obj.data
             ) as ExternalVideoObject;
-            /* setFullScreen('video', true); */
-            /* updateMainViewState({
-              mode: MAIN_VIEW_MODE.VIDEO,
-            }); */
             updateExternalVideoState({
               urlVideo: externalVideoObject.urlVideo,
             });
-            setTimeout(() => {
-              console.log(
-                'ID DEL REMOTO 🚀',
-                (externalVideo.remoteInstance as VideoID).playerId
-              );
-              remotePlayer.value = videojs(
-                (externalVideo.remoteInstance as VideoID).playerId
-              );
-            }, 2000);
+            updateMainViewState({
+              mode: MAIN_VIEW_MODE.VIDEO,
+            });
           } else if (eventType == 'PLAYING_VIDEO') {
             const externalVideoInfo = JSON.parse(
               obj.data

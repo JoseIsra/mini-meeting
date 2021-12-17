@@ -1,6 +1,6 @@
 import { ref } from 'vue';
 import { fabric } from 'fabric';
-import { Board, dummyBoard, BoardObject} from '@/types/board'
+import { Board, dummyBoard, BoardObject } from '@/types/board';
 
 const showBoard = ref<boolean>(true);
 const board = ref<null | Board>(null);
@@ -23,9 +23,12 @@ export function useBoard() {
 
   const loadBoard = (incomingBoard: dummyBoard) => {
     if (board.value) {
-      board.value.loadFromJSON(JSON.stringify(incomingBoard), board.value.renderAll.bind(board.value));
+      board.value.loadFromJSON(
+        JSON.stringify(incomingBoard),
+        board.value.renderAll.bind(board.value)
+      );
     }
-  }
+  };
 
   const toggleShowBoard = () => {
     showBoard.value = !showBoard.value;
@@ -114,11 +117,6 @@ export function useBoard() {
     parsedObjects.forEach((cObject) => {
       handleObject(cObject);
     });
-  };
-
-  const dummylogs = () => {
-    const objects = board.value?.getObjects();
-    objects?.forEach((obj) => console.debug(obj.id));
   };
 
   const discardSelection = () => {
@@ -218,7 +216,6 @@ export function useBoard() {
     showBoard,
     toggleShowBoard,
     clearBoard,
-    dummylogs,
     handleObject,
     readIncomingBoard,
     loadBoard,

@@ -49,15 +49,6 @@
 
       <q-btn
         class="o-board__toolbar__tool"
-        icon="fas fa-democrat"
-        @click="dummylogs"
-        size="8px"
-        dense
-        :disable="!canDraw"
-      />
-
-      <q-btn
-        class="o-board__toolbar__tool"
         icon="fas fa-square"
         @click="addRect"
         size="8px"
@@ -289,7 +280,6 @@ export default defineComponent({
       setBoard,
       toggleShowBoard,
       clearBoard,
-      dummylogs,
       changeBgColor,
       bgColor,
       discardSelection,
@@ -658,7 +648,6 @@ export default defineComponent({
       callCleanBoard,
       showBoard,
       toggleShowBoard,
-      dummylogs,
       addRect,
       addCircle,
       actionSelected,

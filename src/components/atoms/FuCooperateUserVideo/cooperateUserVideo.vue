@@ -19,7 +19,16 @@
           <label class="a-userVideo__box__avatar__info__userName">{{
             userMe.name
           }}</label>
-          <q-icon :name="userMe.isMicOn ? 'mic' : 'mic_off'" color="white" />
+          <q-icon
+            :name="
+              userMe.micPublishedState == 1
+                ? iconsPeriferics.mic.onState
+                : userMe.micPublishedState == 2
+                ? iconsPeriferics.mic.loadingState
+                : iconsPeriferics.mic.offState
+            "
+            color="white"
+          />
         </div>
       </div>
 
@@ -205,6 +214,7 @@ import {
 } from '@/composables';
 
 import { MAIN_VIEW_LOCKED_TYPE } from '@/utils/enums';
+import { iconsPeriferics } from '@/helpers/iconsMenuBar';
 
 export default defineComponent({
   name: 'FuCooperateUserVideo',
@@ -241,6 +251,7 @@ export default defineComponent({
       removePinnedUser,
       mainViewState,
       MAIN_VIEW_LOCKED_TYPE,
+      iconsPeriferics,
     };
   },
 });

@@ -45,6 +45,7 @@ import {
   useInitWebRTC,
   useRoom,
   useExternalVideo,
+  useUserMe,
 } from '@/composables';
 import { errorMessage, successMessage } from '@/utils/notify';
 import videojs from 'video.js';
@@ -61,23 +62,26 @@ export default defineComponent({
     const { sendData } = useInitWebRTC();
     const regexYoutube = /^(https?\:\/\/)?(www\.youtube\.com|youtu\.?be)\/.+$/;
     const { roomState } = useRoom();
-
+    const { userMe, updateUserMe } = useUserMe();
     const stablishURL = () => {
       if (regexYoutube.test(inputURL.value)) {
         const URLData = {
           eventType: 'SHARE_EXTERNAL_VIDEO',
           urlVideo: inputURL.value,
+          videoOwnerId: userMe.id,
         };
         updateExternalVideoState({
           ...externalVideo,
           videoOnRoom: true,
           urlVideo: inputURL.value,
           isVideoPlaying: true,
+          videoOwnerId: userMe.id,
         });
         updateMainViewState({
           mode: MAIN_VIEW_MODE.VIDEO,
         });
         sendData(roomState.hostId, URLData);
+        updateUserMe({ videoOwner: true });
         successMessage('Video externo agregado');
         return;
       }
@@ -92,9 +96,9 @@ export default defineComponent({
       updateMainViewState({
         mode: MAIN_VIEW_MODE.NONE,
       });
-      videojs((externalVideo.remoteInstance as VideoID).playerId).dispose();
+      videojs(externalVideo.remoteInstanceId as string).dispose();
       sendData(roomState.hostId, {
-        remoteInstance: externalVideo.remoteInstance,
+        remoteInstanceId: externalVideo.remoteInstanceId,
         eventType: 'REMOVE_EXTERNAL_VIDEO',
       });
       updateExternalVideoState({
@@ -103,7 +107,7 @@ export default defineComponent({
         urlVideo: '',
         isVideoPlaying: false,
         videoCurrentTime: 0,
-        remoteInstance: {} as HTMLMediaElement & { playerId: string },
+        remoteInstanceId: '',
       });
       successMessage('Video externo removido');
     };

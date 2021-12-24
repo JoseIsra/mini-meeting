@@ -240,6 +240,8 @@ export default defineComponent({
       isPublishing: isHost ? 1 : 0,
       speakerId,
       canDraw: roleId === 1 ? false : true,
+      videoTime: 0,
+      videoOwner: false,
     });
 
     /* setMicIconState(isMicLocked ? false : isMicOn); */

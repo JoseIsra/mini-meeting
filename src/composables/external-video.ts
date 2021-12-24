@@ -7,7 +7,8 @@ const externalVideo = reactive<ExternalVideoObject>({
   videoOnRoom: false,
   isVideoPlaying: false,
   videoCurrentTime: 0,
-  remoteInstance: {} as HTMLVideoElement,
+  remoteInstanceId: '',
+  videoOwnerId: '',
 });
 
 const playerObject = reactive({} as videojs.Player);

@@ -48,7 +48,7 @@ export interface ObjRemoteUserInfo extends ObjInfoRequested {
   userInfo: User;
   participantsInRoom: User[];
   externalVideoInfo?: ExternalVideoObject;
-  boardInfo?:string;
+  boardInfo?: string;
   roomInfo: Room;
   mainViewState: MainViewState;
 }
@@ -65,11 +65,12 @@ export interface VideoID {
 export interface ExternalVideoObject {
   eventType?: string;
   urlVideo?: string;
-  remoteInstance?: VideoID | string | HTMLVideoElement;
+  remoteInstanceId?: string;
   videoCurrentTime?: number;
   fullScreenMode?: boolean;
   videoOnRoom?: boolean;
   isVideoPlaying?: boolean;
+  videoOwnerId?: string;
 }
 
 export interface ObjBlockParticipantAction {
@@ -126,4 +127,8 @@ export interface ObjBoardEvent {
   event: number;
   objects?: string;
   color?: string;
+}
+
+export interface ExternalVideoRequest extends BaseData {
+  remoteInstanceId: string;
 }

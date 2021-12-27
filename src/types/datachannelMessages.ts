@@ -128,3 +128,9 @@ export interface ObjBoardEvent {
   objects?: string;
   color?: string;
 }
+
+export interface ExternalVideoRequest extends BaseData {
+  id: string;
+  ubication: number;
+  isPlaying: boolean;
+}

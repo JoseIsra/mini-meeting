@@ -155,8 +155,13 @@ export default defineComponent({
         });
       }
 
-      if (!canManipulateVideo.value) {
+      if (!canManipulateVideo.value && infoMessage.value) {
         infoMessage.value = false;
+        sendData(roomState.hostId, {
+          from: userMe.id,
+          to: getOwner.value?.id,
+          eventType: 'REQUEST_VIDEO_TIME',
+        });
       }
     };
 
@@ -212,7 +217,7 @@ export default defineComponent({
           };
     });
 
-    const getOwnerTime = computed(() => {
+    const getOwner = computed(() => {
       return admittedParticipants.value.find(
         (a) => a.id == externalVideo.videoOwnerId
       );
@@ -229,7 +234,7 @@ export default defineComponent({
       infoMessage,
       canManipulateVideo,
       infoHelperMessage,
-      getOwnerTime,
+      getOwner,
     };
   },
 });

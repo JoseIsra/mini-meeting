@@ -54,6 +54,7 @@ import {
   HandNotification,
   stopPlayingStream,
   MainViewState,
+  ExternalVideoRequest,
 } from '@/types';
 
 const webRTCInstance = ref<WebRTCAdaptor>({} as WebRTCAdaptor);
@@ -317,19 +318,8 @@ export function useInitWebRTC() {
         ...externalVideo,
         urlVideo: arg.urlVideo,
         videoOnRoom: true,
+        videoOwnerId: arg.videoOwnerId,
       });
-      setTimeout(() => {
-        remotePlayer.value = videojs(arg.remoteInstanceId as string);
-
-        setTimeout(() => {
-          remotePlayer.value.currentTime(arg.videoCurrentTime as number);
-          if (!arg.isVideoPlaying) {
-            remotePlayer.value.pause();
-          } else {
-            void remotePlayer.value.play();
-          }
-        }, 500);
-      }, 1000);
     };
 
     const removeVideoShared = (arg: ExternalVideoObject) => {
@@ -1246,6 +1236,27 @@ export function useInitWebRTC() {
               obj.data
             ) as ExternalVideoObject;
             updateVideoTime(externalVideoInfo);
+          } else if (eventType === 'REQUEST_VIDEO_TIME') {
+            const info = JSON.parse(obj.data) as BaseData;
+            if (userMe.id == info.to) {
+              sendData(roomState.hostId, {
+                from: info.to,
+                to: info.from,
+                id: externalVideo.remoteInstanceId,
+                isPlaying: externalVideo.isVideoPlaying,
+                ubication: externalVideo.videoCurrentTime,
+                eventType: 'UPDATING_VIDEO_TIME',
+              });
+            }
+          } else if (eventType == 'UPDATING_VIDEO_TIME') {
+            const info = JSON.parse(obj.data) as ExternalVideoRequest;
+            if (userMe.id == info.to) {
+              remotePlayer.value = videojs(info.id);
+              if (!info.isPlaying) {
+                void remotePlayer.value.pause();
+              }
+              remotePlayer.value.currentTime(info.ubication);
+            }
           } else if (eventType === 'SET_FULL_SCREEN') {
             const { mainViewState } = JSON.parse(obj.data) as Record<
               string,

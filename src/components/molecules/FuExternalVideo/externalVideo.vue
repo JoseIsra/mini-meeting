@@ -3,17 +3,19 @@
     :class="['m-video', { miniMode: watchMinimized }]"
     :style="redimensionVideoSize"
   >
-    {{ getOwnerTime }}
     <p v-show="infoMessage && !canManipulateVideo" class="m-video__message">
       Video compartido en la sala, dar play para aceptar el video
-      {{ getOwnerTime }}
     </p>
     <video
       id="specialId"
       ref="videoPlayer"
       webkit-playsinline="true"
       class="video-js"
-      :class="[{ 'vjs-poster': posterClass }, { 'vjs-youtube': posterClass }]"
+      :class="[
+        { 'vjs-poster': posterClass },
+        { 'vjs-youtube': posterClass },
+        { 'vjs-tech': !infoMessage && !canManipulateVideo },
+      ]"
       playsinline
     ></video>
   </section>
@@ -40,7 +42,6 @@ import 'video.js/dist/video.min.js';
 import 'videojs-youtube/dist/Youtube.min.js';
 import 'video.js/dist/video-js.css';
 import { useQuasar } from 'quasar';
-import { successMessage } from '@/utils/notify';
 
 interface TestProp {
   enablejsapi: number;
@@ -58,12 +59,12 @@ export default defineComponent({
     let posterClass = ref(false);
     const calculateCurrentSelectedTime = ref(0);
     const { sendData } = useInitWebRTC();
-    const { userMe, updateUserMe } = useUserMe();
+    const { userMe } = useUserMe();
     const { externalVideo, setvideoOptions, updateExternalVideoState } =
       useExternalVideo();
     const videoPlayer = ref({} as HTMLMediaElement & { playerId: string });
     const player = ref<videojs.Player>({} as videojs.Player);
-    const canManipulateVideo = ref(userMe.roleId === 0);
+    const canManipulateVideo = ref(userMe.videoOwner);
     const { screenMinimized } = useScreen();
     const infoMessage = ref(true);
     const infoHelperMessage = ref('');
@@ -121,7 +122,6 @@ export default defineComponent({
               ...externalVideo,
               videoCurrentTime: player.value.currentTime(),
             });
-            updateUserMe({ ...userMe, videoTime: player.value.currentTime() });
           });
           player.value.on('ready', () => {
             posterClass.value = true;
@@ -147,12 +147,7 @@ export default defineComponent({
         isVideoPlaying: true,
       });
       void player.value.play();
-      if (infoMessage.value) {
-        infoMessage.value = false;
-      }
       if (canManipulateVideo.value) {
-        console.log('hola?', userMe.videoTime);
-
         sendData(roomState.hostId, {
           remoteInstanceId: videoPlayer.value.playerId,
           videoCurrentTime: externalVideo.videoCurrentTime,
@@ -161,16 +156,7 @@ export default defineComponent({
       }
 
       if (!canManipulateVideo.value) {
-        // infoMessage.value = false;
-        console.log('hola?', getOwnerTime.value);
-        // void player.value.currentTime(getOwnerTime.value as number);
-        // void player.value.play();
-        // sendData(roomState.hostId, {
-        //   from: userMe.id,
-        //   to: externalVideo.videoOwnerId,
-        //   remoteInstanceId: videoPlayer.value.playerId,
-        //   eventType: 'VIDEO_REQUEST_TIME',
-        // });
+        infoMessage.value = false;
       }
     };
 
@@ -180,19 +166,13 @@ export default defineComponent({
         isVideoPlaying: false,
       });
 
-      if (canManipulateVideo.value && !infoMessage.value) {
+      if (canManipulateVideo.value) {
         sendData(roomState.hostId, {
           remoteInstanceId: videoPlayer.value.playerId,
           videoCurrentTime: externalVideo.videoCurrentTime,
           eventType: 'PAUSE_VIDEO',
         });
       }
-      // if (infoMessage.value) {
-      //   infoMessage.value = false;
-      //   player.value.muted(false);
-      //   void player.value.play();
-      //   successMessage('Sincronización exitosa, puede continuar');
-      // }
     };
 
     onBeforeUnmount(() => {

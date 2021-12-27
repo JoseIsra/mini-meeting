@@ -39,3 +39,9 @@
     display: none !important;
   }
 }
+.video-js.vjs-playing .vjs-tech {
+  pointer-events: none;
+}
+.vjs-waiting .vjs-loading-spinner {
+  display: none;
+}

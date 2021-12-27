@@ -30,11 +30,7 @@ import { useBoard } from '@/composables/board';
 
 import { useMainView } from '@/composables/mainView';
 
-import {
-  notifyWithAction,
-  successMessage,
-  warningMessage,
-} from '@/utils/notify';
+import { notifyWithAction, warningMessage } from '@/utils/notify';
 
 import videojs from 'video.js';
 /* import { useActions } from '@/composables/actions'; */
@@ -58,7 +54,6 @@ import {
   HandNotification,
   stopPlayingStream,
   MainViewState,
-  ExternalVideoRequest,
 } from '@/types';
 
 const webRTCInstance = ref<WebRTCAdaptor>({} as WebRTCAdaptor);
@@ -1230,6 +1225,7 @@ export function useInitWebRTC() {
             updateExternalVideoState({
               urlVideo: externalVideoObject.urlVideo,
               videoOwnerId: externalVideoObject.videoOwnerId,
+              videoOnRoom: true,
             });
             updateMainViewState({
               mode: MAIN_VIEW_MODE.VIDEO,
@@ -1249,39 +1245,6 @@ export function useInitWebRTC() {
               obj.data
             ) as ExternalVideoObject;
             updateVideoTime(externalVideoInfo);
-          } else if (eventType === 'VIDEO_REQUEST_TIME') {
-            const algo = JSON.parse(obj.data) as ExternalVideoRequest;
-            console.log(
-              admittedParticipants.value.find(
-                (a) => a.id == externalVideo.videoOwnerId
-              )
-            );
-            console.log('RECEPCION DE ACTUALIZAR VIDEO');
-            if (userMe.id == algo.to) {
-              console.log('Bucle para ->', userMe.id);
-              console.log('TIempo del video', userMe.videoTime);
-              sendData(roomState.hostId, {
-                from: algo.to,
-                to: algo.from,
-                remoteInstanceId: algo.remoteInstanceId,
-                timeToUpdate: userMe.videoTime,
-                eventType: 'UPDATE_VIDEO_REQUEST',
-              });
-              // actualizar al otro desde el owner
-            }
-          } else if (eventType == 'UPDATE_VIDEO_REQUEST') {
-            console.log('ACTUALIZANDO VIDEO TIME?');
-            const algo = JSON.parse(obj.data) as ExternalVideoRequest & {
-              timeToUpdate: number;
-            };
-            if (userMe.id == algo.to) {
-              //actualizo
-              console.log('Bucle para ->', userMe.id);
-              remotePlayer.value = videojs(algo.remoteInstanceId);
-              setTimeout(() => {
-                void remotePlayer.value.currentTime(algo.timeToUpdate);
-              }, 500);
-            }
           } else if (eventType === 'SET_FULL_SCREEN') {
             const { mainViewState } = JSON.parse(obj.data) as Record<
               string,

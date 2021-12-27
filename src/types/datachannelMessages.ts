@@ -128,7 +128,3 @@ export interface ObjBoardEvent {
   objects?: string;
   color?: string;
 }
-
-export interface ExternalVideoRequest extends BaseData {
-  remoteInstanceId: string;
-}

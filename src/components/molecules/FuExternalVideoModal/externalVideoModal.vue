@@ -47,9 +47,8 @@ import {
   useExternalVideo,
   useUserMe,
 } from '@/composables';
-import { errorMessage, successMessage } from '@/utils/notify';
+import { errorMessage, successMessage, warningMessage } from '@/utils/notify';
 import videojs from 'video.js';
-import { VideoID } from '@/types';
 import { MAIN_VIEW_MODE } from '@/utils/enums';
 
 export default defineComponent({
@@ -93,23 +92,28 @@ export default defineComponent({
     });
 
     const removeVideoOnRoom = () => {
-      updateMainViewState({
-        mode: MAIN_VIEW_MODE.NONE,
-      });
-      videojs(externalVideo.remoteInstanceId as string).dispose();
-      sendData(roomState.hostId, {
-        remoteInstanceId: externalVideo.remoteInstanceId,
-        eventType: 'REMOVE_EXTERNAL_VIDEO',
-      });
-      updateExternalVideoState({
-        ...externalVideo,
-        videoOnRoom: false,
-        urlVideo: '',
-        isVideoPlaying: false,
-        videoCurrentTime: 0,
-        remoteInstanceId: '',
-      });
-      successMessage('Video externo removido');
+      if (userMe.videoOwner) {
+        updateMainViewState({
+          mode: MAIN_VIEW_MODE.NONE,
+        });
+        videojs(externalVideo.remoteInstanceId as string).dispose();
+        sendData(roomState.hostId, {
+          remoteInstanceId: externalVideo.remoteInstanceId,
+          eventType: 'REMOVE_EXTERNAL_VIDEO',
+        });
+        updateExternalVideoState({
+          ...externalVideo,
+          videoOnRoom: false,
+          urlVideo: '',
+          isVideoPlaying: false,
+          videoCurrentTime: 0,
+          remoteInstanceId: '',
+        });
+        successMessage('Video externo removido');
+        updateUserMe({ videoOwner: false });
+      } else {
+        warningMessage('La persona quien compartió el video puede removerlo');
+      }
     };
 
     return {

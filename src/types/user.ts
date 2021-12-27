@@ -28,5 +28,5 @@ export interface User {
   canDraw: boolean;
   hasWebcam?: boolean;
   hasMic?: boolean;
-  videoOwner?: boolean;
+  isVideoOwner?: boolean;
 }

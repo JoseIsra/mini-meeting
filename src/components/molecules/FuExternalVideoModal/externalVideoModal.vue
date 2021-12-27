@@ -80,7 +80,7 @@ export default defineComponent({
           mode: MAIN_VIEW_MODE.VIDEO,
         });
         sendData(roomState.hostId, URLData);
-        updateUserMe({ videoOwner: true });
+        updateUserMe({ isVideoOwner: true });
         successMessage('Video externo agregado');
         return;
       }
@@ -92,7 +92,7 @@ export default defineComponent({
     });
 
     const removeVideoOnRoom = () => {
-      if (userMe.videoOwner) {
+      if (userMe.isVideoOwner) {
         updateMainViewState({
           mode: MAIN_VIEW_MODE.NONE,
         });
@@ -110,7 +110,7 @@ export default defineComponent({
           remoteInstanceId: '',
         });
         successMessage('Video externo removido');
-        updateUserMe({ videoOwner: false });
+        updateUserMe({ isVideoOwner: false });
       } else {
         warningMessage('La persona quien compartió el video puede removerlo');
       }

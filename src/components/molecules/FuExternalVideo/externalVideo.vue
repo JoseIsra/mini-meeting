@@ -64,7 +64,7 @@ export default defineComponent({
       useExternalVideo();
     const videoPlayer = ref({} as HTMLMediaElement & { playerId: string });
     const player = ref<videojs.Player>({} as videojs.Player);
-    const canManipulateVideo = ref(userMe.videoOwner);
+    const canManipulateVideo = ref(userMe.isVideoOwner);
     const { screenMinimized } = useScreen();
     const infoMessage = ref(true);
     const infoHelperMessage = ref('');

@@ -3,15 +3,19 @@
     :class="['m-video', { miniMode: watchMinimized }]"
     :style="redimensionVideoSize"
   >
-    <p v-show="infoMessage" class="m-video__message">
-      Detenga el video para sincronizar
+    <p v-show="infoMessage && !canManipulateVideo" class="m-video__message">
+      Video compartido en la sala, reproduzca el video para su sincronización
     </p>
     <video
       id="specialId"
       ref="videoPlayer"
       webkit-playsinline="true"
       class="video-js"
-      :class="[{ 'vjs-poster': posterClass }, { 'vjs-youtube': posterClass }]"
+      :class="[
+        { 'vjs-poster': posterClass },
+        { 'vjs-youtube': posterClass },
+        { 'vjs-tech': !infoMessage && !canManipulateVideo },
+      ]"
       playsinline
     ></video>
   </section>
@@ -31,13 +35,13 @@ import {
   useUserMe,
   useInitWebRTC,
   useExternalVideo,
+  useHandleParticipants,
 } from '@/composables';
 import videojs from 'video.js';
 import 'video.js/dist/video.min.js';
 import 'videojs-youtube/dist/Youtube.min.js';
 import 'video.js/dist/video-js.css';
 import { useQuasar } from 'quasar';
-import { successMessage } from '@/utils/notify';
 
 interface TestProp {
   enablejsapi: number;
@@ -60,16 +64,19 @@ export default defineComponent({
       useExternalVideo();
     const videoPlayer = ref({} as HTMLMediaElement & { playerId: string });
     const player = ref<videojs.Player>({} as videojs.Player);
-    const canManipulateVideo = ref(userMe.roleId === 0);
+    const canManipulateVideo = ref(userMe.isVideoOwner);
     const { screenMinimized } = useScreen();
     const infoMessage = ref(true);
+    const infoHelperMessage = ref('');
+    const { admittedParticipants } = useHandleParticipants();
+
     const optionsForPlayer = reactive<videojs.PlayerOptions & Test>({
-      controls: !screenMinimized.value,
+      controls: !screenMinimized.value && canManipulateVideo.value,
       bigPlayButton: false,
-      autoplay: true,
+      autoplay: false,
       responsive: true,
       preload: 'auto',
-      muted: true,
+      muted: false,
       controlBar: {
         progressControl: {
           seekBar: true,
@@ -103,7 +110,7 @@ export default defineComponent({
           setvideoOptions(optionsForPlayer as videojs.PlayerOptions);
           updateExternalVideoState({
             ...externalVideo,
-            remoteInstance: videoPlayer.value,
+            remoteInstanceId: videoPlayer.value.playerId,
           });
           player.value.on('pause', handlePause);
           player.value.on('play', handlePlaying);
@@ -123,7 +130,7 @@ export default defineComponent({
             if (canManipulateVideo.value) {
               setTimeout(() => {
                 sendData(roomState.hostId, {
-                  remoteInstance: videoPlayer.value,
+                  remoteInstanceId: videoPlayer.value.playerId,
                   videoCurrentTime: calculateCurrentSelectedTime.value,
                   eventType: 'UPDATE_VIDEOTIME',
                 });
@@ -142,9 +149,18 @@ export default defineComponent({
       void player.value.play();
       if (canManipulateVideo.value) {
         sendData(roomState.hostId, {
-          remoteInstance: videoPlayer.value,
+          remoteInstanceId: videoPlayer.value.playerId,
           videoCurrentTime: externalVideo.videoCurrentTime,
           eventType: 'PLAYING_VIDEO',
+        });
+      }
+
+      if (!canManipulateVideo.value && infoMessage.value) {
+        infoMessage.value = false;
+        sendData(roomState.hostId, {
+          from: userMe.id,
+          to: getOwner.value?.id,
+          eventType: 'REQUEST_VIDEO_TIME',
         });
       }
     };
@@ -155,18 +171,12 @@ export default defineComponent({
         isVideoPlaying: false,
       });
 
-      if (canManipulateVideo.value && !infoMessage.value) {
+      if (canManipulateVideo.value) {
         sendData(roomState.hostId, {
-          remoteInstance: videoPlayer.value,
+          remoteInstanceId: videoPlayer.value.playerId,
           videoCurrentTime: externalVideo.videoCurrentTime,
           eventType: 'PAUSE_VIDEO',
         });
-      }
-      if (infoMessage.value) {
-        infoMessage.value = false;
-        player.value.muted(false);
-        void player.value.play();
-        successMessage('Sincronización exitosa, puede continuar');
       }
     };
 
@@ -207,6 +217,11 @@ export default defineComponent({
           };
     });
 
+    const getOwner = computed(() => {
+      return admittedParticipants.value.find(
+        (a) => a.id == externalVideo.videoOwnerId
+      );
+    });
     return {
       externalVideo,
       videoPlayer,
@@ -217,6 +232,9 @@ export default defineComponent({
       posterClass,
       redimensionVideoSize,
       infoMessage,
+      canManipulateVideo,
+      infoHelperMessage,
+      getOwner,
     };
   },
 });

@@ -45,7 +45,6 @@ import {
   ObjRemoteUserInfo,
   ObjUserLeavingMessageParsed,
   ObjBoardEvent,
-  VideoID,
   backgroundInfo,
   backgroundSize,
   BaseMessage,
@@ -55,6 +54,7 @@ import {
   HandNotification,
   stopPlayingStream,
   MainViewState,
+  ExternalVideoRequest,
 } from '@/types';
 
 const webRTCInstance = ref<WebRTCAdaptor>({} as WebRTCAdaptor);
@@ -292,18 +292,18 @@ export function useInitWebRTC() {
     };
 
     const playExternalVideo = (arg: ExternalVideoObject) => {
-      remotePlayer.value = videojs((arg.remoteInstance as VideoID).playerId);
+      remotePlayer.value = videojs(arg.remoteInstanceId as string);
       void remotePlayer.value.currentTime(arg.videoCurrentTime as number);
       void remotePlayer.value.play();
     };
 
     const pauseExternalVideo = (arg: ExternalVideoObject) => {
-      remotePlayer.value = videojs((arg.remoteInstance as VideoID).playerId);
+      remotePlayer.value = videojs(arg.remoteInstanceId as string);
       void remotePlayer.value.currentTime(arg.videoCurrentTime as number);
       void remotePlayer.value.pause();
     };
     const updateVideoTime = (arg: ExternalVideoObject) => {
-      remotePlayer.value = videojs((arg.remoteInstance as VideoID).playerId);
+      remotePlayer.value = videojs(arg.remoteInstanceId as string);
       //actualizar el video
       void remotePlayer.value.currentTime(arg.videoCurrentTime as number);
     };
@@ -317,25 +317,15 @@ export function useInitWebRTC() {
       updateExternalVideoState({
         ...externalVideo,
         urlVideo: arg.urlVideo,
+        videoOnRoom: true,
+        videoOwnerId: arg.videoOwnerId,
       });
-      setTimeout(() => {
-        remotePlayer.value = videojs((arg.remoteInstance as VideoID).playerId);
-
-        setTimeout(() => {
-          remotePlayer.value.currentTime(arg.videoCurrentTime as number);
-          if (!arg.isVideoPlaying) {
-            remotePlayer.value.pause();
-          } else {
-            void remotePlayer.value.play();
-          }
-        }, 500);
-      }, 1000);
     };
 
     const removeVideoShared = (arg: ExternalVideoObject) => {
-      remotePlayer.value = videojs((arg.remoteInstance as VideoID).playerId);
+      remotePlayer.value = videojs(arg.remoteInstanceId as string);
       remotePlayer.value = {} as videojs.Player;
-      videojs((arg.remoteInstance as VideoID).playerId).dispose();
+      videojs(arg.remoteInstanceId as string).dispose();
       updateMainViewState({
         mode: MAIN_VIEW_MODE.NONE,
       });
@@ -343,7 +333,7 @@ export function useInitWebRTC() {
         ...externalVideo,
         videoOnRoom: false,
         urlVideo: '',
-        remoteInstance: {} as HTMLMediaElement & { playerId: string },
+        remoteInstanceId: '',
         isVideoPlaying: false,
         videoCurrentTime: 0,
       });
@@ -1225,6 +1215,8 @@ export function useInitWebRTC() {
             ) as ExternalVideoObject;
             updateExternalVideoState({
               urlVideo: externalVideoObject.urlVideo,
+              videoOwnerId: externalVideoObject.videoOwnerId,
+              videoOnRoom: true,
             });
             updateMainViewState({
               mode: MAIN_VIEW_MODE.VIDEO,
@@ -1244,6 +1236,27 @@ export function useInitWebRTC() {
               obj.data
             ) as ExternalVideoObject;
             updateVideoTime(externalVideoInfo);
+          } else if (eventType === 'REQUEST_VIDEO_TIME') {
+            const info = JSON.parse(obj.data) as BaseData;
+            if (userMe.id == info.to) {
+              sendData(roomState.hostId, {
+                from: info.to,
+                to: info.from,
+                id: externalVideo.remoteInstanceId,
+                isPlaying: externalVideo.isVideoPlaying,
+                ubication: externalVideo.videoCurrentTime,
+                eventType: 'UPDATING_VIDEO_TIME',
+              });
+            }
+          } else if (eventType == 'UPDATING_VIDEO_TIME') {
+            const info = JSON.parse(obj.data) as ExternalVideoRequest;
+            if (userMe.id == info.to) {
+              remotePlayer.value = videojs(info.id);
+              if (!info.isPlaying) {
+                void remotePlayer.value.pause();
+              }
+              remotePlayer.value.currentTime(info.ubication);
+            }
           } else if (eventType === 'SET_FULL_SCREEN') {
             const { mainViewState } = JSON.parse(obj.data) as Record<
               string,

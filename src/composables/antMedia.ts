@@ -316,6 +316,7 @@ export function useInitWebRTC() {
       updateExternalVideoState({
         ...externalVideo,
         urlVideo: arg.urlVideo,
+        videoOnRoom: true,
       });
       setTimeout(() => {
         remotePlayer.value = videojs(arg.remoteInstanceId as string);

@@ -4,7 +4,7 @@
     :style="redimensionVideoSize"
   >
     <p v-show="infoMessage && !canManipulateVideo" class="m-video__message">
-      Video compartido en la sala, dar play para aceptar el video
+      Video compartido en la sala, reproduzca el video para su sincronización
     </p>
     <video
       id="specialId"

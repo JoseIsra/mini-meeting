@@ -1,6 +1,3 @@
-//@ts-ignore
-//@ts-nocheck
-
 import backblaze from 'backblaze-b2'
 import fs from 'fs'
 import fetch from 'node-fetch'
@@ -61,7 +58,7 @@ const uploadFile = async (vodName, vodId, classroomId) => {
   const fileSizeInBytes = stats.size
   const fileSizeInMegabytes = fileSizeInBytes / 1000000.0
 
-  console.log('started partition')
+  console.log('started partition');
   try {
     if (fileSizeInMegabytes >= 500) {
       const resStartLargeFile = await b2.startLargeFile({
@@ -77,12 +74,12 @@ const uploadFile = async (vodName, vodId, classroomId) => {
         highWaterMark: 100000 * 1024
       })
       const totalChunk = []
-      let i = 1
+      let i = 1;
       const arrayOfSha = []
-      const partsToUpload = Math.ceil(fileSizeInMegabytes / 102.4)
-      console.log({ partsToUpload })
+      const partsToUpload = Math.ceil(fileSizeInMegabytes/102.4);
+      console.log({partsToUpload})
       rs.on('data', async (chunk) => {
-        rs.pause()
+        rs.pause();
         let response = await b2.getUploadPartUrl({
           fileId: resStartLargeFileId
         })
@@ -95,18 +92,18 @@ const uploadFile = async (vodName, vodId, classroomId) => {
           uploadAuthToken: authToken,
           data: chunk as Buffer
         })
-        console.log(`part ${i} uploaded`)
+        console.log(`part ${i} uploaded` )        
         const sha1 = await response.data.contentSha1
         arrayOfSha.push(sha1)
-        if (i == partsToUpload) {
+        if(i == partsToUpload) {
           await b2.finishLargeFile({
             fileId: resStartLargeFileId,
             partSha1Array: arrayOfSha
           })
           console.log('large file finished')
         }
-        rs.resume()
-        i++
+        rs.resume();
+        i++;
       })
       rs.on('end', async () => {
         /* const responseFinishLargeFile = await b2.finishLargeFile({

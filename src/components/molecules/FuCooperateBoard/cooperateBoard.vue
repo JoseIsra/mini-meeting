@@ -47,7 +47,7 @@
         </q-tooltip> -->
       </q-btn>
 
-      <q-btn
+      <!-- <q-btn
         class="o-board__toolbar__tool"
         icon="fas fa-square"
         @click="addRect"
@@ -58,9 +58,9 @@
         <q-tooltip class="bg-grey-10">
           <label> Agregar Rectangulo</label>
         </q-tooltip>
-      </q-btn>
+      </q-btn> -->
 
-      <q-btn
+      <!-- <q-btn
         class="o-board__toolbar__tool"
         icon="fas fa-circle"
         @click="addCircle"
@@ -71,7 +71,7 @@
         <q-tooltip class="bg-grey-10">
           <label> Agregar circulo</label>
         </q-tooltip>
-      </q-btn>
+      </q-btn> -->
 
       <q-btn
         :color="actionSelected === 'brushSize' ? 'blue' : 'red'"
@@ -87,7 +87,7 @@
         </q-tooltip>
       </q-btn>
 
-      <q-btn
+      <!-- <q-btn
         :color="actionSelected === 'text-box' ? 'blue' : 'red'"
         :disable="!canDraw"
         @click="addTextBox"
@@ -99,7 +99,7 @@
         <q-tooltip class="bg-grey-10">
           <label> Agregar texto </label>
         </q-tooltip>
-      </q-btn>
+      </q-btn> -->
 
       <q-btn
         class="o-board__toolbar__tool"

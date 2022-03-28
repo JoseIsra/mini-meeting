@@ -141,7 +141,7 @@ export function useJitsi() {
   ) {
     setLocalTracks(tracks as JitsiLocalTrack[]);
     console.log('PARTICIPANTE UNIDO-TRACKS ENABLE 🚀', joined.value);
-    // setVideoActivatedState(false);
+
     if (joined.value) {
       localTracks.value.forEach((track) => {
         room
@@ -160,7 +160,9 @@ export function useJitsi() {
   }
 
   function getLocalTracks() {
-    JitsiMeetJS.createLocalTracks({ devices: ['video', 'audio'] })
+    JitsiMeetJS.createLocalTracks({
+      devices: ['video', 'audio'],
+    })
       .then(handleLocalTracks)
       .catch((error) => console.error(error));
   }
@@ -229,6 +231,7 @@ export function useJitsi() {
   }
   function turnOnRemoteCamera(arg: Command) {
     const participant = findParticipantById(arg.value);
+    // test feature
     if (participant) {
       participant.isCameraOn = true;
       participant.isVideoActivated = true;
@@ -329,6 +332,13 @@ export function useJitsi() {
       JitsiMeetJS.events.conference.MESSAGE_RECEIVED,
       handleMessageReceived
     );
+    room.on(
+      JitsiMeetJS.events.mediaDevices.PERMISSION_PROMPT_IS_SHOWN,
+      (arg: string) => {
+        console.log('ENVIRONMENT', arg);
+      }
+    );
+    void room.setSenderVideoConstraint(360);
     commandsList.forEach((command) => {
       room.addCommandListener(command.name, command.listener);
     });

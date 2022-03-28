@@ -15,6 +15,7 @@ export default {
     // preferredCodec
     // useStunTurn: true,
   },
+  // websocketKeepAliveUrl: 'https://8x8.vc',
   // useIPv6: false,
   // disableAudioLevels: true,
   // openBridgeChannel: 'datachannel',

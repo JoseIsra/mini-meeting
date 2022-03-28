@@ -82,9 +82,6 @@ interface CooperateToken {
 
 export const saveToken = async ({ userId, token, url }: tokenInput) => {
   const streamEndedIdSplitted = userId.split('-');
-  console.log(userId);
-  const mergedOrUser = streamEndedIdSplitted[0];
-  const recordingOrNot = streamEndedIdSplitted[1];
   const classroomId = streamEndedIdSplitted[2];
   const cooperateId = streamEndedIdSplitted[5];
 

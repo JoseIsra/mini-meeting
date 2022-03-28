@@ -4,6 +4,8 @@ import options from '@/config/jitsiOptions';
 import JitsiLocalTrack from '@solyd/lib-jitsi-meet/dist/esm/modules/RTC/JitsiLocalTrack';
 import { JitsiConferenceErrors } from '@solyd/lib-jitsi-meet/dist/esm/JitsiConferenceErrors';
 import JitsiParticipant from '@solyd/lib-jitsi-meet/dist/esm/JitsiParticipant';
+import JitsiRemoteTrack from '@solyd/lib-jitsi-meet/dist/esm/modules/RTC/JitsiRemoteTrack';
+import JitsiTrack from '@solyd/lib-jitsi-meet/dist/esm/modules/RTC/JitsiTrack';
 import {
   Command,
   JitsiConferenceRemake,
@@ -20,8 +22,6 @@ import {
   useToogleFunctions,
   useHandleMessage,
 } from '@/composables';
-import JitsiRemoteTrack from '@solyd/lib-jitsi-meet/dist/esm/modules/RTC/JitsiRemoteTrack';
-import JitsiTrack from '@solyd/lib-jitsi-meet/dist/esm/modules/RTC/JitsiTrack';
 
 const roomNameTemporal = ref('');
 let connection = reactive<JitsiConnectionRemake>({} as JitsiConnectionRemake);

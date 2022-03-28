@@ -59,12 +59,24 @@
               userPinned?.isScreenSharing && $q.platform.is.mobile,
           },
         ]"
-        autoplay
         @mousemove="toggleMinimizeMessage"
-        muted
         playsinline
-        :srcObject.prop="userPinned?.stream"
+        :ref="
+          ($el) => {
+            videoPinned[userPinned.id] = $el;
+          }
+        "
+        autoplay
       ></video>
+      <audio
+        :ref="
+          ($el) => {
+            audioPinned[userPinned.id] = $el;
+          }
+        "
+        style="display: none"
+        autoplay
+      ></audio>
       <!-- <q-btn
         flat
         :label="buttonMinimizeSpecialStyle ? '' : 'Minimizar pantalla'"
@@ -83,7 +95,6 @@
 
     <div class="m-fuser__loading" v-else>
       <q-spinner color="primary" size="10em" />
-
       <q-btn
         class="m-fuser__loading__exit"
         @click="
@@ -112,7 +123,14 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed } from 'vue';
+import {
+  defineComponent,
+  ref,
+  computed,
+  nextTick,
+  onMounted,
+  reactive,
+} from 'vue';
 import {
   useMainView,
   useHandleParticipants,
@@ -139,6 +157,8 @@ export default defineComponent({
     let showMinimizeMessage = ref(false);
 
     let orientationClass = ref('');
+    const videoPinned = reactive({} as Record<string, HTMLElement>);
+    const audioPinned = reactive({} as Record<string, HTMLElement>);
 
     const hideMinimizeMessage = _.debounce(() => {
       showMinimizeMessage.value = false;
@@ -151,11 +171,6 @@ export default defineComponent({
         hideMinimizeMessage();
       }
     };
-
-    const hasCameraActivated = computed(() => {
-      return userPinned?.value?.isCameraOn;
-    });
-
     const userPinned = computed(() =>
       userMe.id === props.userId
         ? userMe
@@ -163,11 +178,23 @@ export default defineComponent({
             (participant) => participant.id == props.userId
           )
     );
+    onMounted(() => {
+      console.log(userPinned.value);
+      userPinned.value?.tracks?.forEach((track) => {
+        if (track.getType() == 'audio') {
+          track.attach(audioPinned[userPinned.value?.id as string]);
+        } else {
+          void nextTick(() => {
+            track.attach(videoPinned[userPinned.value?.id as string]);
+          });
+        }
+        console.log(track);
+      });
+    });
 
     return {
       toggleMinimizeMessage,
       showMinimizeMessage,
-      hasCameraActivated,
       orientationClass,
       screenMinimized,
       buttonMinimizeSpecialStyle,
@@ -177,6 +204,8 @@ export default defineComponent({
       removePinnedUserForAll,
       mainViewState,
       MAIN_VIEW_LOCKED_TYPE,
+      videoPinned,
+      audioPinned,
     };
   },
 });

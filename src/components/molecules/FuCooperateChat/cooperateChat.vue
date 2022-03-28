@@ -192,11 +192,11 @@ import { regexp } from '@/types';
 import { useRoute } from 'vue-router';
 import moment from 'moment';
 import {
-  useInitWebRTC,
   useRoom,
   useSidebarToogle,
   useUserMe,
   useHandleMessage,
+  useJitsi,
 } from '@/composables';
 import { nanoid } from 'nanoid';
 import { simplifyExtension, renameFile } from '@/utils/file';
@@ -228,13 +228,13 @@ export default defineComponent({
     const backBlazePathFile = `https://encrypted.fractalup.com/file/MainPublic/classrooms/${roomState.classroomId}/cooperate/chat`;
     const messageContainer = ref<MessageContainer>({} as MessageContainer);
     let userInput = ref<string>('');
-    const { userMessages, setUserMessage } = useHandleMessage();
+    const { userMessages } = useHandleMessage();
     let { setSidebarState } = useSidebarToogle();
-    const { sendData } = useInitWebRTC();
     const { userMe } = useUserMe();
     let userName = ref(window?.xprops?.streamId || route.query.streamName);
     const fakeMessage = ref('');
     const inputUser = ref<InputChat>({} as InputChat);
+    const { sendChatMessage } = useJitsi();
 
     const sendMessage = () => {
       if (!regexp.test(userInput.value)) {
@@ -265,11 +265,8 @@ export default defineComponent({
         fileName,
       };
       userInput.value = '';
-
-      setUserMessage(userLocalMessage);
-
-      sendData(roomState.hostId, userLocalMessage);
       inputUser.value.focus();
+      sendChatMessage(JSON.stringify(userLocalMessage));
     };
 
     const fileSelected = (e: HTMLInputEvent) => {
@@ -284,7 +281,6 @@ export default defineComponent({
         const B2Info = await window.xprops?.getB2Info?.();
         const uploadUrl = B2Info?.uploadUrl;
         const authorizationToken = B2Info?.authorizationToken;
-
         const b2Info = {
           uploadUrl: uploadUrl,
           authorizationToken: authorizationToken,

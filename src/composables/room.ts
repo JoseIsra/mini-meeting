@@ -1,5 +1,5 @@
 import { reactive } from 'vue';
-import { Room } from '@/types';
+import { JitsiConferenceRemake, Room } from '@/types';
 
 export interface participantOnWait {
   id: string;
@@ -7,6 +7,7 @@ export interface participantOnWait {
 }
 
 const roomState = reactive<Room>({} as Room);
+const jitsiRoom = reactive<JitsiConferenceRemake>({} as JitsiConferenceRemake);
 
 export function useRoom() {
   const setRoom = (room: Room) => {
@@ -38,6 +39,10 @@ export function useRoom() {
   const updateAllowResetBg = (value: boolean) =>
     (roomState.bgInfo.allowResetBg = value);
 
+  const setJitsiRoom = (value: JitsiConferenceRemake) => {
+    Object.assign(jitsiRoom, value);
+  };
+
   return {
     roomState,
     updateRoom,
@@ -49,5 +54,7 @@ export function useRoom() {
     updateBgUrl,
     updateBgSize,
     updateAllowResetBg,
+    setJitsiRoom,
+    jitsiRoom,
   };
 }

@@ -1,3 +1,4 @@
+import JitsiTrack from '@solyd/lib-jitsi-meet/dist/esm/modules/RTC/JitsiTrack';
 import { ComputedRef } from 'vue';
 
 export interface User {
@@ -29,4 +30,5 @@ export interface User {
   hasWebcam?: boolean;
   hasMic?: boolean;
   isVideoOwner?: boolean;
+  tracks?: JitsiTrack[];
 }

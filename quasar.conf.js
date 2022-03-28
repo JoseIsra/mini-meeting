@@ -94,12 +94,13 @@ module.exports = configure(function (ctx) {
 
     // Full list of options: https://v2.quasar.dev/quasar-cli/quasar-conf-js#Property%3A-devServer
     devServer: {
-      https: {
-        cert: fs.readFileSync(
-          `${ospath.homedir()}/web-certs/localhost-cert.pem`
-        ),
-        key: fs.readFileSync(`${ospath.homedir()}/web-certs/localhost-key.pem`),
-      },
+      https: true,
+      // https: {
+      //   cert: fs.readFileSync(
+      //     `${ospath.homedir()}/web-certs/localhost-cert.pem`
+      //   ),
+      //   key: fs.readFileSync(`${ospath.homedir()}/web-certs/localhost-key.pem`),
+      // },
       port: 8081,
       open: true, // opens browser window automatically
     },

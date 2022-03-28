@@ -5,15 +5,10 @@
         <q-btn
           flat
           round
-          :class="[
-            'a-menuBar__icon',
-            { active: userMe.micPublishedState == 1 },
-          ]"
+          :class="['a-menuBar__icon', { active: userMe.isMicOn }]"
           :icon="
-            userMe.micPublishedState == 1
+            !userMe.isMicOn
               ? iconsPeriferics.mic.onState
-              : userMe.micPublishedState == 2
-              ? iconsPeriferics.mic.loadingState
               : iconsPeriferics.mic.offState
           "
           :disable="
@@ -25,7 +20,7 @@
           <q-tooltip class="bg-grey-10" v-if="userMe.micPublishedState == 0">
             <label class="a-menuBar__icon__tooltip">
               {{
-                userMe.micPublishedState == 0
+                !userMe.isMicOn
                   ? iconsPeriferics.mic.toolTipMessage
                   : iconsPeriferics.mic.toolTipSecondMessage
               }}
@@ -35,15 +30,10 @@
         <q-btn
           flat
           round
-          :class="[
-            'a-menuBar__icon',
-            { active: userMe.cameraPublishedState == 1 },
-          ]"
+          :class="['a-menuBar__icon', { active: userMe.isCameraOn }]"
           :icon="
-            userMe.cameraPublishedState == 1
+            !userMe.isCameraOn
               ? iconsPeriferics.camera.onState
-              : userMe.cameraPublishedState == 2
-              ? iconsPeriferics.camera.loadingState
               : iconsPeriferics.camera.offState
           "
           :disable="
@@ -57,7 +47,7 @@
           <q-tooltip class="bg-grey-10">
             <label class="a-menuBar__icon__tooltip">
               {{
-                userMe.cameraPublishedState == 0
+                !userMe.isCameraOn
                   ? iconsPeriferics.camera.toolTipMessage
                   : iconsPeriferics.camera.toolTipSecondMessage
               }}
@@ -77,10 +67,8 @@
             },
           ]"
           :icon="
-            userMe.screenSharingPublishedState == 1
+            !userMe.isScreenSharing
               ? iconsFunctions.screenShare.onState
-              : userMe.screenSharingPublishedState == 2
-              ? iconsFunctions.screenShare.loadingState
               : iconsFunctions.screenShare.offState
           "
           size="13px"
@@ -90,7 +78,7 @@
           <q-tooltip class="bg-grey-10">
             <label class="a-menuBar__icon__tooltip">
               {{
-                userMe.screenSharingPublishedState == 0
+                !userMe.isScreenSharing
                   ? iconsFunctions.screenShare.toolTipMessage
                   : iconsFunctions.screenShare.toolTipSecondMessage
               }}
@@ -189,7 +177,6 @@
             color="red"
             floating
           >
-            {{ amountOfNewMessages }}
           </q-badge>
           <q-tooltip class="bg-grey-10">
             <label class="a-menuBar__icon__tooltip">
@@ -201,7 +188,7 @@
             </label>
           </q-tooltip>
         </q-btn>
-        <q-btn
+        <!-- <q-btn
           flat
           round
           :class="'a-menuBar__icon'"
@@ -214,7 +201,7 @@
               {{ iconsFunctions.minimize.toolTipMessage }}
             </label>
           </q-tooltip>
-        </q-btn>
+        </q-btn> -->
       </div>
       <div class="a-menuBar__functions__responsive">
         <q-btn
@@ -234,7 +221,6 @@
             rounded
             floating
           >
-            {{ amountOfNewMessages }}
           </q-badge>
           <q-badge
             rounded
@@ -308,7 +294,6 @@
           bottom="120%"
         />
       </aside>
-      <fu-cooperate-network-info v-show="openNetworkConfig" />
       <fu-cooperate-menu
         class="a-menuBar__responsiveOptions"
         v-show="functionsOnMenuBar.renderPopupMenu"
@@ -326,61 +311,52 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, reactive, watch, computed, provide } from 'vue';
+import {
+  defineComponent,
+  ref,
+  reactive,
+  watch,
+  computed,
+  provide,
+  nextTick,
+} from 'vue';
 import FuCooperateMenu from 'molecules/FuCooperateMenu';
-import { Icons, Periferics, Functionalities } from '@/types';
+import { Icons, Functionalities } from '@/types';
 
 import { iconsPeriferics, iconsFunctions } from '@/helpers/iconsMenuBar';
 
 import {
   useHandleMessage,
-  useRoom,
+  // useRoom,
   useHandleParticipants,
   useScreen,
-  useInitWebRTC,
   useUserMe,
   useToogleFunctions,
   useSidebarToogle,
+  useJitsi,
 } from '@/composables';
 import { nanoid } from 'nanoid';
-import FuCooperateNetworkInfo from 'molecules/FuCooperateNetworkInfo';
 
 import FuAdminPanel from 'organisms/FuAdminPanel';
 import { iconsOptions } from '@/helpers/iconsMenuBar';
 import _ from 'lodash';
+import JitsiMeetJS from '@solyd/lib-jitsi-meet';
+import JitsiLocalTrack from '@solyd/lib-jitsi-meet/dist/esm/modules/RTC/JitsiLocalTrack';
 
 export default defineComponent({
   name: 'FuCooperateMenuBar',
-  props: {
-    toggleLocalCamera: {
-      type: Function,
-    },
-    toggleLocalMic: {
-      type: Function,
-    },
-    toggleDesktopCapture: {
-      type: Function,
-    },
-  },
   components: {
     FuCooperateMenu,
-    FuCooperateNetworkInfo,
     FuAdminPanel,
   },
-  setup(props) {
-    const { sendData } = useInitWebRTC();
-
+  setup() {
     /* const { options } = useActions(); */
 
     const { waitingParticipants } = useHandleParticipants();
 
-    const { roomState } = useRoom();
+    // const { roomState } = useRoom();
 
     let openNetworkConfig = ref(false);
-    const objectPeriferics = reactive<Periferics>({
-      WEBCAM: () => toggleCamera(),
-      MIC: () => toggleMIC(),
-    });
 
     const objectFunctionalities = reactive<Functionalities>({
       CHAT: () => toogleChat(),
@@ -388,7 +364,6 @@ export default defineComponent({
       HANDUP: () => toogleHandUp(),
       SHARENOTES: () => toogleShareNotes(),
       USERLIST: () => toggleUsersList(),
-      CONNECTION: () => toggleConnectionModal(),
       MINIMIZE: () => minimizeScreen(),
     });
 
@@ -401,12 +376,20 @@ export default defineComponent({
       setShowChat,
       setShowNotes,
       setShowUsersList,
-      addHandNotificationInfo,
-      removeHandNotification,
       openOptionsMenu,
       openFunctionResponsiveMenu,
       updateHandNotification,
     } = useToogleFunctions();
+
+    const {
+      turnOnLocalMic,
+      turnOffLocalMic,
+      turnOnLocalCamera,
+      turnOffLocalCamera,
+      sendNotification,
+      roomAddTrack,
+      updateRoomJitsi,
+    } = useJitsi();
 
     const notificationCount = computed(() => {
       return userMe.roleId === 0 ? waitingParticipants.value.length : '';
@@ -431,7 +414,15 @@ export default defineComponent({
 
     let { isSidebarRender, setSidebarState } = useSidebarToogle();
 
-    const { userMe, setMicState, setVideoActivatedState } = useUserMe();
+    const {
+      userMe,
+      setMicState,
+      setVideoActivatedState,
+      setCameraState,
+      setScreenState,
+      localTracks,
+      localVideoTrack,
+    } = useUserMe();
 
     const canSeeActionsMenu = ref(userMe.roleId === 0);
     const openAdminPanel = ref(false);
@@ -482,6 +473,7 @@ export default defineComponent({
       } else if (isSidebarRender.value && functionsOnMenuBar.renderChat) {
         setSidebarState(false);
         setShowChat(false);
+        acumulateMessages(0);
         return;
       }
       setShowChat(true);
@@ -524,17 +516,34 @@ export default defineComponent({
     };
 
     const toggleCamera = () => {
-      // setCameraState(!userMe.isCameraOn);
-      props.toggleLocalCamera?.();
-      // if (!userMe.isScreenSharing && !userMe.isCameraOn)
-      //   setVideoActivatedState(false);
-      // if (userMe.isScreenSharing || userMe.isCameraOn)
-      //   setVideoActivatedState(true);
+      if (userMe.isCameraOn) {
+        setVideoActivatedState(false);
+        turnOffLocalCamera();
+        sendNotification('TURN_OFF_CAMERA', { value: userMe.id });
+      } else {
+        setVideoActivatedState(true);
+        //send notification
+        void nextTick(() => {
+          turnOnLocalCamera();
+        });
+        sendNotification('TURN_ON_CAMERA', { value: userMe.id });
+      }
+      setCameraState(!userMe.isCameraOn);
+      updateRoomJitsi(userMe);
     };
 
     const toggleMIC = () => {
-      props.toggleLocalMic?.();
+      if (userMe.isMicOn) {
+        turnOffLocalMic();
+        // enviar notificación a participantes
+        sendNotification('TURN_OFF_MIC', { value: userMe.id });
+      } else {
+        turnOnLocalMic();
+        // enviar notificación a participantes
+        sendNotification('TURN_ON_MIC', { value: userMe.id });
+      }
       setMicState(!userMe.isMicOn);
+      updateRoomJitsi(userMe);
     };
 
     const toogleHandUp = () => {
@@ -543,35 +552,53 @@ export default defineComponent({
         to: 'ALL',
         from: userMe.id,
         streamName: userMe.name,
-        eventType: 'HAND',
+        eventType: 'HAND_UP',
       };
       if (
         functionsOnMenuBar.handNotificationInfo.some(
           (notific) => notific.from === riseHand.from
         )
       ) {
-        const downHand = { ...riseHand, eventType: 'NOHAND' };
-        sendData(roomState.hostId, downHand);
+        const downHand = { ...riseHand, eventType: 'HAND_DOWN' };
         updateHandNotification(false);
-        removeHandNotification(downHand.from);
+        sendNotification(downHand.eventType, {
+          value: JSON.stringify(downHand),
+        });
         return;
       }
       updateHandNotification(true);
-      sendData(roomState.hostId, riseHand);
-      addHandNotificationInfo(riseHand);
+      sendNotification(riseHand.eventType, { value: JSON.stringify(riseHand) });
     };
 
-    const toggleDesktopScreenCapture = () => {
-      if (!userMe.isCameraOn) setVideoActivatedState(false);
-      props.toggleDesktopCapture?.();
-      //userMe.isScreenShared = !userMe.isScreenShared;
+    const toggleDesktopScreenCapture = async () => {
+      setScreenState(!userMe.isScreenSharing);
+      // apagar local track
+      if (localTracks.value[1]) {
+        localTracks.value[1].dispose();
+        void localTracks.value.pop();
+        // localTracks.value[0].dispose();
+      }
 
-      // setScreenState(!userMe.isScreenSharing);
-      // if (userMe.isCameraOn) setVideoActivatedState(true);
-    };
+      // open screen capture
+      const desktopTracks = (await JitsiMeetJS.createLocalTracks({
+        devices: [userMe.isScreenSharing ? 'desktop' : 'video'],
+      })) as JitsiLocalTrack[];
+      if (!userMe.isCameraOn && userMe.isScreenSharing) {
+        setVideoActivatedState(true);
+        setCameraState(false);
+        sendNotification('INIT_SCREEN_SHARING', { value: userMe.id });
+        updateRoomJitsi(userMe);
+      } else if (!userMe.isCameraOn && !userMe.isScreenSharing) {
+        setVideoActivatedState(false);
+        void desktopTracks[0].mute();
+        sendNotification('FINISH_SCREEN_SHARING', { value: userMe.id });
+      }
 
-    const toggleConnectionModal = () => {
-      openNetworkConfig.value = !openNetworkConfig.value;
+      localTracks.value.push(desktopTracks[0]);
+      void nextTick(() => {
+        localTracks.value[1].attach(localVideoTrack.value);
+      });
+      roomAddTrack(localTracks.value[1]);
     };
 
     const { updateScreenState } = useScreen();
@@ -601,10 +628,6 @@ export default defineComponent({
 
     const handleEspecialBehaviour = (interaction: string) => {
       objectFunctionalities[interaction as keyof Functionalities]?.();
-    };
-
-    const tooglePeriferic = (interaction: string) => {
-      objectPeriferics[interaction as keyof Periferics]();
     };
 
     const disableAction = (action: Icons) => {
@@ -649,7 +672,6 @@ export default defineComponent({
       isActions,
       handleFunctionSelected,
       actionSelectionID,
-      tooglePeriferic,
       renderFunctionResponsiveMenu,
       openNetworkConfig,
       functionsOnMenuBar,

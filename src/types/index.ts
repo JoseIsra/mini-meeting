@@ -8,6 +8,7 @@ export * from './user';
 export * from './zoid';
 export * from './toggleFunctions';
 export * from './periferics';
+export * from './jitsi';
 
 interface SoundGainType {
   gain: {

@@ -1,4 +1,5 @@
-import { reactive, computed } from 'vue';
+import { reactive, computed, ref } from 'vue';
+import JitsiLocalTrack from '@solyd/lib-jitsi-meet/dist/esm/modules/RTC/JitsiLocalTrack';
 
 import { User } from '@/types/user';
 import { ValueOf } from '@/types';
@@ -10,6 +11,9 @@ import _ from 'lodash';
 const userState = {} as User;
 
 const userMe = reactive<User>(userState);
+const localTracks = ref<JitsiLocalTrack[]>([]);
+const localAudioTrack = ref({} as HTMLElement);
+const localVideoTrack = ref({} as HTMLElement);
 
 userMe.cameraPublishedState = computed(() =>
   userMe.isCameraOn && userMe.isPublishing == 1
@@ -97,6 +101,10 @@ export function useUserMe() {
 
   const setDenied = (state: number) => (userMe.denied = state);
 
+  const setLocalTracks = (tracks: JitsiLocalTrack[]) => {
+    localTracks.value = tracks;
+  };
+
   return {
     userMe,
     setUserMe,
@@ -110,5 +118,9 @@ export function useUserMe() {
     setLocalScreenShareBlock,
     setDenied,
     toggleDrawState,
+    localTracks,
+    setLocalTracks,
+    localAudioTrack,
+    localVideoTrack,
   };
 }

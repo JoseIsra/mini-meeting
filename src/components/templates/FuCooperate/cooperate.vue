@@ -1,18 +1,9 @@
 <template>
   <div class="t-cooperate">
-    <div
-      class="t-cooperate__page"
-      v-if="existRoom && isLoadingOrError === false"
-    >
-      <fu-lobby v-if="denied !== 1" @handleLeaveCall="handleZoidLeaveCall" />
+    <div class="t-cooperate__page" v-show="!isLoadingOrError">
+      <!-- <fu-lobby v-if="denied !== 1" @handleLeaveCall="handleZoidLeaveCall" /> -->
 
-      <fu-cooperate
-        v-else
-        :toggleLocalCamera="toggleLocalCamera"
-        :toggleLocalMic="toggleLocalMic"
-        :toggleDesktopCapture="toggleDesktopCapture"
-        @mounted="fuCooperateMountedHandler"
-      />
+      <fu-cooperate @mounted="fuCooperateMountedHandler" />
     </div>
 
     <fu-t-loading
@@ -34,21 +25,22 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, toRefs, onMounted } from 'vue';
+import { defineComponent, toRefs, onMounted, onUnmounted } from 'vue';
 import FuCooperate from 'organisms/FuCooperate';
-import FuLobby from 'organisms/FuLobby';
-
 import { useRoute } from 'vue-router';
-import { useRoom, useAuthState, useInitWebRTC, useUserMe } from '@/composables';
+import {
+  useRoom,
+  useAuthState,
+  useInitWebRTC,
+  useUserMe,
+  useJitsi,
+} from '@/composables';
 import FuTLoading from 'organisms/FuLoading';
 import {
   PERMISSION_STATUS,
   REASON_TO_LEAVE_ROOM,
   ROOM_PRIVACY,
 } from '@/utils/enums';
-import moment from 'moment';
-
-import { RoomApiBody } from '@/types';
 
 import DetectRTC from 'detectrtc';
 
@@ -57,7 +49,6 @@ export default defineComponent({
   components: {
     FuCooperate,
     FuTLoading,
-    FuLobby,
   },
   setup() {
     const {
@@ -74,15 +65,10 @@ export default defineComponent({
 
     const route = useRoute();
 
-    const {
-      authState,
-      setLoadingOrErrorMessage,
-      setExistRoom,
-      // setIsLoadingOrError,
-    } = useAuthState();
+    const { authState, setLoadingOrErrorMessage, setIsLoadingOrError } =
+      useAuthState();
 
     const {
-      createInstance,
       turnOffLocalCamera,
       resetDesktop,
       switchDesktopCapture,
@@ -93,6 +79,8 @@ export default defineComponent({
       publish,
       stopPublishing,
     } = useInitWebRTC();
+
+    const { stablisConnection, diconnectAll } = useJitsi();
 
     /* const { setMicIconState, setCameraIconState } = useActions(); */
 
@@ -125,7 +113,6 @@ export default defineComponent({
 
     const roomId =
       window?.xprops?.roomId || (route.query.roomId as string) || '';
-
     const classroomId =
       window?.xprops?.classroomId || (route.query.classroomId as string) || '1';
 
@@ -211,21 +198,18 @@ export default defineComponent({
         hasMic: DetectRTC.hasMicrophone,
       });
     });
-
     setUserMe({
-      id: streamId,
+      id: '', // se actualiza luego al ingresar a la conferencia
       name: streamName,
       avatar,
       roleId,
-      isMicOn: roleId === 1 ? (isMicLocked ? false : isMicOn) : isMicOn,
-      isCameraOn:
-        roleId === 1 ? (isCameraLocked ? false : isCameraOn) : isCameraOn,
+      isMicOn,
+      isCameraOn,
       isScreenSharing: false,
-      isVideoActivated:
-        roleId === 1 ? (isCameraLocked ? false : isCameraOn) : isCameraOn,
-      isMicBlocked: roleId === 1 ? isMicLocked : false,
-      isCameraBlocked: roleId === 1 ? isCameraLocked : false,
-      isScreenShareBlocked: roleId === 1 ? isScreenShareLocked : false,
+      isVideoActivated: false,
+      isMicBlocked: false,
+      isCameraBlocked: false,
+      isScreenShareBlocked: false,
       fractalUserId,
       denied:
         roomRestriction === ROOM_PRIVACY.PRIVATE
@@ -237,9 +221,9 @@ export default defineComponent({
       isHost,
       cameraId,
       micId,
-      isPublishing: isHost ? 1 : 0,
+      isPublishing: 0,
       speakerId,
-      canDraw: roleId === 1 ? false : true,
+      canDraw: false,
       isVideoOwner: false,
     });
 
@@ -249,6 +233,7 @@ export default defineComponent({
 
     const startDate = window.xprops?.startDate || '2020-01-11 11:23';
 
+    //data de sala
     setRoom({
       id: roomId,
       sharingLink,
@@ -272,17 +257,17 @@ export default defineComponent({
       sendNotificationEvent('CAM_TURNED_ON', streamId);
     }
 
-    const publishToken =
-      window?.xprops?.publishToken ||
-      (route.query.publishToken as string) ||
-      '';
+    // const publishToken =
+    //   window?.xprops?.publishToken ||
+    //   (route.query.publishToken as string) ||
+    //   '';
 
-    const playToken =
-      window?.xprops?.playToken || (route.query.playToken as string) || '';
+    // const playToken =
+    //   window?.xprops?.playToken || (route.query.playToken as string) || '';
 
-    const subscriberId = (route.query.subscriberId as string) || undefined;
+    // const subscriberId = (route.query.subscriberId as string) || undefined;
 
-    const subscriberCode = (route.query.subscriberCode as string) || undefined;
+    // const subscriberCode = (route.query.subscriberCode as string) || undefined;
 
     //const currentVolume = ref(0.5);
 
@@ -312,7 +297,6 @@ export default defineComponent({
         } else if (userMe.isPublishing == 0) {
           updateUserMe({ isPublishing: 2 });
           switchDesktopCapture(streamId);
-          publish(userMe.id, undefined, undefined, undefined, userMe.name);
           /* const interval = setInterval(() => {
             if (userMe.isPublishing == 1) {
               clearInterval(interval);
@@ -358,34 +342,12 @@ export default defineComponent({
         //si camara no está on y el usuario estaba compartiendo pantalla
         //-> apagar pantalla y abrir camara
         if (userMe.isScreenSharing) {
-          //switchDesktopCaptureWithCamera(streamId);
           if (userMe.isPublishing == 1) {
             setScreenState(false);
             setCameraState(true);
             turnOnLocalCamera(streamId);
             resetDesktop();
-            /* if (!userMe.isHost && !userMe.isMicOn && !userMe.isCameraOn) {
-              updateUserMe({ isPublishing: 0 });
-              stopPublishing(userMe.id);
-              sendNotificationEvent('SCREEN_SHARING_OFF', roomState.hostId);
-            } */
           } else {
-            /* updateUserMe({ isPublishing: 2 }); */
-            /* setCameraState(true);
-            setScreenState(false); */
-            /* publish(userMe.id, undefined, undefined, undefined, userMe.name); */
-            /* const interval = setInterval(() => {
-              if (userMe.isPublishing == 1) { */
-            /* clearInterval(interval); */
-            /* setIDButtonSelected('');
-            resetDesktop();
-            sendNotificationEvent('SCREEN_SHARING_OFF', roomState.hostId);
-            if (!userMe.isHost && !userMe.isMicOn && !userMe.isCameraOn) {
-              updateUserMe({ isPublishing: 0 });
-              stopPublishing(userMe.id);
-            } */
-            /*  }
-            }, 1000); */
           }
         } else {
           if (userMe.isPublishing == 1) {
@@ -445,107 +407,11 @@ export default defineComponent({
       }
     };
 
-    /* const changeVolume = () => {
-       webRTCAdaptor.value.currentVolume = currentVolume.value;
-      if (webRTCAdaptor.value.soundOriginGainNode != null) {
-        webRTCAdaptor.value.soundOriginGainNode.gain.value =
-          currentVolume.value;
-      }
-      if (webRTCAdaptor.value.secondStreamGainNode != null) {
-        webRTCAdaptor.value.secondStreamGainNode.gain.value =
-          currentVolume.value;
-      }
-    }; */
-
-    /* const leaveRoom = () => {
-      webRTCAdaptor.value.leaveFromRoom?.(roomId);
-
-      participants.value = [];
-    }; */
-    const waitFor = (delay: number) =>
-      new Promise((resolve) => setTimeout(resolve, delay));
-
-    const checkRoom = async (roomId: string) => {
-      const request = new Request(
-        `https://${process.env.ANTMEDIA_SERVER}/${process.env.ANTMEDIA_APP}/rest/v2/broadcasts/conference-rooms/${roomId}`,
-        {
-          headers: {
-            Authorization:
-              'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiaWF0IjoxNTE2MjM5MDIyfQ.dnwd9sjQmEAyWWpbaGWA9R6pW4Qxu5eYES9Xrpl5UsY',
-          },
-        }
-      );
-
-      const res = await fetch(request);
-
-      await waitFor(1300); //Solo está para que le de tiempo al host para eliminar los participantes que no están. Por ej, si un usuario recarga la página para que no aparezca repetido.
-
-      return {
-        status: res.status,
-        message: res.statusText,
-        body:
-          res.status === 200
-            ? ((await res.json()) as RoomApiBody)
-            : ({} as RoomApiBody),
-      };
-    };
-
-    /* const deleteTimestampFromId = (streamId: string) => {
-      const splitted = streamId.split('-');
-      splitted.pop();
-      return splitted.join('-');
-    }; */
-
-    onMounted(async () => {
+    onMounted(() => {
       if (roomId) {
-        const { status, body } = await checkRoom(roomId);
-        if (status === 200) {
-          const nowTime = moment().format('YYYY-MM-DD HH:mm');
-          const haveStarted = moment(nowTime).isSameOrAfter(
-            roomState.startDate
-          );
-          if (haveStarted || userMe.isHost) {
-            //El host puede ingresar a la reunión aún si no ha iniciado (Según la db de fractal).
-            const currentUsers = body.roomStreamList;
-            /* const currentUsersWithoutTimeStamp = currentUsers.map((streamId) =>
-              deleteTimestampFromId(streamId)
-            ); */
-
-            const hostIsNotPresent = !currentUsers.includes(roomState.hostId);
-
-            if (hostIsNotPresent && !userMe.isHost) {
-              setLoadingOrErrorMessage(
-                'El anfitrión no se encuentra en la reunión'
-              );
-            } else {
-              //const myIdWithoutTimestamp = deleteTimestampFromId(userMe.id);
-
-              if (!currentUsers.includes(userMe.id)) {
-                setExistRoom(true);
-                createInstance(
-                  roomId,
-                  streamId,
-                  streamName,
-                  publishToken,
-                  playToken,
-                  subscriberId,
-                  subscriberCode
-                );
-              } else {
-                setLoadingOrErrorMessage('Ya te encuentras en la reunión');
-              }
-            }
-          } else {
-            setLoadingOrErrorMessage('La conferencia aún no ha iniciado');
-          }
-
-          // To review
-          // setIsLoadingOrError(false);
-        } else if (status === 404) {
-          setLoadingOrErrorMessage('Room not found!');
-        } else {
-          setLoadingOrErrorMessage('Not Allowed!');
-        }
+        stablisConnection(roomId);
+        setLoadingOrErrorMessage('Loading');
+        setIsLoadingOrError(false);
       } else {
         setLoadingOrErrorMessage('Please, provide a room id');
       }
@@ -567,17 +433,16 @@ export default defineComponent({
           'asistencia registrada (login) con el siguiente id: ',
           userMe.fractalUserId
         );
-        window.xprops?.logJoined?.(userMe.fractalUserId);
+        // window.xprops?.logJoined?.(userMe.fractalUserId);
       }
     };
 
-    /* onUnmounted(() => {
-      leaveRoom();
+    onUnmounted(() => {
+      diconnectAll();
     });
-
     window.addEventListener('unload', () => {
-      leaveRoom();
-    }); */
+      diconnectAll();
+    });
 
     const handleZoidLeaveCall = () =>
       window.xprops?.handleLeaveCall?.(REASON_TO_LEAVE_ROOM.JUST_LEAVE);

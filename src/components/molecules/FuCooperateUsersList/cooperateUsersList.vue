@@ -28,7 +28,8 @@
       />
     </header>
     <main class="m-list__content">
-      <div class="m-list__content__actions" v-show="userMe.roleId === 0">
+      <!-- acciones generales de sala -->
+      <!-- <div class="m-list__content__actions" v-show="userMe.roleId === 0">
         <span> Acciones sala </span>
 
         <q-btn
@@ -120,7 +121,7 @@
             }}</label>
           </q-tooltip>
         </q-btn>
-      </div>
+      </div> -->
       <div class="m-list__content__userBox">
         <aside class="m-list__content__userBox__avatar">
           <q-icon
@@ -149,7 +150,8 @@
         </aside>
 
         <div class="m-list__content__userBox__name">{{ userMe.name }} (Tú)</div>
-        <div class="m-list__content__userBox__actions">
+        <!-- acciones de bloqueo -->
+        <!-- <div class="m-list__content__userBox__actions">
           <q-btn
             :class="[
               'm-list__content__userBox__actions__button',
@@ -321,7 +323,7 @@
               <label v-else>Fijar para mi</label>
             </q-tooltip>
           </q-btn>
-        </div>
+        </div> -->
       </div>
       <div
         class="m-list__content__userBox"
@@ -368,7 +370,7 @@
         </aside>
         <div class="m-list__content__userBox__name">{{ participant.name }}</div>
 
-        <div
+        <!-- <div
           class="m-list__content__userBox__actions"
           v-if="userMe.roleId === 0"
         >
@@ -390,7 +392,6 @@
               transition-show="scale"
               transition-hide="scale"
             >
-              <!-- Encedido Apagado Bloquear Desbloquear -->
               <label>{{ participantActionsToolTip(1, participant) }}</label>
             </q-tooltip>
           </q-btn>
@@ -576,13 +577,13 @@
               <label>Opciones</label>
             </q-tooltip>
           </q-btn>
-        </div>
+        </div> -->
 
-        <div v-else class="m-list__content__userBox__actions">
+        <div class="m-list__content__userBox__actions">
           <q-btn
             :class="[
               'm-list__content__userBox__actions__button',
-              { '--noActionable': userMe.roleId === 1 },
+              { '--noActionable': temporalRoleConditional },
             ]"
             :icon="participant.isMicOn ? 'mic' : 'mic_off'"
             :color="
@@ -611,7 +612,7 @@
           <q-btn
             :class="[
               'm-list__content__userBox__actions__button',
-              { '--noActionable': userMe.roleId === 1 },
+              { '--noActionable': temporalRoleConditional },
             ]"
             :icon="participant.isCameraOn ? 'videocam' : 'videocam_off'"
             :color="
@@ -638,7 +639,7 @@
           <q-btn
             :class="[
               'm-list__content__userBox__actions__button',
-              { '--noActionable': userMe.roleId === 1 },
+              { '--noActionable': temporalRoleConditional },
             ]"
             :icon="
               participant.isScreenSharing
@@ -674,7 +675,11 @@
                 ? 'location_disabled'
                 : 'gps_fixed'
             "
-            @click="addPinnedUser(participant.id)"
+            @click="
+              mainViewState.pinnedUsers.includes(participant.id)
+                ? removePinnedUser(participant.id)
+                : addPinnedUser(participant.id)
+            "
             :disable="
               (mainViewState.locked !== MAIN_VIEW_LOCKED_TYPE.ANYONE &&
                 mainViewState.locked !== MAIN_VIEW_LOCKED_TYPE.UNSET) ||
@@ -711,6 +716,7 @@ import {
   useRoom,
   useInitWebRTC,
   useMainView,
+  useJitsi,
 } from '@/composables';
 import { User } from '@/types';
 import {
@@ -754,12 +760,15 @@ export default defineComponent({
       setRoomScreenShareState,
     } = useRoom();
 
-    const { functionsOnMenuBar, removeHandNotification } = useToogleFunctions();
+    const { functionsOnMenuBar } = useToogleFunctions();
+    const { sendNotification } = useJitsi();
 
     const isEveryoneMicBlocked = computed(() => roomState.isMicBlocked);
 
     const isEveryoneVideoBlocked = computed(() => roomState.isCameraBlocked);
-
+    const temporalRoleConditional = computed(
+      () => userMe.roleId == 0 || userMe.roleId == 1
+    );
     const isEveryoneScreenShareBlocked = computed(
       () => roomState.isScreenShareBlocked
     );
@@ -1081,12 +1090,11 @@ export default defineComponent({
     };
 
     const removeHandUp = (userId: string) => {
-      console.log(userId, 'bajando mano');
-      removeHandNotification(userId);
-      sendData(roomState.hostId, {
-        from: userId,
-        eventType: 'NOHAND',
-      });
+      const handInput = {
+        value: JSON.stringify({ from: userId }),
+      };
+
+      sendNotification('HAND_DOWN', handInput);
     };
 
     const toggleDrawMode = (arg: User) => {
@@ -1128,7 +1136,8 @@ export default defineComponent({
       removePinnedUser,
       removePinnedUserForAll,
       MAIN_VIEW_LOCKED_TYPE,
-      MAIN_VIEW_MODE
+      MAIN_VIEW_MODE,
+      temporalRoleConditional,
     };
   },
 });

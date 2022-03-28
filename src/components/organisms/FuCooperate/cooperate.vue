@@ -33,17 +33,12 @@
       v-show="!screenMinimized && $q.screen.lt.md ? showHeader : true"
     />
 
-    <fu-cooperate-menu-bar
-      v-show="showMenuBar && !screenMinimized"
-      :toggleLocalCamera="toggleLocalCamera"
-      :toggleLocalMic="toggleLocalMic"
-      :toggleDesktopCapture="toggleDesktopCapture"
-    />
+    <fu-cooperate-menu-bar v-show="showMenuBar && !screenMinimized" />
     <transition :name="$q.screen.lt.sm ? 'dragged' : 'slide'">
       <fu-cooperate-side-bar v-show="isSidebarRender" />
     </transition>
     <fu-cooperate-user-video
-      v-if="
+      v-show="
         !screenMinimized && $q.screen.lt.md
           ? showUsersVideoList
           : !screenMinimized
@@ -52,6 +47,7 @@
     <fu-hand-notification v-show="handActives && !screenMinimized" />
     <fu-full-screen v-if="mainViewState.mode !== MAIN_VIEW_MODE.NONE" />
 
+    <!-- solicitudes -->
     <q-dialog
       v-model="showParticipantPanel"
       transition-show="flip-down"
@@ -61,7 +57,6 @@
     </q-dialog>
   </section>
 </template>
-//TODO: OBJETO DE USUARIO GLOBAL
 <script lang="ts">
 import {
   defineComponent,
@@ -86,23 +81,14 @@ import {
   useToogleFunctions,
   useSidebarToogle,
   useMainView,
+  useHandleParticipants,
+  useHandleMessage,
 } from '@/composables';
 
 import { MAIN_VIEW_MODE } from '@/utils/enums';
 
 export default defineComponent({
   name: 'FuCooperate',
-  props: {
-    toggleLocalCamera: {
-      type: Function,
-    },
-    toggleLocalMic: {
-      type: Function,
-    },
-    toggleDesktopCapture: {
-      type: Function,
-    },
-  },
   components: {
     FuCooperateMenuBar,
     FuCooperateHeader,
@@ -114,6 +100,9 @@ export default defineComponent({
   },
   setup(props, { emit }) {
     let vh = ref(window.innerHeight * 0.01);
+    const { participantVideoTracks, participantAudioTracks } =
+      useHandleParticipants();
+    const { acumulateMessages } = useHandleMessage();
 
     onMounted(() => {
       emit('mounted');
@@ -180,6 +169,9 @@ export default defineComponent({
     };
 
     const closePanels = () => {
+      if (functionsOnMenuBar.renderChat) {
+        acumulateMessages(0);
+      }
       setSidebarState(false);
       openOptionsMenu(false);
       openFunctionResponsiveMenu(false);
@@ -202,7 +194,6 @@ export default defineComponent({
     return {
       toogleMenuBar,
       showMenuBar,
-      ...toRefs(props),
       isSidebarRender,
       functionsOnMenuBar,
       closePanels,
@@ -216,6 +207,8 @@ export default defineComponent({
       showHeader,
       heightObjectStyle,
       handActives,
+      participantVideoTracks,
+      participantAudioTracks,
     };
   },
 });

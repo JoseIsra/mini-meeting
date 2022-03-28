@@ -29,7 +29,8 @@
     "vue3-touch-events": "^4.1.0",
     "vuex": "^4.0.1",
     "webrtc-adapter": "^8.1.0",
-    "zoid": "9.0.73"
+    "zoid": "9.0.73",
+    "@solyd/lib-jitsi-meet": "^2.7001.1"
   },
   "devDependencies": {
     "@babel/eslint-parser": "^7.13.14",

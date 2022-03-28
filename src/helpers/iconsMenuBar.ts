@@ -9,8 +9,8 @@ export const iconsPeriferics = {
     onState: 'mic',
     offState: 'mic_off',
     loadingState: 'fas fa-spinner',
-    toolTipMessage: 'Habilitar audio',
-    toolTipSecondMessage: 'Deshabilitar audio',
+    toolTipMessage: 'Encender micrófono',
+    toolTipSecondMessage: 'Silenciar micrófono',
     interaction: INTERACTION_TYPE_MENU_BAR.MIC,
   },
   camera: {
@@ -94,14 +94,14 @@ export const iconsFunctions = {
 };
 
 export const iconsOptions = [
-  {
-    id: '1',
-    onState: 'fas fa-cog',
-    offState: 'fas fa-cog',
-    active: false,
-    toolTipMessage: 'Acciones',
-    ubication: 'actions',
-  },
+  // {
+  //   id: '1',
+  //   onState: 'fas fa-cog',
+  //   offState: 'fas fa-cog',
+  //   active: false,
+  //   toolTipMessage: 'Acciones',
+  //   ubication: 'actions',
+  // },
   {
     id: '2',
     onState: 'more_vert',

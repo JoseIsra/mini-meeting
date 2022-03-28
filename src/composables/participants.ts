@@ -1,10 +1,13 @@
-import { ref, computed } from 'vue';
+import { ref, computed, reactive } from 'vue';
 
 import { LOCK_ACTION_TYPE, PERMISSION_STATUS, USER_ROLE } from '@/utils/enums';
 import _ from 'lodash';
 import { User } from '@/types/user';
+import { Track } from '@/types';
 
 const participants = ref<User[]>([]);
+const participantAudioTracks = reactive<Track>({} as Track);
+const participantVideoTracks = reactive<Track>({} as Track);
 
 export function useHandleParticipants() {
   const addParticipant = (value: User) => {
@@ -111,6 +114,11 @@ export function useHandleParticipants() {
     participants.value.filter((p) => p.id === id)[0].denied = state;
   };
 
+  const deleteParticipantTracks = (arg: string) => {
+    delete participantAudioTracks[arg];
+    delete participantVideoTracks[arg];
+  };
+
   return {
     deleteAllParticipants,
     updateParticipantById,
@@ -123,5 +131,8 @@ export function useHandleParticipants() {
     waitingParticipants,
     updateParticipantDenied,
     findParticipantById,
+    participantAudioTracks,
+    participantVideoTracks,
+    deleteParticipantTracks,
   };
 }

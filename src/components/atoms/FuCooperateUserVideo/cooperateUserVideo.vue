@@ -16,15 +16,13 @@
           />
         </figure>
         <div class="a-userVideo__box__avatar__info">
-          <label class="a-userVideo__box__avatar__info__userName">{{
-            userMe.name
-          }}</label>
+          <label class="a-userVideo__box__avatar__info__userName">
+            {{ userMe.id }}-{{ userMe.name }}
+          </label>
           <q-icon
             :name="
-              userMe.micPublishedState == 1
+              userMe.isMicOn
                 ? iconsPeriferics.mic.onState
-                : userMe.micPublishedState == 2
-                ? iconsPeriferics.mic.loadingState
                 : iconsPeriferics.mic.offState
             "
             color="white"
@@ -33,13 +31,14 @@
       </div>
 
       <video
-        :srcObject.prop="userMe.stream"
         v-show="userMe.isVideoActivated"
+        ref="localVideoTrack"
         class="a-userVideo__box__stream"
-        autoplay
-        muted
         playsinline
+        muted
+        autoplay
       ></video>
+      <audio style="display: none" ref="localAudioTrack" muted autoplay></audio>
 
       <div v-show="userMe.isVideoActivated">
         <div class="a-userVideo__box__avatar__info__userName --video">
@@ -47,7 +46,7 @@
         </div>
       </div>
 
-      <q-btn
+      <!-- <q-btn
         flat
         round
         :ripple="false"
@@ -84,10 +83,10 @@
               : 'Fijar para mi'
           }}</label>
         </q-tooltip>
-      </q-btn>
+      </q-btn> -->
     </div>
     <div
-      class="a-userVideo__box"
+      class="a-userVideo__box text-white"
       v-for="participant in controlUserToRender"
       :key="participant.id"
       :class="{ fade: mainViewState.pinnedUsers.includes(participant.id) }"
@@ -109,9 +108,9 @@
           />
         </figure>
         <div class="a-userVideo__box__avatar__info">
-          <label class="a-userVideo__box__avatar__info__userName">{{
-            participant.name
-          }}</label>
+          <label class="a-userVideo__box__avatar__info__userName">
+            {{ participant.id }}- {{ participant.name }}</label
+          >
           <q-icon
             :name="participant.isMicOn ? 'mic' : 'mic_off'"
             size="20px"
@@ -121,12 +120,26 @@
       </div>
       <video
         v-show="participant.isVideoActivated"
+        :id="'video-' + participant.id"
         class="a-userVideo__box__stream"
         autoplay
+        :ref="
+          ($el) => {
+            participantVideoTracks[`video-${participant.id}`] = $el;
+          }
+        "
         playsinline
-        :srcObject.prop="participant.stream"
       ></video>
-
+      <audio
+        :id="'audio-' + participant.id"
+        style="display: none"
+        :ref="
+          ($el) => {
+            participantAudioTracks[`audio-${participant.id}`] = $el;
+          }
+        "
+        autoplay
+      ></audio>
       <div v-show="participant.isVideoActivated">
         <div class="a-userVideo__box__avatar__info__userName --video">
           {{ participant.name }}
@@ -204,7 +217,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed } from 'vue';
+import { defineComponent, ref, computed, watch } from 'vue';
 import { useQuasar } from 'quasar';
 import {
   useScreen,
@@ -220,9 +233,14 @@ export default defineComponent({
   name: 'FuCooperateUserVideo',
   setup() {
     const { addPinnedUser, removePinnedUser, mainViewState } = useMainView();
-    const { admittedParticipants } = useHandleParticipants();
+    const {
+      admittedParticipants,
+      participantAudioTracks,
+      participantVideoTracks,
+    } = useHandleParticipants();
 
-    const { userMe } = useUserMe();
+    const { userMe, localTracks, localAudioTrack, localVideoTrack } =
+      useUserMe();
 
     const streamIdPinned = ref('');
     const $q = useQuasar();
@@ -240,6 +258,19 @@ export default defineComponent({
         : '';
     });
 
+    watch(
+      () => localTracks.value,
+      () => {
+        localTracks.value.forEach((track) => {
+          if (track.getType() == 'audio') {
+            track.attach(localAudioTrack.value);
+          } else {
+            track.attach(localVideoTrack.value);
+          }
+        });
+      }
+    );
+
     return {
       userMe,
       admittedParticipants,
@@ -252,6 +283,10 @@ export default defineComponent({
       mainViewState,
       MAIN_VIEW_LOCKED_TYPE,
       iconsPeriferics,
+      localAudioTrack,
+      localVideoTrack,
+      participantAudioTracks,
+      participantVideoTracks,
     };
   },
 });

@@ -3,6 +3,11 @@ import { RouteRecordRaw } from 'vue-router';
 const routes: RouteRecordRaw[] = [
   {
     path: '/',
+    component: () => import('pages/FuPreview'),
+  },
+  {
+    path: '/meet',
+    name: 'meet',
     component: () => import('pages/FuCooperate'),
   },
 

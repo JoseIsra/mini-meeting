@@ -7,7 +7,7 @@
     ></video>
     <audio ref="audioTrack" muted autoplay></audio>
     <q-btn label="cameraoff" no-caps @click="toggleCamera" />
-    <q-btn label="Ingresar" no-caps color="green" @click="gomeet" />
+    <q-btn label="Ingresar" color="green" @click="gomeet" />
   </div>
 </template>
 

@@ -24,7 +24,7 @@ export default defineComponent({
     const audioTrack = ref({} as HTMLElement);
     const localTracks = ref<JitsiLocalTrack[]>([]);
     navigator.mediaDevices
-      .getUserMedia({ audio: true, video: true })
+      .getUserMedia({ audio: true, video: false })
       .then((stream) => {
         console.log('Stream de local user', stream);
         videoTrack.value.srcObject = stream;

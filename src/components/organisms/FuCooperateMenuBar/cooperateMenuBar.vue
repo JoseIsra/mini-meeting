@@ -441,6 +441,14 @@ export default defineComponent({
       return userMessages.value[userMessages.value.length - 1].streamId;
     });
 
+    const devicesAvailable = computed(() => {
+      return userMe.isScreenSharing
+        ? 'desktop'
+        : userMe.hasWebcam
+        ? 'video'
+        : '';
+    });
+
     watch(
       () => _.cloneDeep(userMessages.value),
       (current, prev) => {
@@ -574,31 +582,34 @@ export default defineComponent({
       setScreenState(!userMe.isScreenSharing);
       // apagar local track
       if (localTracks.value[1]) {
+        if (userMe.isCameraOn) {
+          setCameraState(false);
+        }
         localTracks.value[1].dispose();
         void localTracks.value.pop();
-        // localTracks.value[0].dispose();
       }
 
       // open screen capture
       const desktopTracks = (await JitsiMeetJS.createLocalTracks({
-        devices: [userMe.isScreenSharing ? 'desktop' : 'video'],
+        devices: [devicesAvailable.value],
       })) as JitsiLocalTrack[];
       if (!userMe.isCameraOn && userMe.isScreenSharing) {
         setVideoActivatedState(true);
-        setCameraState(false);
         sendNotification('INIT_SCREEN_SHARING', { value: userMe.id });
         updateRoomJitsi(userMe);
       } else if (!userMe.isCameraOn && !userMe.isScreenSharing) {
         setVideoActivatedState(false);
-        void desktopTracks[0].mute();
+        desktopTracks[0] && void desktopTracks[0].mute();
         sendNotification('FINISH_SCREEN_SHARING', { value: userMe.id });
       }
 
-      localTracks.value.push(desktopTracks[0]);
-      void nextTick(() => {
-        localTracks.value[1].attach(localVideoTrack.value);
-      });
-      roomAddTrack(localTracks.value[1]);
+      if (desktopTracks[0]) {
+        localTracks.value.push(desktopTracks[0]);
+        void nextTick(() => {
+          localTracks.value[1].attach(localVideoTrack.value);
+        });
+        roomAddTrack(localTracks.value[1]);
+      }
     };
 
     const { updateScreenState } = useScreen();

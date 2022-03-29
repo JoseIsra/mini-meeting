@@ -21,6 +21,7 @@ import {
   useHandleParticipants,
   useToogleFunctions,
   useHandleMessage,
+  useAuthState,
 } from '@/composables';
 import { useJitsiError } from '@/composables/jitsiError';
 
@@ -48,6 +49,7 @@ const { setUserMessage, amountOfNewMessages, acumulateMessages } =
   useHandleMessage();
 
 const { errorsCallback } = useJitsiError();
+const { setIsLoadingOrError } = useAuthState();
 
 const handNotificationSound = new Audio(
   'https://freesound.org/data/previews/411/411642_5121236-lq.mp3'
@@ -143,6 +145,9 @@ export function useJitsi() {
   function handleLocalTracks(
     tracks: JitsiLocalTrack[] | JitsiConferenceErrors
   ) {
+    // show conference
+    setIsLoadingOrError(false);
+
     setLocalTracks(tracks as JitsiLocalTrack[]);
     console.log('PARTICIPANTE UNIDO-TRACKS ENABLE 🚀', joined.value);
 

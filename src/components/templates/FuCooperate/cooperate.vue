@@ -66,8 +66,7 @@ export default defineComponent({
 
     const route = useRoute();
 
-    const { authState, setLoadingOrErrorMessage, setIsLoadingOrError } =
-      useAuthState();
+    const { authState, setLoadingOrErrorMessage } = useAuthState();
 
     const {
       turnOffLocalCamera,
@@ -228,6 +227,8 @@ export default defineComponent({
       canDraw: false,
       isVideoOwner: false,
     });
+
+    // TODO: REMOVING THIS SOMETIME
     validateDevices(userMe);
 
     /* setMicIconState(isMicLocked ? false : isMicOn); */
@@ -414,7 +415,7 @@ export default defineComponent({
       if (roomId) {
         stablisConnection(roomId);
         setLoadingOrErrorMessage('Loading');
-        setIsLoadingOrError(false);
+        // setIsLoadingOrError(false);
       } else {
         setLoadingOrErrorMessage('Please, provide a room id');
       }

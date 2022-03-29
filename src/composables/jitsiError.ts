@@ -11,7 +11,7 @@ export function useJitsiError() {
       console.log('Constraints error', { error, message });
     } else if (error == JitsiMeetJS.errors.track.NOT_FOUND) {
       console.log('Not found errors', { error, message });
-      if (error.includes('video')) {
+      if (message.includes('video')) {
         updateUserMe({
           hasWebcam: false,
         });

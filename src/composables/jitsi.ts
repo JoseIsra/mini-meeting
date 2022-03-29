@@ -164,7 +164,6 @@ export function useJitsi() {
   }
 
   function getLocalTracks(constraints = ['video', 'audio']) {
-    console.debug(constraints);
     JitsiMeetJS.createLocalTracks({
       devices: constraints,
     })

@@ -1,5 +1,6 @@
 import { reactive, ref } from 'vue';
 import { PerifericsState } from '@/types/periferics';
+import { User } from '@/types';
 
 const perifericsState = {
   isMicOn: true,
@@ -11,6 +12,8 @@ const perifericsState = {
 
 const perifericsControl = reactive<PerifericsState>(perifericsState);
 const userDevicesDetected = ref<MediaDeviceInfo[]>([]);
+const mediaConstraints = ref<string[]>([]);
+
 export function usePerifericsControls() {
   const setMicState = (value: boolean) => {
     perifericsControl.isMicOn = value;
@@ -35,6 +38,16 @@ export function usePerifericsControls() {
     userDevicesDetected.value = value;
   };
 
+  const validateDevices = (user: User) => {
+    if (user.hasWebcam && !user.hasMic) {
+      mediaConstraints.value = ['video'];
+    } else if (!user.hasWebcam && user.hasMic) {
+      mediaConstraints.value = ['audio'];
+    } else {
+      mediaConstraints.value = ['audio', 'video'];
+    }
+  };
+
   return {
     perifericsControl,
     setMicState,
@@ -44,5 +57,7 @@ export function usePerifericsControls() {
     setVideoActivatedState,
     setDevicesDetected,
     userDevicesDetected,
+    mediaConstraints,
+    validateDevices,
   };
 }

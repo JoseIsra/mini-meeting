@@ -34,6 +34,7 @@ import {
   useInitWebRTC,
   useUserMe,
   useJitsi,
+  usePerifericsControls,
 } from '@/composables';
 import FuTLoading from 'organisms/FuLoading';
 import {
@@ -81,6 +82,7 @@ export default defineComponent({
     } = useInitWebRTC();
 
     const { stablisConnection, diconnectAll } = useJitsi();
+    const { validateDevices } = usePerifericsControls();
 
     /* const { setMicIconState, setCameraIconState } = useActions(); */
 
@@ -226,6 +228,7 @@ export default defineComponent({
       canDraw: false,
       isVideoOwner: false,
     });
+    validateDevices(userMe);
 
     /* setMicIconState(isMicLocked ? false : isMicOn); */
     // setCameraIconState(!isCameraLocked);

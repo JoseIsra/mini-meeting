@@ -1,14 +1,35 @@
 import JitsiMeetJS from '@solyd/lib-jitsi-meet';
+import { useUserMe } from '@/composables/userMe';
+import { useJitsi } from '@/composables/jitsi';
+
+const { updateUserMe } = useUserMe();
+const { getLocalTracks } = useJitsi();
 
 export function useJitsiError() {
   const errorsCallback = (error: string, message: string) => {
-    console.log(error, message);
     if (error == JitsiMeetJS.errors.track.CONSTRAINT_FAILED) {
-      alert(message);
+      console.log('Constraints error', { error, message });
     } else if (error == JitsiMeetJS.errors.track.NOT_FOUND) {
-      alert(message);
+      console.log('Not found errors', { error, message });
+      if (error.includes('video')) {
+        updateUserMe({
+          hasWebcam: false,
+        });
+        getLocalTracks(['audio']);
+      }
     } else if (error == JitsiMeetJS.errors.track.PERMISSION_DENIED) {
-      alert(message);
+      console.log('Permissions error', { error, message });
+      if (message.includes('video')) {
+        updateUserMe({
+          hasWebcam: false,
+        });
+        getLocalTracks(['audio']);
+      } else if (message.includes('audio')) {
+        updateUserMe({
+          hasMic: false,
+        });
+        getLocalTracks(['video']);
+      }
     }
   };
 

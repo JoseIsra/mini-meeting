@@ -21,8 +21,8 @@ import {
   useHandleParticipants,
   useToogleFunctions,
   useHandleMessage,
-  useJitsiError,
 } from '@/composables';
+import { useJitsiError } from '@/composables/jitsiError';
 
 const roomNameTemporal = ref('');
 let connection = reactive<JitsiConnectionRemake>({} as JitsiConnectionRemake);
@@ -163,9 +163,10 @@ export function useJitsi() {
     // }, 1000);
   }
 
-  function getLocalTracks() {
+  function getLocalTracks(constraints = ['video', 'audio']) {
+    console.debug(constraints);
     JitsiMeetJS.createLocalTracks({
-      devices: ['audio'],
+      devices: constraints,
     })
       .then(handleLocalTracks)
       .catch((error: Error) => errorsCallback(error.name, error.message));
@@ -404,5 +405,6 @@ export function useJitsi() {
     roomAddTrack,
     updateRoomJitsi,
     sendChatMessage,
+    getLocalTracks,
   };
 }

@@ -6,7 +6,6 @@
       autoplay
     ></video>
     <audio ref="audioTrack" muted autoplay></audio>
-    <q-btn label="cameraoff" no-caps @click="toggleCamera" />
     <q-btn label="Ingresar" color="green" @click="gomeet" />
   </div>
 </template>
@@ -14,7 +13,6 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import JitsiLocalTrack from '@solyd/lib-jitsi-meet/dist/esm/modules/RTC/JitsiLocalTrack';
 
 export default defineComponent({
   name: 'FuPreview',
@@ -22,9 +20,8 @@ export default defineComponent({
     const router = useRouter();
     const videoTrack = ref({} as HTMLVideoElement);
     const audioTrack = ref({} as HTMLElement);
-    const localTracks = ref<JitsiLocalTrack[]>([]);
     navigator.mediaDevices
-      .getUserMedia({ audio: true, video: false })
+      .getUserMedia({ audio: true, video: true })
       .then((stream) => {
         console.log('Stream de local user', stream);
         videoTrack.value.srcObject = stream;
@@ -49,15 +46,10 @@ export default defineComponent({
       });
     };
 
-    const toggleCamera = () => {
-      void localTracks.value[1].mute();
-    };
-
     return {
       videoTrack,
       audioTrack,
       gomeet,
-      toggleCamera,
     };
   },
 });

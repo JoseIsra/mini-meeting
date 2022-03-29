@@ -165,7 +165,9 @@ export function useJitsi() {
       devices: ['video', 'audio'],
     })
       .then(handleLocalTracks)
-      .catch((error) => console.error(error));
+      .catch((error) => {
+        console.log(error);
+      });
   }
 
   function onConferenceJoined() {
@@ -322,6 +324,9 @@ export function useJitsi() {
     );
     room.on(JitsiMeetJS.events.conference.TRACK_REMOVED, (track) => {
       console.log('REMOVED TRACK', track);
+    });
+    room.on(JitsiMeetJS.events.conference.TRACK_MUTE_CHANGED, (track) => {
+      console.log('REMOVED mute changed', track);
     });
     room.on(
       JitsiMeetJS.events.conference.CONFERENCE_JOINED,

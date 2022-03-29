@@ -26,7 +26,7 @@ export default defineComponent({
         console.log('Stream de local user', stream);
         videoTrack.value.srcObject = stream;
       })
-      .catch((error) => alert(error));
+      .catch((error) => console.log(error));
 
     const gomeet = () => {
       const streamCamera = videoTrack.value.srcObject as MediaStream;

@@ -21,6 +21,7 @@ import {
   useHandleParticipants,
   useToogleFunctions,
   useHandleMessage,
+  useJitsiError,
 } from '@/composables';
 
 const roomNameTemporal = ref('');
@@ -45,6 +46,8 @@ const {
 
 const { setUserMessage, amountOfNewMessages, acumulateMessages } =
   useHandleMessage();
+
+const { errorsCallback } = useJitsiError();
 
 const handNotificationSound = new Audio(
   'https://freesound.org/data/previews/411/411642_5121236-lq.mp3'
@@ -150,7 +153,7 @@ export function useJitsi() {
           .then(() => {
             void track.mute();
           })
-          .catch((err) => console.error(err));
+          .catch((error) => console.log(error));
       });
     }
     // setTimeout(() => {
@@ -162,12 +165,10 @@ export function useJitsi() {
 
   function getLocalTracks() {
     JitsiMeetJS.createLocalTracks({
-      devices: ['video', 'audio'],
+      devices: ['audio'],
     })
       .then(handleLocalTracks)
-      .catch((error) => {
-        console.log(error);
-      });
+      .catch((error: Error) => errorsCallback(error.name, error.message));
   }
 
   function onConferenceJoined() {

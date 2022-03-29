@@ -54,6 +54,7 @@ export function useJitsi() {
   JitsiMeetJS.init({
     disableAudioLevels: false,
     enableAnalyticsLogging: true,
+    enableWindowOnErrorHandler: true,
   });
   JitsiMeetJS.setLogLevel(JitsiMeetJS.logLevels.ERROR);
 

@@ -12,40 +12,32 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, ref } from 'vue';
+import { defineComponent, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import JitsiMeetJS from '@solyd/lib-jitsi-meet';
 import JitsiLocalTrack from '@solyd/lib-jitsi-meet/dist/esm/modules/RTC/JitsiLocalTrack';
-import { JitsiConferenceErrors } from '@solyd/lib-jitsi-meet/dist/esm/JitsiConferenceErrors';
 
 export default defineComponent({
   name: 'FuPreview',
   setup() {
     const router = useRouter();
-    JitsiMeetJS.init({});
-    const videoTrack = ref({} as HTMLElement);
+    const videoTrack = ref({} as HTMLVideoElement);
     const audioTrack = ref({} as HTMLElement);
     const localTracks = ref<JitsiLocalTrack[]>([]);
-    onMounted(() => {
-      JitsiMeetJS.createLocalTracks({
-        devices: ['audio', 'video'],
+    navigator.mediaDevices
+      .getUserMedia({ audio: true, video: true })
+      .then((stream) => {
+        console.log('Stream de local user', stream);
+        videoTrack.value.srcObject = stream;
       })
-        .then((tracks: JitsiLocalTrack[] | JitsiConferenceErrors) => {
-          localTracks.value = tracks as JitsiLocalTrack[];
-          (tracks as JitsiLocalTrack[]).forEach((track: JitsiLocalTrack) => {
-            if (track.getType() == 'audio') {
-              track.attach(audioTrack.value);
-            } else {
-              track.attach(videoTrack.value);
-            }
-          });
-        })
-        .catch((error) => {
-          console.error('There was an error creating the local tracks:', error);
-        });
-    });
+      .catch((error) => alert(error));
 
     const gomeet = () => {
+      const streamCamera = videoTrack.value.srcObject as MediaStream;
+      streamCamera.getTracks().forEach((track: MediaStreamTrack) => {
+        if (track.readyState === 'live') {
+          track.stop();
+        }
+      });
       void router.push({
         name: 'meet',
         query: {

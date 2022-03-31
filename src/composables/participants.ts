@@ -49,9 +49,9 @@ export function useHandleParticipants() {
     action: number,
     value: boolean
   ) => {
-    const participantToModify = participants.value.filter(
+    const participantToModify = participants.value.find(
       (currentParticipant) => currentParticipant.id === participantId
-    )[0];
+    ) as User;
 
     if (action === LOCK_ACTION_TYPE.All) {
       participantToModify.isMicBlocked = value;

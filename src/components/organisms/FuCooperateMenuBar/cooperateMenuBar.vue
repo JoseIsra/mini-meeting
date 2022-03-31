@@ -335,6 +335,7 @@ import {
   useSidebarToogle,
   useJitsi,
 } from '@/composables';
+import { useJitsiError } from '@/composables/jitsiError';
 import { nanoid } from 'nanoid';
 
 import FuAdminPanel from 'organisms/FuAdminPanel';
@@ -389,7 +390,9 @@ export default defineComponent({
       sendNotification,
       roomAddTrack,
       updateRoomJitsi,
+      testReplaceAudio,
     } = useJitsi();
+    const { errorsCallback } = useJitsiError();
 
     const notificationCount = computed(() => {
       return userMe.roleId === 0 ? waitingParticipants.value.length : '';
@@ -588,27 +591,40 @@ export default defineComponent({
         localTracks.value[1].dispose();
         void localTracks.value.pop();
       }
+      try {
+        // open screen capture
+        const desktopTracks = (await JitsiMeetJS.createLocalTracks({
+          devices: [devicesAvailable.value],
+        })) as JitsiLocalTrack[];
 
-      // open screen capture
-      const desktopTracks = (await JitsiMeetJS.createLocalTracks({
-        devices: [devicesAvailable.value],
-      })) as JitsiLocalTrack[];
-      if (!userMe.isCameraOn && userMe.isScreenSharing) {
-        setVideoActivatedState(true);
-        sendNotification('INIT_SCREEN_SHARING', { value: userMe.id });
-        updateRoomJitsi(userMe);
-      } else if (!userMe.isCameraOn && !userMe.isScreenSharing) {
-        setVideoActivatedState(false);
-        desktopTracks[0] && void desktopTracks[0].mute();
-        sendNotification('FINISH_SCREEN_SHARING', { value: userMe.id });
-      }
+        if (!userMe.isCameraOn && userMe.isScreenSharing) {
+          setVideoActivatedState(true);
+          sendNotification('INIT_SCREEN_SHARING', { value: userMe.id });
+          updateRoomJitsi(userMe);
+        } else if (!userMe.isCameraOn && !userMe.isScreenSharing) {
+          setVideoActivatedState(false);
+          desktopTracks[0] && void desktopTracks[0].mute();
+          sendNotification('FINISH_SCREEN_SHARING', { value: userMe.id });
+        }
 
-      if (desktopTracks[0]) {
-        localTracks.value.push(desktopTracks[0]);
-        void nextTick(() => {
-          localTracks.value[1].attach(localVideoTrack.value);
-        });
-        roomAddTrack(localTracks.value[1]);
+        if (desktopTracks[0] && desktopTracks.length == 1) {
+          localTracks.value.push(desktopTracks[0]);
+          void nextTick(() => {
+            localTracks.value[1].attach(localVideoTrack.value);
+          });
+          roomAddTrack(localTracks.value[1]);
+        } else if (desktopTracks[0] && desktopTracks.length > 1) {
+          // web tracks
+          localTracks.value.push(desktopTracks[1]);
+          void nextTick(() => {
+            localTracks.value[1].attach(localVideoTrack.value);
+          });
+          roomAddTrack(localTracks.value[1]);
+          testReplaceAudio(localTracks.value[0], desktopTracks[0]);
+        }
+      } catch (error: unknown) {
+        const castError = error as Error;
+        errorsCallback(castError.name, castError.message);
       }
     };
 

@@ -997,9 +997,11 @@ export function useInitWebRTC() {
               );
             }
           } else if (eventType === 'SET_PARTICIPANT_ACTION') {
-            const { action, value, participantId } = JSON.parse(
-              obj.data
-            ) as ObjBlockParticipantAction;
+            const {
+              action,
+              blocked: value,
+              participantId,
+            } = JSON.parse(obj.data) as ObjBlockParticipantAction;
 
             if (participantId !== userMe.id) {
               setParticipantActions(participantId, action, value);

@@ -370,7 +370,7 @@
         </aside>
         <div class="m-list__content__userBox__name">{{ participant.name }}</div>
 
-        <!-- <div
+        <div
           class="m-list__content__userBox__actions"
           v-if="userMe.roleId === 0"
         >
@@ -452,7 +452,7 @@
             <q-menu :offset="[60, 12]">
               <q-list>
                 <div class="m-list__content__userBox__extra">
-                  <q-btn
+                  <!-- <q-btn
                     :icon="
                       mainViewState.pinnedUsers.includes(participant.id)
                         ? 'location_disabled'
@@ -487,7 +487,7 @@
                       >
                       <label v-else> Fijar para todos</label>
                     </q-tooltip>
-                  </q-btn>
+                  </q-btn> -->
 
                   <q-btn
                     :icon="
@@ -560,7 +560,7 @@
                       transition-show="scale"
                       transition-hide="scale"
                     >
-                      <label>Echar</label>
+                      <label>Echar de la sala</label>
                     </q-tooltip>
                   </q-btn>
                 </div>
@@ -577,9 +577,9 @@
               <label>Opciones</label>
             </q-tooltip>
           </q-btn>
-        </div> -->
+        </div>
 
-        <div class="m-list__content__userBox__actions">
+        <div v-else class="m-list__content__userBox__actions">
           <q-btn
             :class="[
               'm-list__content__userBox__actions__button',
@@ -718,6 +718,7 @@ import {
   useMainView,
   useJitsi,
 } from '@/composables';
+import { useLockParticipantActions } from '@/composables/lockActions';
 import { User } from '@/types';
 import {
   MAIN_VIEW_LOCKED_TYPE,
@@ -759,6 +760,7 @@ export default defineComponent({
       setRoomCameraState,
       setRoomScreenShareState,
     } = useRoom();
+    const { lockActionsAllowed } = useLockParticipantActions();
 
     const { functionsOnMenuBar } = useToogleFunctions();
     const { sendNotification } = useJitsi();
@@ -792,16 +794,12 @@ export default defineComponent({
       admittedParticipants.value.find((part) => part.id === participant.id)
         ?.isScreenShareBlocked === true;
 
-    const handleParticipantActions = (
-      participant: Partial<User>,
-      action: number
-    ) => {
+    const handleParticipantActions = (participant: User, action: number) => {
       if (participant.roleId === USER_ROLE.ADMINISTRATOR) {
         return;
       }
 
       const blockActions = {
-        id: nanoid(),
         streamId: userMe.id,
         participantId: participant.id,
         action: action,
@@ -809,31 +807,18 @@ export default defineComponent({
 
       if (action === LOCK_ACTION_TYPE.All) {
         if (isEveryoneActionsBlocked.value) {
-          setParticipantActions(participant.id as string, action, false);
+          setParticipantActions(participant.id, action, false);
         } else {
-          setParticipantActions(participant.id as string, action, true);
+          setParticipantActions(participant.id, action, true);
         }
       } else if (action === LOCK_ACTION_TYPE.Mic) {
-        if (isMicBlocked(participant)) {
-          setParticipantActions(participant.id as string, action, false);
-
-          sendData(roomState.hostId, {
-            ...blockActions,
-            eventType: 'SET_PARTICIPANT_ACTION',
-            value: false,
-          });
-        } else {
-          setParticipantActions(participant.id as string, action, true);
-
-          sendData(roomState.hostId, {
-            ...blockActions,
-            eventType: 'SET_PARTICIPANT_ACTION',
-            value: true,
-          });
-        }
+        const lockAction = lockActionsAllowed.get(
+          LOCK_ACTION_TYPE?.Mic as number
+        );
+        lockAction && lockAction(participant, action, blockActions);
       } else if (action === LOCK_ACTION_TYPE.Camera) {
         if (isVideoBlocked(participant)) {
-          setParticipantActions(participant.id as string, action, false);
+          setParticipantActions(participant.id, action, false);
 
           sendData(roomState.hostId, {
             ...blockActions,
@@ -841,7 +826,7 @@ export default defineComponent({
             value: false,
           });
         } else {
-          setParticipantActions(participant.id as string, action, true);
+          setParticipantActions(participant.id, action, true);
 
           sendData(roomState.hostId, {
             ...blockActions,
@@ -851,7 +836,7 @@ export default defineComponent({
         }
       } else {
         if (isScreenShareBlocked(participant)) {
-          setParticipantActions(participant.id as string, action, false);
+          setParticipantActions(participant.id, action, false);
 
           sendData(roomState.hostId, {
             ...blockActions,
@@ -859,7 +844,7 @@ export default defineComponent({
             value: false,
           });
         } else {
-          setParticipantActions(participant.id as string, action, true);
+          setParticipantActions(participant.id, action, true);
 
           sendData(roomState.hostId, {
             ...blockActions,
@@ -1075,8 +1060,9 @@ export default defineComponent({
       }
     };
 
-    const handleKickParticipant = (participant: Partial<User>) => {
-      sendData(roomState.hostId, { eventType: 'KICK', to: participant.id });
+    const handleKickParticipant = (participant: User) => {
+      // const data = JSON.stringify(participant);
+      sendNotification('KICK_PARTICIPANT', { value: participant.id });
     };
 
     const closeUserListPanel = () => {

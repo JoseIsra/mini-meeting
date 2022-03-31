@@ -74,12 +74,11 @@ export interface ExternalVideoObject {
 }
 
 export interface ObjBlockParticipantAction {
-  id: string;
   streamId: string;
   participantId: string;
   eventType: string;
   action: number;
-  value: boolean;
+  blocked: boolean;
 }
 
 export interface ObjBlockEveryoneAction {

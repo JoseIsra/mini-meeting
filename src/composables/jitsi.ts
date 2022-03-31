@@ -13,6 +13,7 @@ import {
   HandNotification,
   User,
   Message,
+  ObjBlockParticipantAction,
 } from '@/types';
 
 // composables
@@ -24,12 +25,20 @@ import {
   useAuthState,
 } from '@/composables';
 import { useJitsiError } from '@/composables/jitsiError';
+import { REASON_TO_LEAVE_ROOM } from '@/utils/enums';
 
 const roomNameTemporal = ref('');
 let connection = reactive<JitsiConnectionRemake>({} as JitsiConnectionRemake);
 let room = reactive<JitsiConferenceRemake>({} as JitsiConferenceRemake);
 const joined = ref(false);
-const { setLocalTracks, localTracks, updateUserMe, userMe } = useUserMe();
+const {
+  setLocalTracks,
+  localTracks,
+  updateUserMe,
+  userMe,
+  setLocalMicBlock,
+  setMicState,
+} = useUserMe();
 
 const {
   participantAudioTracks,
@@ -37,6 +46,7 @@ const {
   addParticipant,
   deleteParticipantById,
   findParticipantById,
+  setParticipantActions,
 } = useHandleParticipants();
 
 const {
@@ -55,13 +65,15 @@ const handNotificationSound = new Audio(
   'https://freesound.org/data/previews/411/411642_5121236-lq.mp3'
 );
 
+// type JitsiTrackType = JitsiLocalTrack[] | JitsiConferenceErrors;
+
 export function useJitsi() {
   JitsiMeetJS.init({
     disableAudioLevels: false,
     enableAnalyticsLogging: true,
     enableWindowOnErrorHandler: true,
   });
-  JitsiMeetJS.setLogLevel(JitsiMeetJS.logLevels.ERROR);
+  JitsiMeetJS.setLogLevel(JitsiMeetJS.logLevels.INFO);
 
   const commandsList = [
     {
@@ -95,6 +107,14 @@ export function useJitsi() {
     {
       name: 'FINISH_SCREEN_SHARING',
       listener: finishScreenSharing,
+    },
+    {
+      name: 'KICK_PARTICIPANT',
+      listener: kickParticipantFromRoom,
+    },
+    {
+      name: 'BLOCK_PARTICIPANT_MIC',
+      listener: blockParticipantMic,
     },
   ];
 
@@ -139,8 +159,31 @@ export function useJitsi() {
   };
 
   const roomAddTrack = (track: JitsiLocalTrack) => {
+    // void room.replaceTrack(track, thenew);
     void room.addTrack(track);
   };
+
+  const testReplaceAudio = (
+    oldaudio: JitsiLocalTrack,
+    newAudio: JitsiLocalTrack
+  ) => {
+    void room.replaceTrack(oldaudio, newAudio);
+  };
+
+  // const resetLocalVideoTrack = () => {
+  //   JitsiMeetJS.createLocalTracks({
+  //     devices: ['video'],
+  //   })
+  //     .then((tracks: JitsiTrackType) => {
+  //       localTracks.value.push(tracks[0] as JitsiLocalTrack);
+  //       void nextTick(() => {
+  //         localTracks.value[1].attach(localVideoTrack.value);
+  //       });
+  //       roomAddTrack(localTracks.value[1]);
+  //       void localTracks.value[1].mute();
+  //     })
+  //     .catch((error) => console.error(error));
+  // };
 
   function handleLocalTracks(
     tracks: JitsiLocalTrack[] | JitsiConferenceErrors
@@ -153,6 +196,24 @@ export function useJitsi() {
 
     if (joined.value) {
       localTracks.value.forEach((track) => {
+        track.addEventListener(
+          JitsiMeetJS.events.track.LOCAL_TRACK_STOPPED,
+          () => {
+            console.log('local dispose? event in track');
+          }
+        );
+        track.addEventListener(
+          JitsiMeetJS.events.track.TRACK_AUDIO_OUTPUT_CHANGED,
+          (id: string) => {
+            console.log('DEVICE ID AUDIO OUTPUT', id);
+          }
+        );
+        track.addEventListener(
+          JitsiMeetJS.events.track.TRACK_VIDEOTYPE_CHANGED,
+          (test: unknown) => {
+            console.log('VIDEO TYPE IS CHANGED', test);
+          }
+        );
         room
           .addTrack(track)
           .then(() => {
@@ -180,11 +241,6 @@ export function useJitsi() {
     console.log(' 🚀UNIÉNDOSE A LA CONFERENCIA ');
     joined.value = true;
     getLocalTracks();
-
-    // localTracks.value.forEach((track) => {
-    //   void room.addTrack(track);
-    //   void track.mute();
-    // });
   }
 
   function onUserJoined(
@@ -313,6 +369,36 @@ export function useJitsi() {
     room.sendMessage(userData);
   }
 
+  function kickParticipantFromRoom(arg: Command) {
+    const participant = findParticipantById(arg.value);
+    if (participant) {
+      deleteParticipantById(participant.id);
+    }
+    if (userMe.id == arg.value) {
+      window.xprops?.handleLeaveCall?.(
+        REASON_TO_LEAVE_ROOM.KICKED_BY_MODERATOR
+      );
+    }
+  }
+
+  function blockParticipantMic(arg: Command) {
+    const { participantId, action, blocked } = JSON.parse(
+      arg.value
+    ) as ObjBlockParticipantAction;
+
+    if (participantId !== userMe.id) {
+      setParticipantActions(participantId, action, blocked);
+      return;
+    }
+    setLocalMicBlock(blocked);
+
+    if (blocked) {
+      setMicState(!blocked);
+      turnOffLocalMic();
+      sendNotification('TURN_OFF_MIC', { value: userMe.id });
+    }
+  }
+
   function onSuccessConnection() {
     console.log('Connected succesfull');
     // init room
@@ -345,9 +431,9 @@ export function useJitsi() {
       handleMessageReceived
     );
     room.on(
-      JitsiMeetJS.events.mediaDevices.PERMISSION_PROMPT_IS_SHOWN,
-      (arg: string) => {
-        console.log('ENVIRONMENT', arg);
+      JitsiMeetJS.events.conference.KICKED,
+      (actor: unknown, reason: string) => {
+        console.table({ actor, reason });
       }
     );
     void room.setSenderVideoConstraint(360);
@@ -410,5 +496,7 @@ export function useJitsi() {
     updateRoomJitsi,
     sendChatMessage,
     getLocalTracks,
+    testReplaceAudio,
+    kickParticipantFromRoom,
   };
 }

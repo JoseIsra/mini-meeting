@@ -383,7 +383,7 @@
                 ? 'red'
                 : ''
             "
-            @click="handleParticipantActions(participant, LOCK_ACTION_TYPE.Mic)"
+            @click="lockParticipantActions(participant, LOCK_ACTION_TYPE.Mic)"
           >
             <q-tooltip
               class="bg-grey-10"
@@ -406,7 +406,7 @@
                 : ''
             "
             @click="
-              handleParticipantActions(participant, LOCK_ACTION_TYPE.Camera)
+              lockParticipantActions(participant, LOCK_ACTION_TYPE.Camera)
             "
           >
             <q-tooltip
@@ -434,7 +434,7 @@
                 : ''
             "
             @click="
-              handleParticipantActions(participant, LOCK_ACTION_TYPE.Screen)
+              lockParticipantActions(participant, LOCK_ACTION_TYPE.Screen)
             "
           >
             <q-tooltip
@@ -741,7 +741,6 @@ export default defineComponent({
       removePinnedUserForAll,
     } = useMainView();
     const {
-      setParticipantActions,
       setEveryParticipantActions,
       waitingParticipants,
       admittedParticipants,
@@ -786,7 +785,7 @@ export default defineComponent({
       admittedParticipants.value.find((part) => part.id === participant.id)
         ?.isMicBlocked === true;
 
-    const isVideoBlocked = (participant: Partial<User>) =>
+    const isCameraBlocked = (participant: Partial<User>) =>
       admittedParticipants.value.find((part) => part.id === participant.id)
         ?.isCameraBlocked === true;
 
@@ -794,65 +793,18 @@ export default defineComponent({
       admittedParticipants.value.find((part) => part.id === participant.id)
         ?.isScreenShareBlocked === true;
 
-    const handleParticipantActions = (participant: User, action: number) => {
+    const lockParticipantActions = (participant: User, action: number) => {
       if (participant.roleId === USER_ROLE.ADMINISTRATOR) {
         return;
       }
 
-      const blockActions = {
+      const lockData = {
         streamId: userMe.id,
         participantId: participant.id,
         action: action,
       };
-
-      if (action === LOCK_ACTION_TYPE.All) {
-        if (isEveryoneActionsBlocked.value) {
-          setParticipantActions(participant.id, action, false);
-        } else {
-          setParticipantActions(participant.id, action, true);
-        }
-      } else if (action === LOCK_ACTION_TYPE.Mic) {
-        const lockAction = lockActionsAllowed.get(
-          LOCK_ACTION_TYPE?.Mic as number
-        );
-        lockAction && lockAction(participant, action, blockActions);
-      } else if (action === LOCK_ACTION_TYPE.Camera) {
-        if (isVideoBlocked(participant)) {
-          setParticipantActions(participant.id, action, false);
-
-          sendData(roomState.hostId, {
-            ...blockActions,
-            eventType: 'SET_PARTICIPANT_ACTION',
-            value: false,
-          });
-        } else {
-          setParticipantActions(participant.id, action, true);
-
-          sendData(roomState.hostId, {
-            ...blockActions,
-            eventType: 'SET_PARTICIPANT_ACTION',
-            value: true,
-          });
-        }
-      } else {
-        if (isScreenShareBlocked(participant)) {
-          setParticipantActions(participant.id, action, false);
-
-          sendData(roomState.hostId, {
-            ...blockActions,
-            eventType: 'SET_PARTICIPANT_ACTION',
-            value: false,
-          });
-        } else {
-          setParticipantActions(participant.id, action, true);
-
-          sendData(roomState.hostId, {
-            ...blockActions,
-            eventType: 'SET_PARTICIPANT_ACTION',
-            value: true,
-          });
-        }
-      }
+      const lockAction = lockActionsAllowed.get(action);
+      lockAction && lockAction(participant, action, lockData);
     };
 
     const participantActionsToolTip = (
@@ -1105,9 +1057,9 @@ export default defineComponent({
       isEveryoneScreenShareBlocked,
       isEveryoneActionsBlocked,
       isMicBlocked,
-      isVideoBlocked,
+      isCameraBlocked,
       isScreenShareBlocked,
-      handleParticipantActions,
+      lockParticipantActions,
       LOCK_ACTION_TYPE,
       handleKickParticipant,
       roomState,

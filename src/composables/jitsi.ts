@@ -25,7 +25,7 @@ import {
   useAuthState,
 } from '@/composables';
 import { useJitsiError } from '@/composables/jitsiError';
-import { REASON_TO_LEAVE_ROOM } from '@/utils/enums';
+import { REASON_TO_LEAVE_ROOM, MediaType } from '@/utils/enums';
 
 const roomNameTemporal = ref('');
 let connection = reactive<JitsiConnectionRemake>({} as JitsiConnectionRemake);
@@ -36,8 +36,14 @@ const {
   localTracks,
   updateUserMe,
   userMe,
-  setLocalMicBlock,
+  setLocalMicLocked,
   setMicState,
+  setLocalCameraLocked,
+  setCameraState,
+  setLocalScreenSharingLocked,
+  setScreenState,
+  setVideoActivatedState,
+  localVideoTrack,
 } = useUserMe();
 
 const {
@@ -64,8 +70,6 @@ const { setIsLoadingOrError } = useAuthState();
 const handNotificationSound = new Audio(
   'https://freesound.org/data/previews/411/411642_5121236-lq.mp3'
 );
-
-// type JitsiTrackType = JitsiLocalTrack[] | JitsiConferenceErrors;
 
 export function useJitsi() {
   JitsiMeetJS.init({
@@ -113,8 +117,16 @@ export function useJitsi() {
       listener: kickParticipantFromRoom,
     },
     {
-      name: 'BLOCK_PARTICIPANT_MIC',
-      listener: blockParticipantMic,
+      name: 'LOCK_PARTICIPANT_MIC',
+      listener: lockParticipantMic,
+    },
+    {
+      name: 'LOCK_PARTICIPANT_CAMERA',
+      listener: lockParticipantCamera,
+    },
+    {
+      name: 'LOCK_PARTICIPANT_SCREEN_SHARING',
+      listener: lockParticipantScreenSharing,
     },
   ];
 
@@ -150,12 +162,36 @@ export function useJitsi() {
 
   const turnOnLocalCamera = () => {
     const videoTrack = getLocalTrackByType('video');
-    videoTrack?.unmute();
+    videoTrack
+      ?.unmute()
+      .then(() => {
+        updateUserMe({ isPublishing: 1 });
+      })
+      .catch((error) => console.error(error));
   };
 
   const turnOffLocalCamera = () => {
     const videoTrack = getLocalTrackByType('video');
     videoTrack?.mute();
+  };
+  const resetDesktop = async () => {
+    if (localTracks.value[1]) {
+      if (userMe.isCameraOn) {
+        setCameraState(false);
+      }
+      localTracks.value[1].dispose();
+      void localTracks.value.pop();
+    }
+    const cameraTrack = (await JitsiMeetJS.createLocalTracks({
+      devices: ['video'],
+    })) as JitsiLocalTrack[];
+    localTracks.value.push(cameraTrack[0]);
+    void nextTick(() => {
+      localTracks.value[1].attach(localVideoTrack.value);
+    });
+
+    void room.addTrack(localTracks.value[1]);
+    void localTracks.value[1].mute();
   };
 
   const roomAddTrack = (track: JitsiLocalTrack) => {
@@ -164,26 +200,26 @@ export function useJitsi() {
   };
 
   const testReplaceAudio = (
-    oldaudio: JitsiLocalTrack,
-    newAudio: JitsiLocalTrack
+    oldaudio: JitsiLocalTrack & { stream?: MediaStream },
+    newAudio: JitsiLocalTrack & { stream?: MediaStream },
+    flag?: boolean
   ) => {
-    void room.replaceTrack(oldaudio, newAudio);
-  };
+    // const damn = JitsiMeetJS.createAudioMixer();
+    // damn.addMediaStream(oldaudio.stream as MediaStream);
+    // damn.addMediaStream(newAudio.stream as MediaStream);
+    // const started = damn.start();
+    // console.log('mixed', started);
+    // console.log('mixedtracks', started.getTracks());
+    // ADDTRACK NO FUNCIONA CON AUDIO
+    // void room.addTrack(started.getTracks()[0] as unknown as JitsiLocalTrack);
 
-  // const resetLocalVideoTrack = () => {
-  //   JitsiMeetJS.createLocalTracks({
-  //     devices: ['video'],
-  //   })
-  //     .then((tracks: JitsiTrackType) => {
-  //       localTracks.value.push(tracks[0] as JitsiLocalTrack);
-  //       void nextTick(() => {
-  //         localTracks.value[1].attach(localVideoTrack.value);
-  //       });
-  //       roomAddTrack(localTracks.value[1]);
-  //       void localTracks.value[1].mute();
-  //     })
-  //     .catch((error) => console.error(error));
-  // };
+    if (flag) {
+      void room.replaceTrack(room.getLocalTracks(MediaType.AUDIO)[0], oldaudio);
+    } else {
+      // REPLACE TRACK FUNCIONA A MEDIAS
+      void room.replaceTrack(oldaudio, newAudio);
+    }
+  };
 
   function handleLocalTracks(
     tracks: JitsiLocalTrack[] | JitsiConferenceErrors
@@ -191,24 +227,23 @@ export function useJitsi() {
     // show conference
     setIsLoadingOrError(false);
 
+    if (!tracks.length) return;
+
     setLocalTracks(tracks as JitsiLocalTrack[]);
     console.log('PARTICIPANTE UNIDO-TRACKS ENABLE 🚀', joined.value);
 
     if (joined.value) {
       localTracks.value.forEach((track) => {
-        track.addEventListener(
-          JitsiMeetJS.events.track.LOCAL_TRACK_STOPPED,
-          () => {
-            console.log('local dispose? event in track');
-          }
-        );
-        track.addEventListener(
+        track.on(JitsiMeetJS.events.track.LOCAL_TRACK_STOPPED, () => {
+          console.log('local dispose? event in track');
+        });
+        track.on(
           JitsiMeetJS.events.track.TRACK_AUDIO_OUTPUT_CHANGED,
           (id: string) => {
             console.log('DEVICE ID AUDIO OUTPUT', id);
           }
         );
-        track.addEventListener(
+        track.on(
           JitsiMeetJS.events.track.TRACK_VIDEOTYPE_CHANGED,
           (test: unknown) => {
             console.log('VIDEO TYPE IS CHANGED', test);
@@ -222,11 +257,6 @@ export function useJitsi() {
           .catch((error) => console.log(error));
       });
     }
-    // setTimeout(() => {
-    //   localTracks.value.forEach((track) => {
-    //     void track.mute();
-    //   });
-    // }, 1000);
   }
 
   function getLocalTracks(constraints = ['video', 'audio']) {
@@ -234,7 +264,10 @@ export function useJitsi() {
       devices: constraints,
     })
       .then(handleLocalTracks)
-      .catch((error: Error) => errorsCallback(error.name, error.message));
+      .catch((error: Error) => {
+        console.log(error);
+        errorsCallback(error.name, error.message);
+      });
   }
 
   function onConferenceJoined() {
@@ -381,21 +414,58 @@ export function useJitsi() {
     }
   }
 
-  function blockParticipantMic(arg: Command) {
-    const { participantId, action, blocked } = JSON.parse(
+  function lockParticipantMic(arg: Command) {
+    const { participantId, action, locked } = JSON.parse(
       arg.value
     ) as ObjBlockParticipantAction;
 
     if (participantId !== userMe.id) {
-      setParticipantActions(participantId, action, blocked);
+      setParticipantActions(participantId, action, locked);
       return;
     }
-    setLocalMicBlock(blocked);
+    setLocalMicLocked(locked);
 
-    if (blocked) {
-      setMicState(!blocked);
+    if (locked) {
+      setMicState(!locked);
       turnOffLocalMic();
       sendNotification('TURN_OFF_MIC', { value: userMe.id });
+    }
+  }
+
+  function lockParticipantCamera(arg: Command) {
+    const { participantId, action, locked } = JSON.parse(
+      arg.value
+    ) as ObjBlockParticipantAction;
+    if (participantId !== userMe.id) {
+      setParticipantActions(participantId, action, locked);
+      return;
+    }
+    setLocalCameraLocked(locked);
+    if (locked) {
+      setCameraState(!locked);
+      setVideoActivatedState(!locked);
+      turnOffLocalCamera();
+      sendNotification('TURN_OFF_CAMERA', { value: userMe.id });
+    }
+  }
+
+  function lockParticipantScreenSharing(arg: Command) {
+    const { participantId, action, locked } = JSON.parse(
+      arg.value
+    ) as ObjBlockParticipantAction;
+
+    if (participantId !== userMe.id) {
+      setParticipantActions(participantId, action, locked);
+      return;
+    }
+
+    setLocalScreenSharingLocked(locked);
+
+    if (locked) {
+      setScreenState(!locked);
+      setVideoActivatedState(!locked);
+      void resetDesktop();
+      sendNotification('FINISH_SCREEN_SHARING', { value: userMe.id });
     }
   }
 

@@ -34,7 +34,6 @@ import {
   useInitWebRTC,
   useUserMe,
   useJitsi,
-  usePerifericsControls,
 } from '@/composables';
 import FuTLoading from 'organisms/FuLoading';
 import {
@@ -81,7 +80,6 @@ export default defineComponent({
     } = useInitWebRTC();
 
     const { stablisConnection, diconnectAll } = useJitsi();
-    const { validateDevices } = usePerifericsControls();
 
     /* const { setMicIconState, setCameraIconState } = useActions(); */
 
@@ -228,9 +226,6 @@ export default defineComponent({
       isVideoOwner: false,
     });
 
-    // TODO: REMOVING THIS SOMETIME
-    validateDevices(userMe);
-
     /* setMicIconState(isMicLocked ? false : isMicOn); */
     // setCameraIconState(!isCameraLocked);
     // setScreenShareIconState(!isScreenShareLocked);
@@ -254,12 +249,12 @@ export default defineComponent({
 
     /* setMicIconState(roleId === 1 ? (isMicLocked ? false : isMicOn) : isMicOn); */
 
-    if (roleId === 1 ? (isCameraLocked ? false : isCameraOn) : isCameraOn) {
-      setVideoActivatedState(true);
-      setCameraState(true);
-      turnOnLocalCamera(streamId);
-      sendNotificationEvent('CAM_TURNED_ON', streamId);
-    }
+    // if (roleId === 1 ? (isCameraLocked ? false : isCameraOn) : isCameraOn) {
+    //   setVideoActivatedState(true);
+    //   setCameraState(true);
+    //   turnOnLocalCamera(streamId);
+    //   sendNotificationEvent('CAM_TURNED_ON', streamId);
+    // }
 
     // const publishToken =
     //   window?.xprops?.publishToken ||

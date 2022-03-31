@@ -1,48 +1,98 @@
 import { useHandleParticipants } from '@/composables/participants';
 import { useJitsi } from '@/composables/jitsi';
-import { User } from '@/types';
+import { User, LockActionsObject } from '@/types';
 import { LOCK_ACTION_TYPE } from '@/utils/enums';
 
-interface Prueba {
-  streamId: string;
-  participantId: string;
-  action: number;
-}
-
-const { setParticipantActions, admittedParticipants } = useHandleParticipants();
+const { admittedParticipants } = useHandleParticipants();
 const { sendNotification } = useJitsi();
 
 const lockActionsAllowed = new Map<
   number,
-  (participant: User, action: number, otro: Prueba) => void
+  (participant: User, action: number, blockData: LockActionsObject) => void
 >();
 
 export function useLockParticipantActions() {
-  const isMicBlocked = (participant: Partial<User>) =>
+  const isMicLocked = (participant: Partial<User>) =>
     admittedParticipants.value.find((part) => part.id === participant.id)
       ?.isMicBlocked === true;
 
-  const blockMic = (participant: User, action: number, otro: Prueba) => {
-    if (isMicBlocked(participant)) {
-      setParticipantActions(participant.id, action, false);
-      sendNotification('BLOCK_PARTICIPANT_MIC', {
+  const isCameraLocked = (participant: Partial<User>) =>
+    admittedParticipants.value.find((part) => part.id === participant.id)
+      ?.isCameraBlocked === true;
+
+  const isScreenSharingLocked = (participant: Partial<User>) =>
+    admittedParticipants.value.find((part) => part.id === participant.id)
+      ?.isScreenShareBlocked === true;
+
+  const lockMic = (
+    participant: User,
+    action: number,
+    lockData: LockActionsObject
+  ) => {
+    if (isMicLocked(participant)) {
+      sendNotification('LOCK_PARTICIPANT_MIC', {
         value: JSON.stringify({
-          ...otro,
-          blocked: false,
+          ...lockData,
+          locked: false,
         }),
       });
     } else {
-      setParticipantActions(participant.id, action, true);
-      sendNotification('BLOCK_PARTICIPANT_MIC', {
+      sendNotification('LOCK_PARTICIPANT_MIC', {
         value: JSON.stringify({
-          ...otro,
-          blocked: true,
+          ...lockData,
+          locked: true,
         }),
       });
     }
   };
 
-  lockActionsAllowed.set(LOCK_ACTION_TYPE.Mic, blockMic);
+  const lockCamera = (
+    participant: User,
+    action: number,
+    lockData: LockActionsObject
+  ) => {
+    if (isCameraLocked(participant)) {
+      sendNotification('LOCK_PARTICIPANT_CAMERA', {
+        value: JSON.stringify({
+          ...lockData,
+          locked: false,
+        }),
+      });
+    } else {
+      sendNotification('LOCK_PARTICIPANT_CAMERA', {
+        value: JSON.stringify({
+          ...lockData,
+          locked: true,
+        }),
+      });
+    }
+  };
+
+  const lockScreenSharing = (
+    participant: User,
+    action: number,
+    lockData: LockActionsObject
+  ) => {
+    if (isScreenSharingLocked(participant)) {
+      sendNotification('LOCK_PARTICIPANT_SCREEN_SHARING', {
+        value: JSON.stringify({
+          ...lockData,
+          locked: false,
+        }),
+      });
+    } else {
+      sendNotification('LOCK_PARTICIPANT_SCREEN_SHARING', {
+        value: JSON.stringify({
+          ...lockData,
+          locked: true,
+        }),
+      });
+    }
+  };
+
+  lockActionsAllowed.set(LOCK_ACTION_TYPE.Mic, lockMic);
+  lockActionsAllowed.set(LOCK_ACTION_TYPE.Camera, lockCamera);
+  lockActionsAllowed.set(LOCK_ACTION_TYPE.Screen, lockScreenSharing);
 
   return {
     lockActionsAllowed,

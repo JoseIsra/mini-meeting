@@ -78,7 +78,7 @@ export interface ObjBlockParticipantAction {
   participantId: string;
   eventType: string;
   action: number;
-  blocked: boolean;
+  locked: boolean;
 }
 
 export interface ObjBlockEveryoneAction {
@@ -133,3 +133,8 @@ export interface ExternalVideoRequest extends BaseData {
   ubication: number;
   isPlaying: boolean;
 }
+
+export type LockActionsObject = Pick<
+  ObjBlockParticipantAction,
+  'streamId' | 'participantId' | 'action'
+>;

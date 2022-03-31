@@ -21,7 +21,7 @@ export enum LOCK_ACTION_TYPE {
 
 export enum ROOM_PRIVACY {
   'PUBLIC',
-  'PRIVATE'
+  'PRIVATE',
 }
 
 export enum PERMISSION_STATUS {
@@ -59,7 +59,7 @@ export enum BEHAVIOUR_TYPE_MENU_BAR {
   ESPECIAL = 'ESPECIAL',
 }
 
-export enum BOARD_EVENTS {  
+export enum BOARD_EVENTS {
   'TURN_ON',
   'TURN_OFF',
   'OBJECT_ADD',
@@ -67,5 +67,20 @@ export enum BOARD_EVENTS {
   'OBJECT_REMOVE',
   'CLEAR',
   'TOGGLE_DRAW_MODE',
-  'CHANGE_BG_COLOR'
+  'CHANGE_BG_COLOR',
+}
+
+export enum MediaType {
+  /**
+   * The audio type.
+   */
+  AUDIO = 'audio',
+  /**
+   * The presenter type.
+   */
+  PRESENTER = 'presenter',
+  /**
+   * The video type.
+   */
+  VIDEO = 'video',
 }

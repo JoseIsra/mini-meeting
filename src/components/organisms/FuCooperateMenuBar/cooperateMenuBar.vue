@@ -32,8 +32,10 @@
           round
           :class="['a-menuBar__icon', { active: userMe.isCameraOn }]"
           :icon="
-            !userMe.isCameraOn
+            userMe.cameraPublishedState == 1
               ? iconsPeriferics.camera.onState
+              : userMe.cameraPublishedState == 2
+              ? iconsPeriferics.camera.loadingState
               : iconsPeriferics.camera.offState
           "
           :disable="
@@ -425,6 +427,8 @@ export default defineComponent({
       setScreenState,
       localTracks,
       localVideoTrack,
+      setLocalCameraLocked,
+      updateUserMe,
     } = useUserMe();
 
     const canSeeActionsMenu = ref(userMe.roleId === 0);
@@ -532,11 +536,12 @@ export default defineComponent({
         turnOffLocalCamera();
         sendNotification('TURN_OFF_CAMERA', { value: userMe.id });
       } else {
-        setVideoActivatedState(true);
         //send notification
+        updateUserMe({ isPublishing: 2 });
         void nextTick(() => {
           turnOnLocalCamera();
         });
+        setVideoActivatedState(true);
         sendNotification('TURN_ON_CAMERA', { value: userMe.id });
       }
       setCameraState(!userMe.isCameraOn);
@@ -593,38 +598,44 @@ export default defineComponent({
       }
       try {
         // open screen capture
-        const desktopTracks = (await JitsiMeetJS.createLocalTracks({
+        const newVideoTracks = (await JitsiMeetJS.createLocalTracks({
           devices: [devicesAvailable.value],
         })) as JitsiLocalTrack[];
-
         if (!userMe.isCameraOn && userMe.isScreenSharing) {
           setVideoActivatedState(true);
+          setLocalCameraLocked(true);
           sendNotification('INIT_SCREEN_SHARING', { value: userMe.id });
           updateRoomJitsi(userMe);
         } else if (!userMe.isCameraOn && !userMe.isScreenSharing) {
           setVideoActivatedState(false);
-          desktopTracks[0] && void desktopTracks[0].mute();
+          newVideoTracks[0] && void newVideoTracks[0].mute();
           sendNotification('FINISH_SCREEN_SHARING', { value: userMe.id });
         }
+        if (!newVideoTracks[0]) return;
 
-        if (desktopTracks[0] && desktopTracks.length == 1) {
-          localTracks.value.push(desktopTracks[0]);
-          void nextTick(() => {
-            localTracks.value[1].attach(localVideoTrack.value);
-          });
-          roomAddTrack(localTracks.value[1]);
-        } else if (desktopTracks[0] && desktopTracks.length > 1) {
-          // web tracks
-          localTracks.value.push(desktopTracks[1]);
-          void nextTick(() => {
-            localTracks.value[1].attach(localVideoTrack.value);
-          });
-          roomAddTrack(localTracks.value[1]);
-          testReplaceAudio(localTracks.value[0], desktopTracks[0]);
-        }
+        videoTrackController(newVideoTracks);
       } catch (error: unknown) {
         const castError = error as Error;
         errorsCallback(castError.name, castError.message);
+      }
+    };
+
+    const videoTrackController = (tracks: JitsiLocalTrack[]) => {
+      if (tracks.length == 1) {
+        localTracks.value.push(tracks[0]);
+        void nextTick(() => {
+          localTracks.value[1].attach(localVideoTrack.value);
+        });
+        testReplaceAudio(localTracks.value[0], tracks[0], true);
+        roomAddTrack(localTracks.value[1]);
+      } else {
+        // web tracks
+        localTracks.value.push(tracks[1]);
+        void nextTick(() => {
+          localTracks.value[1].attach(localVideoTrack.value);
+        });
+        roomAddTrack(localTracks.value[1]);
+        testReplaceAudio(localTracks.value[0], tracks[0], false);
       }
     };
 

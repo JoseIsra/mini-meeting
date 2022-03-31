@@ -66,9 +66,9 @@ const {
   updateUserMe,
   setMicState,
   setCameraState,
-  setLocalMicBlock,
-  setLocalScreenShareBlock,
-  setLocalVideoBlock,
+  setLocalMicLocked,
+  setLocalScreenSharingLocked,
+  setLocalCameraLocked,
   setDenied,
   toggleDrawState,
 } = useUserMe();
@@ -999,7 +999,7 @@ export function useInitWebRTC() {
           } else if (eventType === 'SET_PARTICIPANT_ACTION') {
             const {
               action,
-              blocked: value,
+              locked: value,
               participantId,
             } = JSON.parse(obj.data) as ObjBlockParticipantAction;
 
@@ -1010,11 +1010,11 @@ export function useInitWebRTC() {
 
             if (action === LOCK_ACTION_TYPE.All) {
               setRoomMicState(value);
-              setLocalMicBlock(value);
+              setLocalMicLocked(value);
               setRoomCameraState(value);
-              setLocalVideoBlock(value);
+              setLocalCameraLocked(value);
               setRoomScreenShareState(value);
-              setLocalScreenShareBlock(value);
+              setLocalScreenSharingLocked(value);
 
               if (value) {
                 setMicState(!value);
@@ -1037,7 +1037,7 @@ export function useInitWebRTC() {
             } else if (action === LOCK_ACTION_TYPE.Mic) {
               // setMicBlock(value);
               setRoomMicState(value);
-              setLocalMicBlock(value);
+              setLocalMicLocked(value);
 
               if (value) {
                 /* setMicIconState(!value); */
@@ -1056,7 +1056,7 @@ export function useInitWebRTC() {
             } else if (action === LOCK_ACTION_TYPE.Camera) {
               // setVideoBlock(value);
               setRoomCameraState(value);
-              setLocalVideoBlock(value);
+              setLocalCameraLocked(value);
 
               if (value) {
                 /* setCameraIconState(!value); */
@@ -1076,7 +1076,7 @@ export function useInitWebRTC() {
             } else if (action === LOCK_ACTION_TYPE.Screen) {
               // setScreenShareBlock(value);
               setRoomScreenShareState(value);
-              setLocalScreenShareBlock(value);
+              setLocalScreenSharingLocked(value);
 
               if (value) {
                 /* setScreenShareIconState(!value); */
@@ -1102,9 +1102,9 @@ export function useInitWebRTC() {
               setRoomScreenShareState(value);
 
               if (userMe.roleId === USER_ROLE.REGULAR_PARTICIPANT) {
-                setLocalMicBlock(value);
-                setLocalVideoBlock(value);
-                setLocalScreenShareBlock(value);
+                setLocalMicLocked(value);
+                setLocalCameraLocked(value);
+                setLocalScreenSharingLocked(value);
               }
 
               setEveryParticipantActions(LOCK_ACTION_TYPE.All, value);
@@ -1132,7 +1132,7 @@ export function useInitWebRTC() {
               setEveryParticipantActions(LOCK_ACTION_TYPE.Mic, value);
 
               if (userMe.roleId === USER_ROLE.REGULAR_PARTICIPANT) {
-                setLocalMicBlock(value);
+                setLocalMicLocked(value);
 
                 if (value) {
                   /* setMicIconState(!value); */
@@ -1154,7 +1154,7 @@ export function useInitWebRTC() {
               setEveryParticipantActions(LOCK_ACTION_TYPE.Camera, value);
 
               if (userMe.roleId === USER_ROLE.REGULAR_PARTICIPANT) {
-                setLocalVideoBlock(value);
+                setLocalCameraLocked(value);
 
                 if (value) {
                   /* setCameraIconState(!value); */
@@ -1177,7 +1177,7 @@ export function useInitWebRTC() {
               setEveryParticipantActions(LOCK_ACTION_TYPE.Screen, value);
 
               if (userMe.roleId === USER_ROLE.REGULAR_PARTICIPANT) {
-                setLocalScreenShareBlock(value);
+                setLocalScreenSharingLocked(value);
 
                 if (value) {
                   /* setScreenShareIconState(!value); */

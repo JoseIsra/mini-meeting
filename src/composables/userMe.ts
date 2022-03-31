@@ -1,6 +1,5 @@
 import { reactive, computed, ref } from 'vue';
-import JitsiLocalTrack from '@solyd/lib-jitsi-meet/dist/esm/modules/RTC/JitsiLocalTrack';
-
+import { JitsiLocalTrackImprove } from '@/types';
 import { User } from '@/types/user';
 import { ValueOf } from '@/types';
 import _ from 'lodash';
@@ -11,7 +10,7 @@ import _ from 'lodash';
 const userState = {} as User;
 
 const userMe = reactive<User>(userState);
-const localTracks = ref<JitsiLocalTrack[]>([]);
+const localTracks = ref<JitsiLocalTrackImprove[]>([]);
 const localAudioTrack = ref({} as HTMLElement);
 const localVideoTrack = ref({} as HTMLElement);
 
@@ -75,15 +74,15 @@ export function useUserMe() {
     userMe.isScreenSharing = value;
   };
 
-  const setLocalMicBlock = (value: boolean) => {
+  const setLocalMicLocked = (value: boolean) => {
     userMe.isMicBlocked = value;
   };
 
-  const setLocalVideoBlock = (value: boolean) => {
+  const setLocalCameraLocked = (value: boolean) => {
     userMe.isCameraBlocked = value;
   };
 
-  const setLocalScreenShareBlock = (value: boolean) => {
+  const setLocalScreenSharingLocked = (value: boolean) => {
     userMe.isScreenShareBlocked = value;
   };
 
@@ -101,7 +100,7 @@ export function useUserMe() {
 
   const setDenied = (state: number) => (userMe.denied = state);
 
-  const setLocalTracks = (tracks: JitsiLocalTrack[]) => {
+  const setLocalTracks = (tracks: JitsiLocalTrackImprove[]) => {
     localTracks.value = tracks;
   };
 
@@ -113,9 +112,9 @@ export function useUserMe() {
     setScreenState,
     setVideoActivatedState,
     updateUserMe,
-    setLocalMicBlock,
-    setLocalVideoBlock,
-    setLocalScreenShareBlock,
+    setLocalMicLocked,
+    setLocalCameraLocked,
+    setLocalScreenSharingLocked,
     setDenied,
     toggleDrawState,
     localTracks,

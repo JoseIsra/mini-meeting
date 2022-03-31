@@ -33,16 +33,26 @@ export function useJitsiError() {
         setLoadingOrErrorMessage('Camara bloqueada, inicializando micrófono');
         updateUserMe({
           hasWebcam: false,
-        });
-        setTimeout(() => {
-          getLocalTracks(['audio']);
-        }, 1000);
-      } else if (message.includes('audio')) {
-        updateUserMe({
           hasMic: false,
         });
-        getLocalTracks(['video']);
-        setLoadingOrErrorMessage('Micrófono bloqueado, inicializando cámara');
+        setTimeout(() => {
+          getLocalTracks(['']);
+        }, 1000);
+        // } else if (message.includes('audio')) {
+        //   updateUserMe({
+        //     hasMic: false,
+        //   });
+        //   console.log('BLOQ MIC');
+        //   getLocalTracks(['video']);
+        //   setLoadingOrErrorMessage('Micrófono bloqueado, inicializando cámara');
+        // } else if (
+        //   message == 'User denied permission to use device(s): video, audio'
+        // ) {
+        //   console.log('VIDEO AN AUDIO BLOCK');
+        //   getLocalTracks(['']);
+        //   setLoadingOrErrorMessage(
+        //     'Micrófono y cámara bloqueados, ingresando a la sala'
+        //   );
       }
     } else if (error == JitsiMeetJS.errors.track.SCREENSHARING_USER_CANCELED) {
       console.log('SCREEN CANCELED', {
@@ -50,7 +60,6 @@ export function useJitsiError() {
         message,
       });
       setScreenState(false);
-      // resetLocalVideoTrack();
       JitsiMeetJS.createLocalTracks({
         devices: ['video'],
       })
@@ -63,6 +72,8 @@ export function useJitsiError() {
           void localTracks.value[1].mute();
         })
         .catch((error) => console.error(error));
+    } else if (error == JitsiMeetJS.errors.track.GENERAL) {
+      console.log('GENERAL', { error, message });
     }
   };
 

@@ -1,9 +1,9 @@
 import JitsiLocalTrack from '@solyd/lib-jitsi-meet/dist/esm/modules/RTC/JitsiLocalTrack';
-import JitsiTrack from '@solyd/lib-jitsi-meet/dist/esm/modules/RTC/JitsiTrack';
 import JitsiConference from '@solyd/lib-jitsi-meet/dist/esm/JitsiConference';
 import JitsiConnection from '@solyd/lib-jitsi-meet/dist/esm/JitsiConnection';
 
-export type MultiTrack = JitsiLocalTrack & JitsiTrack;
+export type JitsiLocalTrackImprove = JitsiLocalTrack & { stream?: MediaStream };
+
 export type Track = Record<string, HTMLElement>;
 export interface Command {
   value: string;

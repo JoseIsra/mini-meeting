@@ -42,11 +42,11 @@
 import { defineComponent, ref, computed } from 'vue';
 import {
   useMainView,
-  useInitWebRTC,
-  useRoom,
   useExternalVideo,
   useUserMe,
+  useJitsi,
 } from '@/composables';
+import { usePanels } from '@/composables/panels';
 import { errorMessage, successMessage, warningMessage } from '@/utils/notify';
 import videojs from 'video.js';
 import { MAIN_VIEW_MODE } from '@/utils/enums';
@@ -57,34 +57,25 @@ export default defineComponent({
     let inputURL = ref('');
     const { updateMainViewState } = useMainView();
     const { updateExternalVideoState, externalVideo } = useExternalVideo();
-
-    const { sendData } = useInitWebRTC();
     const regexYoutube = /^(https?\:\/\/)?(www\.youtube\.com|youtu\.?be)\/.+$/;
-    const { roomState } = useRoom();
     const { userMe, updateUserMe } = useUserMe();
+    const { setOpenAdminPanel } = usePanels();
+    const { sendNotification } = useJitsi();
+
     const stablishURL = () => {
-      if (regexYoutube.test(inputURL.value)) {
-        const URLData = {
-          eventType: 'SHARE_EXTERNAL_VIDEO',
-          urlVideo: inputURL.value,
-          videoOwnerId: userMe.id,
-        };
-        updateExternalVideoState({
-          ...externalVideo,
-          videoOnRoom: true,
-          urlVideo: inputURL.value,
-          isVideoPlaying: true,
-          videoOwnerId: userMe.id,
-        });
-        updateMainViewState({
-          mode: MAIN_VIEW_MODE.VIDEO,
-        });
-        sendData(roomState.hostId, URLData);
-        updateUserMe({ isVideoOwner: true });
-        successMessage('Video externo agregado');
-        return;
-      }
-      errorMessage('El URL insertado no es correcto');
+      if (!regexYoutube.test(inputURL.value))
+        return errorMessage('El URL insertado no es correcto');
+
+      const videoInfo = {
+        urlVideo: inputURL.value,
+        videoOwnerId: userMe.id,
+      };
+      sendNotification('INIT_EXTERNAL_VIDEO', {
+        value: JSON.stringify(videoInfo),
+      });
+      updateUserMe({ isVideoOwner: true });
+      successMessage('Video externo agregado');
+      setOpenAdminPanel(false);
     };
 
     const labelExternalVideoBtn = computed(() => {
@@ -97,10 +88,10 @@ export default defineComponent({
           mode: MAIN_VIEW_MODE.NONE,
         });
         videojs(externalVideo.remoteInstanceId as string).dispose();
-        sendData(roomState.hostId, {
-          remoteInstanceId: externalVideo.remoteInstanceId,
-          eventType: 'REMOVE_EXTERNAL_VIDEO',
-        });
+        // sendData(roomState.hostId, {
+        //   remoteInstanceId: externalVideo.remoteInstanceId,
+        //   eventType: 'REMOVE_EXTERNAL_VIDEO',
+        // });
         updateExternalVideoState({
           ...externalVideo,
           videoOnRoom: false,

@@ -7,7 +7,7 @@
       Video compartido en la sala, reproduzca el video para su sincronización
     </p>
     <video
-      id="specialId"
+      id="sharedVideo"
       ref="videoPlayer"
       webkit-playsinline="true"
       class="video-js"
@@ -73,10 +73,10 @@ export default defineComponent({
     const optionsForPlayer = reactive<videojs.PlayerOptions & Test>({
       controls: !screenMinimized.value && canManipulateVideo.value,
       bigPlayButton: false,
-      autoplay: false,
+      autoplay: true,
       responsive: true,
       preload: 'auto',
-      muted: false,
+      muted: true,
       controlBar: {
         progressControl: {
           seekBar: true,
@@ -103,57 +103,57 @@ export default defineComponent({
     });
 
     const initVideoJs = () => {
-      player.value = videojs(
-        videoPlayer.value,
-        optionsForPlayer,
-        function onPlayerReady() {
-          setvideoOptions(optionsForPlayer as videojs.PlayerOptions);
-          updateExternalVideoState({
-            ...externalVideo,
-            remoteInstanceId: videoPlayer.value.playerId,
-          });
-          player.value.on('pause', handlePause);
-          player.value.on('play', handlePlaying);
-          player.value.on('timeupdate', () => {
-            calculateCurrentSelectedTime.value =
-              player.value.duration() - player.value.remainingTime();
-
-            updateExternalVideoState({
-              ...externalVideo,
-              videoCurrentTime: player.value.currentTime(),
-            });
-          });
-          player.value.on('ready', () => {
-            posterClass.value = true;
-          });
-          player.value.controlBar.on('mouseup', () => {
-            if (canManipulateVideo.value) {
-              setTimeout(() => {
-                sendData(roomState.hostId, {
-                  remoteInstanceId: videoPlayer.value.playerId,
-                  videoCurrentTime: calculateCurrentSelectedTime.value,
-                  eventType: 'UPDATE_VIDEOTIME',
-                });
-              }, 200);
-            }
-          });
-        }
+      player.value = videojs(videoPlayer.value, optionsForPlayer, () =>
+        onPlayerReady()
       );
     };
 
+    const onPlayerReady = () => {
+      setvideoOptions(optionsForPlayer as videojs.PlayerOptions);
+      updateExternalVideoState({
+        ...externalVideo,
+        remoteInstanceId: videoPlayer.value.playerId,
+      });
+      player.value.on('pause', handlePause);
+      player.value.on('play', handlePlaying);
+      player.value.on('timeupdate', () => {
+        calculateCurrentSelectedTime.value =
+          player.value.duration() - player.value.remainingTime();
+
+        updateExternalVideoState({
+          ...externalVideo,
+          videoCurrentTime: player.value.currentTime(),
+        });
+      });
+      player.value.on('ready', () => {
+        posterClass.value = true;
+      });
+      // player.value.controlBar.on('mouseup', () => {
+      //   if (canManipulateVideo.value) {
+      //     setTimeout(() => {
+      //       sendData(roomState.hostId, {
+      //         remoteInstanceId: videoPlayer.value.playerId,
+      //         videoCurrentTime: calculateCurrentSelectedTime.value,
+      //         eventType: 'UPDATE_VIDEOTIME',
+      //       });
+      //     }, 200);
+      //   }
+      // });
+    };
     const handlePlaying = () => {
       updateExternalVideoState({
         ...externalVideo,
         isVideoPlaying: true,
       });
-      void player.value.play();
-      if (canManipulateVideo.value) {
-        sendData(roomState.hostId, {
-          remoteInstanceId: videoPlayer.value.playerId,
-          videoCurrentTime: externalVideo.videoCurrentTime,
-          eventType: 'PLAYING_VIDEO',
-        });
-      }
+      void player.value.muted(false);
+
+      // if (canManipulateVideo.value) {
+      //   sendData(roomState.hostId, {
+      //     remoteInstanceId: videoPlayer.value.playerId,
+      //     videoCurrentTime: externalVideo.videoCurrentTime,
+      //     eventType: 'PLAYING_VIDEO',
+      //   });
+      // }
 
       if (!canManipulateVideo.value && infoMessage.value) {
         infoMessage.value = false;

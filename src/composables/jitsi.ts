@@ -14,6 +14,7 @@ import {
   User,
   Message,
   ObjBlockParticipantAction,
+  VideoInfo,
 } from '@/types';
 
 // composables
@@ -23,9 +24,11 @@ import {
   useToogleFunctions,
   useHandleMessage,
   useAuthState,
+  useExternalVideo,
+  useMainView,
 } from '@/composables';
 import { useJitsiError } from '@/composables/jitsiError';
-import { REASON_TO_LEAVE_ROOM, MediaType } from '@/utils/enums';
+import { REASON_TO_LEAVE_ROOM, MediaType, MAIN_VIEW_MODE } from '@/utils/enums';
 
 const roomNameTemporal = ref('');
 let connection = reactive<JitsiConnectionRemake>({} as JitsiConnectionRemake);
@@ -64,8 +67,11 @@ const {
 const { setUserMessage, amountOfNewMessages, acumulateMessages } =
   useHandleMessage();
 
+const { externalVideo, updateExternalVideoState } = useExternalVideo();
+
 const { errorsCallback } = useJitsiError();
 const { setIsLoadingOrError } = useAuthState();
+const { updateMainViewState } = useMainView();
 
 const handNotificationSound = new Audio(
   'https://freesound.org/data/previews/411/411642_5121236-lq.mp3'
@@ -127,6 +133,10 @@ export function useJitsi() {
     {
       name: 'LOCK_PARTICIPANT_SCREEN_SHARING',
       listener: lockParticipantScreenSharing,
+    },
+    {
+      name: 'INIT_EXTERNAL_VIDEO',
+      listener: initExternalVideo,
     },
   ];
 
@@ -204,21 +214,36 @@ export function useJitsi() {
     newAudio: JitsiLocalTrack & { stream?: MediaStream },
     flag?: boolean
   ) => {
-    // const damn = JitsiMeetJS.createAudioMixer();
-    // damn.addMediaStream(oldaudio.stream as MediaStream);
-    // damn.addMediaStream(newAudio.stream as MediaStream);
-    // const started = damn.start();
-    // console.log('mixed', started);
-    // console.log('mixedtracks', started.getTracks());
+    const damn = JitsiMeetJS.createAudioMixer();
+    damn.addMediaStream(newAudio.stream as MediaStream);
+    damn.addMediaStream(oldaudio.stream as MediaStream);
+    const started = damn.start();
+    console.log('mixed', started);
+    console.log('mix audio track', started.getAudioTracks()[0]);
     // ADDTRACK NO FUNCIONA CON AUDIO
-    // void room.addTrack(started.getTracks()[0] as unknown as JitsiLocalTrack);
-
     if (flag) {
       void room.replaceTrack(room.getLocalTracks(MediaType.AUDIO)[0], oldaudio);
     } else {
+      // void room.addTrack(started.getTracks()[0] as unknown as JitsiLocalTrack);
       // REPLACE TRACK FUNCIONA A MEDIAS
+      // oldaudio.getTrack().enabled = true;
       void room.replaceTrack(oldaudio, newAudio);
+      // started.getTracks()[0] as unknown as JitsiLocalTrack
     }
+  };
+
+  const getMediaTrack = (mediaType: MediaType) => {
+    console.log(room.getLocalTracks(mediaType));
+    return room.getLocalTracks(mediaType)[0];
+  };
+
+  const replaceLocalTrack = (
+    theTrach: JitsiLocalTrack,
+    mediaType: MediaType
+  ) => {
+    const track = getMediaTrack(mediaType); // audio o video
+    void room.replaceTrack(track, theTrach);
+    console.log('LOCAL TRACKS DE VIDEO', room.getLocalTracks(MediaType.VIDEO));
   };
 
   function handleLocalTracks(
@@ -469,6 +494,22 @@ export function useJitsi() {
     }
   }
 
+  function initExternalVideo(arg: Command) {
+    // init process to share and sync the video
+    const { urlVideo, videoOwnerId } = JSON.parse(arg.value) as VideoInfo;
+
+    updateExternalVideoState({
+      ...externalVideo,
+      isVideoPlaying: true,
+      videoOwnerId,
+      urlVideo,
+      videoOnRoom: true,
+    });
+    updateMainViewState({
+      mode: MAIN_VIEW_MODE.VIDEO,
+    });
+  }
+
   function onSuccessConnection() {
     console.log('Connected succesfull');
     // init room
@@ -568,5 +609,6 @@ export function useJitsi() {
     getLocalTracks,
     testReplaceAudio,
     kickParticipantFromRoom,
+    replaceLocalTrack,
   };
 }

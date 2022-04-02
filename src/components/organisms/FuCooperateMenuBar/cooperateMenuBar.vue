@@ -324,12 +324,11 @@ import {
 } from 'vue';
 import FuCooperateMenu from 'molecules/FuCooperateMenu';
 import { Icons, Functionalities } from '@/types';
-
+import { MediaType } from '@/utils/enums/general';
 import { iconsPeriferics, iconsFunctions } from '@/helpers/iconsMenuBar';
 
 import {
   useHandleMessage,
-  // useRoom,
   useHandleParticipants,
   useScreen,
   useUserMe,
@@ -337,6 +336,7 @@ import {
   useSidebarToogle,
   useJitsi,
 } from '@/composables';
+import { usePanels } from '@/composables/panels';
 import { useJitsiError } from '@/composables/jitsiError';
 import { nanoid } from 'nanoid';
 
@@ -393,7 +393,9 @@ export default defineComponent({
       roomAddTrack,
       updateRoomJitsi,
       testReplaceAudio,
+      replaceLocalTrack,
     } = useJitsi();
+    const { openAdminPanel, setOpenAdminPanel } = usePanels();
     const { errorsCallback } = useJitsiError();
 
     const notificationCount = computed(() => {
@@ -432,7 +434,7 @@ export default defineComponent({
     } = useUserMe();
 
     const canSeeActionsMenu = ref(userMe.roleId === 0);
-    const openAdminPanel = ref(false);
+    const showAdminPanel = ref(false);
     const {
       userMessages,
       showChatNotification,
@@ -586,6 +588,48 @@ export default defineComponent({
       sendNotification(riseHand.eventType, { value: JSON.stringify(riseHand) });
     };
 
+    const startScreenSharing = (tracks: JitsiLocalTrack[]) => {
+      const desktopAudioTrack = tracks.find(
+        (track) => track.getType() === MediaType.AUDIO
+      );
+      const desktopVideoTrack = tracks.find(
+        (track) => track.getType() === MediaType.VIDEO
+      );
+
+      if (desktopVideoTrack) {
+        setVideoActivatedState(true);
+        setLocalCameraLocked(true);
+        updateRoomJitsi(userMe);
+        localTracks.value.push(desktopVideoTrack);
+        void nextTick(() => {
+          localTracks.value[1].attach(localVideoTrack.value);
+        });
+        replaceLocalTrack(desktopVideoTrack, MediaType.VIDEO);
+        sendNotification('INIT_SCREEN_SHARING', { value: userMe.id });
+      }
+
+      if (desktopAudioTrack) {
+        // send audio
+        testReplaceAudio(localTracks.value[0], desktopAudioTrack, false);
+      }
+    };
+
+    const stopScreenSharing = (tracks: JitsiLocalTrack[]) => {
+      setLocalCameraLocked(false);
+      setVideoActivatedState(false);
+      sendNotification('FINISH_SCREEN_SHARING', { value: userMe.id });
+
+      if (!tracks[0]) return;
+
+      localTracks.value.push(tracks[0]);
+      void nextTick(() => {
+        localTracks.value[1].attach(localVideoTrack.value);
+      });
+      roomAddTrack(tracks[0]);
+      void tracks[0].mute();
+      replaceLocalTrack(localTracks.value[0], MediaType.AUDIO);
+    };
+
     const toggleDesktopScreenCapture = async () => {
       setScreenState(!userMe.isScreenSharing);
       // apagar local track
@@ -597,23 +641,15 @@ export default defineComponent({
         void localTracks.value.pop();
       }
       try {
-        // open screen capture
-        const newVideoTracks = (await JitsiMeetJS.createLocalTracks({
+        const tracks = (await JitsiMeetJS.createLocalTracks({
           devices: [devicesAvailable.value],
         })) as JitsiLocalTrack[];
-        if (!userMe.isCameraOn && userMe.isScreenSharing) {
-          setVideoActivatedState(true);
-          setLocalCameraLocked(true);
-          sendNotification('INIT_SCREEN_SHARING', { value: userMe.id });
-          updateRoomJitsi(userMe);
-        } else if (!userMe.isCameraOn && !userMe.isScreenSharing) {
-          setVideoActivatedState(false);
-          newVideoTracks[0] && void newVideoTracks[0].mute();
-          sendNotification('FINISH_SCREEN_SHARING', { value: userMe.id });
-        }
-        if (!newVideoTracks[0]) return;
 
-        videoTrackController(newVideoTracks);
+        if (userMe.isScreenSharing) {
+          startScreenSharing(tracks);
+        } else {
+          stopScreenSharing(tracks);
+        }
       } catch (error: unknown) {
         const castError = error as Error;
         errorsCallback(castError.name, castError.message);
@@ -648,7 +684,7 @@ export default defineComponent({
 
     const handleMenuPosition = (ubication?: string) => {
       if (ubication == 'actions') {
-        openAdminPanel.value = !openAdminPanel.value;
+        setOpenAdminPanel(!showAdminPanel.value);
       } else {
         isActions.value = false;
         isOptions.value = true;
@@ -722,7 +758,7 @@ export default defineComponent({
       toggleCamera,
       toggleMIC,
       iconsPeriferics,
-      openAdminPanel,
+      showAdminPanel,
       chatNotification,
       notificationCount,
       waitingParticipants,
@@ -736,6 +772,7 @@ export default defineComponent({
       iconsOptions,
       amountOfNewMessages,
       amountHandNotification,
+      openAdminPanel,
     };
   },
 });

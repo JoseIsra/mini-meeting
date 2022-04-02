@@ -138,3 +138,5 @@ export type LockActionsObject = Pick<
   ObjBlockParticipantAction,
   'streamId' | 'participantId' | 'action'
 >;
+
+export type VideoInfo = Pick<ExternalVideoObject, 'videoOwnerId' | 'urlVideo'>;

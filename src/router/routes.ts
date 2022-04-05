@@ -14,11 +14,11 @@ const routes: RouteRecordRaw[] = [
   //       path: 'prejoin',
   //       name: 'prejoin',
   //     },
-  //     {
-  //       path: 'meet',
-  //       name: 'meet',
-  //       component: () => import('pages/FuCooperate'),
-  //     },
+  {
+    path: '/meet',
+    name: 'meet',
+    component: () => import('pages/FuCooperate'),
+  },
   //   ],
   // },
 

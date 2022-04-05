@@ -1,41 +1,43 @@
 <template>
-  <fu-prejoin-page
-    :name="name"
-    class="p-cooperateLobby"
-    :with-name="withName"
-    @submit="joinCollaborate"
-  >
-    <template #top>
-      <img
-        class="p-cooperateLobby__logo"
-        src="https://encrypted.fractalup.com/file/MainPublic/fractalup_assets/logo/logo_cooperate.svg"
-      />
-    </template>
-    <template #bottom="{ loading }">
-      <div class="p-cooperateLobby__buttonCreateGroup">
-        <q-btn
-          unelevated
-          rounded
-          color="grey-1"
-          text-color="black"
-          padding="5px 70px"
-          label="Regresar"
-          no-caps
-          @click="back"
+  <div>
+    <fu-prejoin-page
+      :name="name"
+      class="p-cooperateLobby"
+      :with-name="withName"
+      @submit="joinCollaborate"
+    >
+      <template #top>
+        <img
+          class="p-cooperateLobby__logo"
+          src="https://encrypted.fractalup.com/file/MainPublic/fractalup_assets/logo/logo_cooperate.svg"
         />
-        <q-btn
-          unelevated
-          rounded
-          padding="5px 70px"
-          type="submit"
-          :loading="loading"
-          label="Ingresar"
-          no-caps
-          class="p-cooperateLobby__buttonCreateGroup --initBtn q-mt-md"
-        />
-      </div>
-    </template>
-  </fu-prejoin-page>
+      </template>
+      <template #bottom="{ loading }">
+        <div class="p-cooperateLobby__buttonCreateGroup">
+          <q-btn
+            unelevated
+            rounded
+            color="grey-1"
+            text-color="black"
+            padding="5px 70px"
+            label="Regresar"
+            no-caps
+            @click="back"
+          />
+          <q-btn
+            unelevated
+            rounded
+            padding="5px 70px"
+            type="submit"
+            :loading="loading"
+            label="Ingresar"
+            no-caps
+            class="p-cooperateLobby__buttonCreateGroup --initBtn q-mt-md"
+          />
+        </div>
+      </template>
+    </fu-prejoin-page>
+  </div>
 </template>
 
 <script lang="ts">

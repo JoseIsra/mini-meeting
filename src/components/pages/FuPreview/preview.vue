@@ -1,6 +1,5 @@
 <template>
   <div class="column items-center justify-center">
-    <!-- <avatar ref="avatar" username="miavatar" /> -->
     <video
       style="width: 200px; heigth: 150px"
       ref="videoTrack"
@@ -14,12 +13,10 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
 import { useRouter } from 'vue-router';
-// import Avatar from 'vue-avatar';
-
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import FractalUpCooperateZoid from '@/utils/zoid';
 export default defineComponent({
   name: 'FuPreview',
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-  // components: { Avatar },
   setup() {
     const router = useRouter();
     const videoTrack = ref({} as HTMLVideoElement);

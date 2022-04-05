@@ -44,6 +44,8 @@
 import { defineComponent, ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import FuPrejoinPage from 'organisms/FuPrejoinPage';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import FractalUpCooperateZoid from '@/utils/zoid';
 export default defineComponent({
   name: 'TFuPrejoinPage',
   components: { FuPrejoinPage },

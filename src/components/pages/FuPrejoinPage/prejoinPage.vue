@@ -53,7 +53,7 @@ export default defineComponent({
     const router = useRouter();
     const route = useRoute();
     const show = ref(true);
-    const withName = ref(window.xprops?.isVisitor || true);
+    const withName = ref(window.xprops?.isVisitor || false);
     const name =
       window?.xprops?.streamName || (route.query.streamName as string) || '';
     const isHost =

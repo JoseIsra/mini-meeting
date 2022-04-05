@@ -224,7 +224,7 @@ export default defineComponent({
       canDraw: false,
       isVideoOwner: false,
     });
-
+    console.debug('userm', userMe);
     /* setMicIconState(isMicLocked ? false : isMicOn); */
     // setCameraIconState(!isCameraLocked);
     // setScreenShareIconState(!isScreenShareLocked);

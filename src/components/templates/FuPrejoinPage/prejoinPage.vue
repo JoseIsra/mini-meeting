@@ -57,13 +57,11 @@ export default defineComponent({
       window?.xprops?.streamName || (route.query.streamName as string) || '';
 
     const back = () => {
-      console.debug('go back');
       window.xprops?.handleParticipantLeave();
     };
 
     const roomId =
       window?.xprops?.roomId || (route.query.roomId as string) || '';
-    console.debug({ withName: withName.value, name });
 
     const joinCollaborate = (name: string) => {
       void router.push({

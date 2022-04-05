@@ -44,7 +44,8 @@
 import { defineComponent, ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import FuTPrejoinPage from 'templates/FuPrejoinPage';
-
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import FractalUpCooperateZoid from '@/utils/zoid';
 export default defineComponent({
   name: 'FuPrejoinPage',
   components: { FuTPrejoinPage },
@@ -53,7 +54,8 @@ export default defineComponent({
     const route = useRoute();
     const show = ref(true);
     const withName = ref(window.xprops?.isVisitor || true);
-    const name = ref('');
+    const name =
+      window?.xprops?.streamName || (route.query.streamName as string) || '';
     const isHost =
       window?.xprops?.isHost ||
       (JSON.parse((route.query.isHost as string) || 'false') as string);
@@ -64,11 +66,14 @@ export default defineComponent({
       window.xprops?.handleParticipantLeave();
     };
 
+    const roomId =
+      window?.xprops?.roomId || (route.query.roomId as string) || '';
+
     const joinCollaborate = (name: string) => {
       void router.push({
         name: 'meet',
         query: {
-          roomId: 'chernobil',
+          roomId: `classroomspectacularconference_${roomId}_🟢`,
           streamName: name,
           isHost: isHost as string,
           roleId: roleId,

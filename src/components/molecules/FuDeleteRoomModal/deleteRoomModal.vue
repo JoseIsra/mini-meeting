@@ -26,65 +26,15 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import {
-  useInitWebRTC,
-  useHandleParticipants,
-  useUserMe,
-  useRoom,
-} from '@/composables';
-import { User } from '@/types';
 import { REASON_TO_LEAVE_ROOM } from '@/utils/enums';
 export default defineComponent({
   name: 'FuDeleteRoom',
+
   setup() {
-    const { userMe } = useUserMe();
-    const { roomState } = useRoom();
-    const { sendData, sendNotificationEvent } = useInitWebRTC();
-    const { participants } = useHandleParticipants();
-
     const executeDeleteRoom = () => {
-      deleteRoom(roomState.id)
-        .then(() => {
-          sendData(roomState.hostId, { eventType: 'KICK', to: 'all' });
-
-          const remainingParticipantsFractalUserIds = participants.value.reduce(
-            (newArray: string[], participant: Partial<User>) => {
-              newArray.push(participant.fractalUserId as string);
-              return newArray;
-            },
-            []
-          );
-
-          window.xprops?.handleLeaveCall?.(
-            REASON_TO_LEAVE_ROOM.I_CLOSE_ROOM,
-            remainingParticipantsFractalUserIds
-          );
-
-          if (userMe.isRecording) {
-            sendNotificationEvent('RECORDING_STOPPED', userMe.id);
-          }
-        })
-        .catch((e) => console.log(e));
+      window.xprops?.handleLeaveCall?.(REASON_TO_LEAVE_ROOM.I_CLOSE_ROOM, []);
     };
 
-    const deleteRoom = async (roomId: string) => {
-      const request = new Request(
-        `https://${process.env.ANTMEDIA_SERVER}/${process.env.ANTMEDIA_APP}/rest/v2/broadcasts/conference-rooms/${roomId}`,
-        {
-          headers: {
-            Authorization:
-              'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiaWF0IjoxNTE2MjM5MDIyfQ.dnwd9sjQmEAyWWpbaGWA9R6pW4Qxu5eYES9Xrpl5UsY',
-          },
-          method: 'DELETE',
-        }
-      );
-      const res = await fetch(request);
-
-      return {
-        status: res.status,
-        body: (await res.json()) as Record<string, string>,
-      };
-    };
     return {
       executeDeleteRoom,
     };

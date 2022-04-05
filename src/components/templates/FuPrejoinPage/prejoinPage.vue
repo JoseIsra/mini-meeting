@@ -9,9 +9,13 @@
         muted
       />
       <img v-if="!noWatermark" class="m-lobby__watermark" :src="watermark" />
-      <q-avatar v-show="isCameraOff" size="70px" color="orange">{{
-        userPreviewName
-      }}</q-avatar>
+      <q-avatar
+        v-show="isCameraOff"
+        size="150px"
+        color="orange"
+        text-color="white"
+        >{{ userPreviewName }}</q-avatar
+      >
       <div v-if="$q.screen.width > 1000 && toggle" class="m-lobby__btnWrapper">
         <q-btn
           color="white"
@@ -56,10 +60,11 @@
           :color="inputColor"
           :dark="dark"
           :placeholder="placeHolderName"
-          class="input-name"
+          class="input-name q-mb-md"
           outlined
           :rules="[(val) => !!val || '']"
           @update:model-value="handleChangeName"
+          :hint="hint"
         >
           <template #before>
             <q-icon :color="iconColor" name="fas fa-user" size="14px" />
@@ -180,6 +185,7 @@ import {
 } from 'vue';
 import AudioStreamMeter from 'audio-stream-meter';
 import { useQuasar } from 'quasar';
+import { regexp } from '@/types';
 
 interface IAudioStreamMeterResult {
   volume: number;
@@ -237,10 +243,6 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
-    textError: {
-      type: String,
-      default: 'Su cámara web está siendo utilizada por otra aplicación',
-    },
     value: {
       type: String,
       default: '',
@@ -282,6 +284,8 @@ export default defineComponent({
     const loading = ref(true);
     const camera = ref({} as HTMLVideoElement);
     const userName = ref(props.name);
+    const textError = ref('');
+    const hint = ref('');
 
     const microphoneIcon = computed(() => {
       return isMicrophoneOff.value
@@ -340,14 +344,23 @@ export default defineComponent({
     });
 
     const userPreviewName = computed(() => {
-      return userName.value[0];
+      return (userName.value && userName.value[0].toUpperCase()) || '';
     });
 
-    const handleError = () => {
+    const handleError = (error: Error) => {
       isMicrophoneOff.value = true;
       isCameraOff.value = true;
       disableDevices.value = true;
+      setErrorMessage(error);
     };
+
+    const setErrorMessage = (error: Error) => {
+      const { message } = error;
+      if (message == 'Permission denied') {
+        textError.value = 'Tiene periférico(s) bloqueado(s)';
+      }
+    };
+
     const initStream = () => {
       navigator.mediaDevices
         .getUserMedia({
@@ -473,7 +486,11 @@ export default defineComponent({
     };
 
     const handleSubmit = () => {
-      emit('submit', userName.value);
+      if (regexp.test(userName.value)) {
+        emit('submit', userName.value);
+      } else {
+        hint.value = 'Nombre requerido';
+      }
     };
 
     return {
@@ -502,6 +519,8 @@ export default defineComponent({
       props,
       userName,
       userPreviewName,
+      textError,
+      hint,
     };
   },
 });

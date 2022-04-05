@@ -167,7 +167,6 @@ export default defineComponent({
 
     const hostId =
       (window?.xprops?.hostId as string) || (route.query.hostId as string);
-    console.log(hostId, '🌏HOST ID🌏🌏');
 
     let bgInfo = window?.xprops?.bgInfo || {
       url: 'https://encrypted.fractalup.com/file/MainPublic/fractalup_assets/landing/main.png',

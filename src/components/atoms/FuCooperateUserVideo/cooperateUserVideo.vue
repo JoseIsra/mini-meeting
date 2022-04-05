@@ -17,7 +17,7 @@
         </figure>
         <div class="a-userVideo__box__avatar__info">
           <label class="a-userVideo__box__avatar__info__userName">
-            {{ userMe.id }}-{{ userMe.name }}
+            {{ userMe.name }}
           </label>
           <q-icon
             :name="
@@ -109,8 +109,8 @@
         </figure>
         <div class="a-userVideo__box__avatar__info">
           <label class="a-userVideo__box__avatar__info__userName">
-            {{ participant.id }}- {{ participant.name }}</label
-          >
+            {{ participant.name }}
+          </label>
           <q-icon
             :name="participant.isMicOn ? 'mic' : 'mic_off'"
             size="20px"

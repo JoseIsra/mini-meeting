@@ -28,7 +28,12 @@ import {
   useMainView,
 } from '@/composables';
 import { useJitsiError } from '@/composables/jitsiError';
-import { REASON_TO_LEAVE_ROOM, MediaType, MAIN_VIEW_MODE } from '@/utils/enums';
+import {
+  REASON_TO_LEAVE_ROOM,
+  MediaType,
+  MAIN_VIEW_MODE,
+  MAIN_VIEW_LOCKED_TYPE,
+} from '@/utils/enums';
 import videojs from 'video.js';
 import { successMessage } from '@/utils/notify';
 
@@ -529,6 +534,7 @@ export function useJitsi() {
     });
     updateMainViewState({
       mode: MAIN_VIEW_MODE.VIDEO,
+      locked: MAIN_VIEW_LOCKED_TYPE.ALL_USERS,
     });
   }
 
@@ -547,7 +553,10 @@ export function useJitsi() {
     const { remoteInstanceId } = JSON.parse(arg.value) as ExternalVideoObject;
     remotePlayer.value = {} as videojs.Player;
     videojs(remoteInstanceId as string).dispose();
-    updateMainViewState({ mode: MAIN_VIEW_MODE.NONE });
+    updateMainViewState({
+      mode: MAIN_VIEW_MODE.NONE,
+      locked: MAIN_VIEW_LOCKED_TYPE.UNSET,
+    });
     updateExternalVideoState({
       ...externalVideo,
       videoOnRoom: false,
@@ -563,9 +572,11 @@ export function useJitsi() {
     const { remoteInstanceId, videoCurrentTime } = JSON.parse(
       arg.value
     ) as ExternalVideoObject;
-    if (!userMe.isVideoOwner) {
-      remotePlayer.value = videojs(remoteInstanceId as string);
-      remotePlayer.value.currentTime(videoCurrentTime as number);
+    if (remoteInstanceId) {
+      if (!userMe.isVideoOwner) {
+        remotePlayer.value = videojs(remoteInstanceId);
+        remotePlayer.value.currentTime(videoCurrentTime as number);
+      }
     }
   }
 

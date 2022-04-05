@@ -30,7 +30,7 @@ export function useJitsiError() {
     } else if (error == JitsiMeetJS.errors.track.PERMISSION_DENIED) {
       console.log('Permissions error', { error, message });
       if (message.includes('video')) {
-        setLoadingOrErrorMessage('Camara bloqueada, inicializando micrófono');
+        setLoadingOrErrorMessage('Dispositivos bloqueados');
         updateUserMe({
           hasWebcam: false,
           hasMic: false,

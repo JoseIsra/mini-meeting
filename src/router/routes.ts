@@ -3,6 +3,7 @@ import { RouteRecordRaw } from 'vue-router';
 const routes: RouteRecordRaw[] = [
   {
     path: '/',
+    name: 'lobby',
     component: () => import('pages/FuPrejoinPage'),
   },
   {

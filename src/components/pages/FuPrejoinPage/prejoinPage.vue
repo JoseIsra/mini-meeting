@@ -11,7 +11,7 @@ import TFuPrejoinPage from 'templates/FuPrejoinPage';
 import FractalUpCooperateZoid from '@/utils/zoid';
 
 export default defineComponent({
-  name: 'PFuPrejoinPage',
+  name: 'FuPrejoinPage',
   components: { TFuPrejoinPage },
   setup() {
     return {};

@@ -4,7 +4,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/',
     // component: () => import('layouts/FuMainLayout'),
-    component: () => import('pages/FuPrejoinPage'),
+    component: () => import('pages/FuCooperate'),
   },
   //   redirect: {
   //     name: 'prejoin',

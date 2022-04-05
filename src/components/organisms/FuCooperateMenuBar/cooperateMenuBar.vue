@@ -190,7 +190,7 @@
             </label>
           </q-tooltip>
         </q-btn>
-        <!-- <q-btn
+        <q-btn
           flat
           round
           :class="'a-menuBar__icon'"
@@ -203,7 +203,7 @@
               {{ iconsFunctions.minimize.toolTipMessage }}
             </label>
           </q-tooltip>
-        </q-btn> -->
+        </q-btn>
       </div>
       <div class="a-menuBar__functions__responsive">
         <q-btn

@@ -55,6 +55,7 @@
     >
       <fu-cooperate-participants-panel />
     </q-dialog>
+    <fu-warning v-model="openTabSharedWarning" />
   </section>
 </template>
 <script lang="ts">
@@ -73,6 +74,7 @@ import FuCooperateUserVideo from 'atoms/FuCooperateUserVideo';
 import FuCooperateSideBar from 'molecules/FuCooperateSideBar';
 import FuHandNotification from 'atoms/FuHandNotification';
 import FuFullScreen from 'molecules/FuFullScreen';
+import FuWarning from 'atoms/FuWarning';
 import FuCooperateParticipantsPanel from '@/components/molecules/FuCooperateParticipantsPanel';
 import _ from 'lodash';
 import {
@@ -84,7 +86,7 @@ import {
   useHandleParticipants,
   useHandleMessage,
 } from '@/composables';
-
+import { usePanels } from '@/composables/panels';
 import { MAIN_VIEW_MODE } from '@/utils/enums';
 
 export default defineComponent({
@@ -97,12 +99,14 @@ export default defineComponent({
     FuHandNotification,
     FuFullScreen,
     FuCooperateParticipantsPanel,
+    FuWarning,
   },
   setup(props, { emit }) {
     let vh = ref(window.innerHeight * 0.01);
     const { participantVideoTracks, participantAudioTracks } =
       useHandleParticipants();
     const { acumulateMessages } = useHandleMessage();
+    const { openTabSharedWarning } = usePanels();
 
     onMounted(() => {
       emit('mounted');
@@ -209,6 +213,7 @@ export default defineComponent({
       handActives,
       participantVideoTracks,
       participantAudioTracks,
+      openTabSharedWarning,
     };
   },
 });

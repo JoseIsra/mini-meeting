@@ -30,7 +30,8 @@
     "vuex": "^4.0.1",
     "webrtc-adapter": "^8.1.0",
     "zoid": "9.0.73",
-    "@solyd/lib-jitsi-meet": "^2.7001.1"
+    "@solyd/lib-jitsi-meet": "^2.7001.1",
+    "audio-stream-meter": "^1.0.5"
   },
   "devDependencies": {
     "@babel/eslint-parser": "^7.13.14",

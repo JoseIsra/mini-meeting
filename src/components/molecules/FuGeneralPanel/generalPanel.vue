@@ -30,7 +30,7 @@
       </legend>
       <fu-external-video-modal />
     </fieldset>
-    <fieldset class="m-generalPanel__bgBox">
+    <!-- <fieldset class="m-generalPanel__bgBox">
       <legend class="m-generalPanel__bgBox__text --mainTitle">
         Fondo de Cooperate
       </legend>
@@ -74,7 +74,7 @@
           @click="resetCooperateBg"
         />
       </div>
-    </fieldset>
+    </fieldset> -->
   </section>
 </template>
 
@@ -82,7 +82,7 @@
 import { defineComponent, ref, toRefs, computed, watch } from 'vue';
 
 import { useInitWebRTC, useRoom } from '@/composables';
-import FuFileCatcherCooperate from 'atoms/FuFileCatcherCooperate';
+// import FuFileCatcherCooperate from 'atoms/FuFileCatcherCooperate';
 import { backBlazePath } from '@/config/constants';
 import { simplifyExtension, renameFile } from '@/utils/file';
 import backblazeService from '@/services/backblaze';
@@ -93,7 +93,7 @@ import FuExternalVideoModal from 'molecules/FuExternalVideoModal';
 export default defineComponent({
   name: 'FuGeneralPanel',
   components: {
-    FuFileCatcherCooperate,
+    // FuFileCatcherCooperate,
     FuExternalVideoModal,
   },
   setup() {

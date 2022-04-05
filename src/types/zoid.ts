@@ -56,4 +56,6 @@ export interface ZoidProps {
   setPinnedUser?: (userId: string) => void;
   pinnedUser?: string;
   logUserExits?: (fractalUserIds: string[]) => void;
+  isVisitor?: boolean;
+  handleParticipantLeave(): void;
 }

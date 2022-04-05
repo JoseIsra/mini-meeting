@@ -3,9 +3,6 @@
     :class="['m-video', { miniMode: watchMinimized }]"
     :style="redimensionVideoSize"
   >
-    <p v-show="infoMessage && !canManipulateVideo" class="m-video__message">
-      Video compartido en la sala, reproduzca el video para su sincronización
-    </p>
     <video
       id="sharedVideo"
       ref="videoPlayer"
@@ -30,12 +27,11 @@ import {
   onBeforeUnmount,
 } from 'vue';
 import {
-  useRoom,
   useScreen,
   useUserMe,
-  useInitWebRTC,
   useExternalVideo,
   useHandleParticipants,
+  useJitsi,
 } from '@/composables';
 import videojs from 'video.js';
 import 'video.js/dist/video.min.js';
@@ -58,7 +54,6 @@ export default defineComponent({
     const $q = useQuasar();
     let posterClass = ref(false);
     const calculateCurrentSelectedTime = ref(0);
-    const { sendData } = useInitWebRTC();
     const { userMe } = useUserMe();
     const { externalVideo, setvideoOptions, updateExternalVideoState } =
       useExternalVideo();
@@ -69,6 +64,7 @@ export default defineComponent({
     const infoMessage = ref(true);
     const infoHelperMessage = ref('');
     const { admittedParticipants } = useHandleParticipants();
+    const { sendNotification } = useJitsi();
 
     const optionsForPlayer = reactive<videojs.PlayerOptions & Test>({
       controls: !screenMinimized.value && canManipulateVideo.value,
@@ -94,8 +90,6 @@ export default defineComponent({
         origin: window.location.href,
       },
     });
-
-    const { roomState } = useRoom();
 
     onMounted(() => {
       window.addEventListener('orientationchange', handleOrientationChange);
@@ -128,17 +122,18 @@ export default defineComponent({
       player.value.on('ready', () => {
         posterClass.value = true;
       });
-      // player.value.controlBar.on('mouseup', () => {
-      //   if (canManipulateVideo.value) {
-      //     setTimeout(() => {
-      //       sendData(roomState.hostId, {
-      //         remoteInstanceId: videoPlayer.value.playerId,
-      //         videoCurrentTime: calculateCurrentSelectedTime.value,
-      //         eventType: 'UPDATE_VIDEOTIME',
-      //       });
-      //     }, 200);
-      //   }
-      // });
+      player.value.controlBar.on('mouseup', () => {
+        if (canManipulateVideo.value) {
+          setTimeout(() => {
+            sendNotification('UPDATE_EXTERNAL_VIDEO_CURRENT_TIME', {
+              value: JSON.stringify({
+                remoteInstanceId: videoPlayer.value.playerId,
+                videoCurrentTime: calculateCurrentSelectedTime.value,
+              }),
+            });
+          }, 200);
+        }
+      });
     };
     const handlePlaying = () => {
       updateExternalVideoState({
@@ -147,22 +142,23 @@ export default defineComponent({
       });
       void player.value.muted(false);
 
-      // if (canManipulateVideo.value) {
-      //   sendData(roomState.hostId, {
-      //     remoteInstanceId: videoPlayer.value.playerId,
-      //     videoCurrentTime: externalVideo.videoCurrentTime,
-      //     eventType: 'PLAYING_VIDEO',
-      //   });
-      // }
-
-      if (!canManipulateVideo.value && infoMessage.value) {
-        infoMessage.value = false;
-        sendData(roomState.hostId, {
-          from: userMe.id,
-          to: getOwner.value?.id,
-          eventType: 'REQUEST_VIDEO_TIME',
+      if (canManipulateVideo.value) {
+        sendNotification('PLAY_EXTERNAL_VIDEO', {
+          value: JSON.stringify({
+            remoteInstanceId: videoPlayer.value.playerId,
+            videoCurrentTime: externalVideo.videoCurrentTime,
+          }),
         });
       }
+
+      // if (!canManipulateVideo.value && infoMessage.value) {
+      //   infoMessage.value = false;
+      //   sendData(roomState.hostId, {
+      //     from: userMe.id,
+      //     to: getOwner.value?.id,
+      //     eventType: 'REQUEST_VIDEO_TIME',
+      //   });
+      // }
     };
 
     const handlePause = () => {
@@ -172,10 +168,11 @@ export default defineComponent({
       });
 
       if (canManipulateVideo.value) {
-        sendData(roomState.hostId, {
-          remoteInstanceId: videoPlayer.value.playerId,
-          videoCurrentTime: externalVideo.videoCurrentTime,
-          eventType: 'PAUSE_VIDEO',
+        sendNotification('PAUSE_EXTERNAL_VIDEO', {
+          value: JSON.stringify({
+            remoteInstanceId: videoPlayer.value.playerId,
+            videoCurrentTime: externalVideo.videoCurrentTime,
+          }),
         });
       }
     };

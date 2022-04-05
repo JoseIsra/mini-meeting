@@ -405,7 +405,6 @@ export default defineComponent({
         }
       }
     };
-
     onMounted(() => {
       if (roomId) {
         stablisConnection(roomId);

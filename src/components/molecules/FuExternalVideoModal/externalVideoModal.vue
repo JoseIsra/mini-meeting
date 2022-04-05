@@ -40,36 +40,29 @@
 
 <script lang="ts">
 import { defineComponent, ref, computed } from 'vue';
-import {
-  useMainView,
-  useExternalVideo,
-  useUserMe,
-  useJitsi,
-} from '@/composables';
+import { useExternalVideo, useUserMe, useJitsi } from '@/composables';
 import { usePanels } from '@/composables/panels';
 import { errorMessage, successMessage, warningMessage } from '@/utils/notify';
-import videojs from 'video.js';
-import { MAIN_VIEW_MODE } from '@/utils/enums';
 
 export default defineComponent({
   name: 'FuExternalVideoModal',
   setup() {
     let inputURL = ref('');
-    const { updateMainViewState } = useMainView();
-    const { updateExternalVideoState, externalVideo } = useExternalVideo();
+    const { externalVideo } = useExternalVideo();
     const regexYoutube = /^(https?\:\/\/)?(www\.youtube\.com|youtu\.?be)\/.+$/;
     const { userMe, updateUserMe } = useUserMe();
     const { setOpenAdminPanel } = usePanels();
-    const { sendNotification } = useJitsi();
+    const { sendNotification, updateJitsiParticipant } = useJitsi();
 
     const stablishURL = () => {
       if (!regexYoutube.test(inputURL.value))
         return errorMessage('El URL insertado no es correcto');
 
       const videoInfo = {
-        urlVideo: inputURL.value,
+        urlVideo: parsedYoutubeUrl(inputURL.value),
         videoOwnerId: userMe.id,
       };
+      updateJitsiParticipant();
       sendNotification('INIT_EXTERNAL_VIDEO', {
         value: JSON.stringify(videoInfo),
       });
@@ -82,29 +75,25 @@ export default defineComponent({
       return externalVideo.videoOnRoom ? 'Quitar video' : 'Compartir video';
     });
 
+    const parsedYoutubeUrl = (youtubeURL: string): string => {
+      const youtubeId = new URL(youtubeURL).searchParams.get('v') as string;
+
+      return `https://www.youtube.com/watch?v=${youtubeId}`;
+    };
+
     const removeVideoOnRoom = () => {
-      if (userMe.isVideoOwner) {
-        updateMainViewState({
-          mode: MAIN_VIEW_MODE.NONE,
-        });
-        videojs(externalVideo.remoteInstanceId as string).dispose();
-        // sendData(roomState.hostId, {
-        //   remoteInstanceId: externalVideo.remoteInstanceId,
-        //   eventType: 'REMOVE_EXTERNAL_VIDEO',
-        // });
-        updateExternalVideoState({
-          ...externalVideo,
-          videoOnRoom: false,
-          urlVideo: '',
-          isVideoPlaying: false,
-          videoCurrentTime: 0,
-          remoteInstanceId: '',
-        });
-        successMessage('Video externo removido');
-        updateUserMe({ isVideoOwner: false });
-      } else {
-        warningMessage('La persona quien compartió el video puede removerlo');
+      if (!userMe.isVideoOwner) {
+        return warningMessage(
+          'La persona quien compartió el video puede removerlo'
+        );
       }
+      sendNotification('REMOVE_EXTERNAL_VIDEO', {
+        value: JSON.stringify({
+          remoteInstanceId: externalVideo.remoteInstanceId,
+        }),
+      });
+      updateUserMe({ isVideoOwner: false });
+      setOpenAdminPanel(false);
     };
 
     return {

@@ -1,5 +1,6 @@
 <template>
   <div class="column items-center justify-center">
+    <!-- <avatar ref="avatar" username="miavatar" /> -->
     <video
       style="width: 200px; heigth: 150px"
       ref="videoTrack"
@@ -13,9 +14,12 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
 import { useRouter } from 'vue-router';
+// import Avatar from 'vue-avatar';
 
 export default defineComponent({
   name: 'FuPreview',
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  // components: { Avatar },
   setup() {
     const router = useRouter();
     const videoTrack = ref({} as HTMLVideoElement);
@@ -39,8 +43,8 @@ export default defineComponent({
         name: 'meet',
         query: {
           roomId: 'chernobil',
-          streamName: 'isra',
-          isHost: 'true',
+          streamName: 'student',
+          isHost: 'false',
           roleId: '1',
         },
       });

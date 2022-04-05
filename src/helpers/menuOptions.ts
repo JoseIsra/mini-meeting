@@ -116,24 +116,24 @@ export const adminPanelOptions = [
     iconName: 'fas fa-cog',
     important: false,
   },
-  {
-    id: '2',
-    description: 'Administrador',
-    iconName: 'toggle_on',
-    important: false,
-  },
+  // {
+  //   id: '2',
+  //   description: 'Administrador',
+  //   iconName: 'toggle_on',
+  //   important: false,
+  // },
   // {
   //   id: '3',
   //   description: 'Retransmisión',
   //   iconName: 'live_tv',
   //   important: false,
   // },
-  {
-    id: '4',
-    description: 'Pizarra',
-    iconName: 'note_alt',
-    important: false,
-  },
+  // {
+  //   id: '4',
+  //   description: 'Pizarra',
+  //   iconName: 'note_alt',
+  //   important: false,
+  // },
 ];
 
 export const componentList = [

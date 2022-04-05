@@ -395,7 +395,8 @@ export default defineComponent({
       testReplaceAudio,
       replaceLocalTrack,
     } = useJitsi();
-    const { openAdminPanel, setOpenAdminPanel } = usePanels();
+    const { openAdminPanel, setOpenAdminPanel, setTabSharedWarning } =
+      usePanels();
     const { errorsCallback } = useJitsiError();
 
     const notificationCount = computed(() => {
@@ -611,6 +612,7 @@ export default defineComponent({
       if (desktopAudioTrack) {
         // send audio
         testReplaceAudio(localTracks.value[0], desktopAudioTrack, false);
+        setTabSharedWarning(true);
       }
     };
 
@@ -618,7 +620,7 @@ export default defineComponent({
       setLocalCameraLocked(false);
       setVideoActivatedState(false);
       sendNotification('FINISH_SCREEN_SHARING', { value: userMe.id });
-
+      setTabSharedWarning(false);
       if (!tracks[0]) return;
 
       localTracks.value.push(tracks[0]);
@@ -656,24 +658,24 @@ export default defineComponent({
       }
     };
 
-    const videoTrackController = (tracks: JitsiLocalTrack[]) => {
-      if (tracks.length == 1) {
-        localTracks.value.push(tracks[0]);
-        void nextTick(() => {
-          localTracks.value[1].attach(localVideoTrack.value);
-        });
-        testReplaceAudio(localTracks.value[0], tracks[0], true);
-        roomAddTrack(localTracks.value[1]);
-      } else {
-        // web tracks
-        localTracks.value.push(tracks[1]);
-        void nextTick(() => {
-          localTracks.value[1].attach(localVideoTrack.value);
-        });
-        roomAddTrack(localTracks.value[1]);
-        testReplaceAudio(localTracks.value[0], tracks[0], false);
-      }
-    };
+    // const videoTrackController = (tracks: JitsiLocalTrack[]) => {
+    //   if (tracks.length == 1) {
+    //     localTracks.value.push(tracks[0]);
+    //     void nextTick(() => {
+    //       localTracks.value[1].attach(localVideoTrack.value);
+    //     });
+    //     testReplaceAudio(localTracks.value[0], tracks[0], true);
+    //     roomAddTrack(localTracks.value[1]);
+    //   } else {
+    //     // web tracks
+    //     localTracks.value.push(tracks[1]);
+    //     void nextTick(() => {
+    //       localTracks.value[1].attach(localVideoTrack.value);
+    //     });
+    //     roomAddTrack(localTracks.value[1]);
+    //     testReplaceAudio(localTracks.value[0], tracks[0], false);
+    //   }
+    // };
 
     const { updateScreenState } = useScreen();
 

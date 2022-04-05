@@ -30,7 +30,7 @@
           <q-badge color="red" rounded />
         </label>
       </li>
-      <li
+      <!-- <li
         class="a-menu__actionList__item"
         @click="handleFunctionSelected(INTERACTION_TYPE_MENU_BAR.MINIMIZE)"
       >
@@ -38,7 +38,7 @@
         <label class="a-menu__actionList__item__description">{{
           iconsFunctions.minimize.toolTipMessage
         }}</label>
-      </li>
+      </li> -->
     </ul>
   </section>
 </template>

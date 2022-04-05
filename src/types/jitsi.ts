@@ -5,9 +5,12 @@ import JitsiConnection from '@solyd/lib-jitsi-meet/dist/esm/JitsiConnection';
 export type JitsiLocalTrackImprove = JitsiLocalTrack & { stream?: MediaStream };
 
 export type Track = Record<string, HTMLElement>;
+interface CommandAttributes {
+  type: string;
+}
 export interface Command {
   value: string;
-  attributes?: Record<string, unknown>;
+  attributes?: CommandAttributes;
   children?: Command[];
 }
 

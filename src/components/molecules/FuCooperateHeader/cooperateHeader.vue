@@ -7,9 +7,9 @@
         alt="logo-collaborate"
       />
     </div>
-    <div class="m-header__recordingContainer">
+    <!-- <div class="m-header__recordingContainer">
       <fu-recording />
-    </div>
+    </div> -->
     <!-- <div class="m-header__minimizeContainer"> -->
     <!-- Para el botoón de minimizar -->
     <!-- <q-btn color="primary" icon="check" label="Minimizar" /> -->
@@ -32,13 +32,13 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import FuRecording from '@/components/molecules/FuRecording';
+// import FuRecording from '@/components/molecules/FuRecording';
 import { useBoard } from '@/composables';
 
 export default defineComponent({
   name: 'FuCooperateHeader',
   components: {
-    FuRecording,
+    // FuRecording,
   },
   setup() {
     const { showBoard, toggleShowBoard } = useBoard();

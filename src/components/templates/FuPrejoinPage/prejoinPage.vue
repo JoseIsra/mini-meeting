@@ -55,11 +55,6 @@ export default defineComponent({
     const withName = ref(window.xprops?.isVisitor || false);
     const name =
       window?.xprops?.streamName || (route.query.streamName as string) || '';
-    const isHost =
-      window?.xprops?.isHost ||
-      (JSON.parse((route.query.isHost as string) || 'false') as string);
-
-    const roleId = window.xprops?.roleId || route.query.roleId || '1';
 
     const back = () => {
       console.debug('go back');
@@ -68,7 +63,7 @@ export default defineComponent({
 
     const roomId =
       window?.xprops?.roomId || (route.query.roomId as string) || '';
-    console.debug({ withName: withName.value, name, isHost, roleId });
+    console.debug({ withName: withName.value, name });
 
     const joinCollaborate = (name: string) => {
       void router.push({
@@ -76,8 +71,6 @@ export default defineComponent({
         query: {
           roomId: `classroomspectacularconference_${roomId}_🟢`,
           streamName: name,
-          isHost: isHost as string,
-          roleId: roleId,
         },
       });
     };

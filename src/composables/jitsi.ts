@@ -326,7 +326,6 @@ export function useJitsi() {
     _arg: string,
     user: JitsiParticipant & { _tracks: JitsiTrack[] }
   ) {
-    console.log(user);
     const dataUser = JSON.parse(user.getDisplayName()) as User;
     addParticipant({
       id: dataUser.id,
@@ -340,11 +339,11 @@ export function useJitsi() {
       isMicBlocked: false,
       isCameraBlocked: false,
       isScreenShareBlocked: false,
-      fractalUserId: '',
+      fractalUserId: dataUser.fractalUserId,
       denied: 1,
       isRecording: false,
-      roleId: 1,
-      isHost: false,
+      roleId: dataUser.roleId,
+      isHost: dataUser.isHost,
       isPublishing: 0, // 0 -> off / 1 -> on / 2 -> loading . For my own user
       hasLogJoin: false, // Specially for others users because mine just log one time
       speakerId: '',
@@ -356,6 +355,7 @@ export function useJitsi() {
       isVideoOwner: false,
       tracks: user._tracks,
     });
+    console.debug(dataUser);
   }
 
   function onUserLeft(arg: string, participant: JitsiParticipant) {

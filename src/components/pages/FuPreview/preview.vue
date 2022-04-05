@@ -13,8 +13,6 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
 import { useRouter } from 'vue-router';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import FractalUpCooperateZoid from '@/utils/zoid';
 export default defineComponent({
   name: 'FuPreview',
   setup() {

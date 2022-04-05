@@ -42,8 +42,8 @@
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
 import FuPrejoinPage from 'organisms/FuPrejoinPage';
+import { useRouter, useRoute } from 'vue-router';
 
 export default defineComponent({
   name: 'FuTPrejoinPage',

@@ -43,7 +43,7 @@
     </div>
     <div class="m-lobby__wrapper">
       <slot name="top" />
-      <q-linear-progress
+      <!-- <q-linear-progress
         v-if="hideActionBar"
         :value="volumeIndicator"
         :dark="dark"
@@ -52,7 +52,7 @@
         color="secondary"
         instant-feedback
         rounded
-      />
+      /> -->
       <q-form class="m-lobby__form" @submit.prevent="handleSubmit">
         <q-input
           v-if="withName"
@@ -183,21 +183,21 @@ import {
   onBeforeUnmount,
   watch,
 } from 'vue';
-import AudioStreamMeter from 'audio-stream-meter';
+// import AudioStreamMeter from 'audio-stream-meter';
 import { useQuasar } from 'quasar';
 import { regexp } from '@/types';
 
-interface IAudioStreamMeterResult {
-  volume: number;
-  close(): void;
-}
+// interface IAudioStreamMeterResult {
+//   volume: number;
+//   close(): void;
+// }
 
-interface IAudioStreamMeter {
-  audioStreamProcessor: (
-    audioctx: AudioContext,
-    func: unknown
-  ) => IAudioStreamMeterResult;
-}
+// interface IAudioStreamMeter {
+//   audioStreamProcessor: (
+//     audioctx: AudioContext,
+//     func: unknown
+//   ) => IAudioStreamMeterResult;
+// }
 
 export default defineComponent({
   name: 'FuPrejoinPage',
@@ -279,7 +279,6 @@ export default defineComponent({
     const isMicrophoneOff = ref(false);
     const isCameraOff = ref(false);
     const disableDevices = ref(false);
-    const audioStreamMeter = ref<IAudioStreamMeterResult | null>(null);
     const audioStream = ref<MediaStream | null>(null);
     const loading = ref(true);
     const camera = ref({} as HTMLVideoElement);
@@ -380,15 +379,14 @@ export default defineComponent({
     const initVolumeMeter = (stream: MediaStream) => {
       audioStream.value = stream;
 
-      const audioContext = new AudioContext();
+      //     const audioContext = new AudioContext();
+      // const mediaStream = audioContext.createMediaStreamSource(stream);
 
-      const mediaStream = audioContext.createMediaStreamSource(stream);
-
-      const meter = (
-        AudioStreamMeter as IAudioStreamMeter
-      ).audioStreamProcessor(audioContext, () => {
-        volumeIndicator.value = meter.volume;
-      });
+      // const meter = (
+      //   AudioStreamMeter as IAudioStreamMeter
+      // ).audioStreamProcessor(audioContext, () => {
+      //   volumeIndicator.value = meter.volume;
+      // });
 
       stream.getTracks().forEach((track) => {
         if (track.readyState === 'live' && track.kind === 'audio') {
@@ -396,8 +394,8 @@ export default defineComponent({
         }
       });
 
-      mediaStream.connect(meter as unknown as AudioNode);
-      audioStreamMeter.value = meter;
+      // mediaStream.connect(meter as unknown as AudioNode);
+      // audioStreamMeter.value = meter;
     };
 
     const getDevices = () => {
@@ -416,7 +414,7 @@ export default defineComponent({
     };
 
     const changeMicrophone = async () => {
-      audioStreamMeter.value?.close();
+      // audioStreamMeter.value?.close();
       stopMicrophone();
       await navigator.mediaDevices
         .getUserMedia({

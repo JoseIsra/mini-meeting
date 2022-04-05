@@ -44,7 +44,7 @@ import { useRouter, useRoute } from 'vue-router';
 import FuPrejoinPage from 'organisms/FuPrejoinPage';
 
 export default defineComponent({
-  name: 'TFuPrejoinPage',
+  name: 'FuTPrejoinPage',
   components: { FuPrejoinPage },
   setup() {
     const router = useRouter();

@@ -488,8 +488,10 @@ export default defineComponent({
     const handleSubmit = () => {
       if (regexp.test(userName.value)) {
         emit('submit', userName.value);
+        console.debug('into cooperate');
       } else {
         hint.value = 'Nombre requerido';
+        console.debug('no into cooperate bc nam');
       }
     };
 

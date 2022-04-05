@@ -361,19 +361,22 @@ export default defineComponent({
     };
 
     const initStream = () => {
-      navigator.mediaDevices
-        .getUserMedia({
-          audio: true,
-          video: true,
-        })
-        .then((stream) => {
-          camera.value.srcObject = stream;
-          initVolumeMeter(stream);
-        })
-        .catch(handleError)
-        .finally(() => {
-          loading.value = false;
-        });
+      isMicrophoneOff.value = true;
+      isCameraOff.value = true;
+      loading.value = false;
+      // navigator.mediaDevices
+      //   .getUserMedia({
+      //     audio: true,
+      //     video: true,
+      //   })
+      //   .then((stream) => {
+      //     camera.value.srcObject = stream;
+      //     initVolumeMeter(stream);
+      //   })
+      //   .catch(handleError)
+      //   .finally(() => {
+      //     loading.value = false;
+      //   });
     };
 
     const initVolumeMeter = (stream: MediaStream) => {

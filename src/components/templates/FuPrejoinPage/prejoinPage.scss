@@ -1,179 +1,26 @@
-.m-lobby {
-  border-radius: 14px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background-color: var(--bg-color);
-
-  &.--fullscreen {
-    width: 100vw !important;
-    height: 100vh;
-    position: fixed;
-    inset: 0;
-    border-radius: unset;
-    flex-direction: row-reverse;
-
-    .m-lobby__cameraWrapper {
-      aspect-ratio: unset;
-      border-radius: unset;
-      height: 100%;
-      width: 75%;
-
-      video {
-        object-fit: cover;
-      }
-    }
-    .m-lobby__wrapper {
-      padding: 30px;
-      flex-basis: 30%;
-    }
-    .m-lobby__watermark {
-      max-width: 14%;
-    }
-
-    @media (max-width: 1000px) {
-      display: grid;
-      grid-template-rows: 1fr 50vh;
-      .m-lobby__cameraWrapper,
-      .m-lobby__wrapper {
-        width: 100%;
-        height: 100%;
-        overflow-y: auto;
-      }
-      .m-lobby__form {
-        height: auto;
-      }
-      .m-lobby__form {
-        justify-content: center;
-      }
-    }
+.p-cooperateLobby {
+  &__logo {
+    display: block;
+    margin: 0 auto 2.5rem;
+    width: min(250px, 70%);
   }
 
-  &__cameraWrapper {
-    background-color: var(--camera-bg);
-    width: 100%;
-    aspect-ratio: 16/9;
-    border-radius: 14px;
-    overflow: hidden;
-    position: relative;
+  &__buttonCreateGroup {
     display: flex;
-    align-items: center;
     justify-content: center;
-
-    &__profilePicture {
-      margin-bottom: 20px;
-      border: rgba(255, 255, 255, 0.6) solid 6px;
-      border-radius: 50%;
-
-      &.--active {
-        border-color: #2ecc71;
-      }
-
-      .vue-avatar--wrapper {
-        transition: 300ms;
-      }
-      @media (max-width: 550px) {
-        border-width: 4px;
-        .vue-avatar--wrapper {
-          --pic-size: 100px;
-          width: var(--pic-size) !important;
-          height: var(--pic-size) !important;
-          background-size: contain !important;
-        }
-      }
-    }
-  }
-  &__watermark {
-    opacity: 0.5;
-    position: absolute;
-    bottom: 20px;
-    left: 20px;
-    max-height: 12%;
-    max-width: 20%;
-    min-width: 140px;
-    filter: grayscale(1);
-  }
-
-  &__wrapper {
-    margin: 0 auto;
+    flex-wrap: wrap;
+    margin: 24px auto 0;
     width: 100%;
-  }
-
-  &__form {
-    display: flex;
-    flex-direction: column;
-    gap: 7px;
-    margin-top: 20px;
-    padding: 0 2rem;
-
-    .q-field {
-      min-width: 250px;
-    }
-
-    &__actions {
-      // background-color: #292929;
-      background-color: rgba(0, 0, 0, 0.1);
-      box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
-        rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
-      padding: 8px;
-      display: flex;
-      gap: 12px;
-      border-radius: 8px;
-    }
-
-    &__btnWrapper {
-      position: relative;
-    }
-  }
-
-  &__error,
-  &__info {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    margin: 18px 0 8px;
-
-    span {
-      color: #fffffe;
-      line-height: 1;
-      font-size: 16px;
-      font-family: var(--font-family-medium);
-      font-weight: var(--font-weight-medium);
-    }
-  }
-
-  &__info {
-    color: #fffffe;
-  }
-
-  &__btnWrapper {
-    position: absolute;
-    bottom: 12px;
-    left: 50%;
-    -ms-transform: translateX(-50%);
-    transform: translateX(-50%);
-    display: flex;
-    gap: 18px;
-
     .q-btn {
-      opacity: 0.7;
-      transition: opacity ease-in-out 0.25s;
-
-      &:hover {
-        opacity: 0.85;
-      }
-
-      .q-icon {
-        font-size: 24px;
-      }
+      box-sizing: border-box;
+      min-width: 235px;
+    }
+    &.--initBtn {
+      background-color: rgb(46, 204, 113);
     }
   }
 
-  .input-name {
-    padding-bottom: 0;
-    &__messages {
-      display: none;
-    }
+  ::v-deep .q-btn--outline .q-btn__wrapper:before {
+    border: 1px solid #fff !important;
   }
 }

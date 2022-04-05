@@ -1,5 +1,5 @@
 <template>
-  <q-dialog v-model="show" persistent full-height full-width>
+  <div fullscreen z-top>
     <fu-t-prejoin-page
       :name="name"
       class="p-cooperateLobby"
@@ -37,7 +37,7 @@
         </div>
       </template>
     </fu-t-prejoin-page>
-  </q-dialog>
+  </div>
 </template>
 
 <script lang="ts">
@@ -53,7 +53,7 @@ export default defineComponent({
     const router = useRouter();
     const route = useRoute();
     const show = ref(true);
-    const withName = ref(window.xprops?.isVisitor || false);
+    const withName = ref(window.xprops?.isVisitor || true);
     const name =
       window?.xprops?.streamName || (route.query.streamName as string) || '';
     const isHost =
@@ -63,11 +63,13 @@ export default defineComponent({
     const roleId = window.xprops?.roleId || route.query.roleId || '1';
 
     const back = () => {
+      console.debug('go back');
       window.xprops?.handleParticipantLeave();
     };
 
     const roomId =
       window?.xprops?.roomId || (route.query.roomId as string) || '';
+    console.debug({ withName, name, isHost, roleId });
 
     const joinCollaborate = (name: string) => {
       void router.push({

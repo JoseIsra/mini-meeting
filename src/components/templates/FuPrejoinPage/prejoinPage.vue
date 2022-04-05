@@ -1,5 +1,5 @@
 <template>
-  <div fullscreen z-top>
+  <div class="fullscreen">
     <fu-prejoin-page
       :name="name"
       class="p-cooperateLobby"

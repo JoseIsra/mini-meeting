@@ -416,21 +416,12 @@ export default defineComponent({
 
     //TODO: Dont dissapear loading until the host accept the user. Needed to implement logic for that (dont publish neither play streams)
     const fuCooperateMountedHandler = () => {
-      // createInstance(
-      //   roomId,
-      //   streamId,
-      //   streamName,
-      //   publishToken,
-      //   playToken,
-      //   subscriberId,
-      //   subscriberCode
-      // );
       if (userMe.isHost) {
         console.debug(
           'asistencia registrada (login) con el siguiente id: ',
           userMe.fractalUserId
         );
-        // window.xprops?.logJoined?.(userMe.fractalUserId);
+        window.xprops?.logJoined?.(userMe.fractalUserId);
       }
     };
 

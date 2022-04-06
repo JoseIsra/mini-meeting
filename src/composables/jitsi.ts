@@ -15,6 +15,8 @@ import {
   Message,
   ObjBlockParticipantAction,
   ExternalVideoObject,
+  MainViewState,
+  backgroundInfo,
 } from '@/types';
 
 // composables
@@ -25,9 +27,10 @@ import {
   useHandleMessage,
   useAuthState,
   useExternalVideo,
-  useUserColor,
+  useRoom,
 } from '@/composables';
 import { useJitsiError } from '@/composables/jitsiError';
+import { useUserColor } from '@/composables/userColor';
 import { useMainView } from '@/composables/mainView';
 
 import {
@@ -82,6 +85,7 @@ const { errorsCallback } = useJitsiError();
 const { setIsLoadingOrError } = useAuthState();
 const { updateMainViewState } = useMainView();
 const { setUserBackgroundColor } = useUserColor();
+const { updateBgUrl } = useRoom();
 
 const handNotificationSound = new Audio(
   'https://freesound.org/data/previews/411/411642_5121236-lq.mp3'
@@ -176,6 +180,10 @@ export function useJitsi() {
     {
       name: 'PIN_USER_FOR_ALL_PARTICIPANTS',
       listener: pinUserForAllParticipants,
+    },
+    {
+      name: 'UPDATE_BACKGROUND_IMAGE_OF_COOPERATE',
+      listener: updateBackgroundImageOfCooperate,
     },
   ];
 
@@ -540,10 +548,11 @@ export function useJitsi() {
       urlVideo,
       videoOnRoom: true,
     });
-    updateMainViewState({
-      mode: MAIN_VIEW_MODE.VIDEO,
-      locked: MAIN_VIEW_LOCKED_TYPE.ALL_USERS,
-    });
+    updateMainViewState &&
+      updateMainViewState({
+        mode: MAIN_VIEW_MODE.VIDEO,
+        locked: MAIN_VIEW_LOCKED_TYPE.ALL_USERS,
+      });
   }
 
   function pauseExternalVideo(arg: Command) {
@@ -561,10 +570,11 @@ export function useJitsi() {
     const { remoteInstanceId } = JSON.parse(arg.value) as ExternalVideoObject;
     remotePlayer.value = {} as videojs.Player;
     videojs(remoteInstanceId as string).dispose();
-    updateMainViewState({
-      mode: MAIN_VIEW_MODE.NONE,
-      locked: MAIN_VIEW_LOCKED_TYPE.UNSET,
-    });
+    updateMainViewState &&
+      updateMainViewState({
+        mode: MAIN_VIEW_MODE.NONE,
+        locked: MAIN_VIEW_LOCKED_TYPE.UNSET,
+      });
     updateExternalVideoState({
       ...externalVideo,
       videoOnRoom: false,
@@ -600,10 +610,16 @@ export function useJitsi() {
   }
 
   function pinUserForAllParticipants(arg: Command) {
-    console.log(arg);
+    const { startedBy } = JSON.parse(arg.value) as MainViewState;
 
-    // if (userMe.id !== startedBy)
-    // updateMainViewState(JSON.parse(arg.value) as MainViewState);
+    if (userMe.id !== startedBy)
+      updateMainViewState(JSON.parse(arg.value) as MainViewState);
+  }
+
+  function updateBackgroundImageOfCooperate(arg: Command) {
+    const { url } = JSON.parse(arg.value) as backgroundInfo;
+    updateBgUrl(url);
+    successMessage('Fondo de la sala actualizado');
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

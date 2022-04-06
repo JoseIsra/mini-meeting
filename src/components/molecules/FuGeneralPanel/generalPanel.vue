@@ -30,7 +30,7 @@
       </legend>
       <fu-external-video-modal />
     </fieldset>
-    <!-- <fieldset class="m-generalPanel__bgBox">
+    <fieldset class="m-generalPanel__bgBox">
       <legend class="m-generalPanel__bgBox__text --mainTitle">
         Fondo de Cooperate
       </legend>
@@ -74,37 +74,37 @@
           @click="resetCooperateBg"
         />
       </div>
-    </fieldset> -->
+    </fieldset>
   </section>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref, toRefs, computed, watch } from 'vue';
 
-import { useInitWebRTC, useRoom } from '@/composables';
-// import FuFileCatcherCooperate from 'atoms/FuFileCatcherCooperate';
+import { useRoom } from '@/composables';
+import FuFileCatcherCooperate from 'atoms/FuFileCatcherCooperate';
 import { backBlazePath } from '@/config/constants';
 import { simplifyExtension, renameFile } from '@/utils/file';
 import backblazeService from '@/services/backblaze';
-import { errorMessage, successMessage } from '@/utils/notify';
+import { errorMessage } from '@/utils/notify';
 const { uploadFileToBackblaze } = backblazeService;
 import FuExternalVideoModal from 'molecules/FuExternalVideoModal';
+import { useJitsi } from '@/composables/jitsi';
 
 export default defineComponent({
   name: 'FuGeneralPanel',
   components: {
-    // FuFileCatcherCooperate,
+    FuFileCatcherCooperate,
     FuExternalVideoModal,
   },
   setup() {
-    const { roomState, updateBgUrl, updateBgSize, updateAllowResetBg } =
-      useRoom();
+    const { roomState, updateBgSize, updateAllowResetBg } = useRoom();
     const maximizeBg = ref(roomState.bgInfo.maximized);
     const linkCopied = ref(false);
     let fileToChangeBg = ref({} as File);
     let tempFileName = ref('');
-    const { sendData } = useInitWebRTC();
     const isLoading = ref(false);
+    const { sendNotification } = useJitsi();
 
     //*******COMPUTEDSSS */
     const sharedRoomLink = computed(() => {
@@ -164,32 +164,27 @@ export default defineComponent({
 
         const fileRoute = `${backBlazePath}/${roomState.classroomId}/cooperate/backgrounds/${fileName}`;
 
-        updateBgUrl(
-          fileRoute ||
-            'https://www.fcbarcelona.com/photo-resources/2021/08/09/c4f2dddd-2152-4b8b-acf8-826b4377e29d/Camp-Nou-4.jpg?width=1200&height=750'
-        );
         updateAllowResetBg(true);
-        sendData(roomState.hostId, {
-          eventType: 'UPDATE_ROOM_BG',
-          url: fileRoute,
+        sendNotification('UPDATE_BACKGROUND_IMAGE_OF_COOPERATE', {
+          value: JSON.stringify({
+            url: fileRoute,
+          }),
         });
         isLoading.value = false;
         window.xprops?.setBackgroundInfo?.(
           fileRoute,
           roomState.bgInfo.maximized
         );
-        successMessage('Fondo de pantalla cambiado');
       } catch (error) {
-        console.log(error);
         errorMessage('No se pudo cargar la imagen');
       }
     };
 
     watch(maximizeBg, (value) => {
-      sendData(roomState.hostId, {
-        eventType: 'UPDATE_ROOM_SIZE',
-        maximized: value,
-      });
+      // sendData(roomState.hostId, {
+      //   eventType: 'UPDATE_ROOM_SIZE',
+      //   maximized: value,
+      // });
 
       updateBgSize(value);
 
@@ -197,21 +192,17 @@ export default defineComponent({
     });
 
     const resetCooperateBg = () => {
-      updateBgUrl(
-        'https://encrypted.fractalup.com/file/MainPublic/fractalup_assets/landing/main.png'
-      );
-
-      sendData(roomState.hostId, {
-        eventType: 'UPDATE_ROOM_BG',
-        url: 'https://encrypted.fractalup.com/file/MainPublic/fractalup_assets/landing/main.png',
+      sendNotification('UPDATE_BACKGROUND_IMAGE_OF_COOPERATE', {
+        value: JSON.stringify({
+          url: 'https://encrypted.fractalup.com/file/MainPublic/fractalup_assets/landing/main.png',
+        }),
       });
 
       window.xprops?.setBackgroundInfo?.(
-        'https://encrypted.fractalup.com/file/MainPublic/fractalup_assets/landing/main.png',
+        roomState.bgInfo.url,
         roomState.bgInfo.maximized
       );
       updateAllowResetBg(false);
-      successMessage('Fondo de pantalla cambiado');
     };
 
     return {

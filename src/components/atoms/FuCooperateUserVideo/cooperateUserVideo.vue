@@ -191,9 +191,8 @@ import {
   useHandleParticipants,
   useUserMe,
   useMainView,
-  useUserColor,
 } from '@/composables';
-
+import { useUserColor } from '@/composables/userColor';
 import { MAIN_VIEW_LOCKED_TYPE } from '@/utils/enums';
 import { iconsPeriferics } from '@/helpers/iconsMenuBar';
 

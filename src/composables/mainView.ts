@@ -5,19 +5,18 @@ import _ from 'lodash';
 import { MAIN_VIEW_LOCKED_TYPE, MAIN_VIEW_MODE } from '@/utils/enums';
 import { useUserMe } from '@/composables/userMe';
 import { useRoom } from '@/composables/room';
-// const { sendNotification } = useJitsi();
+// import { useJitsi } from '@/composables/jitsi';
 
+// const { sendNotification } = useJitsi();
 const { sendData } = useInitWebRTC();
 const { roomState } = useRoom();
 const { userMe } = useUserMe();
-
 let mainViewState = reactive<MainViewState>({
   mode: MAIN_VIEW_MODE.NONE,
   pinnedUsers: [],
   locked: MAIN_VIEW_LOCKED_TYPE.UNSET,
   startedBy: '',
-} as MainViewState);
-
+});
 export function useMainView() {
   const setMainViewState = (fields: MainViewState) => {
     mainViewState = { ...fields };
@@ -25,7 +24,7 @@ export function useMainView() {
 
   const updateMainViewState = (fields: Partial<MainViewState>) => {
     let clonedMainView = _.clone(mainViewState);
-    clonedMainView = { ...clonedMainView, ...fields };
+    clonedMainView = { ...clonedMainView, ...fields } as MainViewState;
     Object.assign(mainViewState, clonedMainView);
   };
 
@@ -40,7 +39,7 @@ export function useMainView() {
 
   const updateMainViewStateForAll = (fields: Partial<MainViewState>) => {
     let clonedMainView = _.clone(mainViewState);
-    clonedMainView = { ...clonedMainView, ...fields };
+    clonedMainView = { ...clonedMainView, ...fields } as MainViewState;
     Object.assign(mainViewState, clonedMainView);
     /*  */
     sendData(roomState.hostId, {
@@ -64,9 +63,9 @@ export function useMainView() {
   };
 
   const addPinnedUser = (userId: string) => {
-    const currentPinnedUsers = _.clone(mainViewState.pinnedUsers);
-    currentPinnedUsers.push(userId);
-    if (mainViewState.mode === MAIN_VIEW_MODE.USER) {
+    const currentPinnedUsers = _.clone(mainViewState?.pinnedUsers);
+    currentPinnedUsers?.push(userId);
+    if (mainViewState?.mode === MAIN_VIEW_MODE.USER) {
       updateMainViewState({ pinnedUsers: currentPinnedUsers });
     } else {
       updateMainViewState({
@@ -79,11 +78,11 @@ export function useMainView() {
   };
 
   const removePinnedUser = (userId: string) => {
-    const currentPinnedUsers = _.clone(mainViewState.pinnedUsers);
-    const index = currentPinnedUsers.indexOf(userId);
+    const currentPinnedUsers = _.clone(mainViewState?.pinnedUsers);
+    const index = currentPinnedUsers?.indexOf(userId);
     if (index > -1) {
-      currentPinnedUsers.splice(index, 1);
-      if (currentPinnedUsers.length === 0) {
+      currentPinnedUsers?.splice(index, 1);
+      if (currentPinnedUsers?.length === 0) {
         updateMainViewState({
           mode: MAIN_VIEW_MODE.NONE,
           locked: MAIN_VIEW_LOCKED_TYPE.UNSET,
@@ -97,9 +96,9 @@ export function useMainView() {
   };
 
   const addPinnedUserForAll = (userId: string) => {
-    const currentPinnedUsers = _.clone(mainViewState.pinnedUsers);
-    currentPinnedUsers.push(userId);
-    if (mainViewState.mode === MAIN_VIEW_MODE.USER) {
+    const currentPinnedUsers = _.clone(mainViewState?.pinnedUsers);
+    currentPinnedUsers?.push(userId);
+    if (mainViewState?.mode === MAIN_VIEW_MODE.USER) {
       updateMainViewState({ pinnedUsers: currentPinnedUsers });
     } else {
       updateMainViewState({
@@ -117,12 +116,12 @@ export function useMainView() {
   };
 
   const removePinnedUserForAll = (userId: string) => {
-    const currentPinnedUsers = _.clone(mainViewState.pinnedUsers);
-    const index = currentPinnedUsers.indexOf(userId);
+    const currentPinnedUsers = _.clone(mainViewState?.pinnedUsers);
+    const index = currentPinnedUsers?.indexOf(userId);
     if (index > -1) {
-      currentPinnedUsers.splice(index, 1);
+      currentPinnedUsers?.splice(index, 1);
 
-      if (currentPinnedUsers.length === 0) {
+      if (currentPinnedUsers?.length === 0) {
         updateMainViewState({
           mode: MAIN_VIEW_MODE.NONE,
           locked: MAIN_VIEW_LOCKED_TYPE.UNSET,
@@ -147,7 +146,7 @@ export function useMainView() {
         locked: MAIN_VIEW_LOCKED_TYPE.ALL_USERS,
       });
     } else {
-      if (mainViewState.pinnedUsers.length > 0) {
+      if (Number(mainViewState?.pinnedUsers.length) > 0) {
         updateMainViewState({
           mode: MAIN_VIEW_MODE.USER,
           locked: MAIN_VIEW_LOCKED_TYPE.ANYONE,
@@ -162,7 +161,6 @@ export function useMainView() {
       });
     }
   };
-
   return {
     mainViewState,
     setMainViewState,

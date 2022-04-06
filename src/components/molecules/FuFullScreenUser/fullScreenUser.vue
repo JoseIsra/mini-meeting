@@ -131,12 +131,8 @@ import {
   onMounted,
   reactive,
 } from 'vue';
-import {
-  useMainView,
-  useHandleParticipants,
-  useUserMe,
-  useScreen,
-} from '@/composables';
+import { useHandleParticipants, useUserMe, useScreen } from '@/composables';
+import { useMainView } from '@/composables/mainView';
 import _ from 'lodash';
 import { MAIN_VIEW_LOCKED_TYPE } from '@/utils/enums';
 
@@ -179,7 +175,6 @@ export default defineComponent({
           )
     );
     onMounted(() => {
-      console.log(userPinned.value);
       userPinned.value?.tracks?.forEach((track) => {
         if (track.getType() == 'audio') {
           track.attach(audioPinned[userPinned.value?.id as string]);
@@ -188,7 +183,6 @@ export default defineComponent({
             track.attach(videoPinned[userPinned.value?.id as string]);
           });
         }
-        console.log(track);
       });
     });
 

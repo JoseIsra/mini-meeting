@@ -334,8 +334,8 @@ import {
   useUserMe,
   useToogleFunctions,
   useSidebarToogle,
-  useJitsi,
 } from '@/composables';
+import { useJitsi } from '@/composables/jitsi';
 import { usePanels } from '@/composables/panels';
 import { useJitsiError } from '@/composables/jitsiError';
 import { nanoid } from 'nanoid';

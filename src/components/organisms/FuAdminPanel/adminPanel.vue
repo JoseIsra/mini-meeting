@@ -84,7 +84,7 @@ import {
   componentList,
 } from '@/helpers/menuOptions';
 import FuGeneralPanel from 'molecules/FuGeneralPanel';
-// import FuParticipantPerifericPanel from 'molecules/FuParticipantPerifericPanel';
+import FuParticipantPerifericPanel from 'molecules/FuParticipantPerifericPanel';
 // import FuRetransmissionPanel from 'molecules/FuRetransmissionPanel';
 // import FuBoardPanel from 'molecules/FuBoardPanel';
 
@@ -98,7 +98,7 @@ export default defineComponent({
   name: 'FuAdminPanel',
   components: {
     FuGeneralPanel,
-    // FuParticipantPerifericPanel,
+    FuParticipantPerifericPanel,
     // FuRetransmissionPanel
     // FuBoardPanel,
   },

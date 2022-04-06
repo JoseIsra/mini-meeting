@@ -28,100 +28,6 @@
       />
     </header>
     <main class="m-list__content">
-      <!-- acciones generales de sala -->
-      <!-- <div class="m-list__content__actions" v-show="userMe.roleId === 0">
-        <span> Acciones sala </span>
-
-        <q-btn
-          :icon="isEveryoneMicBlocked ? 'mic_off' : 'mic'"
-          @click="handleEveryoneActions(LOCK_ACTION_TYPE.Mic)"
-          :color="isEveryoneMicBlocked ? 'red' : ''"
-          text-color="white"
-          size="8px"
-        >
-          <q-tooltip
-            class="bg-grey-10"
-            anchor="bottom middle"
-            self="top middle"
-            transition-show="scale"
-            transition-hide="scale"
-          >
-            <label class="">{{
-              isEveryoneMicBlocked
-                ? 'Desbloquear Microfono para la sala'
-                : 'Bloquear Microfono para la sala'
-            }}</label>
-          </q-tooltip>
-        </q-btn>
-
-        <q-btn
-          :icon="isEveryoneVideoBlocked ? 'videocam_off' : 'videocam'"
-          @click="handleEveryoneActions(LOCK_ACTION_TYPE.Camera)"
-          :color="isEveryoneVideoBlocked ? 'red' : ''"
-          text-color="white"
-          size="8px"
-        >
-          <q-tooltip
-            class="bg-grey-10"
-            anchor="bottom middle"
-            self="top middle"
-            transition-show="scale"
-            transition-hide="scale"
-          >
-            <label class="">{{
-              isEveryoneVideoBlocked
-                ? 'Desbloquear Camara para la sala'
-                : 'Bloquear Camara para la sala'
-            }}</label>
-          </q-tooltip>
-        </q-btn>
-
-        <q-btn
-          :icon="
-            isEveryoneScreenShareBlocked
-              ? 'desktop_access_disabled'
-              : 'desktop_windows'
-          "
-          @click="handleEveryoneActions(LOCK_ACTION_TYPE.Screen)"
-          :color="isEveryoneScreenShareBlocked ? 'red' : ''"
-          text-color="white"
-          size="8px"
-        >
-          <q-tooltip
-            class="bg-grey-10"
-            anchor="bottom middle"
-            self="top middle"
-            transition-show="scale"
-            transition-hide="scale"
-          >
-            <label class="">{{
-              isEveryoneScreenShareBlocked
-                ? 'Desbloquear Compartir Pantalla para la sala'
-                : 'Bloquear Compartir Pantalla para la sala'
-            }}</label>
-          </q-tooltip>
-        </q-btn>
-
-        <q-btn
-          :icon="isEveryoneActionsBlocked ? 'fas fa-lock' : 'fas fa-lock-open'"
-          @click="handleEveryoneActions(LOCK_ACTION_TYPE.All)"
-          size="10px"
-        >
-          <q-tooltip
-            class="bg-grey-10"
-            anchor="bottom middle"
-            self="top middle"
-            transition-show="scale"
-            transition-hide="scale"
-          >
-            <label class="">{{
-              isEveryoneActionsBlocked
-                ? 'Desbloquear acciones para todos'
-                : 'Bloquear acciones para todos'
-            }}</label>
-          </q-tooltip>
-        </q-btn>
-      </div> -->
       <div class="m-list__content__userBox">
         <aside class="m-list__content__userBox__avatar">
           <q-icon
@@ -150,179 +56,69 @@
         </aside>
 
         <div class="m-list__content__userBox__name">{{ userMe.name }} (Tú)</div>
-        <!-- acciones de bloqueo -->
         <!-- <div class="m-list__content__userBox__actions">
-          <q-btn
-            :class="[
-              'm-list__content__userBox__actions__button',
-              { '--noActionable': userMe.roleId === 1 },
-            ]"
-            :icon="userMe.isMicOn ? 'mic' : 'mic_off'"
-            :color="userMe.isMicOn ? 'blue' : userMe.isMicBlocked ? 'red' : ''"
-            text-color="white"
-          >
-            <q-tooltip class="bg-grey-10">
-              <label v-if="userMe.isMicOn"> Microfono prendido </label>
-              <label v-else-if="userMe.isMicBlocked">
-                Microfono Bloqueado
-              </label>
-              <label v-else> Microfono apagado </label>
-            </q-tooltip>
-          </q-btn>
-
-          <q-btn
-            :class="[
-              'm-list__content__userBox__actions__button',
-              { '--noActionable': userMe.roleId === 1 },
-            ]"
-            :icon="userMe.isCameraOn ? 'videocam' : 'videocam_off'"
-            :color="
-              userMe.isCameraOn ? 'blue' : userMe.isCameraBlocked ? 'red' : ''
-            "
-            text-color="white"
-          >
-            <q-tooltip class="bg-grey-10">
-              <label v-if="userMe.isCameraOn"> Camara encendida </label>
-              <label v-else-if="userMe.isCameraBlocked">
-                Camara Bloqueada
-              </label>
-              <label v-else> Camara apagada </label>
-            </q-tooltip>
-          </q-btn>
-
-          <q-btn
-            :class="[
-              'm-list__content__userBox__actions__button',
-              { '--noActionable': userMe.roleId === 1 },
-            ]"
-            :icon="
-              userMe.isScreenSharing
-                ? 'desktop_windows'
-                : 'desktop_access_disabled'
-            "
-            :color="
-              userMe.isScreenSharing
-                ? 'blue'
-                : userMe.isScreenShareBlocked
-                ? 'red'
-                : ''
-            "
-            text-color="white"
-          >
-            <q-tooltip class="bg-grey-10">
-              <label v-if="userMe.isScreenSharing">
-                Compartir pantalla activo
-              </label>
-              <label v-else-if="userMe.isScreenShareBlocked">
-                Compartir pantalla Bloqueado
-              </label>
-              <label v-else> Compartir pantalla inactivo </label>
-            </q-tooltip>
-          </q-btn>
-
-          <q-btn icon="fas fa-ellipsis-h" v-if="userMe.roleId === 0">
-            <q-menu :offset="[60, 12]">
-              <q-list>
-                <div class="m-list__content__userBox__extra">
-                  <q-btn
-                    v-show="userMe.roleId === 0"
-                    :icon="
-                      mainViewState.pinnedUsers.includes(userMe.id)
-                        ? 'location_disabled'
-                        : 'gps_fixed'
-                    "
-                    @click="
-                      mainViewState.pinnedUsers.includes(userMe.id)
-                        ? removePinnedUserForAll(userMe.id)
-                        : addPinnedUserForAll(userMe.id)
-                    "
-                    color="primary"
-                    text-color="white"
-                    :disable="
-                      mainViewState.locked === MAIN_VIEW_LOCKED_TYPE.ANYONE ||
-                      (mainViewState.pinnedUsers.length >= 4 &&
-                        !mainViewState.pinnedUsers.includes(userMe.id))
-                    "
+          <q-list v-if="isAdmin">
+            <div class="m-list__content__userBox__extra">
+              <q-btn
+                :icon="
+                  mainViewState.pinnedUsers.includes(userMe.id)
+                    ? 'location_disabled'
+                    : 'gps_fixed'
+                "
+                @click="
+                  mainViewState.pinnedUsers.includes(userMe.id)
+                    ? removePinnedUserForAll(userMe.id)
+                    : addPinnedUserForAll(userMe.id)
+                "
+                color="primary"
+                text-color="white"
+                :disable="
+                  mainViewState.locked === MAIN_VIEW_LOCKED_TYPE.ANYONE ||
+                  (mainViewState.pinnedUsers.length >= 4 &&
+                    !mainViewState.pinnedUsers.includes(userMe.id))
+                "
+              >
+                <q-tooltip
+                  class="bg-grey-10"
+                  anchor="bottom middle"
+                  self="top middle"
+                  transition-show="scale"
+                  transition-hide="scale"
+                >
+                  <label v-if="mainViewState.pinnedUsers.includes(userMe.id)">
+                    Desfijarme</label
                   >
-                    <q-tooltip
-                      class="bg-grey-10"
-                      anchor="bottom middle"
-                      self="top middle"
-                      transition-show="scale"
-                      transition-hide="scale"
-                    >
-                      <label
-                        v-if="mainViewState.pinnedUsers.includes(userMe.id)"
-                      >
-                        Desfijar para todos</label
-                      >
-                      <label v-else> Fijar para todos</label>
-                    </q-tooltip>
-                  </q-btn>
+                  <label v-else> Fijar para todos</label>
+                </q-tooltip>
+              </q-btn>
 
-                  <q-btn
-                    :icon="
-                      mainViewState.pinnedUsers.includes(userMe.id)
-                        ? 'location_disabled'
-                        : 'gps_fixed'
-                    "
-                    @click="
-                      mainViewState.pinnedUsers.includes(userMe.id)
-                        ? removePinnedUser(userMe.id)
-                        : addPinnedUser(userMe.id)
-                    "
-                    :disable="
-                      (mainViewState.locked !== MAIN_VIEW_LOCKED_TYPE.ANYONE &&
-                        mainViewState.locked !== MAIN_VIEW_LOCKED_TYPE.UNSET) ||
-                      (mainViewState.pinnedUsers.length >= 4 &&
-                        !mainViewState.pinnedUsers.includes(userMe.id))
-                    "
-                  >
-                    <q-tooltip class="bg-grey-10">
-                      <label
-                        v-if="mainViewState.pinnedUsers.includes(userMe.id)"
-                        >Desfijar para mi
-                      </label>
-                      <label v-else>Fijar para mi</label>
-                    </q-tooltip>
-                  </q-btn>
-                </div>
-              </q-list>
-            </q-menu>
-
-            <q-tooltip
-              class="bg-grey-10"
-              anchor="bottom middle"
-              self="top middle"
-              transition-show="scale"
-              transition-hide="scale"
-            >
-              <label>Opciones</label>
-            </q-tooltip>
-          </q-btn>
-
-          <q-btn
-            v-else
-            :icon="
-              mainViewState.pinnedUsers.includes(userMe.id)
-                ? 'location_disabled'
-                : 'gps_fixed'
-            "
-            @click="addPinnedUser(userMe.id)"
-            :disable="
-              (mainViewState.locked !== MAIN_VIEW_LOCKED_TYPE.ANYONE &&
-                mainViewState.locked !== MAIN_VIEW_LOCKED_TYPE.UNSET) ||
-              (mainViewState.pinnedUsers.length >= 4 &&
-                !mainViewState.pinnedUsers.includes(userMe.id))
-            "
-          >
-            <q-tooltip class="bg-grey-10">
-              <label v-if="mainViewState.pinnedUsers.includes(userMe.id)"
-                >Desfijar para mi
-              </label>
-              <label v-else>Fijar para mi</label>
-            </q-tooltip>
-          </q-btn>
+              <q-btn
+                :icon="
+                  mainViewState.pinnedUsers.includes(userMe.id)
+                    ? 'location_disabled'
+                    : 'gps_fixed'
+                "
+                @click="
+                  mainViewState.pinnedUsers.includes(userMe.id)
+                    ? removePinnedUser(userMe.id)
+                    : addPinnedUser(userMe.id)
+                "
+                :disable="
+                  (mainViewState.locked !== MAIN_VIEW_LOCKED_TYPE.ANYONE &&
+                    mainViewState.locked !== MAIN_VIEW_LOCKED_TYPE.UNSET) ||
+                  (mainViewState.pinnedUsers.length >= 4 &&
+                    !mainViewState.pinnedUsers.includes(userMe.id))
+                "
+              >
+                <q-tooltip class="bg-grey-10">
+                  <label v-if="mainViewState.pinnedUsers.includes(userMe.id)"
+                    >Desfijarme
+                  </label>
+                  <label v-else>Fijar a mi mismo</label>
+                </q-tooltip>
+              </q-btn>
+            </div>
+          </q-list>
         </div> -->
       </div>
       <div
@@ -716,9 +512,9 @@ import {
   useRoom,
   useInitWebRTC,
   useMainView,
-  useJitsi,
 } from '@/composables';
 import { useLockParticipantActions } from '@/composables/lockActions';
+import { useJitsi } from '@/composables/jitsi';
 import { User } from '@/types';
 import {
   MAIN_VIEW_LOCKED_TYPE,
@@ -727,8 +523,6 @@ import {
   USER_ROLE,
   BOARD_EVENTS,
 } from '@/utils/enums';
-
-import { nanoid } from 'nanoid';
 
 export default defineComponent({
   name: 'FuCooperateUsersList',
@@ -740,12 +534,8 @@ export default defineComponent({
       removePinnedUser,
       removePinnedUserForAll,
     } = useMainView();
-    const {
-      setEveryParticipantActions,
-      waitingParticipants,
-      admittedParticipants,
-      updateParticipantById,
-    } = useHandleParticipants();
+    const { waitingParticipants, admittedParticipants, updateParticipantById } =
+      useHandleParticipants();
 
     const { toggleParticipantPanel, setSidebarState } = useSidebarToogle();
 
@@ -753,12 +543,7 @@ export default defineComponent({
 
     const { sendData } = useInitWebRTC();
 
-    const {
-      roomState,
-      setRoomMicState,
-      setRoomCameraState,
-      setRoomScreenShareState,
-    } = useRoom();
+    const { roomState } = useRoom();
     const { lockActionsAllowed } = useLockParticipantActions();
 
     const { functionsOnMenuBar } = useToogleFunctions();
@@ -780,6 +565,10 @@ export default defineComponent({
         isEveryoneVideoBlocked.value &&
         isEveryoneScreenShareBlocked.value
     );
+
+    const isAdmin = computed(() => {
+      return userMe.roleId === USER_ROLE.ADMINISTRATOR;
+    });
 
     const isMicBlocked = (participant: Partial<User>) =>
       admittedParticipants.value.find((part) => part.id === participant.id)
@@ -862,156 +651,6 @@ export default defineComponent({
       }
     };
 
-    const handleEveryoneActions = (action: number) => {
-      const blockActions = {
-        id: nanoid(),
-        streamId: userMe.id,
-        action: action,
-      };
-
-      if (action === LOCK_ACTION_TYPE.All) {
-        if (isEveryoneActionsBlocked.value) {
-          setEveryParticipantActions(action, false);
-
-          setRoomMicState(false);
-          setRoomCameraState(false);
-          setRoomScreenShareState(false);
-
-          sendData(roomState.hostId, {
-            ...blockActions,
-            eventType: 'SET_EVERYONE_ACTION',
-            value: false,
-          });
-
-          window.xprops?.toggleLockAction?.({
-            mic: Number(false),
-            camera: Number(false),
-            screenshare: Number(false),
-          });
-        } else {
-          setEveryParticipantActions(action, true);
-
-          setRoomMicState(true);
-          setRoomCameraState(true);
-          setRoomScreenShareState(true);
-
-          sendData(roomState.hostId, {
-            ...blockActions,
-            eventType: 'SET_EVERYONE_ACTION',
-            value: true,
-          });
-
-          window.xprops?.toggleLockAction?.({
-            mic: Number(true),
-            camera: Number(true),
-            screenshare: Number(true),
-          });
-        }
-      } else if (action === LOCK_ACTION_TYPE.Mic) {
-        if (isEveryoneMicBlocked.value) {
-          setEveryParticipantActions(action, false);
-
-          setRoomMicState(false);
-
-          sendData(roomState.hostId, {
-            ...blockActions,
-            eventType: 'SET_EVERYONE_ACTION',
-            value: false,
-          });
-
-          window.xprops?.toggleLockAction?.({
-            mic: Number(false),
-            camera: Number(roomState.isCameraBlocked),
-            screenshare: Number(roomState.isScreenShareBlocked),
-          });
-        } else {
-          setEveryParticipantActions(action, true);
-
-          setRoomMicState(true);
-
-          sendData(roomState.hostId, {
-            ...blockActions,
-            eventType: 'SET_EVERYONE_ACTION',
-            value: true,
-          });
-
-          window.xprops?.toggleLockAction?.({
-            mic: Number(true),
-            camera: Number(roomState.isCameraBlocked),
-            screenshare: Number(roomState.isScreenShareBlocked),
-          });
-        }
-      } else if (action === LOCK_ACTION_TYPE.Camera) {
-        if (isEveryoneVideoBlocked.value) {
-          setEveryParticipantActions(action, false);
-
-          setRoomCameraState(false);
-
-          sendData(roomState.hostId, {
-            ...blockActions,
-            eventType: 'SET_EVERYONE_ACTION',
-            value: false,
-          });
-
-          window.xprops?.toggleLockAction?.({
-            mic: Number(roomState.isMicBlocked),
-            camera: Number(false),
-            screenshare: Number(roomState.isScreenShareBlocked),
-          });
-        } else {
-          setEveryParticipantActions(action, true);
-
-          setRoomCameraState(true);
-
-          sendData(roomState.hostId, {
-            ...blockActions,
-            eventType: 'SET_EVERYONE_ACTION',
-            value: true,
-          });
-
-          window.xprops?.toggleLockAction?.({
-            mic: Number(roomState.isMicBlocked),
-            camera: Number(true),
-            screenshare: Number(roomState.isScreenShareBlocked),
-          });
-        }
-      } else if (action === LOCK_ACTION_TYPE.Screen) {
-        if (isEveryoneScreenShareBlocked.value) {
-          setEveryParticipantActions(action, false);
-
-          setRoomScreenShareState(false);
-
-          sendData(roomState.hostId, {
-            ...blockActions,
-            eventType: 'SET_EVERYONE_ACTION',
-            value: false,
-          });
-
-          window.xprops?.toggleLockAction?.({
-            mic: Number(roomState.isMicBlocked),
-            camera: Number(roomState.isCameraBlocked),
-            screenshare: Number(false),
-          });
-        } else {
-          setEveryParticipantActions(action, true);
-
-          setRoomScreenShareState(true);
-
-          sendData(roomState.hostId, {
-            ...blockActions,
-            eventType: 'SET_EVERYONE_ACTION',
-            value: true,
-          });
-
-          window.xprops?.toggleLockAction?.({
-            mic: Number(roomState.isMicBlocked),
-            camera: Number(roomState.isCameraBlocked),
-            screenshare: Number(true),
-          });
-        }
-      }
-    };
-
     const handleKickParticipant = (participant: User) => {
       // const data = JSON.stringify(participant);
       sendNotification('KICK_PARTICIPANT', { value: participant.id });
@@ -1050,7 +689,6 @@ export default defineComponent({
       waitingParticipants,
       admittedParticipants,
       toggleParticipantPanel,
-      handleEveryoneActions,
       userMe,
       isEveryoneMicBlocked,
       isEveryoneVideoBlocked,
@@ -1076,6 +714,7 @@ export default defineComponent({
       MAIN_VIEW_LOCKED_TYPE,
       MAIN_VIEW_MODE,
       temporalRoleConditional,
+      isAdmin,
     };
   },
 });

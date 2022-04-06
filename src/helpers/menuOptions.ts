@@ -116,12 +116,12 @@ export const adminPanelOptions = [
     iconName: 'fas fa-cog',
     important: false,
   },
-  // {
-  //   id: '2',
-  //   description: 'Administrador',
-  //   iconName: 'toggle_on',
-  //   important: false,
-  // },
+  {
+    id: '2',
+    description: 'Administrador',
+    iconName: 'toggle_on',
+    important: false,
+  },
   // {
   //   id: '3',
   //   description: 'Retransmisión',

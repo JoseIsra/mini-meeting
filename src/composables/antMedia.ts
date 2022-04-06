@@ -1139,14 +1139,9 @@ export function useInitWebRTC() {
                   setMicState(!value);
                   muteLocalMic();
                   sendNotificationEvent('MIC_MUTED', userMe.id);
+                  // aquí termina
 
-                  if (
-                    userMe.isCameraOn === false &&
-                    userMe.isScreenSharing === false
-                  ) {
-                    updateUserMe({ isPublishing: 0 });
-                    stopPublishing(userMe.id);
-                  }
+                  // para obviar, no publish
                 }
               }
             } else if (action === LOCK_ACTION_TYPE.Camera) {
@@ -1162,14 +1157,6 @@ export function useInitWebRTC() {
                   setVideoActivatedState(!value);
                   turnOffLocalCamera(userMe.id);
                   sendNotificationEvent('CAM_TURNED_OFF', userMe.id);
-
-                  if (
-                    userMe.isMicOn === false &&
-                    userMe.isScreenSharing === false
-                  ) {
-                    updateUserMe({ isPublishing: 0 });
-                    stopPublishing(userMe.id);
-                  }
                 }
               }
             } else if (action === LOCK_ACTION_TYPE.Screen) {
@@ -1185,11 +1172,6 @@ export function useInitWebRTC() {
                   setVideoActivatedState(!value);
                   resetDesktop();
                   sendNotificationEvent('SCREEN_SHARING_OFF', userMe.id);
-
-                  if (userMe.isMicOn === false && userMe.isCameraOn === false) {
-                    updateUserMe({ isPublishing: 0 });
-                    stopPublishing(userMe.id);
-                  }
                 }
               }
             }

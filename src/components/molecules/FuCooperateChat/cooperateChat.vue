@@ -196,8 +196,8 @@ import {
   useSidebarToogle,
   useUserMe,
   useHandleMessage,
-  useJitsi,
 } from '@/composables';
+import { useJitsi } from '@/composables/jitsi';
 import { nanoid } from 'nanoid';
 import { simplifyExtension, renameFile } from '@/utils/file';
 import FuCooperateMenu from 'molecules/FuCooperateMenu';

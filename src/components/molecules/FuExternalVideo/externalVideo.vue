@@ -31,8 +31,8 @@ import {
   useUserMe,
   useExternalVideo,
   useHandleParticipants,
-  useJitsi,
 } from '@/composables';
+import { useJitsi } from '@/composables/jitsi';
 import videojs from 'video.js';
 import 'video.js/dist/video.min.js';
 import 'videojs-youtube/dist/Youtube.min.js';

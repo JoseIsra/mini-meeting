@@ -73,52 +73,14 @@
         </q-item-section>
       </q-item>
     </q-list>
-
-    <!-- <div class="m-perifericsPanel__actions" style="height: 40px">
-      <p class="m-perifericsPanel__actions__message">
-        {{
-          isEveryoneActionsBlocked
-            ? 'Desbloquear todas las acciones'
-            : 'Bloquear todas las acciones'
-        }}
-      </p>
-
-      <q-btn
-        :icon="!isEveryoneActionsBlocked ? 'fas fa-lock-open' : 'fas fa-lock'"
-        @click="handleAllActions"
-        push
-        class="m-perifericsPanel__actions__btn"
-        size="12px"
-        color="blue-9"
-      >
-        <q-tooltip
-          class="bg-grey-10"
-          anchor="bottom middle"
-          self="top middle"
-          transition-show="scale"
-          transition-hide="scale"
-        >
-          <label class="m-perifericsPanel__actions__tooltip">{{
-            !isEveryoneActionsBlocked
-              ? 'Bloquear todas las acciones'
-              : 'Desbloquear todas las acciones'
-          }}</label>
-        </q-tooltip>
-      </q-btn>
-    </div> -->
   </section>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed, watch } from 'vue';
-import { nanoid } from 'nanoid';
-import {
-  useInitWebRTC,
-  useHandleParticipants,
-  useRoom,
-  useUserMe,
-} from '@/composables';
-import { warningMessage } from '@/utils/notify';
+import { defineComponent, ref, watch } from 'vue';
+import { useHandleParticipants, useRoom, useUserMe } from '@/composables';
+import { useLockParticipantActions } from '@/composables/lockActions';
+import { LockActionsData, LockCallback } from '@/types';
 
 // 0-> ALL, 1-> MIC, 2-> CAMERA, 3->SCREEN
 
@@ -138,50 +100,42 @@ export default defineComponent({
 
     const cooperateScreenShareState = ref(!roomState.isScreenShareBlocked);
 
-    const { setEveryParticipantActions } = useHandleParticipants();
+    const { admittedParticipants } = useHandleParticipants();
     const { userMe } = useUserMe();
-    const { sendData } = useInitWebRTC();
+    const { lockActionsAllowed } = useLockParticipantActions();
 
-    const isEveryoneActionsBlocked = computed(
-      () =>
-        roomState.isMicBlocked &&
-        roomState.isCameraBlocked &&
-        roomState.isScreenShareBlocked
-    );
     let blockAllPeriferics = ref(false);
 
+    const lockPerifericToParticipants = (
+      cb: LockCallback,
+      action: number,
+      lockData: LockActionsData
+    ) => {
+      admittedParticipants.value.map((participant) => {
+        cb(participant, action, {
+          ...lockData,
+          participantId: participant.id,
+        });
+      });
+    };
+
     watch(cooperateMicState, (value) => {
-      const blockActions = {
-        id: nanoid(),
+      const lockData = {
         streamId: userMe.id,
         action: 1,
       };
+      const lockAction = lockActionsAllowed.get(1) as LockCallback;
       if (value) {
-        console.log('TRUE MODE', value);
-        setEveryParticipantActions(1, false);
-
         setRoomMicState(false);
-
-        sendData(roomState.hostId, {
-          ...blockActions,
-          eventType: 'SET_EVERYONE_ACTION',
-          value: false,
-        });
-
+        lockPerifericToParticipants(lockAction, 1, lockData);
         window.xprops?.toggleLockAction?.({
           mic: Number(false),
           camera: Number(roomState.isCameraBlocked),
           screenshare: Number(roomState.isScreenShareBlocked),
         });
       } else {
-        setEveryParticipantActions(1, true);
         setRoomMicState(true);
-        sendData(roomState.hostId, {
-          ...blockActions,
-          eventType: 'SET_EVERYONE_ACTION',
-          value: true,
-        });
-
+        lockPerifericToParticipants(lockAction, 1, lockData);
         window.xprops?.toggleLockAction?.({
           mic: Number(true),
           camera: Number(roomState.isCameraBlocked),
@@ -191,38 +145,22 @@ export default defineComponent({
     });
 
     watch(cooperateCameraState, (value) => {
-      const blockActions = {
-        id: nanoid(),
+      const lockData = {
         streamId: userMe.id,
         action: 2,
       };
+      const lockAction = lockActionsAllowed.get(2) as LockCallback;
       if (value) {
-        setEveryParticipantActions(2, false);
-
         setRoomCameraState(false);
-
-        sendData(roomState.hostId, {
-          ...blockActions,
-          eventType: 'SET_EVERYONE_ACTION',
-          value: false,
-        });
-
+        lockPerifericToParticipants(lockAction, 2, lockData);
         window.xprops?.toggleLockAction?.({
           mic: Number(roomState.isMicBlocked),
           camera: Number(false),
           screenshare: Number(roomState.isScreenShareBlocked),
         });
       } else {
-        setEveryParticipantActions(2, true);
-
         setRoomCameraState(true);
-
-        sendData(roomState.hostId, {
-          ...blockActions,
-          eventType: 'SET_EVERYONE_ACTION',
-          value: true,
-        });
-
+        lockPerifericToParticipants(lockAction, 2, lockData);
         window.xprops?.toggleLockAction?.({
           mic: Number(roomState.isMicBlocked),
           camera: Number(true),
@@ -232,39 +170,23 @@ export default defineComponent({
     });
 
     watch(cooperateScreenShareState, (value) => {
-      const blockActions = {
-        id: nanoid(),
+      const lockData = {
         streamId: userMe.id,
         action: 3,
       };
+      const lockAction = lockActionsAllowed.get(3) as LockCallback;
 
       if (value) {
-        setEveryParticipantActions(3, false);
-
+        lockPerifericToParticipants(lockAction, 3, lockData);
         setRoomScreenShareState(false);
-
-        sendData(roomState.hostId, {
-          ...blockActions,
-          eventType: 'SET_EVERYONE_ACTION',
-          value: false,
-        });
-
         window.xprops?.toggleLockAction?.({
           mic: Number(roomState.isMicBlocked),
           camera: Number(roomState.isCameraBlocked),
           screenshare: Number(false),
         });
       } else {
-        setEveryParticipantActions(3, true);
-
         setRoomScreenShareState(true);
-
-        sendData(roomState.hostId, {
-          ...blockActions,
-          eventType: 'SET_EVERYONE_ACTION',
-          value: true,
-        });
-
+        lockPerifericToParticipants(lockAction, 3, lockData);
         window.xprops?.toggleLockAction?.({
           mic: Number(roomState.isMicBlocked),
           camera: Number(roomState.isCameraBlocked),
@@ -273,69 +195,10 @@ export default defineComponent({
       }
     });
 
-    const control__participants__actions = (arg: boolean) => {
-      const blockActions = {
-        id: nanoid(),
-        streamId: userMe.id,
-        action: 0,
-      };
-      if (arg) {
-        cooperateMicState.value = false;
-        cooperateCameraState.value = false;
-        cooperateScreenShareState.value = false;
-
-        setEveryParticipantActions(0, true);
-
-        setRoomMicState(true);
-        setRoomCameraState(true);
-        setRoomScreenShareState(true);
-
-        sendData(roomState.hostId, {
-          ...blockActions,
-          eventType: 'SET_EVERYONE_ACTION',
-          value: true,
-        });
-        warningMessage('Acciones bloqueadas en la sala');
-        window.xprops?.toggleLockAction?.({
-          mic: Number(true),
-          camera: Number(true),
-          screenshare: Number(true),
-        });
-      } else {
-        cooperateMicState.value = true;
-        cooperateCameraState.value = true;
-        cooperateScreenShareState.value = true;
-        setEveryParticipantActions(0, false);
-
-        setRoomMicState(false);
-        setRoomCameraState(false);
-        setRoomScreenShareState(false);
-
-        sendData(roomState.hostId, {
-          ...blockActions,
-          eventType: 'SET_EVERYONE_ACTION',
-          value: false,
-        });
-        warningMessage('Acciones desbloqueadas en la sala');
-        window.xprops?.toggleLockAction?.({
-          mic: Number(false),
-          camera: Number(false),
-          screenshare: Number(false),
-        });
-      }
-    };
-
-    const handleAllActions = () => {
-      blockAllPeriferics.value = !blockAllPeriferics.value;
-      control__participants__actions(blockAllPeriferics.value);
-    };
-
     return {
       cooperateMicState,
       cooperateCameraState,
       cooperateScreenShareState,
-      handleAllActions,
-      isEveryoneActionsBlocked,
       roomState,
       blockAllPeriferics,
     };

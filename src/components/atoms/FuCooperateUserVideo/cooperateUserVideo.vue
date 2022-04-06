@@ -5,8 +5,11 @@
     :class="{ fade: screenMinimized }"
   >
     <div
-      class="a-userVideo__box"
-      :class="{ fade: mainViewState.pinnedUsers.includes(userMe.id) }"
+      :class="[
+        'a-userVideo__box',
+        { fade: mainViewState.pinnedUsers.includes(userMe.id) },
+      ]"
+      :style="backgroundColorSelected(userMe.id)"
     >
       <div v-show="!userMe.isVideoActivated" class="a-userVideo__box__avatar">
         <figure class="a-userVideo__box__avatar__imageBox">
@@ -45,51 +48,15 @@
           {{ userMe.name }}
         </div>
       </div>
-
-      <!-- <q-btn
-        flat
-        round
-        :ripple="false"
-        :icon="
-          mainViewState.pinnedUsers.includes(userMe.id)
-            ? 'location_disabled'
-            : 'gps_fixed'
-        "
-        color="white"
-        class="a-userVideo__box__avatar__screenBtn"
-        @click="
-          mainViewState.pinnedUsers.includes(userMe.id)
-            ? removePinnedUser(userMe.id)
-            : addPinnedUser(userMe.id)
-        "
-        :disable="
-          (mainViewState.locked !== MAIN_VIEW_LOCKED_TYPE.ANYONE &&
-            mainViewState.locked !== MAIN_VIEW_LOCKED_TYPE.UNSET) ||
-          (mainViewState.pinnedUsers.length >= 4 &&
-            !mainViewState.pinnedUsers.includes(userMe.id))
-        "
-      >
-        <q-tooltip
-          anchor="top middle"
-          class="bg-grey-10"
-          self="bottom middle"
-          :offset="[10, 10]"
-          transition-show="scale"
-          transition-hide="scale"
-        >
-          <label class="a-userVideo__box__avatar__screenBtn__label">{{
-            mainViewState.pinnedUsers.includes(userMe.id)
-              ? 'Desfijar para mi'
-              : 'Fijar para mi'
-          }}</label>
-        </q-tooltip>
-      </q-btn> -->
     </div>
     <div
-      class="a-userVideo__box text-white"
       v-for="participant in controlUserToRender"
       :key="participant.id"
-      :class="{ fade: mainViewState.pinnedUsers.includes(participant.id) }"
+      :class="[
+        'a-userVideo__box text-white',
+        { fade: mainViewState.pinnedUsers.includes(participant.id) },
+      ]"
+      :style="backgroundColorSelected(participant.id)"
     >
       <div
         v-show="!participant.isVideoActivated"
@@ -224,6 +191,7 @@ import {
   useHandleParticipants,
   useUserMe,
   useMainView,
+  useUserColor,
 } from '@/composables';
 
 import { MAIN_VIEW_LOCKED_TYPE } from '@/utils/enums';
@@ -245,6 +213,7 @@ export default defineComponent({
     const streamIdPinned = ref('');
     const $q = useQuasar();
     const { screenMinimized } = useScreen();
+    const { colorList } = useUserColor();
 
     const controlUserToRender = computed(() => {
       return $q.screen.lt.md
@@ -257,7 +226,6 @@ export default defineComponent({
         ? { 'justify-content': 'center' }
         : '';
     });
-
     watch(
       () => localTracks.value,
       () => {
@@ -270,6 +238,12 @@ export default defineComponent({
         });
       }
     );
+
+    const backgroundColorSelected = (id: string) => {
+      return {
+        'background-color': colorList.get(id),
+      };
+    };
 
     return {
       userMe,
@@ -287,6 +261,7 @@ export default defineComponent({
       localVideoTrack,
       participantAudioTracks,
       participantVideoTracks,
+      backgroundColorSelected,
     };
   },
 });

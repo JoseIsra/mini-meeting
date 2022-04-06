@@ -40,7 +40,8 @@
 
 <script lang="ts">
 import { defineComponent, ref, computed } from 'vue';
-import { useExternalVideo, useUserMe, useJitsi } from '@/composables';
+import { useExternalVideo, useUserMe } from '@/composables';
+import { useJitsi } from '@/composables/jitsi';
 import { usePanels } from '@/composables/panels';
 import { errorMessage, successMessage, warningMessage } from '@/utils/notify';
 

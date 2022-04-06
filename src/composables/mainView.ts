@@ -3,7 +3,9 @@ import { MainViewState } from '@/types';
 import { useInitWebRTC } from './antMedia';
 import _ from 'lodash';
 import { MAIN_VIEW_LOCKED_TYPE, MAIN_VIEW_MODE } from '@/utils/enums';
-import { useRoom, useUserMe } from '@/composables';
+import { useUserMe } from '@/composables/userMe';
+import { useRoom } from '@/composables/room';
+// const { sendNotification } = useJitsi();
 
 const { sendData } = useInitWebRTC();
 const { roomState } = useRoom();
@@ -107,11 +109,11 @@ export function useMainView() {
         startedBy: userMe.id,
       });
     }
-    /*  */
-    sendData(roomState.hostId, {
-      eventType: 'SET_FULL_SCREEN',
-      mainViewState,
-    });
+    // sendNotification('PIN_USER_FOR_ALL_PARTICIPANT', {
+    //   value: JSON.stringify({
+    //     mainViewState,
+    //   }),
+    // });
   };
 
   const removePinnedUserForAll = (userId: string) => {

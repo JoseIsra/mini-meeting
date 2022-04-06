@@ -138,3 +138,7 @@ export type LockActionsObject = Pick<
   ObjBlockParticipantAction,
   'streamId' | 'participantId' | 'action'
 >;
+export type LockActionsData = Pick<
+  ObjBlockParticipantAction,
+  'streamId' | 'action'
+>;

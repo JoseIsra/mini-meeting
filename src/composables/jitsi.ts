@@ -25,9 +25,11 @@ import {
   useHandleMessage,
   useAuthState,
   useExternalVideo,
-  useMainView,
+  useUserColor,
 } from '@/composables';
 import { useJitsiError } from '@/composables/jitsiError';
+import { useMainView } from '@/composables/mainView';
+
 import {
   REASON_TO_LEAVE_ROOM,
   MediaType,
@@ -79,6 +81,7 @@ const { externalVideo, updateExternalVideoState } = useExternalVideo();
 const { errorsCallback } = useJitsiError();
 const { setIsLoadingOrError } = useAuthState();
 const { updateMainViewState } = useMainView();
+const { setUserBackgroundColor } = useUserColor();
 
 const handNotificationSound = new Audio(
   'https://freesound.org/data/previews/411/411642_5121236-lq.mp3'
@@ -169,6 +172,10 @@ export function useJitsi() {
     {
       name: 'SEND_ROOM_INFO',
       listener: receiveRoomInfo,
+    },
+    {
+      name: 'PIN_USER_FOR_ALL_PARTICIPANTS',
+      listener: pinUserForAllParticipants,
     },
   ];
 
@@ -355,6 +362,7 @@ export function useJitsi() {
       isVideoOwner: false,
       tracks: user._tracks,
     });
+    setUserBackgroundColor(dataUser.id);
     console.debug(dataUser);
   }
 
@@ -591,6 +599,13 @@ export function useJitsi() {
     }
   }
 
+  function pinUserForAllParticipants(arg: Command) {
+    console.log(arg);
+
+    // if (userMe.id !== startedBy)
+    // updateMainViewState(JSON.parse(arg.value) as MainViewState);
+  }
+
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   function requestRoomState(_arg: Command) {
     if (userMe.isHost) {
@@ -672,7 +687,7 @@ export function useJitsi() {
       room.addCommandListener(command.name, command.listener);
     });
     updateUserMe({ id: room.myUserId() });
-
+    setUserBackgroundColor(userMe.id);
     room.setDisplayName(JSON.stringify(userMe));
     room.join('');
   }

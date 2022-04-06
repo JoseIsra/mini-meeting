@@ -28,13 +28,8 @@
 import { defineComponent, toRefs, onMounted, onUnmounted } from 'vue';
 import FuCooperate from 'organisms/FuCooperate';
 import { useRoute } from 'vue-router';
-import {
-  useRoom,
-  useAuthState,
-  useInitWebRTC,
-  useUserMe,
-  useJitsi,
-} from '@/composables';
+import { useRoom, useAuthState, useInitWebRTC, useUserMe } from '@/composables';
+import { useJitsi } from '@/composables/jitsi';
 import FuTLoading from 'organisms/FuLoading';
 import {
   PERMISSION_STATUS,
@@ -205,9 +200,9 @@ export default defineComponent({
       isCameraOn,
       isScreenSharing: false,
       isVideoActivated: false,
-      isMicBlocked: false,
-      isCameraBlocked: false,
-      isScreenShareBlocked: false,
+      isMicBlocked: roleId === 1 ? isMicLocked : false,
+      isCameraBlocked: roleId === 1 ? isCameraLocked : false,
+      isScreenShareBlocked: roleId === 1 ? isScreenShareLocked : false,
       fractalUserId,
       denied:
         roomRestriction === ROOM_PRIVACY.PRIVATE

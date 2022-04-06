@@ -553,11 +553,10 @@ export function useJitsi() {
       urlVideo,
       videoOnRoom: true,
     });
-    updateMainViewState &&
-      updateMainViewState({
-        mode: MAIN_VIEW_MODE.VIDEO,
-        locked: MAIN_VIEW_LOCKED_TYPE.ALL_USERS,
-      });
+    updateMainViewState({
+      mode: MAIN_VIEW_MODE.VIDEO,
+      locked: MAIN_VIEW_LOCKED_TYPE.ALL_USERS,
+    });
   }
 
   function pauseExternalVideo(arg: Command) {
@@ -575,11 +574,10 @@ export function useJitsi() {
     const { remoteInstanceId } = JSON.parse(arg.value) as ExternalVideoObject;
     remotePlayer.value = {} as videojs.Player;
     videojs(remoteInstanceId as string).dispose();
-    updateMainViewState &&
-      updateMainViewState({
-        mode: MAIN_VIEW_MODE.NONE,
-        locked: MAIN_VIEW_LOCKED_TYPE.UNSET,
-      });
+    updateMainViewState({
+      mode: MAIN_VIEW_MODE.NONE,
+      locked: MAIN_VIEW_LOCKED_TYPE.UNSET,
+    });
     updateExternalVideoState({
       ...externalVideo,
       videoOnRoom: false,

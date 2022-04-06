@@ -17,6 +17,7 @@ import {
   ExternalVideoObject,
   MainViewState,
   backgroundInfo,
+  backgroundSize,
 } from '@/types';
 
 // composables
@@ -85,7 +86,7 @@ const { errorsCallback } = useJitsiError();
 const { setIsLoadingOrError } = useAuthState();
 const { updateMainViewState } = useMainView();
 const { setUserBackgroundColor } = useUserColor();
-const { updateBgUrl } = useRoom();
+const { updateBgUrl, updateBgSize } = useRoom();
 
 const handNotificationSound = new Audio(
   'https://freesound.org/data/previews/411/411642_5121236-lq.mp3'
@@ -184,6 +185,10 @@ export function useJitsi() {
     {
       name: 'UPDATE_BACKGROUND_IMAGE_OF_COOPERATE',
       listener: updateBackgroundImageOfCooperate,
+    },
+    {
+      name: 'UPDATE_BG_IMAGE_SIZE_OF_COOPERATE',
+      listener: updateBgImageSizeOfCooperate,
     },
   ];
 
@@ -619,7 +624,11 @@ export function useJitsi() {
   function updateBackgroundImageOfCooperate(arg: Command) {
     const { url } = JSON.parse(arg.value) as backgroundInfo;
     updateBgUrl(url);
-    successMessage('Fondo de la sala actualizado');
+  }
+
+  function updateBgImageSizeOfCooperate(arg: Command) {
+    const { maximized } = JSON.parse(arg.value) as backgroundSize;
+    updateBgSize(maximized);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

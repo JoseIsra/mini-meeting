@@ -86,7 +86,7 @@ import FuFileCatcherCooperate from 'atoms/FuFileCatcherCooperate';
 import { backBlazePath } from '@/config/constants';
 import { simplifyExtension, renameFile } from '@/utils/file';
 import backblazeService from '@/services/backblaze';
-import { errorMessage } from '@/utils/notify';
+import { errorMessage, successMessage } from '@/utils/notify';
 const { uploadFileToBackblaze } = backblazeService;
 import FuExternalVideoModal from 'molecules/FuExternalVideoModal';
 import { useJitsi } from '@/composables/jitsi';
@@ -98,7 +98,7 @@ export default defineComponent({
     FuExternalVideoModal,
   },
   setup() {
-    const { roomState, updateBgSize, updateAllowResetBg } = useRoom();
+    const { roomState, updateAllowResetBg } = useRoom();
     const maximizeBg = ref(roomState.bgInfo.maximized);
     const linkCopied = ref(false);
     let fileToChangeBg = ref({} as File);
@@ -171,6 +171,7 @@ export default defineComponent({
           }),
         });
         isLoading.value = false;
+        successMessage('Fondo de la sala actualizado');
         window.xprops?.setBackgroundInfo?.(
           fileRoute,
           roomState.bgInfo.maximized
@@ -181,13 +182,11 @@ export default defineComponent({
     };
 
     watch(maximizeBg, (value) => {
-      // sendData(roomState.hostId, {
-      //   eventType: 'UPDATE_ROOM_SIZE',
-      //   maximized: value,
-      // });
-
-      updateBgSize(value);
-
+      sendNotification('UPDATE_BG_IMAGE_SIZE_OF_COOPERATE', {
+        value: JSON.stringify({
+          maximized: value,
+        }),
+      });
       window.xprops?.setBackgroundInfo?.(roomState.bgInfo.url, value);
     });
 
@@ -197,6 +196,7 @@ export default defineComponent({
           url: 'https://encrypted.fractalup.com/file/MainPublic/fractalup_assets/landing/main.png',
         }),
       });
+      successMessage('Fondo de la sala actualizado');
 
       window.xprops?.setBackgroundInfo?.(
         roomState.bgInfo.url,

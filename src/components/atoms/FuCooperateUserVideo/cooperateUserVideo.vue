@@ -167,11 +167,26 @@
       :key="index"
     >
       <video
-        :srcObject.prop="participant.stream"
+        :id="'video-' + participant.id"
         :style="{ display: 'none' }"
         autoplay
         playsinline
+        :ref="
+          ($el) => {
+            participantVideoTracks[`video-${participant.id}`] = $el;
+          }
+        "
       />
+      <audio
+        :id="'audio-' + participant.id"
+        style="display: none"
+        :ref="
+          ($el) => {
+            participantAudioTracks[`audio-${participant.id}`] = $el;
+          }
+        "
+        autoplay
+      ></audio>
     </div>
   </section>
 </template>

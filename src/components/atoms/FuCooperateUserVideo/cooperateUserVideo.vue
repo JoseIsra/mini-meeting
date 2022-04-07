@@ -46,7 +46,7 @@
       </div>
     </div>
     <div
-      v-for="participant in controlUserToRender"
+      v-for="participant in usersOnScreen"
       :key="participant.id"
       :class="[
         'userVideoBox text-white',
@@ -146,19 +146,8 @@
       </q-btn>
     </div>
     <!--  -->
-    <div
-      class="userVideoBox --moreUsers"
-      v-show="
-        $q.screen.lt.md
-          ? admittedParticipants.length > 1
-          : admittedParticipants.length > 5
-      "
-    >
-      +{{
-        $q.screen.lt.md
-          ? admittedParticipants.length - 1
-          : admittedParticipants.length - 5
-      }}
+    <div class="userVideoBox --moreUsers" v-show="moreUsersIndicator">
+      +{{ moreUsersAmount }}
     </div>
     <div
       v-for="(participant, index) in $q.screen.lt.md
@@ -202,7 +191,7 @@ import {
 } from '@/composables';
 import { useLayout } from '@/composables/layout';
 import { useUserColor } from '@/composables/userColor';
-import { MAIN_VIEW_LOCKED_TYPE, LAYOUT } from '@/utils/enums';
+import { MAIN_VIEW_LOCKED_TYPE, LAYOUT, MAIN_VIEW_MODE } from '@/utils/enums';
 import { iconsPeriferics } from '@/helpers/iconsMenuBar';
 
 export default defineComponent({
@@ -222,14 +211,7 @@ export default defineComponent({
     const $q = useQuasar();
     const { screenMinimized } = useScreen();
     const { colorList } = useUserColor();
-    const { currentLayout } = useLayout();
-
-    const controlUserToRender = computed(() => {
-      return $q.screen.lt.md
-        ? admittedParticipants.value.slice(-1)
-        : admittedParticipants.value.slice(-5);
-    });
-
+    const { layout } = useLayout();
     const styleOnMobile = computed(() => {
       return admittedParticipants.value.length > 5
         ? { 'justify-content': 'center' }
@@ -237,9 +219,12 @@ export default defineComponent({
     });
 
     const layoutStyle = computed(() => ({
-      defaultLayout: currentLayout.value == LAYOUT.DEFAULT_LAYOUT,
-      presentationLayout: currentLayout.value == LAYOUT.PRESENTATION_LAYOUT,
+      defaultLayout: layout.value == LAYOUT.DEFAULT_LAYOUT,
+      presentationLayout: layout.value == LAYOUT.PRESENTATION_LAYOUT,
       fade: screenMinimized.value,
+      '--split':
+        layout.value == LAYOUT.DEFAULT_LAYOUT &&
+        mainViewState.mode !== MAIN_VIEW_MODE.NONE,
     }));
 
     watch(
@@ -261,11 +246,83 @@ export default defineComponent({
       };
     };
 
+    const moreUsersIndicator = computed(() => {
+      return layout.value == LAYOUT.DEFAULT_LAYOUT
+        ? moreUsersDefaultLayout.value
+        : moreUsersPresentationLayout.value;
+    });
+
+    const moreUsersPresentationLayout = computed(() => {
+      return $q.screen.lt.md
+        ? admittedParticipants.value.length > 1
+        : admittedParticipants.value.length > 5;
+    });
+
+    const moreUsersDefaultLayoutSplitted = computed(() => {
+      return mainViewState.mode !== MAIN_VIEW_MODE.NONE
+        ? admittedParticipants.value.length > 6
+        : admittedParticipants.value.length > 13;
+    });
+
+    const moreUsersDefaultLayout = computed(() => {
+      return $q.screen.lt.md
+        ? admittedParticipants.value.length > 4
+        : moreUsersDefaultLayoutSplitted.value;
+    });
+
+    const moreUsersAmountPresentationLayout = computed(() => {
+      return $q.screen.lt.md
+        ? admittedParticipants.value.length - 1
+        : admittedParticipants.value.length - 5;
+    });
+
+    const moreUsersAmountDefaultLayoutSplitted = computed(() => {
+      return mainViewState.mode !== MAIN_VIEW_MODE.NONE
+        ? admittedParticipants.value.length - 6
+        : admittedParticipants.value.length - 13;
+    });
+
+    const moreUsersAmountDefaultLayout = computed(() => {
+      return $q.screen.lt.md
+        ? admittedParticipants.value.length - 4
+        : moreUsersAmountDefaultLayoutSplitted.value;
+    });
+
+    const moreUsersAmount = computed(() => {
+      return layout.value == LAYOUT.DEFAULT_LAYOUT
+        ? moreUsersAmountDefaultLayout.value
+        : moreUsersAmountPresentationLayout.value;
+    });
+
+    const userAmountPresentationLayout = computed(() => {
+      return $q.screen.lt.md
+        ? admittedParticipants.value.slice(-1)
+        : admittedParticipants.value.slice(-5);
+    });
+
+    const userAmountDefaultLayout = computed(() => {
+      return $q.screen.lt.md
+        ? admittedParticipants.value.slice(-4)
+        : userAmountDefaultLayoutSplitted.value;
+    });
+
+    const userAmountDefaultLayoutSplitted = computed(() => {
+      return mainViewState.mode !== MAIN_VIEW_MODE.NONE
+        ? admittedParticipants.value.slice(-6)
+        : admittedParticipants.value.slice(-13);
+    });
+
+    const usersOnScreen = computed(() => {
+      return layout.value == LAYOUT.DEFAULT_LAYOUT
+        ? userAmountDefaultLayout.value
+        : userAmountPresentationLayout.value;
+    });
+
     return {
       userMe,
       admittedParticipants,
       streamIdPinned,
-      controlUserToRender,
+      userAmountPresentationLayout,
       styleOnMobile,
       screenMinimized,
       addPinnedUser,
@@ -279,6 +336,11 @@ export default defineComponent({
       participantVideoTracks,
       backgroundColorSelected,
       layoutStyle,
+      usersOnScreen,
+      moreUsersIndicator,
+      moreUsersAmount,
+      layout,
+      LAYOUT,
     };
   },
 });

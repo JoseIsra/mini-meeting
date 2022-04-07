@@ -8,13 +8,17 @@
   z-index: 4;
   &__box {
     position: absolute;
-    bottom: 175px;
+    bottom: 20px;
     display: flex;
     align-items: center;
     justify-content: space-around;
     background: linear-gradient(350deg, mediumslateblue 0%, #0099ff 75%);
     border-radius: 7px;
     padding: 10px;
+    transition: bottom 0.3s ease-in;
+    &.--presentation {
+      bottom: 175px;
+    }
   }
   .active,
   .activeHand {

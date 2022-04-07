@@ -1,6 +1,6 @@
 <template>
   <div class="a-menuBar">
-    <section class="a-menuBar__box">
+    <section :class="['a-menuBar__box', modifierClass]">
       <aside class="a-menuBar__periferics">
         <q-btn
           flat
@@ -324,7 +324,7 @@ import {
 } from 'vue';
 import FuCooperateMenu from 'molecules/FuCooperateMenu';
 import { Icons, Functionalities } from '@/types';
-import { MediaType } from '@/utils/enums/general';
+import { MediaType, LAYOUT } from '@/utils/enums/general';
 import { iconsPeriferics, iconsFunctions } from '@/helpers/iconsMenuBar';
 
 import {
@@ -338,6 +338,7 @@ import {
 import { useJitsi } from '@/composables/jitsi';
 import { usePanels } from '@/composables/panels';
 import { useJitsiError } from '@/composables/jitsiError';
+import { useLayout } from '@/composables/layout';
 import { nanoid } from 'nanoid';
 
 import FuAdminPanel from 'organisms/FuAdminPanel';
@@ -398,6 +399,7 @@ export default defineComponent({
     const { openAdminPanel, setOpenAdminPanel, setTabSharedWarning } =
       usePanels();
     const { errorsCallback } = useJitsiError();
+    const { layout } = useLayout();
 
     const notificationCount = computed(() => {
       return userMe.roleId === 0 ? waitingParticipants.value.length : '';
@@ -458,6 +460,10 @@ export default defineComponent({
         ? 'video'
         : '';
     });
+
+    const modifierClass = computed(() => ({
+      '--presentation': layout.value == LAYOUT.PRESENTATION_LAYOUT,
+    }));
 
     watch(
       () => _.cloneDeep(userMessages.value),
@@ -775,6 +781,7 @@ export default defineComponent({
       amountOfNewMessages,
       amountHandNotification,
       openAdminPanel,
+      modifierClass,
     };
   },
 });

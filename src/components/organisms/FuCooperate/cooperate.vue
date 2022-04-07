@@ -107,7 +107,7 @@ export default defineComponent({
       useHandleParticipants();
     const { acumulateMessages } = useHandleMessage();
     const { openTabSharedWarning } = usePanels();
-    const { currentLayout } = useLayout();
+    const { layout } = useLayout();
     const $q = useQuasar();
     onMounted(() => {
       emit('mounted');
@@ -196,14 +196,14 @@ export default defineComponent({
       return functionsOnMenuBar.handNotificationInfo.length > 0;
     });
 
-    const layout = computed(() => {
-      return currentLayout.value == LAYOUT.DEFAULT_LAYOUT;
+    const isPresentationLayout = computed(() => {
+      return layout.value == LAYOUT.PRESENTATION_LAYOUT;
     });
 
     const renderHeader = computed(() => {
       return !screenMinimized.value && $q.screen.lt.md
         ? showHeader.value
-        : layout.value;
+        : isPresentationLayout.value;
     });
 
     return {

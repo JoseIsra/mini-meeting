@@ -43,20 +43,20 @@ export const menuOptions = {
     // },
   ],
   thirdSection: [
-    // {
-    //   id: '5',
-    //   iconName: 'call_to_action',
-    //   description: 'Vista 1',
-    //   important: false,
-    //   interaction: INTERACTION_TYPE_MENU_OPTIONS.DEFAULT_LAYOUT,
-    // },
-    // {
-    //   id: '6',
-    //   iconName: 'call_to_action',
-    //   description: 'Vista 2',
-    //   important: false,
-    //   interaction: INTERACTION_TYPE_MENU_OPTIONS.PRESENTATION_LAYOUT,
-    // },
+    {
+      id: '5',
+      iconName: 'call_to_action',
+      description: 'Vista 1',
+      important: false,
+      interaction: INTERACTION_TYPE_MENU_OPTIONS.DEFAULT_LAYOUT,
+    },
+    {
+      id: '6',
+      iconName: 'call_to_action',
+      description: 'Vista 2',
+      important: false,
+      interaction: INTERACTION_TYPE_MENU_OPTIONS.PRESENTATION_LAYOUT,
+    },
     /* 
     {
       id: '7',

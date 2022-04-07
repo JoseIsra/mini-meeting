@@ -164,14 +164,14 @@ export default defineComponent({
       (window?.xprops?.hostId as string) || (route.query.hostId as string);
 
     let bgInfo = window?.xprops?.bgInfo || {
-      url: 'https://encrypted.fractalup.com/file/MainPublic/fractalup_assets/landing/main.png',
+      url: '',
       maximized: false,
       allowResetBg: false,
     };
 
     if (window?.xprops?.bgInfo?.url === '' || !window?.xprops?.bgInfo?.url) {
       bgInfo = {
-        url: 'https://encrypted.fractalup.com/file/MainPublic/fractalup_assets/landing/main.png',
+        url: '',
         maximized: false,
         allowResetBg: false,
       };

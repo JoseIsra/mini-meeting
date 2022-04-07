@@ -1,5 +1,5 @@
 <template>
-  <section :class="['m-fusers', usersDistributionStyle]">
+  <section :class="['m-fusers', usersDistributionStyle, layoutStyle]">
     <fu-full-screen-user
       :class="[
         'm-fusers__user',
@@ -20,6 +20,8 @@
 import { defineComponent, ref, computed } from 'vue';
 import { useMainView, useScreen, useUserMe } from '@/composables';
 import FuFullScreenUser from '@/components/molecules/FuFullScreenUser';
+import { useLayout } from '@/composables/layout';
+import { LAYOUT } from '@/utils/enums/general';
 
 export default defineComponent({
   name: 'FuFullScreenUsers',
@@ -33,11 +35,17 @@ export default defineComponent({
     const { mainViewState } = useMainView();
     const { screenMinimized } = useScreen();
     const { userMe } = useUserMe();
+    const { layout } = useLayout();
+
     const buttonMinimizeSpecialStyle = ref(false);
 
     const usersDistributionStyle = computed(
       () => `--${mainViewState.pinnedUsers.length}users`
     );
+
+    const layoutStyle = computed(() => ({
+      '--split': layout.value == LAYOUT.DEFAULT_LAYOUT,
+    }));
 
     return {
       screenMinimized,
@@ -45,6 +53,7 @@ export default defineComponent({
       userMe,
       mainViewState,
       usersDistributionStyle,
+      layoutStyle,
     };
   },
 });

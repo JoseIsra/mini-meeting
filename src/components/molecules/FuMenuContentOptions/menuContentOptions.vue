@@ -36,7 +36,7 @@
           option.description
         }}</label>
       </li>
-      <!-- <q-separator spaced color="white" /> -->
+      <q-separator spaced color="white" />
       <li
         v-for="option in options.fourthSection"
         :class="[
@@ -79,7 +79,8 @@ import {
   useToogleFunctions,
   useMainView,
 } from '@/composables';
-import { REASON_TO_LEAVE_ROOM, MAIN_VIEW_MODE } from '@/utils/enums';
+import { useLayout } from '@/composables/layout';
+import { REASON_TO_LEAVE_ROOM, MAIN_VIEW_MODE, LAYOUT } from '@/utils/enums';
 import FuDeviceConfigurationModal from 'molecules/FuDeviceConfigurationModal';
 import { MenuOptionsInteractions } from '@/types/general';
 
@@ -95,6 +96,7 @@ export default defineComponent({
     const { userMe } = useUserMe();
     const { sendNotificationEvent } = useInitWebRTC();
     const { mainViewState, updateMainViewState } = useMainView();
+    const { setNewLayout } = useLayout();
 
     const optionsMethodsObject = reactive<MenuOptionsInteractions>({
       LEAVE: () => {
@@ -148,10 +150,10 @@ export default defineComponent({
       }
     };
     const initDefaultLayout = () => {
-      console.log('init');
+      setNewLayout(LAYOUT.DEFAULT_LAYOUT);
     };
     const initPresentationLayout = () => {
-      console.log('init');
+      setNewLayout(LAYOUT.PRESENTATION_LAYOUT);
     };
 
     return {

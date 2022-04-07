@@ -17,6 +17,7 @@
         class="a-menu__optionList__item"
         v-for="option in options.secondSection"
         :key="option.id"
+        @click="handleOptionSelected(option.interaction)"
       >
         <q-icon :name="option.iconName" size="18px" />
         <label class="a-menu__optionList__item__description">{{
@@ -28,6 +29,7 @@
         class="a-menu__optionList__item"
         v-for="option in options.thirdSection"
         :key="option.id"
+        @click="handleOptionSelected(option.interaction)"
       >
         <q-icon :name="option.iconName" size="18px" />
         <label class="a-menu__optionList__item__description">{{
@@ -75,15 +77,12 @@ import {
   useHandleParticipants,
   useUserMe,
   useToogleFunctions,
+  useMainView,
 } from '@/composables';
-import { REASON_TO_LEAVE_ROOM } from '@/utils/enums';
+import { REASON_TO_LEAVE_ROOM, MAIN_VIEW_MODE } from '@/utils/enums';
 import FuDeviceConfigurationModal from 'molecules/FuDeviceConfigurationModal';
+import { MenuOptionsInteractions } from '@/types/general';
 
-interface OptionsClickMethods {
-  LEAVE: () => void;
-  END: () => void;
-  DEVICECONFIGURATION: () => void;
-}
 export default defineComponent({
   name: 'FuMenuContentOptions',
   components: { FuDeleteRoomModal, FuDeviceConfigurationModal },
@@ -95,8 +94,9 @@ export default defineComponent({
 
     const { userMe } = useUserMe();
     const { sendNotificationEvent } = useInitWebRTC();
+    const { mainViewState, updateMainViewState } = useMainView();
 
-    const optionsMethodsObject = reactive<OptionsClickMethods>({
+    const optionsMethodsObject = reactive<MenuOptionsInteractions>({
       LEAVE: () => {
         participants.value.length > 0
           ? window.xprops?.handleParticipantLeave()
@@ -110,6 +110,9 @@ export default defineComponent({
       },
       END: () => openModalWithName('delete-card'),
       DEVICECONFIGURATION: () => openModalWithName('configuration-card'),
+      BOARD: () => openExcaliBoard(),
+      DEFAULT_LAYOUT: () => initDefaultLayout(),
+      PRESENTATION_LAYOUT: () => initPresentationLayout(),
     });
     const cardContent = ref('');
 
@@ -119,7 +122,7 @@ export default defineComponent({
     };
 
     const handleOptionSelected = (interaction?: string) => {
-      optionsMethodsObject[interaction as keyof OptionsClickMethods]();
+      optionsMethodsObject[interaction as keyof MenuOptionsInteractions]();
       openOptionsMenu(false);
     };
 
@@ -128,6 +131,28 @@ export default defineComponent({
     const canLeaveCall = ref(
       (userMe.roleId === 0 || userMe.roleId === 1) && !userMe.isHost
     );
+
+    const openExcaliBoard = () => {
+      // open iframe
+      // https://excalidraw.com/
+      if (mainViewState.mode == MAIN_VIEW_MODE.EXCALI) {
+        updateMainViewState({
+          mode: MAIN_VIEW_MODE.NONE,
+          startedBy: '',
+        });
+      } else {
+        updateMainViewState({
+          mode: MAIN_VIEW_MODE.EXCALI,
+          startedBy: userMe.id,
+        });
+      }
+    };
+    const initDefaultLayout = () => {
+      console.log('init');
+    };
+    const initPresentationLayout = () => {
+      console.log('init');
+    };
 
     return {
       options,

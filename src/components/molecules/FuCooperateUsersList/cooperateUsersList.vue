@@ -248,7 +248,7 @@
             <q-menu :offset="[60, 12]">
               <q-list>
                 <div class="m-list__content__userBox__extra">
-                  <!-- <q-btn
+                  <q-btn
                     :icon="
                       mainViewState.pinnedUsers.includes(participant.id)
                         ? 'location_disabled'
@@ -283,7 +283,7 @@
                       >
                       <label v-else> Fijar para todos</label>
                     </q-tooltip>
-                  </q-btn> -->
+                  </q-btn>
 
                   <q-btn
                     :icon="
@@ -523,16 +523,16 @@ import {
   USER_ROLE,
   BOARD_EVENTS,
 } from '@/utils/enums';
+import _ from 'lodash';
 
 export default defineComponent({
   name: 'FuCooperateUsersList',
   setup() {
     const {
       mainViewState,
-      addPinnedUserForAll,
       addPinnedUser,
       removePinnedUser,
-      removePinnedUserForAll,
+      updateMainViewState,
     } = useMainView();
     const { waitingParticipants, admittedParticipants, updateParticipantById } =
       useHandleParticipants();
@@ -682,6 +682,44 @@ export default defineComponent({
         from: userMe.id,
         to: arg.id,
         event: BOARD_EVENTS.TOGGLE_DRAW_MODE,
+      });
+    };
+
+    const addPinnedUserForAll = (userId: string) => {
+      const currentPinnedUsers = _.clone(mainViewState?.pinnedUsers);
+      currentPinnedUsers?.push(userId);
+      if (mainViewState?.mode === MAIN_VIEW_MODE.USER) {
+        updateMainViewState({ pinnedUsers: currentPinnedUsers });
+      } else {
+        updateMainViewState({
+          mode: MAIN_VIEW_MODE.USER,
+          pinnedUsers: [userId],
+          locked: MAIN_VIEW_LOCKED_TYPE.NORMAL_USERS,
+          startedBy: userMe.id,
+        });
+      }
+      sendNotification('PIN_USER_FOR_ALL_PARTICIPANTS', {
+        value: JSON.stringify(mainViewState),
+      });
+    };
+
+    const removePinnedUserForAll = (userId: string) => {
+      const currentPinnedUsers = _.clone(mainViewState?.pinnedUsers);
+      const index = currentPinnedUsers?.indexOf(userId);
+      if (index == -1) return;
+      currentPinnedUsers.splice(index, 1);
+      if (currentPinnedUsers?.length === 0) {
+        updateMainViewState({
+          mode: MAIN_VIEW_MODE.NONE,
+          locked: MAIN_VIEW_LOCKED_TYPE.UNSET,
+          startedBy: userMe.id,
+          pinnedUsers: currentPinnedUsers,
+        });
+      } else {
+        updateMainViewState({ pinnedUsers: currentPinnedUsers });
+      }
+      sendNotification('PIN_USER_FOR_ALL_PARTICIPANTS', {
+        value: JSON.stringify(mainViewState),
       });
     };
 

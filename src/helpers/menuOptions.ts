@@ -34,26 +34,30 @@ export const menuOptions = {
     // },
   ],
   secondSection: [
-    /* {
-      id: '4',
-      iconName: 'volume_up',
-      description: 'Audio',
-      important: false,
-    }, */
+    // {
+    //   id: '4',
+    //   iconName: 'edit',
+    //   description: 'Pizarra',
+    //   important: false,
+    //   interaction: INTERACTION_TYPE_MENU_OPTIONS.BOARD,
+    // },
   ],
   thirdSection: [
-    /* {
-      id: '5',
-      iconName: 'call_to_action',
-      description: 'Vista 1',
-      important: false,
-    },
-    {
-      id: '6',
-      iconName: 'call_to_action',
-      description: 'Vista 2',
-      important: false,
-    },
+    // {
+    //   id: '5',
+    //   iconName: 'call_to_action',
+    //   description: 'Vista 1',
+    //   important: false,
+    //   interaction: INTERACTION_TYPE_MENU_OPTIONS.DEFAULT_LAYOUT,
+    // },
+    // {
+    //   id: '6',
+    //   iconName: 'call_to_action',
+    //   description: 'Vista 2',
+    //   important: false,
+    //   interaction: INTERACTION_TYPE_MENU_OPTIONS.PRESENTATION_LAYOUT,
+    // },
+    /* 
     {
       id: '7',
       iconName: 'call_to_action',

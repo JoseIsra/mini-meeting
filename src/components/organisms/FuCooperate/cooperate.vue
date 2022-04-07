@@ -29,9 +29,7 @@
       v-show="screenMinimized"
     />
 
-    <fu-cooperate-header
-      v-show="!screenMinimized && $q.screen.lt.md ? showHeader : true"
-    />
+    <fu-cooperate-header v-show="renderHeader" />
 
     <fu-cooperate-menu-bar v-show="showMenuBar && !screenMinimized" />
     <transition :name="$q.screen.lt.sm ? 'dragged' : 'slide'">
@@ -87,7 +85,9 @@ import {
   useHandleMessage,
 } from '@/composables';
 import { usePanels } from '@/composables/panels';
-import { MAIN_VIEW_MODE } from '@/utils/enums';
+import { useLayout } from '@/composables/layout';
+import { LAYOUT, MAIN_VIEW_MODE } from '@/utils/enums';
+import { useQuasar } from 'quasar';
 
 export default defineComponent({
   name: 'FuCooperate',
@@ -107,7 +107,8 @@ export default defineComponent({
       useHandleParticipants();
     const { acumulateMessages } = useHandleMessage();
     const { openTabSharedWarning } = usePanels();
-
+    const { currentLayout } = useLayout();
+    const $q = useQuasar();
     onMounted(() => {
       emit('mounted');
       window.addEventListener('orientationchange', handleOrientationChange);
@@ -195,6 +196,16 @@ export default defineComponent({
       return functionsOnMenuBar.handNotificationInfo.length > 0;
     });
 
+    const layout = computed(() => {
+      return currentLayout.value == LAYOUT.DEFAULT_LAYOUT;
+    });
+
+    const renderHeader = computed(() => {
+      return !screenMinimized.value && $q.screen.lt.md
+        ? showHeader.value
+        : layout.value;
+    });
+
     return {
       toogleMenuBar,
       showMenuBar,
@@ -214,6 +225,7 @@ export default defineComponent({
       participantVideoTracks,
       participantAudioTracks,
       openTabSharedWarning,
+      renderHeader,
     };
   },
 });

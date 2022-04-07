@@ -1,106 +1,116 @@
-.a-userVideo {
+.userVideoBox {
+  margin: 0 10px;
+  position: relative;
+  border-radius: 10px;
+  width: 18rem;
+  max-width: 288px;
+  height: 9.5rem;
+  max-height: 162px;
+  min-height: 108px;
+  overflow: hidden;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 2px 4px 6px rgba(0, 0, 0, 0.2);
+  &__avatar {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    &__imageBox {
+      text-align: center;
+      margin: 15px 0px;
+      width: 100%;
+      height: 60%;
+      &__image {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+    }
+    &__info {
+      display: flex;
+      width: 100%;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      bottom: 10px;
+      &__userName {
+        color: #fffffe;
+        font-size: clamp(0.7rem, 2.5vw, 0.8rem);
+        cursor: default;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        text-align: center;
+        padding: 0 5px;
+        border-radius: 4px;
+        width: fit-content;
+        max-width: 70%;
+        &.--video {
+          position: absolute;
+          transform: translate(-50%, 0);
+          bottom: 6px;
+          left: 50%;
+          width: 100%;
+          z-index: 100;
+          background: black;
+        }
+      }
+    }
+    &__screenBtn {
+      position: absolute;
+      top: 0;
+      right: 0;
+      &__label {
+        font-size: 0.65rem;
+      }
+    }
+  }
+  &__stream {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    min-height: 100px;
+  }
+
+  &.--moreUsers {
+    color: white;
+    font-size: x-large;
+    font-weight: bolder;
+  }
+}
+
+.defaultLayout {
   width: 100%;
   position: absolute;
   bottom: 0;
   left: 0;
   display: flex;
   align-items: center;
-  // justify-content: center;
-  /* gap: 1.5%; */
   z-index: 3;
   padding: 10px 10px;
-  &__box {
-    margin: 0 10px;
-    position: relative;
-    border-radius: 10px;
+}
 
-    width: 18rem;
-    max-width: 288px;
-    //min-width: 160px;
-
-    height: 9.5rem;
-    max-height: 162px;
-    min-height: 108px;
-
-    overflow: hidden;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 2px 4px 6px rgba(0, 0, 0, 0.2);
-    &__avatar {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      &__imageBox {
-        //width: 50%;
-        text-align: center;
-        margin: 15px 0px;
-        /* border: solid red; */
-        width: 100%;
-        height: 60%;
-        &__image {
-          width: 100%;
-          height: 100%;
-          object-fit: contain;
-        }
-      }
-      &__info {
-        display: flex;
-        width: 100%;
-        align-items: center;
-        justify-content: center;
-        position: relative;
-        bottom: 10px;
-        &__userName {
-          color: #fffffe;
-          font-size: clamp(0.7rem, 2.5vw, 0.8rem);
-          cursor: default;
-          overflow: hidden;
-          white-space: nowrap;
-          text-overflow: ellipsis;
-          text-align: center;
-          padding: 0 5px;
-          border-radius: 4px;
-          width: fit-content;
-          max-width: 70%;
-          &.--video {
-            position: absolute;
-            transform: translate(-50%, 0);
-            bottom: 6px;
-            left: 50%;
-            width: 100%;
-            z-index: 100;
-            background: black;
-          }
-        }
-      }
-      &__screenBtn {
-        position: absolute;
-        top: 0;
-        right: 0;
-        &__label {
-          font-size: 0.65rem;
-        }
-      }
-    }
-    &__stream {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      min-height: 100px;
-    }
-
-    &.--moreUsers {
-      color: white;
-      font-size: x-large;
-      font-weight: bolder;
-    }
+.presentationLayout {
+  border: 1px solid red;
+  width: 100%;
+  position: absolute;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+  grid-template-rows: repeat(4, 1fr);
+  z-index: 3;
+  padding: 10px 10px;
+  height: 100%;
+  gap: 1.5em;
+  .userVideoBox {
+    width: auto;
   }
 }
+
 .fade {
   display: none;
 }

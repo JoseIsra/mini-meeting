@@ -3,7 +3,7 @@
     class="m-fuser"
     :class="{ '--avatar': !userPinned?.isVideoActivated }"
   >
-    <template v-if="userPinned">
+    <template v-if="showPinnedUser">
       <div v-show="!userPinned?.isVideoActivated" class="m-fuser__avatar">
         <figure class="m-fuser__avatar__imageBox">
           <img
@@ -93,7 +93,7 @@
       /> -->
     </template>
 
-    <div class="m-fuser__loading" v-else>
+    <!-- <div class="m-fuser__loading" v-else>
       <q-spinner color="primary" size="10em" />
       <q-btn
         class="m-fuser__loading__exit"
@@ -118,7 +118,7 @@
       </q-btn>
 
       <span> Cargando... </span>
-    </div>
+    </div> -->
   </section>
 </template>
 
@@ -168,13 +168,15 @@ export default defineComponent({
       }
     };
     const userPinned = computed(() =>
-      userMe.id === props.userId
-        ? userMe
-        : participants.value.find(
-            (participant) => participant.id == props.userId
-          )
+      participants.value.find((participant) => participant.id == props.userId)
     );
+    // userMe.id === props.userId
+    //   ? userMe
+    //   :
+    const showPinnedUser = computed(() => userPinned.value);
+
     onMounted(() => {
+      console.log(userPinned.value);
       userPinned.value?.tracks?.forEach((track) => {
         if (track.getType() == 'audio') {
           track.attach(audioPinned[userPinned.value?.id as string]);
@@ -200,6 +202,7 @@ export default defineComponent({
       MAIN_VIEW_LOCKED_TYPE,
       videoPinned,
       audioPinned,
+      showPinnedUser,
     };
   },
 });

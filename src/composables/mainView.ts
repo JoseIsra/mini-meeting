@@ -108,11 +108,6 @@ export function useMainView() {
         startedBy: userMe.id,
       });
     }
-    // sendNotification('PIN_USER_FOR_ALL_PARTICIPANT', {
-    //   value: JSON.stringify({
-    //     mainViewState,
-    //   }),
-    // });
   };
 
   const removePinnedUserForAll = (userId: string) => {

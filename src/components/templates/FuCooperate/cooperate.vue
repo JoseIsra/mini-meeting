@@ -218,6 +218,7 @@ export default defineComponent({
       speakerId,
       canDraw: false,
       isVideoOwner: false,
+      tracks: [],
     });
     console.debug('userm', userMe);
     /* setMicIconState(isMicLocked ? false : isMicOn); */

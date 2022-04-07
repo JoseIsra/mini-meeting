@@ -613,10 +613,10 @@ export function useJitsi() {
   }
 
   function pinUserForAllParticipants(arg: Command) {
-    const { startedBy } = JSON.parse(arg.value) as MainViewState;
-
-    if (userMe.id !== startedBy)
+    const { startedBy, pinnedUsers } = JSON.parse(arg.value) as MainViewState;
+    if (userMe.id !== startedBy && !pinnedUsers.includes(userMe.id)) {
       updateMainViewState(JSON.parse(arg.value) as MainViewState);
+    }
   }
 
   function updateBackgroundImageOfCooperate(arg: Command) {

@@ -1,25 +1,21 @@
 <template>
-  <section
-    class="a-userVideo"
-    :style="styleOnMobile"
-    :class="{ fade: screenMinimized }"
-  >
+  <section :style="styleOnMobile" :class="layoutStyle">
     <div
       :class="[
-        'a-userVideo__box',
+        'userVideoBox',
         { fade: mainViewState.pinnedUsers.includes(userMe.id) },
       ]"
       :style="backgroundColorSelected(userMe.id)"
     >
-      <div v-show="!userMe.isVideoActivated" class="a-userVideo__box__avatar">
-        <figure class="a-userVideo__box__avatar__imageBox">
+      <div v-show="!userMe.isVideoActivated" class="userVideoBox__avatar">
+        <figure class="userVideoBox__avatar__imageBox">
           <img
-            class="a-userVideo__box__avatar__imageBox__image"
+            class="userVideoBox__avatar__imageBox__image"
             :src="userMe.avatar"
           />
         </figure>
-        <div class="a-userVideo__box__avatar__info">
-          <label class="a-userVideo__box__avatar__info__userName">
+        <div class="userVideoBox__avatar__info">
+          <label class="userVideoBox__avatar__info__userName">
             {{ userMe.name }}
           </label>
           <q-icon
@@ -36,7 +32,7 @@
       <video
         v-show="userMe.isVideoActivated"
         ref="localVideoTrack"
-        class="a-userVideo__box__stream"
+        class="userVideoBox__stream"
         playsinline
         muted
         autoplay
@@ -44,7 +40,7 @@
       <audio style="display: none" ref="localAudioTrack" muted autoplay></audio>
 
       <div v-show="userMe.isVideoActivated">
-        <div class="a-userVideo__box__avatar__info__userName --video">
+        <div class="userVideoBox__avatar__info__userName --video">
           {{ userMe.name }}
         </div>
       </div>
@@ -53,19 +49,16 @@
       v-for="participant in controlUserToRender"
       :key="participant.id"
       :class="[
-        'a-userVideo__box text-white',
+        'userVideoBox text-white',
         { fade: mainViewState.pinnedUsers.includes(participant.id) },
       ]"
       :style="backgroundColorSelected(participant.id)"
     >
-      <div
-        v-show="!participant.isVideoActivated"
-        class="a-userVideo__box__avatar"
-      >
-        <figure class="a-userVideo__box__avatar__imageBox">
+      <div v-show="!participant.isVideoActivated" class="userVideoBox__avatar">
+        <figure class="userVideoBox__avatar__imageBox">
           <img
             v-if="participant.avatar"
-            class="a-userVideo__box__avatar__imageBox__image"
+            class="userVideoBox__avatar__imageBox__image"
             :src="participant.avatar"
           />
           <q-spinner-oval
@@ -74,8 +67,8 @@
             size="2em"
           />
         </figure>
-        <div class="a-userVideo__box__avatar__info">
-          <label class="a-userVideo__box__avatar__info__userName">
+        <div class="userVideoBox__avatar__info">
+          <label class="userVideoBox__avatar__info__userName">
             {{ participant.name }}
           </label>
           <q-icon
@@ -88,7 +81,7 @@
       <video
         v-show="participant.isVideoActivated"
         :id="'video-' + participant.id"
-        class="a-userVideo__box__stream"
+        class="userVideoBox__stream"
         autoplay
         :ref="
           ($el) => {
@@ -108,7 +101,7 @@
         autoplay
       ></audio>
       <div v-show="participant.isVideoActivated">
-        <div class="a-userVideo__box__avatar__info__userName --video">
+        <div class="userVideoBox__avatar__info__userName --video">
           {{ participant.name }}
         </div>
       </div>
@@ -123,7 +116,7 @@
             : 'gps_fixed'
         "
         color="white"
-        class="a-userVideo__box__avatar__screenBtn"
+        class="userVideoBox__avatar__screenBtn"
         @click="
           mainViewState.pinnedUsers.includes(participant?.id)
             ? removePinnedUser(participant?.id)
@@ -144,7 +137,7 @@
           transition-show="scale"
           transition-hide="scale"
         >
-          <label class="a-userVideo__box__avatar__screenBtn__label">{{
+          <label class="userVideoBox__avatar__screenBtn__label">{{
             mainViewState.pinnedUsers.includes(participant?.id)
               ? 'Desfijar para mi'
               : 'Fijar para mi'
@@ -154,7 +147,7 @@
     </div>
     <!--  -->
     <div
-      class="a-userVideo__box --moreUsers"
+      class="userVideoBox --moreUsers"
       v-show="
         $q.screen.lt.md
           ? admittedParticipants.length > 1
@@ -192,8 +185,9 @@ import {
   useUserMe,
   useMainView,
 } from '@/composables';
+import { useLayout } from '@/composables/layout';
 import { useUserColor } from '@/composables/userColor';
-import { MAIN_VIEW_LOCKED_TYPE } from '@/utils/enums';
+import { MAIN_VIEW_LOCKED_TYPE, LAYOUT } from '@/utils/enums';
 import { iconsPeriferics } from '@/helpers/iconsMenuBar';
 
 export default defineComponent({
@@ -213,6 +207,7 @@ export default defineComponent({
     const $q = useQuasar();
     const { screenMinimized } = useScreen();
     const { colorList } = useUserColor();
+    const { currentLayout } = useLayout();
 
     const controlUserToRender = computed(() => {
       return $q.screen.lt.md
@@ -225,6 +220,13 @@ export default defineComponent({
         ? { 'justify-content': 'center' }
         : '';
     });
+
+    const layoutStyle = computed(() => ({
+      defaultLayout: currentLayout.value == LAYOUT.DEFAULT_LAYOUT,
+      presentationLayout: currentLayout.value == LAYOUT.PRESENTATION_LAYOUT,
+      fade: screenMinimized.value,
+    }));
+
     watch(
       () => localTracks.value,
       () => {
@@ -261,6 +263,7 @@ export default defineComponent({
       participantAudioTracks,
       participantVideoTracks,
       backgroundColorSelected,
+      layoutStyle,
     };
   },
 });

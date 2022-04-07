@@ -10,4 +10,5 @@ export enum MAIN_VIEW_MODE {
   USER,
   VIDEO,
   BOARD,
+  EXCALI,
 }

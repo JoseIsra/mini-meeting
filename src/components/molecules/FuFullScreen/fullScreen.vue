@@ -8,6 +8,7 @@
     />
     <fu-external-video v-if="mainViewState.mode === MAIN_VIEW_MODE.VIDEO" />
     <fu-board v-if="mainViewState.mode === MAIN_VIEW_MODE.BOARD" />
+    <fu-excali-board v-if="mainViewState.mode === MAIN_VIEW_MODE.EXCALI" />
   </section>
 </template>
 
@@ -21,12 +22,18 @@ import {
 import FuFullScreenUsers from 'molecules/FuFullScreenUsers';
 import FuExternalVideo from 'molecules/FuExternalVideo';
 import FuBoard from 'molecules/FuCooperateBoard';
+import FuExcaliBoard from 'molecules/FuExcaliBoard';
 
 import { MAIN_VIEW_MODE } from '@/utils/enums';
 
 export default defineComponent({
   name: 'FuFullScreen',
-  components: { FuFullScreenUsers, FuExternalVideo, FuBoard },
+  components: {
+    FuFullScreenUsers,
+    FuExternalVideo,
+    FuBoard,
+    FuExcaliBoard,
+  },
   setup() {
     const { mainViewState } = useMainView();
 

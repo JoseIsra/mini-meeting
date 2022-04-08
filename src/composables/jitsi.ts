@@ -613,9 +613,17 @@ export function useJitsi() {
   }
 
   function pinUserForAllParticipants(arg: Command) {
-    const { startedBy, pinnedUsers } = JSON.parse(arg.value) as MainViewState;
-    if (userMe.id !== startedBy && !pinnedUsers.includes(userMe.id)) {
-      updateMainViewState(JSON.parse(arg.value) as MainViewState);
+    const { startedBy, pinnedUsers, mode, locked } = JSON.parse(
+      arg.value
+    ) as MainViewState;
+    if (userMe.id !== startedBy) {
+      const pinnedUsersNew = pinnedUsers.filter((id) => id !== userMe.id);
+      updateMainViewState({
+        mode,
+        locked,
+        pinnedUsers: pinnedUsersNew,
+        startedBy,
+      });
     }
   }
 

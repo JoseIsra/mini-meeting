@@ -2,11 +2,8 @@
   margin: 0 10px;
   position: relative;
   border-radius: 10px;
-  width: 18rem;
-  max-width: 288px;
-  height: 9.5rem;
-  max-height: 162px;
-  min-height: 108px;
+  width: 14rem;
+  height: 7.5rem;
   overflow: hidden;
   cursor: pointer;
   display: flex;
@@ -23,8 +20,8 @@
     &__imageBox {
       text-align: center;
       margin: 15px 0px;
-      width: 100%;
-      height: 60%;
+      width: 4rem;
+      height: 4rem;
       &__image {
         width: 100%;
         height: 100%;
@@ -33,11 +30,12 @@
     }
     &__info {
       display: flex;
-      width: 100%;
+      width: 5rem;
       align-items: center;
       justify-content: center;
       position: relative;
       bottom: 10px;
+      background-color: rgba(0, 0, 0, 0.5);
       &__userName {
         color: #fffffe;
         font-size: clamp(0.7rem, 2.5vw, 0.8rem);
@@ -88,27 +86,53 @@
   width: 100%;
   position: absolute;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
-  grid-auto-rows: max-content;
-  z-index: 3;
+  z-index: 2;
   padding: 10px 10px;
   height: 100%;
-  row-gap: 0;
-  column-gap: 0.3rem;
-  transition: right 0.3s ease;
+  gap: 0.5rem;
+  &.--1users {
+    grid-template-columns: repeat(1, 1fr);
+  }
+  &.--2users {
+    grid-auto-flow: column dense;
+  }
+  &.--3users {
+    grid-template-columns: 50% 50%;
+    grid-template-rows: 50% 50%;
+  }
+  &.--4users {
+    grid-template-columns: 50% 50%;
+    grid-template-rows: 50% 50%;
+  }
+  &.--moreviews {
+    grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
+  }
+
   @media only screen and (max-width: 578px) {
     grid-template-columns: repeat(2, 1fr);
   }
   .userVideoBox {
-    width: auto;
-    height: auto;
+    width: 100%;
+    height: 100%;
     margin: 0 0;
+    &.--third {
+      grid-column: 1 / 3;
+      width: 50%;
+      justify-self: center;
+    }
+    &__avatar {
+      &__info {
+        position: absolute;
+        left: 10px;
+        bottom: 10px;
+        width: 8rem;
+      }
+    }
   }
   &.--split {
     right: 0;
     width: 33%;
-    grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
-    grid-auto-rows: max-content;
+    grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
   }
 }
 
@@ -119,8 +143,11 @@
   left: 0;
   display: flex;
   align-items: center;
-  z-index: 3;
+  z-index: 2;
   padding: 10px 10px;
+  .userVideoBox {
+    margin: 0 0;
+  }
 }
 
 .fade {

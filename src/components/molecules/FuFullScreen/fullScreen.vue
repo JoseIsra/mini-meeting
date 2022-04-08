@@ -1,5 +1,5 @@
 <template>
-  <section class="m-full" @click.self="closePanels">
+  <section :class="['m-full', layoutStyle]" @click.self="closePanels">
     <fu-full-screen-users
       v-if="
         mainViewState.mode === MAIN_VIEW_MODE.USER &&
@@ -13,18 +13,19 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, computed } from 'vue';
 import {
   useMainView,
   useSidebarToogle,
   useToogleFunctions,
 } from '@/composables';
+import { useLayout } from '@/composables/layout';
 import FuFullScreenUsers from 'molecules/FuFullScreenUsers';
 import FuExternalVideo from 'molecules/FuExternalVideo';
 import FuBoard from 'molecules/FuCooperateBoard';
 import FuExcaliBoard from 'molecules/FuExcaliBoard';
 
-import { MAIN_VIEW_MODE } from '@/utils/enums';
+import { LAYOUT, MAIN_VIEW_MODE } from '@/utils/enums';
 
 export default defineComponent({
   name: 'FuFullScreen',
@@ -42,6 +43,8 @@ export default defineComponent({
     const { openOptionsMenu, openFunctionResponsiveMenu, setShowChat } =
       useToogleFunctions();
 
+    const { layout } = useLayout();
+
     const closePanels = () => {
       if (isSidebarRender.value) {
         setSidebarState(false);
@@ -50,11 +53,15 @@ export default defineComponent({
         setShowChat(false);
       }
     };
+    const layoutStyle = computed(() => ({
+      '--split': layout.value == LAYOUT.DEFAULT_LAYOUT,
+    }));
 
     return {
       mainViewState,
       MAIN_VIEW_MODE,
       closePanels,
+      layoutStyle,
     };
   },
 });

@@ -4,16 +4,9 @@
     v-on="{ mousemove: !screenMinimized ? toogleMenuBar : null }"
     v-touch:tap="toogleMenuBar"
     @click.self="closePanels"
-    :style="[
-      `
-      background: url('${bgInfo.url}') #36393f;
-      background-size: ${bgInfo.maximized ? 100 : 50}vw;
-      background-position: 50% center;
-      background-repeat: no-repeat;
-    `,
-      heightObjectStyle,
-    ]"
+    :style="[bgRenderStyles, heightObjectStyle]"
   >
+    <q-resize-observer @resize="onResize" />
     <!-- <q-img
       class="o-cooperate__background"
       :src="bgInfo.url"
@@ -107,7 +100,7 @@ export default defineComponent({
       useHandleParticipants();
     const { acumulateMessages } = useHandleMessage();
     const { openTabSharedWarning } = usePanels();
-    const { layout } = useLayout();
+    const { layout, setNewLayout } = useLayout();
     const $q = useQuasar();
     onMounted(() => {
       emit('mounted');
@@ -205,6 +198,22 @@ export default defineComponent({
         ? showHeader.value
         : isPresentationLayout.value;
     });
+    const bgRenderStyles = computed(() => {
+      return isPresentationLayout.value
+        ? {
+            'background-image': `url(${roomState.bgInfo.url})`,
+            'background-size': `${roomState.bgInfo.maximized ? 100 : 50}vw`,
+            'background-position': ' 50% center',
+            'background-repeat': 'no-repeat',
+          }
+        : '';
+    });
+
+    const onResize = (size: { height: number; width: number }) => {
+      if (size.width < 578) {
+        setNewLayout(LAYOUT.PRESENTATION_LAYOUT);
+      }
+    };
 
     return {
       toogleMenuBar,
@@ -226,6 +235,8 @@ export default defineComponent({
       participantAudioTracks,
       openTabSharedWarning,
       renderHeader,
+      bgRenderStyles,
+      onResize,
     };
   },
 });

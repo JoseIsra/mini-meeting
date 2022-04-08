@@ -1,9 +1,13 @@
 <template>
-  <section :style="styleOnMobile" :class="layoutStyle">
+  <section
+    :style="styleOnMobile"
+    :class="[layoutStyle, usersDistributionStyle]"
+  >
     <div
       :class="[
         'userVideoBox',
         { fade: mainViewState.pinnedUsers.includes(userMe.id) },
+        { '--third': totalUsers == 3 && defaultLayout },
       ]"
       :style="backgroundColorSelected(userMe.id)"
     >
@@ -212,6 +216,7 @@ export default defineComponent({
     const { screenMinimized } = useScreen();
     const { colorList } = useUserColor();
     const { layout } = useLayout();
+
     const styleOnMobile = computed(() => {
       return admittedParticipants.value.length > 5
         ? { 'justify-content': 'center' }
@@ -225,6 +230,7 @@ export default defineComponent({
       '--split':
         layout.value == LAYOUT.DEFAULT_LAYOUT &&
         mainViewState.mode !== MAIN_VIEW_MODE.NONE,
+      '--moreviews': totalUsers.value >= 5 && defaultLayout.value,
     }));
 
     watch(
@@ -240,6 +246,18 @@ export default defineComponent({
       }
     );
 
+    const totalUsers = computed(() => {
+      return admittedParticipants.value.length + 1;
+    });
+
+    const defaultLayout = computed(() => {
+      return layout.value == LAYOUT.DEFAULT_LAYOUT;
+    });
+
+    const usersDistributionStyle = computed(
+      () => defaultLayout.value && `--${totalUsers.value}users`
+    );
+
     const backgroundColorSelected = (id: string) => {
       return {
         'background-color': colorList.get(id),
@@ -247,7 +265,7 @@ export default defineComponent({
     };
 
     const moreUsersIndicator = computed(() => {
-      return layout.value == LAYOUT.DEFAULT_LAYOUT
+      return defaultLayout.value
         ? moreUsersDefaultLayout.value
         : moreUsersPresentationLayout.value;
     });
@@ -261,7 +279,7 @@ export default defineComponent({
     const moreUsersDefaultLayoutSplitted = computed(() => {
       return mainViewState.mode !== MAIN_VIEW_MODE.NONE
         ? admittedParticipants.value.length > 6
-        : admittedParticipants.value.length > 13;
+        : admittedParticipants.value.length > 7;
     });
 
     const moreUsersDefaultLayout = computed(() => {
@@ -279,7 +297,7 @@ export default defineComponent({
     const moreUsersAmountDefaultLayoutSplitted = computed(() => {
       return mainViewState.mode !== MAIN_VIEW_MODE.NONE
         ? admittedParticipants.value.length - 6
-        : admittedParticipants.value.length - 13;
+        : admittedParticipants.value.length - 7;
     });
 
     const moreUsersAmountDefaultLayout = computed(() => {
@@ -289,7 +307,7 @@ export default defineComponent({
     });
 
     const moreUsersAmount = computed(() => {
-      return layout.value == LAYOUT.DEFAULT_LAYOUT
+      return defaultLayout.value
         ? moreUsersAmountDefaultLayout.value
         : moreUsersAmountPresentationLayout.value;
     });
@@ -309,11 +327,11 @@ export default defineComponent({
     const userAmountDefaultLayoutSplitted = computed(() => {
       return mainViewState.mode !== MAIN_VIEW_MODE.NONE
         ? admittedParticipants.value.slice(-6)
-        : admittedParticipants.value.slice(-13);
+        : admittedParticipants.value.slice(-7);
     });
 
     const usersOnScreen = computed(() => {
-      return layout.value == LAYOUT.DEFAULT_LAYOUT
+      return defaultLayout.value
         ? userAmountDefaultLayout.value
         : userAmountPresentationLayout.value;
     });
@@ -341,6 +359,9 @@ export default defineComponent({
       moreUsersAmount,
       layout,
       LAYOUT,
+      usersDistributionStyle,
+      totalUsers,
+      defaultLayout,
     };
   },
 });

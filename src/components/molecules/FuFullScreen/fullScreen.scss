@@ -7,4 +7,9 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  &.--split {
+    width: 67%;
+    position: absolute;
+    left: 0;
+  }
 }

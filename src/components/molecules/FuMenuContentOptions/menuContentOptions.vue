@@ -21,10 +21,10 @@
       >
         <q-icon :name="option.iconName" size="18px" />
         <label class="a-menu__optionList__item__description">{{
-          option.description
+          boardOptionLabel
         }}</label>
       </li>
-      <!-- <q-separator spaced color="white" /> -->
+      <q-separator spaced color="white" />
       <li
         class="a-menu__optionList__item"
         v-for="option in options.thirdSection"
@@ -69,7 +69,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, reactive } from 'vue';
+import { defineComponent, ref, reactive, computed } from 'vue';
 import { menuOptions, MenuOptions } from '@/helpers/menuOptions';
 import FuDeleteRoomModal from 'molecules/FuDeleteRoomModal';
 import {
@@ -78,6 +78,7 @@ import {
   useUserMe,
   useToogleFunctions,
   useMainView,
+  useBoard,
 } from '@/composables';
 import { useLayout } from '@/composables/layout';
 import { REASON_TO_LEAVE_ROOM, MAIN_VIEW_MODE, LAYOUT } from '@/utils/enums';
@@ -97,6 +98,7 @@ export default defineComponent({
     const { sendNotificationEvent } = useInitWebRTC();
     const { mainViewState, updateMainViewState } = useMainView();
     const { setNewLayout } = useLayout();
+    const { showExcaliBoard, setShowExcaliBoard } = useBoard();
 
     const optionsMethodsObject = reactive<MenuOptionsInteractions>({
       LEAVE: () => {
@@ -135,18 +137,18 @@ export default defineComponent({
     );
 
     const openExcaliBoard = () => {
-      // open iframe
-      // https://excalidraw.com/
       if (mainViewState.mode == MAIN_VIEW_MODE.EXCALI) {
         updateMainViewState({
           mode: MAIN_VIEW_MODE.NONE,
           startedBy: '',
         });
+        setShowExcaliBoard(false);
       } else {
         updateMainViewState({
           mode: MAIN_VIEW_MODE.EXCALI,
           startedBy: userMe.id,
         });
+        setShowExcaliBoard(true);
       }
     };
     const initDefaultLayout = () => {
@@ -156,6 +158,12 @@ export default defineComponent({
       setNewLayout(LAYOUT.PRESENTATION_LAYOUT);
     };
 
+    const boardOptionLabel = computed(() => {
+      return showExcaliBoard.value
+        ? options.value.secondSection[0].secondDescription
+        : options.value.secondSection[0].description;
+    });
+
     return {
       options,
       handleOptionSelected,
@@ -163,6 +171,8 @@ export default defineComponent({
       canEndCall,
       canLeaveCall,
       cardContent,
+      showExcaliBoard,
+      boardOptionLabel,
     };
   },
 });

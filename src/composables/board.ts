@@ -9,6 +9,7 @@ const bgColor = ref<string>('#ffffff');
 const objectActive = ref<boolean>(false);
 const actionSelected = ref<string>('');
 const brushColor = ref<string>('#000000');
+const showExcaliBoard = ref<boolean>(false);
 
 export function useBoard() {
   const setBoard = (value: Board | null) => {
@@ -210,6 +211,10 @@ export function useBoard() {
     board.value?.setActiveObject(rect);
   };
 
+  const setShowExcaliBoard = (payload: boolean) => {
+    showExcaliBoard.value = payload;
+  };
+
   return {
     board,
     setBoard,
@@ -234,5 +239,7 @@ export function useBoard() {
     addRect,
     actionSelected,
     brushColor,
+    showExcaliBoard,
+    setShowExcaliBoard,
   };
 }

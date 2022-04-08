@@ -34,13 +34,14 @@ export const menuOptions = {
     // },
   ],
   secondSection: [
-    // {
-    //   id: '4',
-    //   iconName: 'edit',
-    //   description: 'Pizarra',
-    //   important: false,
-    //   interaction: INTERACTION_TYPE_MENU_OPTIONS.BOARD,
-    // },
+    {
+      id: '4',
+      iconName: 'edit',
+      description: 'Mostrar pizarra',
+      secondDescription: 'Ocultar pizarra',
+      important: false,
+      interaction: INTERACTION_TYPE_MENU_OPTIONS.BOARD,
+    },
   ],
   thirdSection: [
     {

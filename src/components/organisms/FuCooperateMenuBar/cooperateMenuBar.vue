@@ -8,8 +8,8 @@
           :class="['a-menuBar__icon', { active: userMe.isMicOn }]"
           :icon="
             !userMe.isMicOn
-              ? iconsPeriferics.mic.onState
-              : iconsPeriferics.mic.offState
+              ? iconsPeriferics.mic.offState
+              : iconsPeriferics.mic.onState
           "
           :disable="
             userMe.isPublishing == 2 || userMe.isMicBlocked || !userMe.hasMic
@@ -323,7 +323,7 @@ import {
   nextTick,
 } from 'vue';
 import FuCooperateMenu from 'molecules/FuCooperateMenu';
-import { Icons, Functionalities } from '@/types';
+import { Functionalities } from '@/types';
 import { MediaType, LAYOUT } from '@/utils/enums/general';
 import { iconsPeriferics, iconsFunctions } from '@/helpers/iconsMenuBar';
 
@@ -346,6 +346,7 @@ import { iconsOptions } from '@/helpers/iconsMenuBar';
 import _ from 'lodash';
 import JitsiMeetJS from '@solyd/lib-jitsi-meet';
 import JitsiLocalTrack from '@solyd/lib-jitsi-meet/dist/esm/modules/RTC/JitsiLocalTrack';
+import { MAIN_VIEW_MODE, MAIN_VIEW_LOCKED_TYPE } from '@/utils/enums';
 
 export default defineComponent({
   name: 'FuCooperateMenuBar',
@@ -611,8 +612,19 @@ export default defineComponent({
         void nextTick(() => {
           localTracks.value[1].attach(localVideoTrack.value);
         });
-        replaceLocalTrack(desktopVideoTrack, MediaType.VIDEO);
+        // replaceLocalTrack(desktopVideoTrack, MediaType.VIDEO);
+        roomAddTrack(desktopVideoTrack);
         sendNotification('INIT_SCREEN_SHARING', { value: userMe.id });
+        // setTimeout(() => {
+        //   sendNotification('PIN_USER_FOR_ALL_PARTICIPANTS', {
+        //     value: JSON.stringify({
+        //       mode: MAIN_VIEW_MODE.USER,
+        //       pinnedUsers: [userMe.id],
+        //       startedBy: userMe.id,
+        //       locked: MAIN_VIEW_LOCKED_TYPE.NORMAL_USERS,
+        //     }),
+        //   });
+        // }, 2200);
       }
 
       if (desktopAudioTrack) {
@@ -626,6 +638,14 @@ export default defineComponent({
       setLocalCameraLocked(false);
       setVideoActivatedState(false);
       sendNotification('FINISH_SCREEN_SHARING', { value: userMe.id });
+      sendNotification('PIN_USER_FOR_ALL_PARTICIPANTS', {
+        value: JSON.stringify({
+          mode: MAIN_VIEW_MODE.NONE,
+          pinnedUsers: [],
+          startedBy: userMe.id,
+          locked: MAIN_VIEW_LOCKED_TYPE.UNSET,
+        }),
+      });
       setTabSharedWarning(false);
       if (!tracks[0]) return;
 
@@ -712,36 +732,6 @@ export default defineComponent({
       objectFunctionalities[interaction as keyof Functionalities]?.();
     };
 
-    const disableAction = (action: Icons) => {
-      if (userMe.isPublishing == 2) {
-        return true;
-      }
-
-      if (action.onState === 'mic' && userMe.isMicBlocked) {
-        return true;
-      }
-
-      // if (
-      //   action.id === '2' &&
-      //   action.onState === 'videocam' &&
-      //   userMe.isScreenSharing
-      // ) {
-      //   return true;
-      // }
-
-      if (action.onState === 'videocam' && userMe.isCameraBlocked) {
-        return true;
-      }
-
-      if (action.onState === 'monitor' && userMe.isScreenShareBlocked) {
-        return true;
-      }
-
-      // if (action.onState === 'monitor' && userMe.isCameraOn) {
-      //   return true;
-      // }
-    };
-
     const openResponsiveMenuOfFunctions = () => {
       openFunctionResponsiveMenu(
         !functionsOnMenuBar.renderResponsiveFunctionMenu
@@ -759,7 +749,6 @@ export default defineComponent({
       functionsOnMenuBar,
       objectFunctionalities,
       isOptions,
-      disableAction,
       handleEspecialBehaviour,
       openResponsiveMenuOfFunctions,
       canSeeActionsMenu,

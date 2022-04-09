@@ -153,12 +153,7 @@
     <div class="userVideoBox --moreUsers" v-show="moreUsersIndicator">
       +{{ moreUsersAmount }}
     </div>
-    <div
-      v-for="(participant, index) in $q.screen.lt.md
-        ? admittedParticipants.slice(0, -1)
-        : admittedParticipants.slice(0, -5)"
-      :key="index"
-    >
+    <div v-for="(participant, index) in invisibleSlots" :key="index">
       <video
         :id="'video-' + participant.id"
         :style="{ display: 'none' }"
@@ -335,6 +330,30 @@ export default defineComponent({
         : userAmountPresentationLayout.value;
     });
 
+    const invisibleSlotsDefaultLayoutSplitted = computed(() => {
+      return mainViewState.mode !== MAIN_VIEW_MODE.NONE
+        ? admittedParticipants.value.slice(0, -6)
+        : admittedParticipants.value.slice(0, -7);
+    });
+
+    const invisibleSlotsDefaultLayout = computed(() => {
+      return $q.screen.lt.md
+        ? admittedParticipants.value.slice(0, -4)
+        : invisibleSlotsDefaultLayoutSplitted.value;
+    });
+
+    const invisibleSlotsPresentationLayout = computed(() => {
+      return $q.screen.lt.md
+        ? admittedParticipants.value.slice(0, -1)
+        : admittedParticipants.value.slice(0, -5);
+    });
+
+    const invisibleSlots = computed(() => {
+      return defaultLayout.value
+        ? invisibleSlotsDefaultLayout.value
+        : invisibleSlotsPresentationLayout.value;
+    });
+
     return {
       userMe,
       admittedParticipants,
@@ -361,6 +380,7 @@ export default defineComponent({
       usersDistributionStyle,
       totalUsers,
       defaultLayout,
+      invisibleSlots,
     };
   },
 });

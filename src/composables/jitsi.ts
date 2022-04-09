@@ -84,7 +84,7 @@ const { externalVideo, updateExternalVideoState } = useExternalVideo();
 
 const { errorsCallback } = useJitsiError();
 const { setIsLoadingOrError } = useAuthState();
-const { updateMainViewState } = useMainView();
+const { mainViewState, updateMainViewState } = useMainView();
 const { setUserBackgroundColor } = useUserColor();
 const { updateBgUrl, updateBgSize } = useRoom();
 
@@ -358,7 +358,7 @@ export function useJitsi() {
       isVideoActivated: dataUser.isVideoActivated,
       isMicBlocked: false,
       isCameraBlocked: false,
-      isScreenShareBlocked: false,
+      isScreenShareBlocked: true,
       fractalUserId: dataUser.fractalUserId,
       denied: 1,
       isRecording: false,
@@ -527,6 +527,13 @@ export function useJitsi() {
 
     if (participantId !== userMe.id) {
       setParticipantActions(participantId, action, locked);
+      if (mainViewState.mode == MAIN_VIEW_MODE.USER) {
+        updateMainViewState({
+          mode: MAIN_VIEW_MODE.NONE,
+          pinnedUsers: [],
+          locked: MAIN_VIEW_LOCKED_TYPE.UNSET,
+        });
+      }
       return;
     }
 
@@ -534,8 +541,10 @@ export function useJitsi() {
 
     if (locked) {
       setScreenState(!locked);
+      if (userMe.isVideoActivated) {
+        void resetDesktop();
+      }
       setVideoActivatedState(!locked);
-      void resetDesktop();
       sendNotification('FINISH_SCREEN_SHARING', { value: userMe.id });
     }
   }

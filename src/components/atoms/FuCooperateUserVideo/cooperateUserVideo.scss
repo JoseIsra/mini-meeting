@@ -93,9 +93,6 @@
   &.--1users {
     grid-template-columns: repeat(1, 1fr);
   }
-  &.--2users {
-    grid-auto-flow: column dense;
-  }
   &.--3users {
     grid-template-columns: 50% 50%;
     grid-template-rows: 50% 50%;
@@ -105,12 +102,9 @@
     grid-template-rows: 50% 50%;
   }
   &.--moreviews {
-    grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
-  }
-
-  @media only screen and (max-width: 578px) {
     grid-template-columns: repeat(2, 1fr);
   }
+
   .userVideoBox {
     width: 100%;
     height: 100%;
@@ -135,6 +129,16 @@
     grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
   }
 }
+@media only screen and (min-width: 958px) {
+  .defaultLayout {
+    &.--2users {
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+    &.--moreviews {
+      grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
+    }
+  }
+}
 
 .presentationLayout {
   width: 100%;
@@ -145,8 +149,10 @@
   align-items: center;
   z-index: 2;
   padding: 10px 10px;
-  .userVideoBox {
-    margin: 0 0;
+  @media only screen and (max-width: 580px) {
+    .userVideoBox {
+      margin: 0 4px;
+    }
   }
 }
 

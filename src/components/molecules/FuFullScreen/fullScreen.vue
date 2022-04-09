@@ -8,16 +8,18 @@
     />
     <fu-external-video v-if="mainViewState.mode === MAIN_VIEW_MODE.VIDEO" />
     <fu-board v-if="mainViewState.mode === MAIN_VIEW_MODE.BOARD" />
-    <fu-excali-board v-if="mainViewState.mode === MAIN_VIEW_MODE.EXCALI" />
+
+    <fu-excali-board v-if="renderExcaliOnDesktop" />
   </section>
 </template>
 
 <script lang="ts">
-import { defineComponent, computed } from 'vue';
+import { defineComponent, computed, ref } from 'vue';
 import {
   useMainView,
   useSidebarToogle,
   useToogleFunctions,
+  useScreen,
 } from '@/composables';
 import { useLayout } from '@/composables/layout';
 import FuFullScreenUsers from 'molecules/FuFullScreenUsers';
@@ -44,6 +46,8 @@ export default defineComponent({
       useToogleFunctions();
 
     const { layout } = useLayout();
+    const { isMobile } = useScreen();
+    const excaliModal = ref(true);
 
     const closePanels = () => {
       if (isSidebarRender.value) {
@@ -54,14 +58,20 @@ export default defineComponent({
       }
     };
     const layoutStyle = computed(() => ({
-      '--split': layout.value == LAYOUT.DEFAULT_LAYOUT,
+      '--split': layout.value == LAYOUT.DEFAULT_LAYOUT && !isMobile(),
     }));
+
+    const renderExcaliOnDesktop = computed(() => {
+      return mainViewState.mode === MAIN_VIEW_MODE.EXCALI && !isMobile();
+    });
 
     return {
       mainViewState,
       MAIN_VIEW_MODE,
       closePanels,
       layoutStyle,
+      renderExcaliOnDesktop,
+      excaliModal,
     };
   },
 });

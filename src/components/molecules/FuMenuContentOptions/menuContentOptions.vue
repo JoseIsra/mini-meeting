@@ -65,6 +65,23 @@
         v-if="cardContent == 'configuration-card'"
       />
     </q-dialog>
+    <q-dialog
+      v-model="excaliModal"
+      persitent
+      maximized
+      @hide="closeExcaliBoard"
+    >
+      <q-card class="relative-position" flat>
+        <q-card-section tag="header">
+          <q-card-actions class="absolute-right">
+            <q-btn flat icon="close" round dense v-close-popup />
+          </q-card-actions>
+        </q-card-section>
+        <q-card-section class="fit no-padding">
+          <fu-excali-board />
+        </q-card-section>
+      </q-card>
+    </q-dialog>
   </section>
 </template>
 
@@ -79,15 +96,17 @@ import {
   useToogleFunctions,
   useMainView,
   useBoard,
+  useScreen,
 } from '@/composables';
 import { useLayout } from '@/composables/layout';
 import { REASON_TO_LEAVE_ROOM, MAIN_VIEW_MODE, LAYOUT } from '@/utils/enums';
 import FuDeviceConfigurationModal from 'molecules/FuDeviceConfigurationModal';
 import { MenuOptionsInteractions } from '@/types/general';
+import FuExcaliBoard from 'molecules/FuExcaliBoard';
 
 export default defineComponent({
   name: 'FuMenuContentOptions',
-  components: { FuDeleteRoomModal, FuDeviceConfigurationModal },
+  components: { FuDeleteRoomModal, FuDeviceConfigurationModal, FuExcaliBoard },
   setup() {
     const options = ref<MenuOptions>(menuOptions);
     let openModal = ref(false);
@@ -96,10 +115,11 @@ export default defineComponent({
 
     const { userMe } = useUserMe();
     const { sendNotificationEvent } = useInitWebRTC();
-    const { mainViewState, updateMainViewState } = useMainView();
+    const { updateMainViewState } = useMainView();
     const { setNewLayout } = useLayout();
     const { showExcaliBoard, setShowExcaliBoard } = useBoard();
-
+    const { isMobile } = useScreen();
+    const excaliModal = ref(false);
     const optionsMethodsObject = reactive<MenuOptionsInteractions>({
       LEAVE: () => {
         participants.value.length > 0
@@ -135,20 +155,24 @@ export default defineComponent({
     const canLeaveCall = ref(
       (userMe.roleId === 0 || userMe.roleId === 1) && !userMe.isHost
     );
+    const renderExcaliOnMobile = ref(showExcaliBoard.value && isMobile());
 
     const openExcaliBoard = () => {
-      if (mainViewState.mode == MAIN_VIEW_MODE.EXCALI) {
-        updateMainViewState({
-          mode: MAIN_VIEW_MODE.NONE,
-          startedBy: '',
-        });
-        setShowExcaliBoard(false);
-      } else {
+      setShowExcaliBoard(!showExcaliBoard.value);
+      if (isMobile()) {
+        excaliModal.value = true;
+        return;
+      }
+      if (showExcaliBoard.value) {
         updateMainViewState({
           mode: MAIN_VIEW_MODE.EXCALI,
           startedBy: userMe.id,
         });
-        setShowExcaliBoard(true);
+      } else {
+        updateMainViewState({
+          mode: MAIN_VIEW_MODE.NONE,
+          startedBy: '',
+        });
       }
     };
     const initDefaultLayout = () => {
@@ -164,6 +188,9 @@ export default defineComponent({
         : options.value.secondSection[0].description;
     });
 
+    const closeExcaliBoard = () => {
+      setShowExcaliBoard(false);
+    };
     return {
       options,
       handleOptionSelected,
@@ -173,6 +200,9 @@ export default defineComponent({
       cardContent,
       showExcaliBoard,
       boardOptionLabel,
+      closeExcaliBoard,
+      renderExcaliOnMobile,
+      excaliModal,
     };
   },
 });

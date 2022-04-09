@@ -102,6 +102,7 @@ export default defineComponent({
     const { openTabSharedWarning } = usePanels();
     const { layout, setNewLayout } = useLayout();
     const $q = useQuasar();
+
     onMounted(() => {
       emit('mounted');
       window.addEventListener('orientationchange', handleOrientationChange);
@@ -138,8 +139,12 @@ export default defineComponent({
 
     const { roomState } = useRoom();
 
-    const { screenMinimized, updateScreenState, setScreenDeviceOrientation } =
-      useScreen();
+    const {
+      screenMinimized,
+      updateScreenState,
+      setScreenDeviceOrientation,
+      isMobile,
+    } = useScreen();
 
     const hideMenuBar = _.debounce(() => {
       showMenuBar.value = false;
@@ -156,6 +161,14 @@ export default defineComponent({
       }
     );
 
+    watch(
+      () => mainViewState.mode,
+      (value) => {
+        if (value !== 0 && isMobile()) {
+          setNewLayout(LAYOUT.PRESENTATION_LAYOUT);
+        }
+      }
+    );
     const toogleMenuBar = () => {
       if (!showMenuBar.value) {
         showMenuBar.value = true;
@@ -194,7 +207,9 @@ export default defineComponent({
     });
 
     const renderHeader = computed(() => {
-      return !screenMinimized.value && $q.screen.lt.md
+      return !screenMinimized.value &&
+        $q.screen.lt.md &&
+        layout.value == LAYOUT.PRESENTATION_LAYOUT
         ? showHeader.value
         : isPresentationLayout.value;
     });
@@ -211,7 +226,7 @@ export default defineComponent({
 
     const onResize = (size: { height: number; width: number }) => {
       if (size.width < 578) {
-        setNewLayout(LAYOUT.PRESENTATION_LAYOUT);
+        // setNewLayout(LAYOUT.PRESENTATION_LAYOUT);
       }
     };
 

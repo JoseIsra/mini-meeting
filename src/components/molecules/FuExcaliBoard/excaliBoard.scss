@@ -1,17 +1,11 @@
 .m-excali {
-  position: relative;
-  overflow: hidden;
   width: 100%;
-  padding-top: 55%;
   z-index: 3;
+
   &__board {
-    position: absolute;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    right: 0;
     width: 100%;
     height: 100%;
+    border: none;
   }
   &.--presentation {
     padding-top: 49%;
@@ -24,8 +18,22 @@
         transform: translate(-50%, -50%);
       }
     }
-    @media only screen and (max-width: 578px) {
-      width: 90vw;
+  }
+}
+@media only screen and (min-width: 950px) {
+  .m-excali {
+    position: relative;
+    overflow: hidden;
+    padding-top: 55%;
+    &__board {
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      right: 0;
     }
   }
+}
+.--mobile {
+  height: 95%;
 }

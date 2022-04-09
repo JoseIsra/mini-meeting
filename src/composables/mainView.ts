@@ -2,15 +2,17 @@ import { reactive } from 'vue';
 import { MainViewState } from '@/types';
 import { useInitWebRTC } from './antMedia';
 import _ from 'lodash';
-import { MAIN_VIEW_LOCKED_TYPE, MAIN_VIEW_MODE } from '@/utils/enums';
+import { MAIN_VIEW_LOCKED_TYPE, MAIN_VIEW_MODE, LAYOUT } from '@/utils/enums';
 import { useUserMe } from '@/composables/userMe';
 import { useRoom } from '@/composables/room';
-// import { useJitsi } from '@/composables/jitsi';
+import { useLayout } from './layout';
 
-// const { sendNotification } = useJitsi();
+import { Screen } from 'quasar';
 const { sendData } = useInitWebRTC();
 const { roomState } = useRoom();
 const { userMe } = useUserMe();
+const { setNewLayout } = useLayout();
+
 let mainViewState = reactive<MainViewState>({
   mode: MAIN_VIEW_MODE.NONE,
   pinnedUsers: [],
@@ -74,6 +76,9 @@ export function useMainView() {
         locked: MAIN_VIEW_LOCKED_TYPE.ANYONE,
         startedBy: userMe.id,
       });
+    }
+    if (Screen.lt.md) {
+      setNewLayout(LAYOUT.PRESENTATION_LAYOUT);
     }
   };
 

@@ -1,5 +1,5 @@
 <template>
-  <section :class="['m-excali', layoutStyle, excaliStyle]">
+  <section :class="['m-excali', excaliStyle]">
     <iframe class="m-excali__board" src="https://excalidraw.com/" />
   </section>
 </template>
@@ -7,6 +7,7 @@
 <script lang="ts">
 import { defineComponent, computed } from 'vue';
 import { useLayout } from '@/composables/layout';
+import { useScreen } from '@/composables/screen';
 import { LAYOUT } from '@/utils/enums';
 import { useQuasar } from 'quasar';
 
@@ -15,19 +16,17 @@ export default defineComponent({
   setup() {
     const { layout } = useLayout();
     const $q = useQuasar();
-
-    const layoutStyle = computed(() => ({
-      '--presentation': layout.value == LAYOUT.PRESENTATION_LAYOUT,
-    }));
+    const { isMobile } = useScreen();
 
     const excaliStyle = computed(() => {
       return {
         '--mobile': $q.screen.lt.md,
+        '--presentation':
+          layout.value == LAYOUT.PRESENTATION_LAYOUT && !isMobile(),
       };
     });
 
     return {
-      layoutStyle,
       excaliStyle,
     };
   },

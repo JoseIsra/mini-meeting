@@ -229,6 +229,7 @@
                 ? 'red'
                 : ''
             "
+            :disable="lockParticipantsScreen(participant)"
             @click="
               lockParticipantActions(participant, LOCK_ACTION_TYPE.Screen)
             "
@@ -723,6 +724,12 @@ export default defineComponent({
       });
     };
 
+    const lockParticipantsScreen = (user: User) => {
+      return admittedParticipants.value.some(
+        (p) => !p.isScreenShareBlocked && p.id !== user.id
+      );
+    };
+
     return {
       waitingParticipants,
       admittedParticipants,
@@ -753,6 +760,7 @@ export default defineComponent({
       MAIN_VIEW_MODE,
       temporalRoleConditional,
       isAdmin,
+      lockParticipantsScreen,
     };
   },
 });

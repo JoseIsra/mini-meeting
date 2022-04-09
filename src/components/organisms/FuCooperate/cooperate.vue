@@ -6,7 +6,6 @@
     @click.self="closePanels"
     :style="[bgRenderStyles, heightObjectStyle]"
   >
-    <q-resize-observer @resize="onResize" />
     <!-- <q-img
       class="o-cooperate__background"
       :src="bgInfo.url"
@@ -223,13 +222,6 @@ export default defineComponent({
           }
         : '';
     });
-
-    const onResize = (size: { height: number; width: number }) => {
-      if (size.width < 578) {
-        // setNewLayout(LAYOUT.PRESENTATION_LAYOUT);
-      }
-    };
-
     return {
       toogleMenuBar,
       showMenuBar,
@@ -251,7 +243,6 @@ export default defineComponent({
       openTabSharedWarning,
       renderHeader,
       bgRenderStyles,
-      onResize,
     };
   },
 });

@@ -339,6 +339,7 @@ import { useJitsi } from '@/composables/jitsi';
 import { usePanels } from '@/composables/panels';
 import { useJitsiError } from '@/composables/jitsiError';
 import { useLayout } from '@/composables/layout';
+import { useMainView } from '@/composables/mainView';
 import { nanoid } from 'nanoid';
 
 import FuAdminPanel from 'organisms/FuAdminPanel';
@@ -401,6 +402,7 @@ export default defineComponent({
       usePanels();
     const { errorsCallback } = useJitsiError();
     const { layout } = useLayout();
+    const { mainViewState } = useMainView();
 
     const notificationCount = computed(() => {
       return userMe.roleId === 0 ? waitingParticipants.value.length : '';
@@ -464,6 +466,9 @@ export default defineComponent({
 
     const modifierClass = computed(() => ({
       '--presentation': layout.value == LAYOUT.PRESENTATION_LAYOUT,
+      '--screenPresentation':
+        layout.value == LAYOUT.PRESENTATION_LAYOUT &&
+        mainViewState.mode != MAIN_VIEW_MODE.NONE,
     }));
 
     watch(

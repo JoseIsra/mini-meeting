@@ -126,16 +126,23 @@
   &.--split {
     right: 0;
     width: 33%;
-    grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
   }
 }
 @media only screen and (min-width: 958px) {
   .defaultLayout {
     &.--2users {
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      grid-template-columns: 50% 50%;
     }
     &.--moreviews {
       grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
+    }
+  }
+  .--split {
+    &.--2users {
+      grid-template-columns: repeat(1, 1fr);
+    }
+    &.--moreviews {
+      grid-template-columns: repeat(2, 1fr);
     }
   }
 }

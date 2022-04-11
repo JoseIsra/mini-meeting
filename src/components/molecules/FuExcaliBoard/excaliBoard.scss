@@ -8,8 +8,10 @@
     border: none;
   }
   &.--presentation {
-    padding-top: 49%;
+    padding-top: 37%;
     width: 80vw;
+    position: absolute;
+    top: 0;
     .m-excali {
       &__board {
         width: 92%;

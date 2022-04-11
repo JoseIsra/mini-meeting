@@ -12,7 +12,7 @@
       :style="bgStyle"
       :fit="bgInfo.maximized ? 'fill' : 'cover'"
     /> -->
-
+    <q-resize-observer @resize="onResize" />
     <q-icon
       name="fas fa-expand-alt"
       size="24px"
@@ -78,6 +78,7 @@ import {
 } from '@/composables';
 import { usePanels } from '@/composables/panels';
 import { useLayout } from '@/composables/layout';
+import { useBoard } from '@/composables/board';
 import { LAYOUT, MAIN_VIEW_MODE } from '@/utils/enums';
 import { useQuasar } from 'quasar';
 
@@ -101,6 +102,7 @@ export default defineComponent({
     const { openTabSharedWarning } = usePanels();
     const { layout, setNewLayout } = useLayout();
     const $q = useQuasar();
+    const { setShowExcaliBoard } = useBoard();
 
     onMounted(() => {
       emit('mounted');
@@ -222,6 +224,14 @@ export default defineComponent({
           }
         : '';
     });
+
+    const onResize = (size: { height: number; width: number }) => {
+      if (size.width < 1024) {
+        setNewLayout(LAYOUT.PRESENTATION_LAYOUT);
+        setShowExcaliBoard(false);
+      }
+    };
+
     return {
       toogleMenuBar,
       showMenuBar,
@@ -243,6 +253,7 @@ export default defineComponent({
       openTabSharedWarning,
       renderHeader,
       bgRenderStyles,
+      onResize,
     };
   },
 });

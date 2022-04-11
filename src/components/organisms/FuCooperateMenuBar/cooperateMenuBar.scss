@@ -19,6 +19,9 @@
     &.--presentation {
       bottom: 175px;
     }
+    &.--screenPresentation {
+      bottom: 10px;
+    }
   }
   .active,
   .activeHand {

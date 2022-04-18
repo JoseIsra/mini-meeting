@@ -656,7 +656,6 @@ export function useJitsi() {
     } = JSON.parse(arg.value) as ExternalVideoRequest;
     if (userMe.id == requester) {
       remotePlayer.value = videojs(externalVideoID);
-      console.log('SOLICITO VIDEO ESTADO DE PLAYING', isPlaying);
       if (!isPlaying) {
         void remotePlayer.value.pause();
       }

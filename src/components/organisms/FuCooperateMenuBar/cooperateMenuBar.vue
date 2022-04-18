@@ -591,14 +591,22 @@ export default defineComponent({
         )
       ) {
         const downHand = { ...riseHand, eventType: 'HAND_DOWN' };
-        updateHandNotification(false);
-        sendNotification(downHand.eventType, {
-          value: JSON.stringify(downHand),
-        });
+        const handDown = _.debounce(() => {
+          updateHandNotification(false);
+          sendNotification(downHand.eventType, {
+            value: JSON.stringify(downHand),
+          });
+        }, 200);
+        handDown();
         return;
       }
-      updateHandNotification(true);
-      sendNotification(riseHand.eventType, { value: JSON.stringify(riseHand) });
+      const handUp = _.debounce(() => {
+        updateHandNotification(true);
+        sendNotification(riseHand.eventType, {
+          value: JSON.stringify(riseHand),
+        });
+      }, 200);
+      handUp();
     };
 
     const startScreenSharing = (tracks: JitsiLocalTrack[]) => {

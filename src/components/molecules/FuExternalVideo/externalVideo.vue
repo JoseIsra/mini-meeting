@@ -46,7 +46,7 @@ interface TestProp {
 interface Test {
   youtube: TestProp;
 }
-
+// https://www.youtube.com/watch?v=mgJ8BZi3vTA&list=RDmgJ8BZi3vTA&start_radio=1
 export default defineComponent({
   name: 'FuExternalVideo',
   setup() {

@@ -48,7 +48,7 @@
         </q-item-section>
       </q-item>
 
-      <q-item tag="label" v-ripple="{ color: 'blue-3' }">
+      <!-- <q-item tag="label" v-ripple="{ color: 'blue-3' }">
         <q-item-section>
           <q-item-label class="m-perifericsPanel__toggleBox__hint --mainHint"
             >Compartir pantalla</q-item-label
@@ -71,7 +71,7 @@
             "
           />
         </q-item-section>
-      </q-item>
+      </q-item> -->
     </q-list>
   </section>
 </template>

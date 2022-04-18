@@ -38,6 +38,7 @@ import 'video.js/dist/video.min.js';
 import 'videojs-youtube/dist/Youtube.min.js';
 import 'video.js/dist/video-js.css';
 import { useQuasar } from 'quasar';
+import { notifyWithAction } from '@/utils/notify';
 
 interface TestProp {
   enablejsapi: number;
@@ -69,10 +70,10 @@ export default defineComponent({
     const optionsForPlayer = reactive<videojs.PlayerOptions & Test>({
       controls: !screenMinimized.value && canManipulateVideo.value,
       bigPlayButton: false,
-      autoplay: true,
+      autoplay: false,
       responsive: true,
       preload: 'auto',
-      muted: true,
+      muted: false,
       controlBar: {
         progressControl: {
           seekBar: true,
@@ -121,6 +122,9 @@ export default defineComponent({
       });
       player.value.on('ready', () => {
         posterClass.value = true;
+        if (userMe.id !== externalVideo.videoOwnerId) {
+          notifyWithAction();
+        }
       });
       player.value.controlBar.on('mouseup', () => {
         if (canManipulateVideo.value) {
@@ -140,7 +144,6 @@ export default defineComponent({
         ...externalVideo,
         isVideoPlaying: true,
       });
-      void player.value.muted(false);
 
       if (canManipulateVideo.value) {
         sendNotification('PLAY_EXTERNAL_VIDEO', {
@@ -151,14 +154,15 @@ export default defineComponent({
         });
       }
 
-      // if (!canManipulateVideo.value && infoMessage.value) {
-      //   infoMessage.value = false;
-      //   sendData(roomState.hostId, {
-      //     from: userMe.id,
-      //     to: getOwner.value?.id,
-      //     eventType: 'REQUEST_VIDEO_TIME',
-      //   });
-      // }
+      if (!canManipulateVideo.value && infoMessage.value) {
+        infoMessage.value = false;
+        sendNotification('REQUEST_VIDEO_CURRENT_TIME', {
+          value: JSON.stringify({
+            from: userMe.id,
+            to: getOwner.value?.id,
+          }),
+        });
+      }
     };
 
     const handlePause = () => {

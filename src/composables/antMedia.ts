@@ -30,7 +30,7 @@ import { useBoard } from '@/composables/board';
 
 import { useMainView } from '@/composables/mainView';
 
-import { notifyWithAction, warningMessage } from '@/utils/notify';
+import { warningMessage } from '@/utils/notify';
 
 import videojs from 'video.js';
 /* import { useActions } from '@/composables/actions'; */
@@ -54,7 +54,6 @@ import {
   HandNotification,
   stopPlayingStream,
   MainViewState,
-  ExternalVideoRequest,
 } from '@/types';
 
 const webRTCInstance = ref<WebRTCAdaptor>({} as WebRTCAdaptor);
@@ -888,10 +887,10 @@ export function useInitWebRTC() {
               remoteUserInfoParsed.userInfo.denied === 0 &&
               roomState.roomRestriction === ROOM_PRIVACY.PRIVATE
             ) {
-              notifyWithAction(
-                remoteUserInfoParsed.userInfo.name,
-                remoteUserInfoParsed.userInfo.id
-              );
+              // notifyWithAction(
+              //   remoteUserInfoParsed.userInfo.name,
+              //   remoteUserInfoParsed.userInfo.id
+              // );
             }
 
             const newUser = {
@@ -1233,14 +1232,14 @@ export function useInitWebRTC() {
               });
             }
           } else if (eventType == 'UPDATING_VIDEO_TIME') {
-            const info = JSON.parse(obj.data) as ExternalVideoRequest;
-            if (userMe.id == info.to) {
-              remotePlayer.value = videojs(info.id);
-              if (!info.isPlaying) {
-                void remotePlayer.value.pause();
-              }
-              remotePlayer.value.currentTime(info.ubication);
-            }
+            // const info = JSON.parse(obj.data) as ExternalVideoRequest;
+            // if (userMe.id == info.to) {
+            //   remotePlayer.value = videojs(info.id);
+            //   if (!info.isPlaying) {
+            //     void remotePlayer.value.pause();
+            //   }
+            //   remotePlayer.value.currentTime(info.ubication);
+            // }
           } else if (eventType === 'SET_FULL_SCREEN') {
             const { mainViewState } = JSON.parse(obj.data) as Record<
               string,

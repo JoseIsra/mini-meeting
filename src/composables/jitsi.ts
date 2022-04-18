@@ -18,6 +18,8 @@ import {
   MainViewState,
   backgroundInfo,
   backgroundSize,
+  BaseData,
+  ExternalVideoRequest,
 } from '@/types';
 
 // composables
@@ -169,6 +171,14 @@ export function useJitsi() {
     {
       name: 'PLAY_EXTERNAL_VIDEO',
       listener: playExternalVideo,
+    },
+    {
+      name: 'REQUEST_VIDEO_CURRENT_TIME',
+      listener: requestVideoCurrentTime,
+    },
+    {
+      name: 'UPDATE_REQUEST_VIDEO_TIME',
+      listener: updateRequestVideoTime,
     },
     {
       name: 'REQUEST_ROOM_STATE',
@@ -557,7 +567,7 @@ export function useJitsi() {
 
     updateExternalVideoState({
       ...externalVideo,
-      isVideoPlaying: true,
+      isVideoPlaying: false,
       videoOwnerId,
       urlVideo,
       videoOnRoom: true,
@@ -618,6 +628,39 @@ export function useJitsi() {
     if (!userMe.isVideoOwner) {
       void remotePlayer.value.currentTime(videoCurrentTime as number);
       void remotePlayer.value.play();
+    }
+  }
+
+  function requestVideoCurrentTime(arg: Command) {
+    const { from, to: videoOwner } = JSON.parse(arg.value) as BaseData;
+    if (userMe.id == videoOwner) {
+      // como owner, reenvio mi externalvideo Object al from
+      sendNotification('UPDATE_REQUEST_VIDEO_TIME', {
+        value: JSON.stringify({
+          from: userMe.id,
+          to: from,
+          externalVideoID: externalVideo.remoteInstanceId,
+          currentTime: externalVideo.videoCurrentTime,
+          isPlaying: externalVideo.isVideoPlaying,
+        }),
+      });
+    }
+  }
+
+  function updateRequestVideoTime(arg: Command) {
+    const {
+      to: requester,
+      externalVideoID,
+      currentTime,
+      isPlaying,
+    } = JSON.parse(arg.value) as ExternalVideoRequest;
+    if (userMe.id == requester) {
+      remotePlayer.value = videojs(externalVideoID);
+      console.log('SOLICITO VIDEO ESTADO DE PLAYING', isPlaying);
+      if (!isPlaying) {
+        void remotePlayer.value.pause();
+      }
+      remotePlayer.value.currentTime(currentTime);
     }
   }
 

@@ -1,15 +1,8 @@
-import { useInitWebRTC } from '@/composables/antMedia';
-import { useRoom, useHandleParticipants } from '@/composables';
 import { Notify } from 'quasar';
-import { PERMISSION_STATUS } from '../enums';
 
-const { sendData } = useInitWebRTC();
-const { updateParticipantDenied } = useHandleParticipants();
-const { roomState } = useRoom();
-
-const waitingSound = new Audio(
-  'https://freesound.org/data/previews/415/415763_6090639-lq.mp3'
-);
+// const waitingSound = new Audio(
+//   'https://freesound.org/data/previews/415/415763_6090639-lq.mp3'
+// );
 
 export interface notifyAction {
   label: string;
@@ -28,42 +21,19 @@ const notify =
     });
   };
 
-export const notifyWithAction = (name: string, id: string): void => {
-  waitingSound.currentTime = 0;
-  void waitingSound.play();
+export const notifyWithAction = (): void => {
   Notify.create({
-    position: 'bottom',
-    message: `${name} ha solicitado unirse`,
+    position: 'bottom-left',
+    message: `Se ha compartido un video en la sala,
+      dale play para sincronizarlo`,
     color: 'primary',
-    timeout: 5000,
+    timeout: 10000,
     actions: [
       {
-        label: 'Denegar',
-        color: 'grey',
-        handler: () => {
-          sendData(roomState.hostId, {
-            id: '',
-            participantId: id,
-            eventType: 'ANSWER_PERMISSION',
-            value: false,
-          });
-
-          updateParticipantDenied(id, PERMISSION_STATUS.denied);
-        },
-      },
-      {
-        label: 'Permitir',
-        color: 'white',
-        handler: () => {
-          sendData(roomState.hostId, {
-            id: '',
-            participantId: id,
-            eventType: 'ANSWER_PERMISSION',
-            value: true,
-          });
-
-          updateParticipantDenied(id, PERMISSION_STATUS.admitted);
-        },
+        label: 'OK',
+        color: 'yellow',
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        handler: () => {},
       },
     ],
   });

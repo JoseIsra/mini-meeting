@@ -11,14 +11,19 @@
       ]"
       :style="backgroundColorSelected(userMe.id)"
     >
-      <div v-show="!userMe.isVideoActivated" class="userVideoBox__avatar">
+      <div
+        v-show="!userMe.isVideoActivated"
+        class="userVideoBox__avatar relative-position"
+      >
         <figure class="userVideoBox__avatar__imageBox">
           <img
             class="userVideoBox__avatar__imageBox__image"
             :src="userMe.avatar"
           />
         </figure>
-        <div class="userVideoBox__avatar__info">
+        <div
+          class="userVideoBox__avatar__info absolute row items-center q-px-xs"
+        >
           <label class="userVideoBox__avatar__info__userName">
             {{ userMe.name }}
           </label>
@@ -58,7 +63,10 @@
       ]"
       :style="backgroundColorSelected(participant.id)"
     >
-      <div v-show="!participant.isVideoActivated" class="userVideoBox__avatar">
+      <div
+        v-show="!participant.isVideoActivated"
+        class="userVideoBox__avatar relative-position"
+      >
         <figure class="userVideoBox__avatar__imageBox">
           <img
             v-if="participant.avatar"
@@ -71,7 +79,9 @@
             size="2em"
           />
         </figure>
-        <div class="userVideoBox__avatar__info">
+        <div
+          class="userVideoBox__avatar__info absolute row items-center q-px-xs"
+        >
           <label class="userVideoBox__avatar__info__userName">
             {{ participant.name }}
           </label>

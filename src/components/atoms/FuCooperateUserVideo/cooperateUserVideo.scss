@@ -29,13 +29,10 @@
       }
     }
     &__info {
-      display: flex;
-      width: 5rem;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      bottom: 10px;
-      background-color: rgba(0, 0, 0, 0.5);
+      width: 12rem;
+      justify-content: space-between;
+      bottom: 5px;
+      background-color: rgba(0, 0, 0, 0.2);
       &__userName {
         color: #fffffe;
         font-size: clamp(0.7rem, 2.5vw, 0.8rem);
@@ -43,11 +40,9 @@
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
-        text-align: center;
-        padding: 0 5px;
         border-radius: 4px;
         width: fit-content;
-        max-width: 70%;
+        max-width: 80%;
         &.--video {
           position: absolute;
           transform: translate(-50%, 0);
@@ -116,10 +111,7 @@
     }
     &__avatar {
       &__info {
-        position: absolute;
-        left: 10px;
-        bottom: 10px;
-        width: 8rem;
+        left: 5px;
       }
     }
   }
@@ -144,6 +136,13 @@
     &.--moreviews {
       grid-template-columns: repeat(2, 1fr);
     }
+    .userVideoBox {
+      &__avatar {
+        &__info {
+          width: 8rem;
+        }
+      }
+    }
   }
 }
 
@@ -159,6 +158,11 @@
   @media only screen and (max-width: 580px) {
     .userVideoBox {
       margin: 0 4px;
+      &__avatar {
+        &__info {
+          width: 6rem;
+        }
+      }
     }
   }
 }

@@ -61,6 +61,7 @@
           class="m-generalPanel__bgBox__actions__check"
           left-label
           color="primary"
+          :disable="!roomState.bgInfo.allowResetBg"
         />
         <p class="m-generalPanel__bgBox__actions__hint">
           La imagen de fondo ocupa todo el alto y ancho de la pantalla
@@ -98,7 +99,7 @@ export default defineComponent({
     FuExternalVideoModal,
   },
   setup() {
-    const { roomState, updateAllowResetBg } = useRoom();
+    const { roomState, updateAllowResetBg, updateBgSize } = useRoom();
     const maximizeBg = ref(roomState.bgInfo.maximized);
     const linkCopied = ref(false);
     let fileToChangeBg = ref({} as File);
@@ -193,15 +194,12 @@ export default defineComponent({
     const resetCooperateBg = () => {
       sendNotification('UPDATE_BACKGROUND_IMAGE_OF_COOPERATE', {
         value: JSON.stringify({
-          url: 'https://encrypted.fractalup.com/file/MainPublic/fractalup_assets/landing/main.png',
+          url: '',
         }),
       });
       successMessage('Fondo de la sala actualizado');
-
-      window.xprops?.setBackgroundInfo?.(
-        roomState.bgInfo.url,
-        roomState.bgInfo.maximized
-      );
+      updateBgSize(false);
+      window.xprops?.setBackgroundInfo?.('', false);
       updateAllowResetBg(false);
     };
 

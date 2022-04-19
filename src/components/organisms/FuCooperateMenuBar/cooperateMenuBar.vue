@@ -628,16 +628,16 @@ export default defineComponent({
         // replaceLocalTrack(desktopVideoTrack, MediaType.VIDEO);
         roomAddTrack(desktopVideoTrack);
         sendNotification('INIT_SCREEN_SHARING', { value: userMe.id });
-        setTimeout(() => {
-          sendNotification('PIN_USER_FOR_ALL_PARTICIPANTS', {
-            value: JSON.stringify({
-              mode: MAIN_VIEW_MODE.USER,
-              pinnedUsers: [userMe.id],
-              startedBy: userMe.id,
-              locked: MAIN_VIEW_LOCKED_TYPE.NORMAL_USERS,
-            }),
-          });
-        }, 2200);
+        // setTimeout(() => {
+        //   sendNotification('PIN_USER_FOR_ALL_PARTICIPANTS', {
+        //     value: JSON.stringify({
+        //       mode: MAIN_VIEW_MODE.USER,
+        //       pinnedUsers: [userMe.id],
+        //       startedBy: userMe.id,
+        //       locked: MAIN_VIEW_LOCKED_TYPE.NORMAL_USERS,
+        //     }),
+        //   });
+        // }, 2200);
       }
 
       if (desktopAudioTrack) {

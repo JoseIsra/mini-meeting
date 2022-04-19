@@ -32,7 +32,6 @@
       width: 12rem;
       justify-content: space-between;
       bottom: 5px;
-      background-color: rgba(0, 0, 0, 0.2);
       &__userName {
         color: #fffffe;
         font-size: clamp(0.7rem, 2.5vw, 0.8rem);
@@ -43,6 +42,8 @@
         border-radius: 4px;
         width: fit-content;
         max-width: 80%;
+        background-color: rgba(0, 0, 0, 0.4);
+        padding: 0 5px;
         &.--video {
           position: absolute;
           transform: translate(-50%, 0);
@@ -52,6 +53,13 @@
           z-index: 100;
           background: black;
         }
+      }
+      &__iconWrapper {
+        display: inline-block;
+        background-color: rgba(0, 0, 0, 0.3);
+        border-radius: 100%;
+        width: 25px;
+        height: 25px;
       }
     }
     &__screenBtn {

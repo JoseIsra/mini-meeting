@@ -27,14 +27,17 @@
           <label class="userVideoBox__avatar__info__userName">
             {{ userMe.name }}
           </label>
-          <q-icon
-            :name="
-              userMe.isMicOn
-                ? iconsPeriferics.mic.onState
-                : iconsPeriferics.mic.offState
-            "
-            color="white"
-          />
+          <div class="userVideoBox__avatar__info__iconWrapper text-center">
+            <q-icon
+              :name="
+                userMe.isMicOn
+                  ? iconsPeriferics.mic.onState
+                  : iconsPeriferics.mic.offState
+              "
+              color="white"
+              size="18px"
+            />
+          </div>
         </div>
       </div>
 
@@ -85,11 +88,13 @@
           <label class="userVideoBox__avatar__info__userName">
             {{ participant.name }}
           </label>
-          <q-icon
-            :name="participant.isMicOn ? 'mic' : 'mic_off'"
-            size="20px"
-            color="white"
-          />
+          <div class="userVideoBox__avatar__info__iconWrapper text-center">
+            <q-icon
+              :name="participant.isMicOn ? 'mic' : 'mic_off'"
+              size="18px"
+              color="white"
+            />
+          </div>
         </div>
       </div>
       <video

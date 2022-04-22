@@ -37,3 +37,7 @@ export type JitsiConnectionRemake = Omit<
     options: JitsiConferenceOptions
   ) => JitsiConferenceRemake;
 };
+
+export interface RecordConference {
+  _sessionID: string;
+}

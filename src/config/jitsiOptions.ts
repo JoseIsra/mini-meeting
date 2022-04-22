@@ -15,7 +15,8 @@ export default {
     // preferredCodec
     // useStunTurn: true,
   },
-  // websocketKeepAliveUrl: 'https://8x8.vc',
+  // websocketKeepAliveUrl: 'https://coop.fractalup.com',
+  // websocketKeepAlive: 10000,
   // useIPv6: false,
   // disableAudioLevels: true,
   // openBridgeChannel: 'datachannel',

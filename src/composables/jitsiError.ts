@@ -68,7 +68,7 @@ export function useJitsiError() {
           void nextTick(() => {
             localTracks.value[1].attach(localVideoTrack.value);
           });
-          roomAddTrack(localTracks.value[1]);
+          roomAddTrack(localTracks.value[1], null);
           void localTracks.value[1].mute();
         })
         .catch((error) => console.error(error));

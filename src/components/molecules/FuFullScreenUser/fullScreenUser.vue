@@ -46,6 +46,7 @@
         </div>
       </div>
       <video
+        :id="'video-' + userId"
         v-show="userPinned?.isVideoActivated"
         :class="[
           'm-fuser__stream',
@@ -69,6 +70,7 @@
         autoplay
       ></video>
       <audio
+        :id="'audio-' + userId"
         :ref="
           ($el) => {
             audioPinned[userPinned.id] = $el;
@@ -130,6 +132,7 @@ import {
   nextTick,
   onMounted,
   reactive,
+  onBeforeUnmount,
 } from 'vue';
 import { useHandleParticipants, useUserMe, useScreen } from '@/composables';
 import { useMainView } from '@/composables/mainView';
@@ -186,6 +189,11 @@ export default defineComponent({
           });
         }
       });
+    });
+
+    onBeforeUnmount(() => {
+      userPinned?.value?.tracks?.[0].detach(audioPinned[userPinned.value.id]);
+      userPinned?.value?.tracks?.[1].detach(videoPinned[userPinned.value.id]);
     });
 
     return {

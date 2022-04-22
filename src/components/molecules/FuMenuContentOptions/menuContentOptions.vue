@@ -35,6 +35,7 @@
         <label class="a-menu__optionList__item__description">{{
           option.description
         }}</label>
+        <span v-show="renderLabel(option.interaction)">(Actual)</span>
       </li>
       <q-separator spaced color="white" />
       <li
@@ -116,7 +117,7 @@ export default defineComponent({
     const { userMe } = useUserMe();
     const { sendNotificationEvent } = useInitWebRTC();
     const { updateMainViewState } = useMainView();
-    const { setNewLayout } = useLayout();
+    const { setNewLayout, layout } = useLayout();
     const { showExcaliBoard, setShowExcaliBoard } = useBoard();
     const { isMobile } = useScreen();
     const excaliModal = ref(false);
@@ -191,6 +192,16 @@ export default defineComponent({
     const closeExcaliBoard = () => {
       setShowExcaliBoard(false);
     };
+
+    const renderLabel = (interaction: string) => {
+      return (
+        (interaction == 'DEFAULT_LAYOUT' &&
+          layout.value == LAYOUT.DEFAULT_LAYOUT) ||
+        (interaction == 'PRESENTATION_LAYOUT' &&
+          layout.value == LAYOUT.PRESENTATION_LAYOUT)
+      );
+    };
+
     return {
       options,
       handleOptionSelected,
@@ -203,6 +214,7 @@ export default defineComponent({
       closeExcaliBoard,
       renderExcaliOnMobile,
       excaliModal,
+      renderLabel,
     };
   },
 });

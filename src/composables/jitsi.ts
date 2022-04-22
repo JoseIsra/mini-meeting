@@ -20,6 +20,8 @@ import {
   backgroundSize,
   BaseData,
   ExternalVideoRequest,
+  RecordConference,
+  EndCallAttrs,
 } from '@/types';
 
 // composables
@@ -88,7 +90,8 @@ const { errorsCallback } = useJitsiError();
 const { setIsLoadingOrError } = useAuthState();
 const { mainViewState, updateMainViewState } = useMainView();
 const { setUserBackgroundColor } = useUserColor();
-const { updateBgUrl, updateBgSize } = useRoom();
+const { updateBgUrl, updateBgSize, setRecordSessionId, recordSessionID } =
+  useRoom();
 
 const handNotificationSound = new Audio(
   'https://freesound.org/data/previews/411/411642_5121236-lq.mp3'
@@ -200,12 +203,16 @@ export function useJitsi() {
       name: 'UPDATE_BG_IMAGE_SIZE_OF_COOPERATE',
       listener: updateBgImageSizeOfCooperate,
     },
+    {
+      name: 'MODERATOR_ENDS_CALL',
+      listener: moderatorEndsCall,
+    },
   ];
 
   function handleRemoteTracks(track: JitsiRemoteTrack) {
     const participantID = track.getParticipantId();
     console.log('ID DEL REMOTO', participantID);
-    console.log('TRACK REMOTO', track);
+    // console.log('TRACK REMOTO', track);
     console.log('TRACK type REMOTO', track.getType());
     if (track.getType() == 'audio') {
       void nextTick(() => {
@@ -266,9 +273,15 @@ export function useJitsi() {
     void localTracks.value[1].mute();
   };
 
-  const roomAddTrack = (track: JitsiLocalTrack) => {
+  const roomAddTrack = (
+    track: JitsiLocalTrack,
+    callback: (() => void) | null
+  ) => {
     // void room.replaceTrack(track, thenew);
     void room.addTrack(track);
+    setTimeout(() => {
+      callback && callback();
+    }, 1200);
   };
 
   const testReplaceAudio = (
@@ -292,7 +305,6 @@ export function useJitsi() {
   };
 
   const getMediaTrack = (mediaType: MediaType) => {
-    console.log(room.getLocalTracks(mediaType));
     return room.getLocalTracks(mediaType)[0];
   };
 
@@ -323,7 +335,7 @@ export function useJitsi() {
           .then(() => {
             void track.mute();
           })
-          .catch((error) => console.log(error));
+          .catch((error) => console.error(error));
       });
     }
   }
@@ -334,7 +346,6 @@ export function useJitsi() {
     })
       .then(handleLocalTracks)
       .catch((error: Error) => {
-        console.log(error);
         errorsCallback(error.name, error.message);
       });
   }
@@ -727,6 +738,39 @@ export function useJitsi() {
     }
   }
 
+  function moderatorEndsCall(arg: Command) {
+    const { moderatorID } = JSON.parse(arg.value) as EndCallAttrs;
+    if (userMe.id !== moderatorID) {
+      window.xprops?.handleLeaveCall?.(
+        REASON_TO_LEAVE_ROOM.KICKED_BY_MODERATOR_CLOSE_ROOM
+      );
+    }
+  }
+
+  function initRecord() {
+    room
+      .startRecording({
+        openBridgeChannel: true,
+        mode: 'file',
+        appData: null,
+      })
+      .then((info) => {
+        const parseInfo = info as RecordConference;
+        console.log('INfo de grbación', info);
+        console.log('SESSIONID', parseInfo._sessionID);
+        setRecordSessionId(parseInfo._sessionID);
+      })
+      .catch((error) => console.error(error));
+  }
+  function finishRecord() {
+    room
+      .stopRecording(recordSessionID.value)
+      .then((info) => {
+        console.log('END RECORDING', info);
+      })
+      .catch((error) => console.error(error));
+  }
+
   function onSuccessConnection() {
     console.log('Connected succesfull');
     // init room
@@ -761,7 +805,7 @@ export function useJitsi() {
         console.table({ actor, reason });
       }
     );
-    void room.setSenderVideoConstraint(360);
+    void room.setSenderVideoConstraint(720);
     commandsList.forEach((command) => {
       room.addCommandListener(command.name, command.listener);
     });
@@ -785,7 +829,7 @@ export function useJitsi() {
     roomNameTemporal.value = roomName;
     const jitsiOptions = { ...options };
     jitsiOptions.serviceUrl = `${jitsiOptions.serviceUrl}?room=${roomName}`;
-
+    // jitsiOptions.websocketKeepAliveUrl = `${jitsiOptions.websocketKeepAliveUrl}?room=${roomName}`;
     connection = new JitsiMeetJS.JitsiConnection(
       '',
       null,
@@ -825,5 +869,7 @@ export function useJitsi() {
     kickParticipantFromRoom,
     replaceLocalTrack,
     updateJitsiParticipant,
+    initRecord,
+    finishRecord,
   };
 }

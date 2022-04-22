@@ -626,9 +626,8 @@ export default defineComponent({
           localTracks.value[1].attach(localVideoTrack.value);
         });
         // replaceLocalTrack(desktopVideoTrack, MediaType.VIDEO);
-        roomAddTrack(desktopVideoTrack);
-        sendNotification('INIT_SCREEN_SHARING', { value: userMe.id });
-        // setTimeout(() => {
+        roomAddTrack(desktopVideoTrack, null);
+        // () => {
         //   sendNotification('PIN_USER_FOR_ALL_PARTICIPANTS', {
         //     value: JSON.stringify({
         //       mode: MAIN_VIEW_MODE.USER,
@@ -637,6 +636,9 @@ export default defineComponent({
         //       locked: MAIN_VIEW_LOCKED_TYPE.NORMAL_USERS,
         //     }),
         //   });
+        // }
+        sendNotification('INIT_SCREEN_SHARING', { value: userMe.id });
+        // setTimeout(() => {
         // }, 2200);
       }
 
@@ -666,7 +668,7 @@ export default defineComponent({
       void nextTick(() => {
         localTracks.value[1].attach(localVideoTrack.value);
       });
-      roomAddTrack(tracks[0]);
+      roomAddTrack(tracks[0], null);
       void tracks[0].mute();
       replaceLocalTrack(localTracks.value[0], MediaType.AUDIO);
     };

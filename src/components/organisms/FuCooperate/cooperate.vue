@@ -6,12 +6,6 @@
     @click.self="closePanels"
     :style="[bgRenderStyles, heightObjectStyle]"
   >
-    <!-- <q-img
-      class="o-cooperate__background"
-      :src="bgInfo.url"
-      :style="bgStyle"
-      :fit="bgInfo.maximized ? 'fill' : 'cover'"
-    /> -->
     <q-resize-observer @resize="onResize" />
     <q-icon
       name="fas fa-expand-alt"

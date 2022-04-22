@@ -46,14 +46,14 @@ export const menuOptions = {
   thirdSection: [
     {
       id: '5',
-      iconName: 'call_to_action',
+      iconName: 'grid_view',
       description: 'Vista 1',
       important: false,
       interaction: INTERACTION_TYPE_MENU_OPTIONS.DEFAULT_LAYOUT,
     },
     {
       id: '6',
-      iconName: 'call_to_action',
+      iconName: 'more_horiz',
       description: 'Vista 2',
       important: false,
       interaction: INTERACTION_TYPE_MENU_OPTIONS.PRESENTATION_LAYOUT,

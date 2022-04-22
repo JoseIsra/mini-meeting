@@ -142,3 +142,7 @@ export type LockActionsData = Pick<
   ObjBlockParticipantAction,
   'streamId' | 'action'
 >;
+
+export interface EndCallAttrs {
+  moderatorID: string;
+}

@@ -1,4 +1,4 @@
-import { reactive } from 'vue';
+import { reactive, ref } from 'vue';
 import { JitsiConferenceRemake, Room } from '@/types';
 
 export interface participantOnWait {
@@ -8,6 +8,7 @@ export interface participantOnWait {
 
 const roomState = reactive<Room>({} as Room);
 const jitsiRoom = reactive<JitsiConferenceRemake>({} as JitsiConferenceRemake);
+const recordSessionID = ref('');
 
 export function useRoom() {
   const setRoom = (room: Room) => {
@@ -43,6 +44,10 @@ export function useRoom() {
     Object.assign(jitsiRoom, value);
   };
 
+  const setRecordSessionId = (payload: string) => {
+    recordSessionID.value = payload;
+  };
+
   return {
     roomState,
     updateRoom,
@@ -56,5 +61,7 @@ export function useRoom() {
     updateAllowResetBg,
     setJitsiRoom,
     jitsiRoom,
+    recordSessionID,
+    setRecordSessionId,
   };
 }

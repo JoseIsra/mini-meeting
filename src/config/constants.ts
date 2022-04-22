@@ -11,3 +11,5 @@ export const USER_BACKGROUND_PALETTE = [
   '#28FFBF',
   '#0E185F',
 ];
+
+export const regexConferenceName = /[`~!@#$%^&*()_|+\-=?;:'"<>\{\}\[\]\\\/]/gi;

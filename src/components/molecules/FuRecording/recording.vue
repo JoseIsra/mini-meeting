@@ -39,6 +39,7 @@
 import { defineComponent, ref } from 'vue';
 import { useRoom, useUserMe, useInitWebRTC } from '@/composables';
 import { warningMessage, successMessage } from '@/utils/notify';
+import { useJitsi } from '@/composables/jitsi';
 
 export default defineComponent({
   name: 'FuMRecording',
@@ -47,7 +48,7 @@ export default defineComponent({
     const recordTime = ref('00:00:00');
     const secondsElapsed = ref(0);
     /* const { recordingStream, stopRecordingStream } = useInitMerge(); */
-    const { sendNotificationEvent, stopPublishing } = useInitWebRTC();
+    const { initRecord, finishRecord } = useJitsi();
     // const { participants } = useHandleParticipants();
     const { userMe, updateUserMe } = useUserMe();
 
@@ -70,7 +71,7 @@ export default defineComponent({
     const startRecording = () => {
       updateRoom({ isBeingRecorded: true });
 
-      window.xprops?.handleStartRecording?.();
+      // window.xprops?.handleStartRecording?.();
       /* watchParticipants.value = watch(
         () => participants.value,
         (actualParticipants, prevParticipants) => {
@@ -84,8 +85,9 @@ export default defineComponent({
       isLoading.value = true;
       warningMessage('Iniciando grabación...');
       mergedName.value = `m-r-${roomState.classroomId}-${userMe.fractalUserId}-${roomState.id}-${timestamp}`;
-
-      sendNotificationEvent('RECORDING_STARTED', userMe.id);
+      initRecord();
+      isLoading.value = false;
+      // sendNotificationEvent('RECORDING_STARTED', userMe.id);
       /* createMergeInstance(roomState.id, mergedName.value, mergedName.value)
         .then(() => {
           isLoading.value = false;
@@ -105,58 +107,58 @@ export default defineComponent({
           });
         })
         .catch((e) => console.log(e)); */
-      fetch(
-        `https://cooperate.fractalup.com/WebRTCAppEE/rest/v2/broadcasts/${userMe.id}/recording/true?recordType=webm`,
-        { method: 'PUT' }
-      )
-        .then(() => {
-          isLoading.value = false;
-          successMessage('Grabando la sesión');
-          interval.value = setInterval(oneSecondElapsed, 1000);
-          /* isRecording.value = true; */
-          updateUserMe({
-            isRecording: true,
-          });
-          updateRoom({
-            isBeingRecorded: true,
-            recordingUrl: `https://f002.backblazeb2.com/file/MainPublic/classrooms/${roomState.classroomId}/cooperate/recordings/${mergedName.value}.mp4`,
-          });
-        })
-        .catch((e) => console.log(e));
+      // fetch(
+      //   `https://cooperate.fractalup.com/WebRTCAppEE/rest/v2/broadcasts/${userMe.id}/recording/true?recordType=webm`,
+      //   { method: 'PUT' }
+      // )
+      //   .then(() => {
+      //     isLoading.value = false;
+      successMessage('Grabando la sesión');
+      interval.value = setInterval(oneSecondElapsed, 1000);
+      //     /* isRecording.value = true; */
+      updateUserMe({
+        isRecording: true,
+      });
+      updateRoom({
+        isBeingRecorded: true,
+        recordingUrl:
+          'https://f002.backblazeb2.com/file/MainPublic/classrooms/classrroomu/cooperate/recordings/ameba.mp4',
+      });
+      //   })
+      //   .catch((e) => console.log(e));
     };
 
     const stopRecording = () => {
+      finishRecord();
       /* watchParticipants.value?.(); */
-      fetch(
-        `https://cooperate.fractalup.com/WebRTCAppEE/rest/v2/broadcasts/${userMe.id}/recording/false?recordType=webm`,
-        { method: 'PUT' }
-      )
-        .then(() => {
-          updateRoom({ isBeingRecorded: false });
-          updateUserMe({
-            isRecording: false,
-          });
-          /* isRecording.value = false; */
-          recordTime.value = '00:00:00';
-          clearInterval(interval.value);
-          /* stopMerge(); */
-          //stopRecordingStream(mergedName.value);
-          secondsElapsed.value = 0;
-
-          /* window.xprops?.handleStopRecording?.(roomState.recordingUrl); */
-          sendNotificationEvent('RECORDING_STOPPED', userMe.id);
-
-          if (
-            !userMe.isCameraOn &&
-            !userMe.isScreenSharing &&
-            !userMe.isMicOn &&
-            !userMe.isHost
-          ) {
-            updateUserMe({ isPublishing: 0 });
-            stopPublishing(userMe.id);
-          }
-        })
-        .catch((e) => console.log(e));
+      // fetch(
+      //   `https://cooperate.fractalup.com/WebRTCAppEE/rest/v2/broadcasts/${userMe.id}/recording/false?recordType=webm`,
+      //   { method: 'PUT' }
+      // )
+      //   .then(() => {
+      updateRoom({ isBeingRecorded: false });
+      updateUserMe({
+        isRecording: false,
+      });
+      //     /* isRecording.value = false; */
+      recordTime.value = '00:00:00';
+      clearInterval(interval.value);
+      //     /* stopMerge(); */
+      //     //stopRecordingStream(mergedName.value);
+      secondsElapsed.value = 0;
+      //     /* window.xprops?.handleStopRecording?.(roomState.recordingUrl); */
+      //     sendNotificationEvent('RECORDING_STOPPED', userMe.id);
+      //     if (
+      //       !userMe.isCameraOn &&
+      //       !userMe.isScreenSharing &&
+      //       !userMe.isMicOn &&
+      //       !userMe.isHost
+      //     ) {
+      //       updateUserMe({ isPublishing: 0 });
+      //       stopPublishing(userMe.id);
+      //     }
+      //   })
+      //   .catch((e) => console.log(e));
     };
 
     const canRecording = ref(userMe.roleId === 0);

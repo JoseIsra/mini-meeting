@@ -38,6 +38,7 @@ import {
 } from '@/utils/enums';
 
 import DetectRTC from 'detectrtc';
+import { regexConferenceName } from '@/config/constants';
 
 export default defineComponent({
   name: 'FuTCooperate',
@@ -105,8 +106,12 @@ export default defineComponent({
       }
     }
 
-    const roomId =
-      window?.xprops?.roomId || (route.query.roomId as string) || '';
+    let roomId = window?.xprops?.roomId || (route.query.roomId as string) || '';
+    roomId = roomId
+      .trim()
+      .replace(regexConferenceName, '')
+      .replace(/\s/g, '_')
+      .toLowerCase();
     const classroomId =
       window?.xprops?.classroomId || (route.query.classroomId as string) || '1';
 

@@ -67,7 +67,7 @@ export default defineComponent({
       void router.push({
         name: 'meet',
         query: {
-          roomId: `classroomspectacularconference_${roomId}_🟢`,
+          roomId: roomId,
           streamName: name,
         },
       });

@@ -27,11 +27,22 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 import { REASON_TO_LEAVE_ROOM } from '@/utils/enums';
+import { useJitsi } from '@/composables/jitsi';
+import { useUserMe } from '@/composables';
+
 export default defineComponent({
   name: 'FuDeleteRoom',
 
   setup() {
+    const { sendNotification } = useJitsi();
+    const { userMe } = useUserMe();
+
     const executeDeleteRoom = () => {
+      sendNotification('MODERATOR_ENDS_CALL', {
+        value: JSON.stringify({
+          moderatorID: userMe.id,
+        }),
+      });
       window.xprops?.handleLeaveCall?.(REASON_TO_LEAVE_ROOM.I_CLOSE_ROOM, []);
     };
 

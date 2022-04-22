@@ -29,7 +29,7 @@
       }
     }
     &__info {
-      width: 12rem;
+      width: 90%;
       justify-content: space-between;
       bottom: 5px;
       &__userName {
@@ -41,7 +41,7 @@
         text-overflow: ellipsis;
         border-radius: 4px;
         width: fit-content;
-        max-width: 80%;
+        max-width: 75%;
         background-color: rgba(0, 0, 0, 0.4);
         padding: 0 5px;
         &.--video {
@@ -119,6 +119,7 @@
     }
     &__avatar {
       &__info {
+        width: 12rem;
         left: 5px;
       }
     }

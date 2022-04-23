@@ -1,5 +1,5 @@
 <template>
-  <section class="a-menu">
+  <section class="a-menu" ref="target">
     <ul class="a-menu__optionList">
       <li
         class="a-menu__optionList__item"
@@ -39,24 +39,37 @@
       </li>
       <q-separator spaced color="white" />
       <li
-        v-for="option in options.fourthSection"
+        v-show="canEndCall"
         :class="[
           'a-menu__optionList__item',
-          { '--important': option.important },
+          { '--important': options.fourthSection[0].important },
         ]"
-        :key="option.id"
-        @click="handleOptionSelected(option.interaction)"
-        v-show="
-          option.id === '9'
-            ? canEndCall
-            : true || option.id === '10'
-            ? canLeaveCall
-            : true
-        "
+        @click="handleOptionSelected(options.fourthSection[0].interaction)"
       >
-        <q-icon :name="option.iconName" size="18px" color="white" />
+        <q-icon
+          :name="options.fourthSection[0].iconName"
+          size="18px"
+          color="white"
+        />
         <label class="a-menu__optionList__item__description">{{
-          option.description
+          options.fourthSection[0].description
+        }}</label>
+      </li>
+      <li
+        v-show="canLeaveCall"
+        :class="[
+          'a-menu__optionList__item',
+          { '--important': options.fourthSection[1].important },
+        ]"
+        @click="handleOptionSelected(options.fourthSection[1].interaction)"
+      >
+        <q-icon
+          :name="options.fourthSection[1].iconName"
+          size="18px"
+          color="white"
+        />
+        <label class="a-menu__optionList__item__description">{{
+          options.fourthSection[1].description
         }}</label>
       </li>
     </ul>
@@ -104,6 +117,7 @@ import { REASON_TO_LEAVE_ROOM, MAIN_VIEW_MODE, LAYOUT } from '@/utils/enums';
 import FuDeviceConfigurationModal from 'molecules/FuDeviceConfigurationModal';
 import { MenuOptionsInteractions } from '@/types/general';
 import FuExcaliBoard from 'molecules/FuExcaliBoard';
+import { onClickOutside } from '@vueuse/core';
 
 export default defineComponent({
   name: 'FuMenuContentOptions',
@@ -140,6 +154,7 @@ export default defineComponent({
       PRESENTATION_LAYOUT: () => initPresentationLayout(),
     });
     const cardContent = ref('');
+    const target = ref(null);
 
     const openModalWithName = (modalName: string) => {
       openModal.value = true;
@@ -201,6 +216,9 @@ export default defineComponent({
           layout.value == LAYOUT.PRESENTATION_LAYOUT)
       );
     };
+    onClickOutside(target, () => {
+      openOptionsMenu(false);
+    });
 
     return {
       options,
@@ -215,6 +233,7 @@ export default defineComponent({
       renderExcaliOnMobile,
       excaliModal,
       renderLabel,
+      target,
     };
   },
 });

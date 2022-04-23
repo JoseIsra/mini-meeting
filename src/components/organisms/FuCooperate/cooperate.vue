@@ -3,7 +3,6 @@
     class="o-cooperate"
     v-on="{ mousemove: !screenMinimized ? toogleMenuBar : null }"
     v-touch:tap="toogleMenuBar"
-    @click.self="closePanels"
     :style="[bgRenderStyles, heightObjectStyle]"
   >
     <q-resize-observer @resize="onResize" />
@@ -68,7 +67,6 @@ import {
   useSidebarToogle,
   useMainView,
   useHandleParticipants,
-  useHandleMessage,
 } from '@/composables';
 import { usePanels } from '@/composables/panels';
 import { useLayout } from '@/composables/layout';
@@ -92,7 +90,6 @@ export default defineComponent({
     let vh = ref(window.innerHeight * 0.01);
     const { participantVideoTracks, participantAudioTracks } =
       useHandleParticipants();
-    const { acumulateMessages } = useHandleMessage();
     const { openTabSharedWarning } = usePanels();
     const { layout, setNewLayout } = useLayout();
     const $q = useQuasar();
@@ -122,15 +119,9 @@ export default defineComponent({
     const showHeader = ref<boolean>(true);
 
     const { mainViewState } = useMainView();
-    let { isSidebarRender, setSidebarState, showParticipantPanel } =
-      useSidebarToogle();
+    let { isSidebarRender, showParticipantPanel } = useSidebarToogle();
 
-    const {
-      functionsOnMenuBar,
-      openOptionsMenu,
-      openFunctionResponsiveMenu,
-      setShowChat,
-    } = useToogleFunctions();
+    const { functionsOnMenuBar } = useToogleFunctions();
 
     const { roomState } = useRoom();
 
@@ -172,16 +163,6 @@ export default defineComponent({
       } else {
         hideMenuBar();
       }
-    };
-
-    const closePanels = () => {
-      if (functionsOnMenuBar.renderChat) {
-        acumulateMessages(0);
-      }
-      setSidebarState(false);
-      openOptionsMenu(false);
-      openFunctionResponsiveMenu(false);
-      setShowChat(false);
     };
 
     const handleOrientationChange = () => {
@@ -231,7 +212,6 @@ export default defineComponent({
       showMenuBar,
       isSidebarRender,
       functionsOnMenuBar,
-      closePanels,
       screenMinimized,
       updateScreenState,
       ...toRefs(roomState),

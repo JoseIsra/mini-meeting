@@ -37,7 +37,7 @@
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
-import { useRoom, useUserMe, useInitWebRTC } from '@/composables';
+import { useRoom, useUserMe } from '@/composables';
 import { warningMessage, successMessage } from '@/utils/notify';
 import { useJitsi } from '@/composables/jitsi';
 

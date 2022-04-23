@@ -265,6 +265,7 @@
           :renderFunctions="true"
           width="100%"
           bottom="120%"
+          ref="target"
         />
       </div>
       <aside class="a-menuBar__options">
@@ -348,6 +349,7 @@ import _ from 'lodash';
 import JitsiMeetJS from '@solyd/lib-jitsi-meet';
 import JitsiLocalTrack from '@solyd/lib-jitsi-meet/dist/esm/modules/RTC/JitsiLocalTrack';
 import { MAIN_VIEW_MODE, MAIN_VIEW_LOCKED_TYPE } from '@/utils/enums';
+import { onClickOutside } from '@vueuse/core';
 
 export default defineComponent({
   name: 'FuCooperateMenuBar',
@@ -363,7 +365,7 @@ export default defineComponent({
     // const { roomState } = useRoom();
 
     let openNetworkConfig = ref(false);
-
+    const target = ref(null);
     const objectFunctionalities = reactive<Functionalities>({
       CHAT: () => toogleChat(),
       SHARESCREEN: () => toggleDesktopScreenCapture(),
@@ -753,6 +755,10 @@ export default defineComponent({
       );
     };
 
+    onClickOutside(target, () => {
+      openFunctionResponsiveMenu(false);
+    });
+
     return {
       userMe,
       handleMenuPosition,
@@ -786,6 +792,7 @@ export default defineComponent({
       amountHandNotification,
       openAdminPanel,
       modifierClass,
+      target,
     };
   },
 });

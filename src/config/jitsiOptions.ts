@@ -16,7 +16,7 @@ export default {
     // useStunTurn: true,
   },
   // websocketKeepAliveUrl: 'https://coop.fractalup.com',
-  // websocketKeepAlive: 10000,
+  websocketKeepAlive: 0,
   // useIPv6: false,
   // disableAudioLevels: true,
   // openBridgeChannel: 'datachannel',

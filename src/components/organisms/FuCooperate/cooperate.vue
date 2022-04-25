@@ -4,6 +4,7 @@
     v-on="{ mousemove: !screenMinimized ? toogleMenuBar : null }"
     v-touch:tap="toogleMenuBar"
     :style="[bgRenderStyles, heightObjectStyle]"
+    @click.self="closePanels"
   >
     <q-resize-observer @resize="onResize" />
     <q-icon
@@ -119,9 +120,10 @@ export default defineComponent({
     const showHeader = ref<boolean>(true);
 
     const { mainViewState } = useMainView();
-    let { isSidebarRender, showParticipantPanel } = useSidebarToogle();
+    let { isSidebarRender, showParticipantPanel, setSidebarState } =
+      useSidebarToogle();
 
-    const { functionsOnMenuBar } = useToogleFunctions();
+    const { functionsOnMenuBar, setShowChat } = useToogleFunctions();
 
     const { roomState } = useRoom();
 
@@ -207,6 +209,10 @@ export default defineComponent({
       }
     };
 
+    const closePanels = () => {
+      setSidebarState(false);
+      setShowChat(false);
+    };
     return {
       toogleMenuBar,
       showMenuBar,
@@ -228,6 +234,7 @@ export default defineComponent({
       renderHeader,
       bgRenderStyles,
       onResize,
+      closePanels,
     };
   },
 });

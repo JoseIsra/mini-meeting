@@ -156,8 +156,8 @@ export default defineComponent({
     let showMinimizeMessage = ref(false);
 
     let orientationClass = ref('');
-    const videoPinned = reactive({} as Record<string, HTMLElement>);
-    const audioPinned = reactive({} as Record<string, HTMLElement>);
+    let videoPinned = reactive({} as Record<string, HTMLElement>);
+    let audioPinned = reactive({} as Record<string, HTMLElement>);
 
     const hideMinimizeMessage = _.debounce(() => {
       showMinimizeMessage.value = false;
@@ -192,6 +192,8 @@ export default defineComponent({
     });
 
     onBeforeUnmount(() => {
+      videoPinned = {};
+      audioPinned = {};
       userPinned?.value?.tracks?.[0].detach(audioPinned[userPinned.value.id]);
       userPinned?.value?.tracks?.[1].detach(videoPinned[userPinned.value.id]);
     });

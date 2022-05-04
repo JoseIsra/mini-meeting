@@ -367,6 +367,8 @@ export function useJitsi() {
     _arg: string,
     user: JitsiParticipant & { _tracks: JitsiTrack[] }
   ) {
+    console.log('USERJOINED', { id: _arg, user, date: Date.now() });
+    if (!user.getDisplayName()) return;
     const dataUser = JSON.parse(user.getDisplayName()) as User;
     addParticipant({
       id: dataUser.id,
@@ -402,6 +404,7 @@ export function useJitsi() {
 
   function onUserLeft(arg: string, participant: JitsiParticipant) {
     console.log('USER LEAVING', {
+      date: Date.now(),
       id: arg,
       who: participant,
     });
@@ -805,7 +808,7 @@ export function useJitsi() {
         console.table({ actor, reason });
       }
     );
-    void room.setSenderVideoConstraint(720);
+    void room.setSenderVideoConstraint(360);
     commandsList.forEach((command) => {
       room.addCommandListener(command.name, command.listener);
     });

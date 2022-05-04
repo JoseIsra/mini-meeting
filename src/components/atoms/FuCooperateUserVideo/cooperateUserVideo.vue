@@ -25,7 +25,7 @@
           class="userVideoBox__avatar__info absolute row items-center q-px-xs"
         >
           <label class="userVideoBox__avatar__info__userName">
-            {{ userMe.name }}
+            {{ userMe.id }}-{{ userMe.name }}
           </label>
           <div class="userVideoBox__avatar__info__iconWrapper text-center">
             <q-icon
@@ -53,7 +53,7 @@
 
       <div v-show="userMe.isVideoActivated">
         <div class="userVideoBox__avatar__info__userName --video">
-          {{ userMe.name }}
+          {{ userMe.id }}-{{ userMe.name }}
         </div>
       </div>
     </div>

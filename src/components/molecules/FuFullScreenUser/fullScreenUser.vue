@@ -194,8 +194,8 @@ export default defineComponent({
     onBeforeUnmount(() => {
       videoPinned = {};
       audioPinned = {};
-      userPinned?.value?.tracks?.[0].detach(audioPinned[userPinned.value.id]);
-      userPinned?.value?.tracks?.[1].detach(videoPinned[userPinned.value.id]);
+      // userPinned?.value?.tracks?.[0].detach(audioPinned[userPinned.value.id]);
+      // userPinned?.value?.tracks?.[1].detach(videoPinned[userPinned.value.id]);
     });
 
     return {

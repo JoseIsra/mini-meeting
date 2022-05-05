@@ -229,11 +229,11 @@
                 ? 'red'
                 : ''
             "
-            :disable="lockParticipantsScreen(participant)"
             @click="
               lockParticipantActions(participant, LOCK_ACTION_TYPE.Screen)
             "
           >
+            <!-- :disable="lockParticipantsScreen(participant)" -->
             <q-tooltip
               class="bg-grey-10"
               anchor="bottom middle"
@@ -724,11 +724,11 @@ export default defineComponent({
       });
     };
 
-    const lockParticipantsScreen = (user: User) => {
-      return admittedParticipants.value.some(
-        (p) => !p.isScreenShareBlocked && p.id !== user.id
-      );
-    };
+    // const lockParticipantsScreen = (user: User) => {
+    //   return admittedParticipants.value.some(
+    //     (p) => !p.isScreenShareBlocked && p.id !== user.id
+    //   );
+    // };
 
     return {
       waitingParticipants,
@@ -760,7 +760,7 @@ export default defineComponent({
       MAIN_VIEW_MODE,
       temporalRoleConditional,
       isAdmin,
-      lockParticipantsScreen,
+      // lockParticipantsScreen,
     };
   },
 });

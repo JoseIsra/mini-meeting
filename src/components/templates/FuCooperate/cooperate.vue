@@ -137,7 +137,7 @@ export default defineComponent({
 
     const isCameraLocked = window.xprops?.isCameraLocked || false;
 
-    const isScreenShareLocked = true;
+    const isScreenShareLocked = false;
 
     const sharingLink =
       window?.xprops?.sharedLink || (route.query.sharedLink as string) || '';

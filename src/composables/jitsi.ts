@@ -381,7 +381,7 @@ export function useJitsi() {
       isVideoActivated: dataUser.isVideoActivated,
       isMicBlocked: false,
       isCameraBlocked: false,
-      isScreenShareBlocked: true,
+      isScreenShareBlocked: false,
       fractalUserId: dataUser.fractalUserId,
       denied: 1,
       isRecording: false,

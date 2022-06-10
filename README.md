@@ -47,3 +47,8 @@ These file is firstly used in templates/FuCooperate/cooperate, code line: 227, i
 - Functions: Handle the main functions to turn on/off mic, camera and the screen sharing
 
 The file uses a lot of the funcions from the jitsi.ts file.
+
+## 3. jitsiOptions.ts
+
+- Origin: config/jitsiOptions.ts
+- Functions: Handle jitsi server options

@@ -511,7 +511,6 @@ import {
   useSidebarToogle,
   useToogleFunctions,
   useRoom,
-  useInitWebRTC,
   useMainView,
 } from '@/composables';
 import { useLockParticipantActions } from '@/composables/lockActions';
@@ -522,7 +521,6 @@ import {
   MAIN_VIEW_MODE,
   LOCK_ACTION_TYPE,
   USER_ROLE,
-  BOARD_EVENTS,
 } from '@/utils/enums';
 import _ from 'lodash';
 
@@ -541,8 +539,6 @@ export default defineComponent({
     const { toggleParticipantPanel, setSidebarState } = useSidebarToogle();
 
     const { userMe } = useUserMe();
-
-    const { sendData } = useInitWebRTC();
 
     const { roomState } = useRoom();
     const { lockActionsAllowed } = useLockParticipantActions();
@@ -677,13 +673,6 @@ export default defineComponent({
 
     const toggleDrawMode = (arg: User) => {
       updateParticipantById(arg.id, { canDraw: !arg.canDraw });
-
-      sendData(roomState.hostId, {
-        eventType: 'BOARD_EVENT',
-        from: userMe.id,
-        to: arg.id,
-        event: BOARD_EVENTS.TOGGLE_DRAW_MODE,
-      });
     };
 
     const addPinnedUserForAll = (userId: string) => {

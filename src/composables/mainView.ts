@@ -1,15 +1,11 @@
 import { reactive } from 'vue';
 import { MainViewState } from '@/types';
-import { useInitWebRTC } from './antMedia';
 import _ from 'lodash';
 import { MAIN_VIEW_LOCKED_TYPE, MAIN_VIEW_MODE, LAYOUT } from '@/utils/enums';
 import { useUserMe } from '@/composables/userMe';
-import { useRoom } from '@/composables/room';
 import { useLayout } from './layout';
 
 import { Screen } from 'quasar';
-const { sendData } = useInitWebRTC();
-const { roomState } = useRoom();
 const { userMe } = useUserMe();
 const { setNewLayout } = useLayout();
 
@@ -44,10 +40,6 @@ export function useMainView() {
     clonedMainView = { ...clonedMainView, ...fields } as MainViewState;
     Object.assign(mainViewState, clonedMainView);
     /*  */
-    sendData(roomState.hostId, {
-      eventType: 'SET_FULL_SCREEN',
-      mainViewState,
-    });
   };
 
   const cleanMainViewStateForAll = () => {
@@ -57,11 +49,6 @@ export function useMainView() {
       locked: MAIN_VIEW_LOCKED_TYPE.UNSET,
       startedBy: '',
     };
-    /*  */
-    sendData(roomState.hostId, {
-      eventType: 'SET_FULL_SCREEN',
-      mainViewState,
-    });
   };
 
   const addPinnedUser = (userId: string) => {
@@ -132,11 +119,6 @@ export function useMainView() {
         updateMainViewState({ pinnedUsers: currentPinnedUsers });
       }
     }
-    /*  */
-    sendData(roomState.hostId, {
-      eventType: 'SET_FULL_SCREEN',
-      mainViewState,
-    });
   };
 
   const setBoardState = (state: boolean) => {

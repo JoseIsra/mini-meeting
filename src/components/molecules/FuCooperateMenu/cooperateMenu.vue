@@ -14,7 +14,6 @@
       :objectFunctionalities="objectFunctionalities"
     />
     <fu-menu-content-options v-if="isOptions" />
-    <fu-menu-content-chat v-if="chatOptions" />
     <q-icon
       :class="[
         'a-cooperateMenu__tail',
@@ -31,14 +30,12 @@
 import { defineComponent, toRefs, computed, PropType } from 'vue';
 import FuMenuContentOptions from 'molecules/FuMenuContentOptions';
 import FuMenuContentFunctions from 'molecules/FuMenuContentFunctions';
-import FuMenuContentChat from 'molecules/FuMenuContentChat';
 import { Functionalities } from '@/types';
 export default defineComponent({
   name: 'FuCooperateMenu',
   components: {
     FuMenuContentOptions,
     FuMenuContentFunctions,
-    FuMenuContentChat,
   },
   props: {
     isActions: {

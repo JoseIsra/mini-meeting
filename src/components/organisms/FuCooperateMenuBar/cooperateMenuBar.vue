@@ -58,7 +58,6 @@
         </q-btn>
       </aside>
       <div class="a-menuBar__functions">
-        <!-- TODO: Icon active like camera and mic porque cuando se presiona en dejar de compartir se queda con el círculo -->
         <q-btn
           flat
           round
@@ -87,33 +86,7 @@
             </label>
           </q-tooltip>
         </q-btn>
-        <q-btn
-          flat
-          round
-          :class="[
-            'a-menuBar__icon',
-            {
-              active: functionsOnMenuBar.handNotificationActive,
-            },
-          ]"
-          :icon="
-            functionsOnMenuBar.handNotificationActive
-              ? iconsFunctions.hand.onState
-              : iconsFunctions.hand.offState
-          "
-          size="13px"
-          @click="toogleHandUp"
-        >
-          <q-tooltip class="bg-grey-10">
-            <label class="a-menuBar__icon__tooltip">
-              {{
-                functionsOnMenuBar.handNotificationActive
-                  ? iconsFunctions.hand.toolTipSecondMessage
-                  : iconsFunctions.hand.toolTipMessage
-              }}
-            </label>
-          </q-tooltip>
-        </q-btn>
+
         <q-btn
           flat
           round
@@ -155,118 +128,6 @@
             </label>
           </q-tooltip>
         </q-btn>
-        <q-btn
-          flat
-          round
-          :class="[
-            'a-menuBar__icon',
-            {
-              active: functionsOnMenuBar.renderChat && isSidebarRender,
-            },
-          ]"
-          :icon="
-            functionsOnMenuBar.renderChat && isSidebarRender
-              ? iconsFunctions.chat.onState
-              : iconsFunctions.chat.offState
-          "
-          size="13px"
-          @click="toogleChat"
-        >
-          <q-badge
-            v-show="chatNotification"
-            class="a-menuBar__icon__chatbadge"
-            rounded
-            color="red"
-            floating
-          >
-          </q-badge>
-          <q-tooltip class="bg-grey-10">
-            <label class="a-menuBar__icon__tooltip">
-              {{
-                functionsOnMenuBar.renderChat && isSidebarRender
-                  ? iconsFunctions.chat.toolTipSecondMessage
-                  : iconsFunctions.chat.toolTipMessage
-              }}
-            </label>
-          </q-tooltip>
-        </q-btn>
-        <q-btn
-          flat
-          round
-          :class="'a-menuBar__icon'"
-          :icon="iconsFunctions.minimize.onState"
-          size="13px"
-          @click="minimizeScreen"
-        >
-          <q-tooltip class="bg-grey-10">
-            <label class="a-menuBar__icon__tooltip">
-              {{ iconsFunctions.minimize.toolTipMessage }}
-            </label>
-          </q-tooltip>
-        </q-btn>
-      </div>
-      <div class="a-menuBar__functions__responsive">
-        <q-btn
-          icon="reorder"
-          flat
-          round
-          color="white"
-          @click="openResponsiveMenuOfFunctions"
-        >
-          <q-badge
-            v-show="
-              chatNotification &&
-              (notificationCount == 0 || amountHandNotification == 0)
-            "
-            color="red"
-            class="a-menuBar__icon__chatbadge"
-            rounded
-            floating
-          >
-          </q-badge>
-          <q-badge
-            rounded
-            floating
-            v-show="notificationCount > 0 || amountHandNotification > 0"
-            :class="[
-              'a-menuBar__icon__topin',
-              { '--roleOne': userMe.roleId == 1 },
-              waitingParticipants.length > 0
-                ? '--participants'
-                : '--noparticipants',
-            ]"
-          >
-            {{ notificationCount + amountHandNotification }}
-          </q-badge>
-        </q-btn>
-        <q-btn
-          icon="pan_tool"
-          class="a-menuBar__functions__responsive__handBtn"
-          flat
-          round
-          color="grey-1"
-          size="13px"
-          @click="handleEspecialBehaviour('HANDUP')"
-        >
-          <q-badge
-            v-show="functionsOnMenuBar.handNotificationActive"
-            color="red"
-            rounded
-            floating
-            >x</q-badge
-          >
-        </q-btn>
-
-        <fu-cooperate-menu
-          v-show="functionsOnMenuBar.renderResponsiveFunctionMenu"
-          :objectFunctionalities="objectFunctionalities"
-          class="a-menuBar__functions__responsive__menu"
-          :isActions="false"
-          :renderFunctions="true"
-          width="100%"
-          bottom="120%"
-          ref="target"
-        />
       </div>
       <aside class="a-menuBar__options">
         <q-btn
@@ -342,8 +203,6 @@ import { useJitsiError } from '@/composables/jitsiError';
 import { useLayout } from '@/composables/layout';
 import { useMainView } from '@/composables/mainView';
 import { nanoid } from 'nanoid';
-
-import FuAdminPanel from 'organisms/FuAdminPanel';
 import { iconsOptions } from '@/helpers/iconsMenuBar';
 import _ from 'lodash';
 import JitsiMeetJS from '@solyd/lib-jitsi-meet';
@@ -355,7 +214,6 @@ export default defineComponent({
   name: 'FuCooperateMenuBar',
   components: {
     FuCooperateMenu,
-    FuAdminPanel,
   },
   setup() {
     /* const { options } = useActions(); */

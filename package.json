@@ -6,13 +6,10 @@
   "author": "dialguiba <dialguiba@gmail.com>",
   "private": true,
   "scripts": {
-    "dev-all": "(cd parent && npm run serve) & npm run dev",
     "dev": "quasar dev",
     "build": "quasar build",
     "lint": "eslint --ext .js,.ts,.vue ./",
-    "test": "echo \"No test specified\" && exit 0",
-    "deploy": "quasar build && netlify deploy --dir=dist/spa --prod",
-    "deploy-stage": "vercel --prod"
+    "test": "echo \"No test specified\" && exit 0"
   },
   "dependencies": {
     "@quasar/extras": "^1.0.0",

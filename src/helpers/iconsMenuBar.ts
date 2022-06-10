@@ -94,14 +94,14 @@ export const iconsFunctions = {
 };
 
 export const iconsOptions = [
-  {
-    id: '1',
-    onState: 'fas fa-cog',
-    offState: 'fas fa-cog',
-    active: false,
-    toolTipMessage: 'Acciones',
-    ubication: 'actions',
-  },
+  // {
+  //   id: '1',
+  //   onState: 'fas fa-cog',
+  //   offState: 'fas fa-cog',
+  //   active: false,
+  //   toolTipMessage: 'Acciones',
+  //   ubication: 'actions',
+  // },
   {
     id: '2',
     onState: 'more_vert',

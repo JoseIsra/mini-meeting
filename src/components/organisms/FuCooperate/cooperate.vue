@@ -28,17 +28,7 @@
           : !screenMinimized
       "
     />
-    <fu-hand-notification v-show="handActives && !screenMinimized" />
     <fu-full-screen v-if="mainViewState.mode !== MAIN_VIEW_MODE.NONE" />
-
-    <!-- solicitudes -->
-    <q-dialog
-      v-model="showParticipantPanel"
-      transition-show="flip-down"
-      transition-hide="flip-up"
-    >
-      <fu-cooperate-participants-panel />
-    </q-dialog>
     <fu-warning v-model="openTabSharedWarning" />
   </section>
 </template>
@@ -55,11 +45,9 @@ import {
 import FuCooperateMenuBar from 'organisms/FuCooperateMenuBar';
 import FuCooperateHeader from 'molecules/FuCooperateHeader';
 import FuCooperateUserVideo from 'atoms/FuCooperateUserVideo';
-import FuCooperateSideBar from 'molecules/FuCooperateSideBar';
-import FuHandNotification from 'atoms/FuHandNotification';
 import FuFullScreen from 'molecules/FuFullScreen';
+import FuCooperateSideBar from 'molecules/FuCooperateSideBar';
 import FuWarning from 'atoms/FuWarning';
-import FuCooperateParticipantsPanel from '@/components/molecules/FuCooperateParticipantsPanel';
 import _ from 'lodash';
 import {
   useRoom,
@@ -80,12 +68,10 @@ export default defineComponent({
   components: {
     FuCooperateMenuBar,
     FuCooperateHeader,
-    FuCooperateSideBar,
     FuCooperateUserVideo,
-    FuHandNotification,
     FuFullScreen,
-    FuCooperateParticipantsPanel,
     FuWarning,
+    FuCooperateSideBar,
   },
   setup(props, { emit }) {
     let vh = ref(window.innerHeight * 0.01);

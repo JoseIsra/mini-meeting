@@ -1,8 +1,6 @@
 <template>
   <div class="t-cooperate">
     <div class="t-cooperate__page" v-show="!isLoadingOrError">
-      <!-- <fu-lobby v-if="denied !== 1" @handleLeaveCall="handleZoidLeaveCall" /> -->
-
       <fu-cooperate @mounted="fuCooperateMountedHandler" />
     </div>
 
@@ -28,7 +26,7 @@
 import { defineComponent, toRefs, onMounted, onUnmounted } from 'vue';
 import FuCooperate from 'organisms/FuCooperate';
 import { useRoute } from 'vue-router';
-import { useRoom, useAuthState, useInitWebRTC, useUserMe } from '@/composables';
+import { useRoom, useAuthState, useUserMe } from '@/composables';
 import { useJitsi } from '@/composables/jitsi';
 import FuTLoading from 'organisms/FuLoading';
 import {
@@ -53,7 +51,6 @@ export default defineComponent({
       setVideoActivatedState,
       // setMicState,
       setCameraState,
-      setScreenState,
       updateUserMe,
     } = useUserMe();
 
@@ -63,23 +60,8 @@ export default defineComponent({
 
     const { authState, setLoadingOrErrorMessage } = useAuthState();
 
-    const {
-      turnOffLocalCamera,
-      resetDesktop,
-      switchDesktopCapture,
-      turnOnLocalCamera,
-      unmuteLocalMic,
-      muteLocalMic,
-      sendNotificationEvent,
-      publish,
-      stopPublishing,
-    } = useInitWebRTC();
-
     const { stablisConnection, diconnectAll } = useJitsi();
 
-    /* const { setMicIconState, setCameraIconState } = useActions(); */
-
-    //Datos del usuario
     const streamId =
       window?.xprops?.streamId || (route.query.streamId as string) || '';
 
@@ -94,7 +76,6 @@ export default defineComponent({
       (route.query.photoURL as string) ||
       defaultAvatar;
 
-    //Para no colocar una imagen rota
     if (avatar !== defaultAvatar) {
       const splittedAvatarUrl = avatar.split('.');
       const extension = splittedAvatarUrl[splittedAvatarUrl.length - 1];
@@ -182,8 +163,6 @@ export default defineComponent({
       };
     }
 
-    /* const isBeingRecorded = window?.xprops?.isBeingRecorded || false; */
-
     if (isCameraOn) {
       setVideoActivatedState(true);
       setCameraState(true);
@@ -197,7 +176,7 @@ export default defineComponent({
       });
     });
     setUserMe({
-      id: '', // se actualiza luego al ingresar a la conferencia
+      id: '', // updates after joined the room
       name: streamName,
       avatar,
       roleId,
@@ -226,13 +205,10 @@ export default defineComponent({
       tracks: [],
     });
     console.debug('userm', userMe);
-    /* setMicIconState(isMicLocked ? false : isMicOn); */
-    // setCameraIconState(!isCameraLocked);
-    // setScreenShareIconState(!isScreenShareLocked);
 
     const startDate = window.xprops?.startDate || '2020-01-11 11:23';
 
-    //data de sala
+    //room data
     setRoom({
       id: roomId,
       sharingLink,
@@ -246,170 +222,10 @@ export default defineComponent({
       startDate,
       hostId,
     });
-
-    /* setMicIconState(roleId === 1 ? (isMicLocked ? false : isMicOn) : isMicOn); */
-
-    // if (roleId === 1 ? (isCameraLocked ? false : isCameraOn) : isCameraOn) {
-    //   setVideoActivatedState(true);
-    //   setCameraState(true);
-    //   turnOnLocalCamera(streamId);
-    //   sendNotificationEvent('CAM_TURNED_ON', streamId);
-    // }
-
-    // const publishToken =
-    //   window?.xprops?.publishToken ||
-    //   (route.query.publishToken as string) ||
-    //   '';
-
-    // const playToken =
-    //   window?.xprops?.playToken || (route.query.playToken as string) || '';
-
-    // const subscriberId = (route.query.subscriberId as string) || undefined;
-
-    // const subscriberCode = (route.query.subscriberCode as string) || undefined;
-
-    //const currentVolume = ref(0.5);
-
-    const toggleDesktopCapture = () => {
-      //si estoy compartiendo -> apago todo
-      if (userMe.isScreenSharing) {
-        if (!userMe.isCameraOn) {
-          setVideoActivatedState(false);
-          updateUserMe({ isVideoActivated: false });
-        }
-        updateUserMe({ isScreenSharing: false });
-        turnOffLocalCamera(streamId);
-        resetDesktop();
-        if (
-          !userMe.isCameraOn &&
-          !userMe.isMicOn &&
-          !userMe.isHost &&
-          !userMe.isRecording
-        ) {
-          stopPublishing(streamId);
-          updateUserMe({ isPublishing: 0 });
-        }
-        sendNotificationEvent('SCREEN_SHARING_OFF', streamId);
-      } else {
-        if (userMe.isPublishing == 1) {
-          switchDesktopCapture(streamId);
-        } else if (userMe.isPublishing == 0) {
-          updateUserMe({ isPublishing: 2 });
-          switchDesktopCapture(streamId);
-          /* const interval = setInterval(() => {
-            if (userMe.isPublishing == 1) {
-              clearInterval(interval);
-            }
-          }, 1000); */
-        }
-      }
-      // if (userMe.isCameraOn && !userMe.isScreenSharing) {
-      //   turnOffLocalCamera(streamId);
-      //   switchDesktopCaptureWithCamera(streamId);
-      // } else if (!userMe.isCameraOn && !userMe.isScreenSharing) {
-      //   setScreenShareIconState(true);
-      //   switchDesktopCapture(streamId);
-      //   setVideoActivatedState(true);
-      //   sendNotificationEvent('SCREEN_SHARING_ON', streamId);
-      // }
-
-      // if (!userMe.isCameraOn && userMe.isScreenSharing) {
-      //   turnOffLocalCamera(streamId);
-      // } else {
-      //   justTurnOnLocalCamera(streamId);
-      // }
-    };
-
-    const toggleLocalCamera = () => {
-      if (userMe.isCameraOn) {
-        //si camara está on --> apago mi camara
-        /* setCameraIconState(false); */
-        turnOffLocalCamera(streamId);
-        setVideoActivatedState(false);
-        setCameraState(false);
-        sendNotificationEvent('CAM_TURNED_OFF', streamId);
-        if (
-          !userMe.isHost &&
-          !userMe.isMicOn &&
-          !userMe.isScreenSharing &&
-          !userMe.isRecording
-        ) {
-          updateUserMe({ isPublishing: 0 });
-          stopPublishing(userMe.id);
-        }
-      } else {
-        //si camara no está on y el usuario estaba compartiendo pantalla
-        //-> apagar pantalla y abrir camara
-        if (userMe.isScreenSharing) {
-          if (userMe.isPublishing == 1) {
-            setScreenState(false);
-            setCameraState(true);
-            turnOnLocalCamera(streamId);
-            resetDesktop();
-          } else {
-          }
-        } else {
-          if (userMe.isPublishing == 1) {
-            setVideoActivatedState(true);
-            /* setCameraIconState(true); */
-            setCameraState(true);
-            turnOnLocalCamera(streamId);
-            console.log(userMe.stream, '⭕⭕⭕');
-            sendNotificationEvent('CAM_TURNED_ON', roomState.hostId);
-          } else {
-            setCameraState(true);
-            updateUserMe({ isPublishing: 2 });
-            console.log(userMe);
-            publish(userMe.id, undefined, undefined, undefined, userMe.name);
-
-            const interval = setInterval(() => {
-              if (userMe.isPublishing == 1) {
-                clearInterval(interval);
-                setVideoActivatedState(true);
-                /* setCameraIconState(true); */
-                turnOnLocalCamera(streamId);
-                sendNotificationEvent('CAM_TURNED_ON', roomState.hostId);
-                console.log(userMe.stream, '⭕⭕⭕');
-              }
-            }, 1000);
-          }
-        }
-      }
-    };
-
-    const toggleLocalMic = () => {
-      if (!userMe.isMicOn) {
-        if (userMe.isPublishing == 1) {
-          /* setMicIconState(true); */
-          unmuteLocalMic();
-          sendNotificationEvent('MIC_UNMUTED', roomState.hostId);
-        } else {
-          updateUserMe({ isPublishing: 2 });
-          publish(userMe.id, undefined, undefined, undefined, userMe.name);
-          const interval = setInterval(() => {
-            if (userMe.isPublishing == 1) {
-              clearInterval(interval);
-              /* setMicIconState(true); */
-              unmuteLocalMic();
-              sendNotificationEvent('MIC_UNMUTED', roomState.hostId);
-            }
-          }, 1000);
-        }
-      } else {
-        /* setMicIconState(false); */
-        muteLocalMic();
-        sendNotificationEvent('MIC_MUTED', roomState.hostId);
-        if (!userMe.isHost && !userMe.isVideoActivated && !userMe.isRecording) {
-          updateUserMe({ isPublishing: 0 });
-          stopPublishing(userMe.id);
-        }
-      }
-    };
     onMounted(() => {
       if (roomId) {
         stablisConnection(roomId);
         setLoadingOrErrorMessage('Loading');
-        // setIsLoadingOrError(false);
       } else {
         setLoadingOrErrorMessage('Please, provide a room id');
       }
@@ -439,9 +255,6 @@ export default defineComponent({
     return {
       fuCooperateMountedHandler,
       roomId,
-      toggleLocalCamera,
-      toggleLocalMic,
-      toggleDesktopCapture,
       handleZoidLeaveCall,
       ...toRefs(authState),
       ...toRefs(userMe),

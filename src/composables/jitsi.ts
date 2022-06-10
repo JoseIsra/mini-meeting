@@ -284,6 +284,7 @@ export function useJitsi() {
     }, 1200);
   };
 
+  // TODO:THIS IS A FAILED EXPERIMENT TO SHARE A BROWSER TAB WITH ADIO
   const testReplaceAudio = (
     oldaudio: JitsiLocalTrack & { stream?: MediaStream },
     newAudio: JitsiLocalTrack & { stream?: MediaStream },
@@ -294,12 +295,12 @@ export function useJitsi() {
     damn.addMediaStream(oldaudio.stream as MediaStream);
     const started = damn.start();
     console.debug(started);
-    // ADDTRACK NO FUNCIONA CON AUDIO
+    // ADDTRACK ITS NOW WORKING WITH AUDIO
     if (flag) {
       void room.replaceTrack(room.getLocalTracks(MediaType.AUDIO)[0], oldaudio);
     } else {
       // await oldaudio.setEffect(started);
-      // REPLACE TRACK FUNCIONA A MEDIAS
+      // REPLACE TRACK ITS NOT FULLY WORKING
       void room.replaceTrack(oldaudio, newAudio);
     }
   };
@@ -326,7 +327,7 @@ export function useJitsi() {
     if (!tracks.length) return;
 
     setLocalTracks(tracks as JitsiLocalTrack[]);
-    console.log('PARTICIPANTE UNIDO-TRACKS ENABLE 🚀', joined.value);
+    console.log('PARTICIPANT JOINED-TRACKS ENABLE 🚀', joined.value);
 
     if (joined.value) {
       localTracks.value.forEach((track) => {
@@ -357,7 +358,7 @@ export function useJitsi() {
   }
 
   function onConferenceJoined() {
-    console.log(' 🚀UNIÉNDOSE A LA CONFERENCIA ');
+    console.log('🚀JOINING TO VIDECALL');
     joined.value = true;
     getLocalTracks();
     requestInformationOnRoom();
@@ -573,6 +574,7 @@ export function useJitsi() {
     }
   }
 
+  // EXTERNAL VIDEO means VIDEOS FROM YOUTUBE, NOT REMOTE PARTICIPANTS
   function initExternalVideo(arg: Command) {
     // init process to share and sync the video
     const { urlVideo, videoOwnerId } = JSON.parse(
@@ -648,7 +650,7 @@ export function useJitsi() {
   function requestVideoCurrentTime(arg: Command) {
     const { from, to: videoOwner } = JSON.parse(arg.value) as BaseData;
     if (userMe.id == videoOwner) {
-      // como owner, reenvio mi externalvideo Object al from
+      // AS OWNER, resend mi externalvideo Object to the "from"
       sendNotification('UPDATE_REQUEST_VIDEO_TIME', {
         value: JSON.stringify({
           from: userMe.id,
@@ -759,7 +761,7 @@ export function useJitsi() {
       })
       .then((info) => {
         const parseInfo = info as RecordConference;
-        console.log('INfo de grbación', info);
+        console.log('INFO RECORDING', info);
         console.log('SESSIONID', parseInfo._sessionID);
         setRecordSessionId(parseInfo._sessionID);
       })
@@ -819,7 +821,6 @@ export function useJitsi() {
   }
 
   function diconnectAll() {
-    // apaga room y tracks
     localTracks.value.forEach((track) => {
       track.dispose();
     });
@@ -832,7 +833,6 @@ export function useJitsi() {
     roomNameTemporal.value = roomName;
     const jitsiOptions = { ...options };
     jitsiOptions.serviceUrl = `${jitsiOptions.serviceUrl}?room=${roomName}`;
-    // jitsiOptions.websocketKeepAliveUrl = `${jitsiOptions.websocketKeepAliveUrl}?room=${roomName}`;
     connection = new JitsiMeetJS.JitsiConnection(
       '',
       null,

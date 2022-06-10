@@ -75,9 +75,6 @@
     </ul>
     <q-dialog v-model="openModal">
       <fu-delete-room-modal v-if="cardContent == 'delete-card'" />
-      <fu-device-configuration-modal
-        v-if="cardContent == 'configuration-card'"
-      />
     </q-dialog>
     <q-dialog
       v-model="excaliModal"
@@ -104,7 +101,6 @@ import { defineComponent, ref, reactive, computed } from 'vue';
 import { menuOptions, MenuOptions } from '@/helpers/menuOptions';
 import FuDeleteRoomModal from 'molecules/FuDeleteRoomModal';
 import {
-  useInitWebRTC,
   useHandleParticipants,
   useUserMe,
   useToogleFunctions,
@@ -114,14 +110,13 @@ import {
 } from '@/composables';
 import { useLayout } from '@/composables/layout';
 import { REASON_TO_LEAVE_ROOM, MAIN_VIEW_MODE, LAYOUT } from '@/utils/enums';
-import FuDeviceConfigurationModal from 'molecules/FuDeviceConfigurationModal';
 import { MenuOptionsInteractions } from '@/types/general';
 import FuExcaliBoard from 'molecules/FuExcaliBoard';
 import { onClickOutside } from '@vueuse/core';
 
 export default defineComponent({
   name: 'FuMenuContentOptions',
-  components: { FuDeleteRoomModal, FuDeviceConfigurationModal, FuExcaliBoard },
+  components: { FuDeleteRoomModal, FuExcaliBoard },
   setup() {
     const options = ref<MenuOptions>(menuOptions);
     let openModal = ref(false);
@@ -129,7 +124,6 @@ export default defineComponent({
     const { participants } = useHandleParticipants();
 
     const { userMe } = useUserMe();
-    const { sendNotificationEvent } = useInitWebRTC();
     const { updateMainViewState } = useMainView();
     const { setNewLayout, layout } = useLayout();
     const { showExcaliBoard, setShowExcaliBoard } = useBoard();
@@ -143,9 +137,6 @@ export default defineComponent({
               REASON_TO_LEAVE_ROOM.I_CLOSE_ROOM,
               []
             );
-        if (userMe.isRecording) {
-          sendNotificationEvent('RECORDING_STOPPED', userMe.id);
-        }
       },
       END: () => openModalWithName('delete-card'),
       DEVICECONFIGURATION: () => openModalWithName('configuration-card'),

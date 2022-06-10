@@ -4,7 +4,7 @@
 
 1. Install dependencies
 
-> yarn install or npm install
+> yarn or npm install
 
 2. Run development command
    > yarn dev

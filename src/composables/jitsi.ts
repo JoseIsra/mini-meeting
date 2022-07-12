@@ -10,42 +10,22 @@ import {
   Command,
   JitsiConferenceRemake,
   JitsiConnectionRemake,
-  HandNotification,
   User,
-  Message,
-  ObjBlockParticipantAction,
-  ExternalVideoObject,
-  MainViewState,
-  backgroundInfo,
-  backgroundSize,
-  BaseData,
-  ExternalVideoRequest,
   RecordConference,
-  EndCallAttrs,
 } from '@/types';
 
 // composables
 import {
   useUserMe,
   useHandleParticipants,
-  useToogleFunctions,
-  useHandleMessage,
   useAuthState,
   useExternalVideo,
   useRoom,
 } from '@/composables';
 import { useJitsiError } from '@/composables/jitsiError';
 import { useUserColor } from '@/composables/userColor';
-import { useMainView } from '@/composables/mainView';
 
-import {
-  REASON_TO_LEAVE_ROOM,
-  MediaType,
-  MAIN_VIEW_MODE,
-  MAIN_VIEW_LOCKED_TYPE,
-} from '@/utils/enums';
-import videojs from 'video.js';
-import { successMessage } from '@/utils/notify';
+import { MediaType } from '@/utils/enums';
 
 const roomNameTemporal = ref('');
 let connection = reactive<JitsiConnectionRemake>({} as JitsiConnectionRemake);
@@ -56,14 +36,8 @@ const {
   localTracks,
   updateUserMe,
   userMe,
-  setLocalMicLocked,
-  setMicState,
-  setLocalCameraLocked,
-  setCameraState,
-  setLocalScreenSharingLocked,
-  setScreenState,
-  setVideoActivatedState,
-  localVideoTrack,
+  // setCameraState,
+  // localVideoTrack,
 } = useUserMe();
 
 const {
@@ -72,33 +46,17 @@ const {
   addParticipant,
   deleteParticipantById,
   findParticipantById,
-  setParticipantActions,
 } = useHandleParticipants();
 
-const {
-  addHandNotificationInfo,
-  removeHandNotification,
-  updateHandNotification,
-} = useToogleFunctions();
-
-const { setUserMessage, amountOfNewMessages, acumulateMessages } =
-  useHandleMessage();
-
-const { externalVideo, updateExternalVideoState } = useExternalVideo();
+const { externalVideo } = useExternalVideo();
 
 const { errorsCallback } = useJitsiError();
 const { setIsLoadingOrError } = useAuthState();
-const { mainViewState, updateMainViewState } = useMainView();
 const { setUserBackgroundColor } = useUserColor();
-const { updateBgUrl, updateBgSize, setRecordSessionId, recordSessionID } =
-  useRoom();
-
-const handNotificationSound = new Audio(
-  'https://freesound.org/data/previews/411/411642_5121236-lq.mp3'
-);
-const remotePlayer = ref<videojs.Player>({} as videojs.Player);
+const { setRecordSessionId, recordSessionID } = useRoom();
 
 export function useJitsi() {
+  console.log('ℹ️LINE 64, init jitsi composable');
   JitsiMeetJS.init({
     disableAudioLevels: false,
     enableAnalyticsLogging: true,
@@ -107,14 +65,6 @@ export function useJitsi() {
   JitsiMeetJS.setLogLevel(JitsiMeetJS.logLevels.ERROR);
 
   const commandsList = [
-    {
-      name: 'HAND_UP',
-      listener: riseHand,
-    },
-    {
-      name: 'HAND_DOWN',
-      listener: downHand,
-    },
     {
       name: 'TURN_OFF_CAMERA',
       listener: turnOffRemoteCamera,
@@ -131,94 +81,21 @@ export function useJitsi() {
       name: 'TURN_OFF_MIC',
       listener: turnOffRemoteMic,
     },
-    {
-      name: 'INIT_SCREEN_SHARING',
-      listener: initScreenSharing,
-    },
-    {
-      name: 'FINISH_SCREEN_SHARING',
-      listener: finishScreenSharing,
-    },
-    {
-      name: 'KICK_PARTICIPANT',
-      listener: kickParticipantFromRoom,
-    },
-    {
-      name: 'LOCK_PARTICIPANT_MIC',
-      listener: lockParticipantMic,
-    },
-    {
-      name: 'LOCK_PARTICIPANT_CAMERA',
-      listener: lockParticipantCamera,
-    },
-    {
-      name: 'LOCK_PARTICIPANT_SCREEN_SHARING',
-      listener: lockParticipantScreenSharing,
-    },
-    {
-      name: 'INIT_EXTERNAL_VIDEO',
-      listener: initExternalVideo,
-    },
-    {
-      name: 'PAUSE_EXTERNAL_VIDEO',
-      listener: pauseExternalVideo,
-    },
-    {
-      name: 'REMOVE_EXTERNAL_VIDEO',
-      listener: removeExternalVideo,
-    },
-    {
-      name: 'UPDATE_EXTERNAL_VIDEO_CURRENT_TIME',
-      listener: updateExternalVideoCurrentTime,
-    },
-    {
-      name: 'PLAY_EXTERNAL_VIDEO',
-      listener: playExternalVideo,
-    },
-    {
-      name: 'REQUEST_VIDEO_CURRENT_TIME',
-      listener: requestVideoCurrentTime,
-    },
-    {
-      name: 'UPDATE_REQUEST_VIDEO_TIME',
-      listener: updateRequestVideoTime,
-    },
-    {
-      name: 'REQUEST_ROOM_STATE',
-      listener: requestRoomState,
-    },
-    {
-      name: 'SEND_ROOM_INFO',
-      listener: receiveRoomInfo,
-    },
-    {
-      name: 'PIN_USER_FOR_ALL_PARTICIPANTS',
-      listener: pinUserForAllParticipants,
-    },
-    {
-      name: 'UPDATE_BACKGROUND_IMAGE_OF_COOPERATE',
-      listener: updateBackgroundImageOfCooperate,
-    },
-    {
-      name: 'UPDATE_BG_IMAGE_SIZE_OF_COOPERATE',
-      listener: updateBgImageSizeOfCooperate,
-    },
-    {
-      name: 'MODERATOR_ENDS_CALL',
-      listener: moderatorEndsCall,
-    },
   ];
 
   function handleRemoteTracks(track: JitsiRemoteTrack) {
     const participantID = track.getParticipantId();
-    console.log('ID DEL REMOTO', participantID);
-    // console.log('TRACK REMOTO', track);
-    console.log('TRACK type REMOTO', track.getType());
+    console.log('HANDLE TRACKS REMOTOS ID Y TYPE-> ID-TYPE', {
+      participantID,
+      type: track.getType(),
+    });
     if (track.getType() == 'audio') {
+      console.log('ℹ️ line 98 SET AUDIO TRACK');
       void nextTick(() => {
         track.attach(participantAudioTracks[`audio-${participantID}`]);
       });
     } else {
+      console.log('ℹ️ line 103 set VIDEO TRACK');
       void nextTick(() => {
         track.attach(participantVideoTracks[`video-${participantID}`]);
       });
@@ -253,25 +130,25 @@ export function useJitsi() {
     const videoTrack = getLocalTrackByType('video');
     videoTrack?.mute();
   };
-  const resetDesktop = async () => {
-    if (localTracks.value[1]) {
-      if (userMe.isCameraOn) {
-        setCameraState(false);
-      }
-      localTracks.value[1].dispose();
-      void localTracks.value.pop();
-    }
-    const cameraTrack = (await JitsiMeetJS.createLocalTracks({
-      devices: ['video'],
-    })) as JitsiLocalTrack[];
-    localTracks.value.push(cameraTrack[0]);
-    void nextTick(() => {
-      localTracks.value[1].attach(localVideoTrack.value);
-    });
+  // const resetDesktop = async () => {
+  //   if (localTracks.value[1]) {
+  //     if (userMe.isCameraOn) {
+  //       setCameraState(false);
+  //     }
+  //     localTracks.value[1].dispose();
+  //     void localTracks.value.pop();
+  //   }
+  //   const cameraTrack = (await JitsiMeetJS.createLocalTracks({
+  //     devices: ['video'],
+  //   })) as JitsiLocalTrack[];
+  //   localTracks.value.push(cameraTrack[0]);
+  //   void nextTick(() => {
+  //     localTracks.value[1].attach(localVideoTrack.value);
+  //   });
 
-    void room.addTrack(localTracks.value[1]);
-    void localTracks.value[1].mute();
-  };
+  //   void room.addTrack(localTracks.value[1]);
+  //   void localTracks.value[1].mute();
+  // };
 
   const roomAddTrack = (
     track: JitsiLocalTrack,
@@ -321,13 +198,17 @@ export function useJitsi() {
   function handleLocalTracks(
     tracks: JitsiLocalTrack[] | JitsiConferenceErrors
   ) {
+    console.log('ℹ️LINE 206->Renderiza conferencia, TRACKS RECIVIDOS', tracks);
     // show conference
     setIsLoadingOrError(false);
 
     if (!tracks.length) return;
-
+    console.log('ℹ️ 211 seteando localtracks');
     setLocalTracks(tracks as JitsiLocalTrack[]);
-    console.log('PARTICIPANT JOINED-TRACKS ENABLE 🚀', joined.value);
+    console.log(
+      'ℹ️line 213->PARTICIPANT JOINED-TRACKS ENABLE 🚀',
+      joined.value
+    );
 
     if (joined.value) {
       localTracks.value.forEach((track) => {
@@ -351,24 +232,30 @@ export function useJitsi() {
       });
   }
 
-  function requestInformationOnRoom() {
-    if (!userMe.isHost) {
-      sendNotification('REQUEST_ROOM_STATE', { value: JSON.stringify(userMe) });
-    }
-  }
+  // function requestInformationOnRoom() {
+  //   if (!userMe.isHost) {
+  //     sendNotification('REQUEST_ROOM_STATE', { value: JSON.stringify(userMe) });
+  //   }
+  // }
 
   function onConferenceJoined() {
-    console.log('🚀JOINING TO VIDECALL');
+    console.log(
+      'Uniendose a la conferencia, EVENTO CONFERENCE_JOINED, seteando joined a TRUE'
+    );
     joined.value = true;
     getLocalTracks();
-    requestInformationOnRoom();
+    // requestInformationOnRoom();
   }
 
   function onUserJoined(
     _arg: string,
     user: JitsiParticipant & { _tracks: JitsiTrack[] }
   ) {
-    console.log('USERJOINED', { id: _arg, user, date: Date.now() });
+    console.log('CREANDO USUARIO PARA LA SALA, EVENTO: USER JOINED', {
+      id: _arg,
+      user,
+      date: Date.now(),
+    });
     if (!user.getDisplayName()) return;
     const dataUser = JSON.parse(user.getDisplayName()) as User;
     addParticipant({
@@ -440,54 +327,8 @@ export function useJitsi() {
     }
   }
 
-  function initScreenSharing(arg: Command) {
-    const participant = findParticipantById(arg.value);
-    if (participant) {
-      participant.isVideoActivated = true;
-    }
-  }
-  function finishScreenSharing(arg: Command) {
-    const participant = findParticipantById(arg.value);
-    if (participant) {
-      participant.isVideoActivated = false;
-    }
-  }
-
-  function riseHand(arg: Command) {
-    handNotificationSound.currentTime = 0;
-    void handNotificationSound.play();
-    const dataParsed = JSON.parse(arg.value) as HandNotification;
-    addHandNotificationInfo(dataParsed);
-  }
-
-  function downHand(arg: Command) {
-    const dataParsed = JSON.parse(arg.value) as HandNotification;
-    if (userMe.id == dataParsed.from) {
-      updateHandNotification(false);
-    }
-    removeHandNotification(dataParsed.from);
-  }
-
   function updateRoomJitsi(arg: User) {
     room.setDisplayName(JSON.stringify(arg));
-  }
-
-  const updateJitsiParticipant = () => {
-    room.setLocalParticipantProperty('externalvideo', 'ontheroom');
-  };
-
-  function handleMessageReceived(_id: string, chatMessage: string) {
-    const chatMessageParsed = JSON.parse(chatMessage) as Message;
-    const { typeMessage } = chatMessageParsed;
-    if (typeMessage == 'image' || typeMessage == 'file') {
-      setUserMessage(chatMessageParsed);
-      amountOfNewMessages.value++;
-      acumulateMessages(amountOfNewMessages.value);
-    } else {
-      amountOfNewMessages.value++;
-      acumulateMessages(amountOfNewMessages.value);
-      setUserMessage(chatMessageParsed);
-    }
   }
 
   function sendNotification(notification: string, arg: Command) {
@@ -496,212 +337,6 @@ export function useJitsi() {
 
   function sendChatMessage(userData: string) {
     room.sendMessage(userData);
-  }
-
-  function kickParticipantFromRoom(arg: Command) {
-    const participant = findParticipantById(arg.value);
-    if (participant) {
-      deleteParticipantById(participant.id);
-    }
-    if (userMe.id == arg.value) {
-      window.xprops?.handleLeaveCall?.(
-        REASON_TO_LEAVE_ROOM.KICKED_BY_MODERATOR
-      );
-    }
-  }
-
-  function lockParticipantMic(arg: Command) {
-    const { participantId, action, locked } = JSON.parse(
-      arg.value
-    ) as ObjBlockParticipantAction;
-
-    if (participantId !== userMe.id) {
-      setParticipantActions(participantId, action, locked);
-      return;
-    }
-    setLocalMicLocked(locked);
-
-    if (locked) {
-      setMicState(!locked);
-      turnOffLocalMic();
-      sendNotification('TURN_OFF_MIC', { value: userMe.id });
-    }
-  }
-
-  function lockParticipantCamera(arg: Command) {
-    const { participantId, action, locked } = JSON.parse(
-      arg.value
-    ) as ObjBlockParticipantAction;
-    if (participantId !== userMe.id) {
-      setParticipantActions(participantId, action, locked);
-      return;
-    }
-    setLocalCameraLocked(locked);
-    if (locked) {
-      setCameraState(!locked);
-      setVideoActivatedState(!locked);
-      turnOffLocalCamera();
-      sendNotification('TURN_OFF_CAMERA', { value: userMe.id });
-    }
-  }
-
-  function lockParticipantScreenSharing(arg: Command) {
-    const { participantId, action, locked } = JSON.parse(
-      arg.value
-    ) as ObjBlockParticipantAction;
-
-    if (participantId !== userMe.id) {
-      setParticipantActions(participantId, action, locked);
-      if (mainViewState.mode == MAIN_VIEW_MODE.USER) {
-        updateMainViewState({
-          mode: MAIN_VIEW_MODE.NONE,
-          pinnedUsers: [],
-          locked: MAIN_VIEW_LOCKED_TYPE.UNSET,
-        });
-      }
-      return;
-    }
-
-    setLocalScreenSharingLocked(locked);
-
-    if (locked) {
-      setScreenState(!locked);
-      if (userMe.isVideoActivated) {
-        void resetDesktop();
-      }
-      setVideoActivatedState(!locked);
-      sendNotification('FINISH_SCREEN_SHARING', { value: userMe.id });
-    }
-  }
-
-  // EXTERNAL VIDEO means VIDEOS FROM YOUTUBE, NOT REMOTE PARTICIPANTS
-  function initExternalVideo(arg: Command) {
-    // init process to share and sync the video
-    const { urlVideo, videoOwnerId } = JSON.parse(
-      arg.value
-    ) as ExternalVideoObject;
-
-    updateExternalVideoState({
-      ...externalVideo,
-      isVideoPlaying: false,
-      videoOwnerId,
-      urlVideo,
-      videoOnRoom: true,
-    });
-    updateMainViewState({
-      mode: MAIN_VIEW_MODE.VIDEO,
-      locked: MAIN_VIEW_LOCKED_TYPE.ALL_USERS,
-    });
-  }
-
-  function pauseExternalVideo(arg: Command) {
-    const { remoteInstanceId, videoCurrentTime } = JSON.parse(
-      arg.value
-    ) as ExternalVideoObject;
-    remotePlayer.value = videojs(remoteInstanceId as string);
-    if (!userMe.isVideoOwner) {
-      void remotePlayer.value.currentTime(videoCurrentTime as number);
-      void remotePlayer.value.pause();
-    }
-  }
-
-  function removeExternalVideo(arg: Command) {
-    const { remoteInstanceId } = JSON.parse(arg.value) as ExternalVideoObject;
-    remotePlayer.value = {} as videojs.Player;
-    videojs(remoteInstanceId as string).dispose();
-    updateMainViewState({
-      mode: MAIN_VIEW_MODE.NONE,
-      locked: MAIN_VIEW_LOCKED_TYPE.UNSET,
-    });
-    updateExternalVideoState({
-      ...externalVideo,
-      videoOnRoom: false,
-      urlVideo: '',
-      isVideoPlaying: false,
-      videoCurrentTime: 0,
-      remoteInstanceId: '',
-    });
-    successMessage('Video externo removido');
-  }
-
-  function updateExternalVideoCurrentTime(arg: Command) {
-    const { remoteInstanceId, videoCurrentTime } = JSON.parse(
-      arg.value
-    ) as ExternalVideoObject;
-    if (remoteInstanceId) {
-      if (!userMe.isVideoOwner) {
-        remotePlayer.value = videojs(remoteInstanceId);
-        remotePlayer.value.currentTime(videoCurrentTime as number);
-      }
-    }
-  }
-
-  function playExternalVideo(arg: Command) {
-    const { remoteInstanceId, videoCurrentTime } = JSON.parse(
-      arg.value
-    ) as ExternalVideoObject;
-    remotePlayer.value = videojs(remoteInstanceId as string);
-    if (!userMe.isVideoOwner) {
-      void remotePlayer.value.currentTime(videoCurrentTime as number);
-      void remotePlayer.value.play();
-    }
-  }
-
-  function requestVideoCurrentTime(arg: Command) {
-    const { from, to: videoOwner } = JSON.parse(arg.value) as BaseData;
-    if (userMe.id == videoOwner) {
-      // AS OWNER, resend mi externalvideo Object to the "from"
-      sendNotification('UPDATE_REQUEST_VIDEO_TIME', {
-        value: JSON.stringify({
-          from: userMe.id,
-          to: from,
-          externalVideoID: externalVideo.remoteInstanceId,
-          currentTime: externalVideo.videoCurrentTime,
-          isPlaying: externalVideo.isVideoPlaying,
-        }),
-      });
-    }
-  }
-
-  function updateRequestVideoTime(arg: Command) {
-    const {
-      to: requester,
-      externalVideoID,
-      currentTime,
-      isPlaying,
-    } = JSON.parse(arg.value) as ExternalVideoRequest;
-    if (userMe.id == requester) {
-      remotePlayer.value = videojs(externalVideoID);
-      if (!isPlaying) {
-        void remotePlayer.value.pause();
-      }
-      remotePlayer.value.currentTime(currentTime);
-    }
-  }
-
-  function pinUserForAllParticipants(arg: Command) {
-    const { startedBy, pinnedUsers, mode, locked } = JSON.parse(
-      arg.value
-    ) as MainViewState;
-    if (userMe.id !== startedBy) {
-      const pinnedUsersNew = pinnedUsers.filter((id) => id !== userMe.id);
-      updateMainViewState({
-        mode,
-        locked,
-        pinnedUsers: pinnedUsersNew,
-        startedBy,
-      });
-    }
-  }
-
-  function updateBackgroundImageOfCooperate(arg: Command) {
-    const { url } = JSON.parse(arg.value) as backgroundInfo;
-    updateBgUrl(url);
-  }
-
-  function updateBgImageSizeOfCooperate(arg: Command) {
-    const { maximized } = JSON.parse(arg.value) as backgroundSize;
-    updateBgSize(maximized);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -713,42 +348,6 @@ export function useJitsi() {
           attributes: { type: 'video' },
         });
       }
-    }
-  }
-
-  function receiveRoomInfo(arg: Command) {
-    const {
-      urlVideo,
-      videoOwnerId,
-      remoteInstanceId,
-      videoCurrentTime,
-      isVideoPlaying,
-    } = JSON.parse(arg.value) as ExternalVideoObject;
-    const infoType = arg.attributes?.type;
-    if (infoType == 'video') {
-      initExternalVideo({
-        value: JSON.stringify({
-          urlVideo,
-          videoOwnerId,
-        }),
-      });
-      setTimeout(() => {
-        void videojs(remoteInstanceId as string).currentTime(
-          videoCurrentTime as number
-        );
-        if (!isVideoPlaying) {
-          void videojs(remoteInstanceId as string).pause();
-        }
-      }, 700);
-    }
-  }
-
-  function moderatorEndsCall(arg: Command) {
-    const { moderatorID } = JSON.parse(arg.value) as EndCallAttrs;
-    if (userMe.id !== moderatorID) {
-      window.xprops?.handleLeaveCall?.(
-        REASON_TO_LEAVE_ROOM.KICKED_BY_MODERATOR_CLOSE_ROOM
-      );
     }
   }
 
@@ -777,7 +376,7 @@ export function useJitsi() {
   }
 
   function onSuccessConnection() {
-    console.log('Connected succesfull');
+    console.log('CONEXIÓN EXITOSA');
     // init room
     room = connection.initJitsiConference(roomNameTemporal.value, {
       p2p: {
@@ -800,10 +399,6 @@ export function useJitsi() {
     );
     room.on(JitsiMeetJS.events.conference.USER_JOINED, onUserJoined);
     room.on(JitsiMeetJS.events.conference.USER_LEFT, onUserLeft);
-    room.on(
-      JitsiMeetJS.events.conference.MESSAGE_RECEIVED,
-      handleMessageReceived
-    );
     room.on(
       JitsiMeetJS.events.conference.KICKED,
       (actor: unknown, reason: string) => {
@@ -869,9 +464,7 @@ export function useJitsi() {
     sendChatMessage,
     getLocalTracks,
     testReplaceAudio,
-    kickParticipantFromRoom,
     replaceLocalTrack,
-    updateJitsiParticipant,
     initRecord,
     finishRecord,
   };

@@ -86,7 +86,7 @@
           class="userVideoBox__avatar__info absolute row items-center q-px-xs"
         >
           <label class="userVideoBox__avatar__info__userName">
-            {{ participant.name }}
+            {{ participant.id }}-{{ participant.name }}
           </label>
           <div class="userVideoBox__avatar__info__iconWrapper text-center">
             <q-icon
@@ -124,45 +124,6 @@
           {{ participant.name }}
         </div>
       </div>
-
-      <q-btn
-        flat
-        round
-        :ripple="false"
-        :icon="
-          mainViewState.pinnedUsers.includes(participant?.id)
-            ? 'location_disabled'
-            : 'gps_fixed'
-        "
-        color="white"
-        class="userVideoBox__avatar__screenBtn"
-        @click="
-          mainViewState.pinnedUsers.includes(participant?.id)
-            ? removePinnedUser(participant?.id)
-            : addPinnedUser(participant?.id)
-        "
-        :disable="
-          (mainViewState.locked !== MAIN_VIEW_LOCKED_TYPE.ANYONE &&
-            mainViewState.locked !== MAIN_VIEW_LOCKED_TYPE.UNSET) ||
-          (mainViewState.pinnedUsers.length >= 4 &&
-            !mainViewState.pinnedUsers.includes(participant?.id))
-        "
-      >
-        <q-tooltip
-          anchor="top middle"
-          class="bg-grey-10"
-          self="bottom middle"
-          :offset="[10, 10]"
-          transition-show="scale"
-          transition-hide="scale"
-        >
-          <label class="userVideoBox__avatar__screenBtn__label">{{
-            mainViewState.pinnedUsers.includes(participant?.id)
-              ? 'Desfijar para mi'
-              : 'Fijar para mi'
-          }}</label>
-        </q-tooltip>
-      </q-btn>
     </div>
     <!--  -->
     <div class="userVideoBox --moreUsers" v-show="moreUsersIndicator">

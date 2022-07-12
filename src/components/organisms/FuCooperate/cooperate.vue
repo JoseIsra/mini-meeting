@@ -15,12 +15,7 @@
       v-show="screenMinimized"
     />
 
-    <fu-cooperate-header v-show="renderHeader" />
-
     <fu-cooperate-menu-bar v-show="showMenuBar && !screenMinimized" />
-    <transition :name="$q.screen.lt.sm ? 'dragged' : 'slide'">
-      <fu-cooperate-side-bar v-show="isSidebarRender" />
-    </transition>
     <fu-cooperate-user-video
       v-show="
         !screenMinimized && $q.screen.lt.md
@@ -28,8 +23,6 @@
           : !screenMinimized
       "
     />
-    <fu-full-screen v-if="mainViewState.mode !== MAIN_VIEW_MODE.NONE" />
-    <fu-warning v-model="openTabSharedWarning" />
   </section>
 </template>
 <script lang="ts">
@@ -43,11 +36,7 @@ import {
   computed,
 } from 'vue';
 import FuCooperateMenuBar from 'organisms/FuCooperateMenuBar';
-import FuCooperateHeader from 'molecules/FuCooperateHeader';
 import FuCooperateUserVideo from 'atoms/FuCooperateUserVideo';
-import FuFullScreen from 'molecules/FuFullScreen';
-import FuCooperateSideBar from 'molecules/FuCooperateSideBar';
-import FuWarning from 'atoms/FuWarning';
 import _ from 'lodash';
 import {
   useRoom,
@@ -67,11 +56,7 @@ export default defineComponent({
   name: 'FuCooperate',
   components: {
     FuCooperateMenuBar,
-    FuCooperateHeader,
     FuCooperateUserVideo,
-    FuFullScreen,
-    FuWarning,
-    FuCooperateSideBar,
   },
   setup(props, { emit }) {
     let vh = ref(window.innerHeight * 0.01);
@@ -162,10 +147,6 @@ export default defineComponent({
       }
     };
 
-    const handActives = computed(() => {
-      return functionsOnMenuBar.handNotificationInfo.length > 0;
-    });
-
     const isPresentationLayout = computed(() => {
       return layout.value == LAYOUT.PRESENTATION_LAYOUT;
     });
@@ -213,7 +194,6 @@ export default defineComponent({
       MAIN_VIEW_MODE,
       showHeader,
       heightObjectStyle,
-      handActives,
       participantVideoTracks,
       participantAudioTracks,
       openTabSharedWarning,

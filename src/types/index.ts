@@ -125,9 +125,9 @@ export interface Periferics {
 }
 
 export interface Functionalities {
-  CHAT: () => void;
+  CHAT?: () => void;
   HANDUP?: () => void;
-  SHARESCREEN: () => void;
+  SHARESCREEN?: () => void;
   SHARENOTES?: () => void;
   USERLIST?: () => void;
   CONNECTION?: () => void;

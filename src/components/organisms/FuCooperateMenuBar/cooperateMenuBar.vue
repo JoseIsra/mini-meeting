@@ -57,135 +57,12 @@
           </q-tooltip>
         </q-btn>
       </aside>
-      <div class="a-menuBar__functions">
-        <q-btn
-          flat
-          round
-          :class="[
-            'a-menuBar__icon',
-            {
-              active: userMe.isScreenSharing,
-            },
-          ]"
-          :icon="
-            !userMe.isScreenSharing
-              ? iconsFunctions.screenShare.onState
-              : iconsFunctions.screenShare.offState
-          "
-          size="13px"
-          :disable="userMe.isPublishing == 2 || userMe.isScreenShareBlocked"
-          @click="toggleDesktopScreenCapture"
-        >
-          <q-tooltip class="bg-grey-10">
-            <label class="a-menuBar__icon__tooltip">
-              {{
-                !userMe.isScreenSharing
-                  ? iconsFunctions.screenShare.toolTipMessage
-                  : iconsFunctions.screenShare.toolTipSecondMessage
-              }}
-            </label>
-          </q-tooltip>
-        </q-btn>
-
-        <q-btn
-          flat
-          round
-          :class="[
-            'a-menuBar__icon',
-            {
-              active: functionsOnMenuBar.renderUsersList && isSidebarRender,
-            },
-          ]"
-          :icon="
-            functionsOnMenuBar.renderUsersList && isSidebarRender
-              ? iconsFunctions.users.onState
-              : iconsFunctions.users.offState
-          "
-          size="13px"
-          @click="toggleUsersList"
-        >
-          <q-badge
-            rounded
-            floating
-            v-show="notificationCount > 0 || amountHandNotification > 0"
-            :class="[
-              'a-menuBar__icon__topin',
-              { '--roleOne': userMe.roleId == 1 },
-              waitingParticipants.length > 0
-                ? '--participants'
-                : '--noparticipants',
-            ]"
-          >
-            {{ notificationCount + amountHandNotification }}
-          </q-badge>
-          <q-tooltip class="bg-grey-10">
-            <label class="a-menuBar__icon__tooltip">
-              {{
-                functionsOnMenuBar.renderUsersList && isSidebarRender
-                  ? iconsFunctions.users.toolTipSecondMessage
-                  : iconsFunctions.users.toolTipMessage
-              }}
-            </label>
-          </q-tooltip>
-        </q-btn>
-      </div>
-      <aside class="a-menuBar__options">
-        <q-btn
-          round
-          flat
-          :ripple="false"
-          v-for="icon in iconsOptions"
-          v-show="icon.id == '1' ? canSeeActionsMenu : true"
-          :key="icon.id"
-          :icon="icon.onState"
-          class="a-menuBar__icon"
-          @click="handleMenuPosition(icon.ubication)"
-          size="13px"
-        >
-          <q-tooltip class="bg-grey-10">
-            <label class="a-menuBar__icon__tooltip">
-              {{ icon.toolTipMessage }}
-            </label>
-          </q-tooltip>
-        </q-btn>
-        <fu-cooperate-menu
-          v-show="functionsOnMenuBar.renderPopupMenu"
-          class="a-menuBar__options__menu"
-          :isActions="isActions"
-          :isOptions="isOptions"
-          :renderFunctions="false"
-          width="280px"
-          bottom="120%"
-        />
-      </aside>
-      <fu-cooperate-menu
-        class="a-menuBar__responsiveOptions"
-        v-show="functionsOnMenuBar.renderPopupMenu"
-        :isActions="isActions"
-        :isOptions="isOptions"
-        :renderFunctions="false"
-        width="100%"
-        bottom="120%"
-      />
     </section>
-    <q-dialog v-model="openAdminPanel">
-      <fu-admin-panel />
-    </q-dialog>
   </div>
 </template>
 
 <script lang="ts">
-import {
-  defineComponent,
-  ref,
-  reactive,
-  watch,
-  computed,
-  provide,
-  nextTick,
-} from 'vue';
-import FuCooperateMenu from 'molecules/FuCooperateMenu';
-import { Functionalities } from '@/types';
+import { defineComponent, ref, computed, nextTick } from 'vue';
 import { MediaType, LAYOUT } from '@/utils/enums/general';
 import { iconsPeriferics, iconsFunctions } from '@/helpers/iconsMenuBar';
 
@@ -202,9 +79,7 @@ import { usePanels } from '@/composables/panels';
 import { useJitsiError } from '@/composables/jitsiError';
 import { useLayout } from '@/composables/layout';
 import { useMainView } from '@/composables/mainView';
-import { nanoid } from 'nanoid';
 import { iconsOptions } from '@/helpers/iconsMenuBar';
-import _ from 'lodash';
 import JitsiMeetJS from '@solyd/lib-jitsi-meet';
 import JitsiLocalTrack from '@solyd/lib-jitsi-meet/dist/esm/modules/RTC/JitsiLocalTrack';
 import { MAIN_VIEW_MODE, MAIN_VIEW_LOCKED_TYPE } from '@/utils/enums';
@@ -212,9 +87,6 @@ import { onClickOutside } from '@vueuse/core';
 
 export default defineComponent({
   name: 'FuCooperateMenuBar',
-  components: {
-    FuCooperateMenu,
-  },
   setup() {
     /* const { options } = useActions(); */
 
@@ -224,28 +96,13 @@ export default defineComponent({
 
     let openNetworkConfig = ref(false);
     const target = ref(null);
-    const objectFunctionalities = reactive<Functionalities>({
-      CHAT: () => toogleChat(),
-      SHARESCREEN: () => toggleDesktopScreenCapture(),
-      HANDUP: () => toogleHandUp(),
-      SHARENOTES: () => toogleShareNotes(),
-      USERLIST: () => toggleUsersList(),
-      MINIMIZE: () => minimizeScreen(),
-    });
 
     let isActions = ref<boolean>(false);
     let isOptions = ref<boolean>(false);
     let renderFunctionResponsiveMenu = ref<boolean>(false);
     let actionSelectionID = ref<string>('');
-    let {
-      functionsOnMenuBar,
-      setShowChat,
-      setShowNotes,
-      setShowUsersList,
-      openOptionsMenu,
-      openFunctionResponsiveMenu,
-      updateHandNotification,
-    } = useToogleFunctions();
+    let { functionsOnMenuBar, openFunctionResponsiveMenu } =
+      useToogleFunctions();
 
     const {
       turnOnLocalMic,
@@ -258,32 +115,10 @@ export default defineComponent({
       testReplaceAudio,
       replaceLocalTrack,
     } = useJitsi();
-    const { openAdminPanel, setOpenAdminPanel, setTabSharedWarning } =
-      usePanels();
+    const { openAdminPanel, setTabSharedWarning } = usePanels();
     const { errorsCallback } = useJitsiError();
     const { layout } = useLayout();
     const { mainViewState } = useMainView();
-
-    const notificationCount = computed(() => {
-      return userMe.roleId === 0 ? waitingParticipants.value.length : '';
-    });
-
-    const amountHandNotification = computed(() => {
-      return notificateHandUp.value
-        ? functionsOnMenuBar.handNotificationInfo.filter(
-            (notific) => notific.from !== userMe.id
-          ).length
-        : functionsOnMenuBar.handNotificationInfo.length;
-    });
-
-    const notificateHandUp = computed(() => {
-      return functionsOnMenuBar.handNotificationInfo.some(
-        (notific) => notific.from == userMe.id
-      );
-    });
-
-    provide('amountHandNotification', amountHandNotification);
-    provide('notificationCount', notificationCount);
 
     let { isSidebarRender, setSidebarState } = useSidebarToogle();
 
@@ -301,20 +136,7 @@ export default defineComponent({
 
     const canSeeActionsMenu = ref(userMe.roleId === 0);
     const showAdminPanel = ref(false);
-    const {
-      userMessages,
-      showChatNotification,
-      chatNotification,
-      amountOfNewMessages,
-      acumulateMessages,
-    } = useHandleMessage();
-    const newChatMessageSound = new Audio(
-      'https://freesound.org/data/previews/342/342749_5260872-lq.mp3'
-    );
-
-    const lastMessageOwner = computed(() => {
-      return userMessages.value[userMessages.value.length - 1].streamId;
-    });
+    const { chatNotification, amountOfNewMessages } = useHandleMessage();
 
     const devicesAvailable = computed(() => {
       return userMe.isScreenSharing
@@ -330,80 +152,6 @@ export default defineComponent({
         layout.value == LAYOUT.PRESENTATION_LAYOUT &&
         mainViewState.mode != MAIN_VIEW_MODE.NONE,
     }));
-
-    watch(
-      () => _.cloneDeep(userMessages.value),
-      (current, prev) => {
-        if (
-          current.length - prev.length > 0 &&
-          !functionsOnMenuBar.renderChat &&
-          lastMessageOwner.value !== userMe.id
-        ) {
-          showChatNotification(true);
-          if (amountOfNewMessages.value == 1) {
-            newChatMessageSound.currentTime = 0;
-            void newChatMessageSound.play();
-          }
-        } else {
-          showChatNotification(false);
-        }
-      }
-    );
-
-    //**********************++FUNCIONES ********************** */
-    const toogleChat = () => {
-      if (!isSidebarRender.value) {
-        setSidebarState(true);
-        setShowChat(true);
-        setShowNotes(false);
-        setShowUsersList(false);
-        showChatNotification(false);
-        acumulateMessages(0);
-        return;
-      } else if (isSidebarRender.value && functionsOnMenuBar.renderChat) {
-        setSidebarState(false);
-        setShowChat(false);
-        acumulateMessages(0);
-        return;
-      }
-      setShowChat(true);
-      setShowNotes(false);
-      setShowUsersList(false);
-      showChatNotification(false);
-      acumulateMessages(0);
-    };
-
-    const toogleShareNotes = () => {
-      if (!isSidebarRender.value) {
-        setSidebarState(true);
-        setShowNotes(true);
-        setShowChat(false);
-        setShowUsersList(false);
-        return;
-      } else if (isSidebarRender.value && functionsOnMenuBar.renderNotes) {
-        setSidebarState(false);
-        return;
-      }
-      setShowNotes(true);
-      setShowChat(false);
-      setShowUsersList(false);
-    };
-
-    const toggleUsersList = () => {
-      if (!isSidebarRender.value) {
-        setSidebarState(true);
-        setShowUsersList(true);
-        setShowNotes(false);
-        setShowChat(false);
-        return;
-      } else if (isSidebarRender.value && functionsOnMenuBar.renderUsersList) {
-        setSidebarState(false);
-        return;
-      }
-      setShowUsersList(true);
-      setShowNotes(false);
-      setShowChat(false);
-    };
 
     const toggleCamera = () => {
       if (userMe.isCameraOn) {
@@ -437,38 +185,6 @@ export default defineComponent({
       updateRoomJitsi(userMe);
     };
 
-    const toogleHandUp = () => {
-      const riseHand = {
-        id: nanoid(),
-        to: 'ALL',
-        from: userMe.id,
-        streamName: userMe.name,
-        eventType: 'HAND_UP',
-      };
-      if (
-        functionsOnMenuBar.handNotificationInfo.some(
-          (notific) => notific.from === riseHand.from
-        )
-      ) {
-        const downHand = { ...riseHand, eventType: 'HAND_DOWN' };
-        const handDown = _.debounce(() => {
-          updateHandNotification(false);
-          sendNotification(downHand.eventType, {
-            value: JSON.stringify(downHand),
-          });
-        }, 200);
-        handDown();
-        return;
-      }
-      const handUp = _.debounce(() => {
-        updateHandNotification(true);
-        sendNotification(riseHand.eventType, {
-          value: JSON.stringify(riseHand),
-        });
-      }, 200);
-      handUp();
-    };
-
     const startScreenSharing = (tracks: JitsiLocalTrack[]) => {
       const desktopAudioTrack = tracks.find(
         (track) => track.getType() === MediaType.AUDIO
@@ -485,21 +201,8 @@ export default defineComponent({
         void nextTick(() => {
           localTracks.value[1].attach(localVideoTrack.value);
         });
-        // replaceLocalTrack(desktopVideoTrack, MediaType.VIDEO);
         roomAddTrack(desktopVideoTrack, null);
-        // () => {
-        //   sendNotification('PIN_USER_FOR_ALL_PARTICIPANTS', {
-        //     value: JSON.stringify({
-        //       mode: MAIN_VIEW_MODE.USER,
-        //       pinnedUsers: [userMe.id],
-        //       startedBy: userMe.id,
-        //       locked: MAIN_VIEW_LOCKED_TYPE.NORMAL_USERS,
-        //     }),
-        //   });
-        // }
         sendNotification('INIT_SCREEN_SHARING', { value: userMe.id });
-        // setTimeout(() => {
-        // }, 2200);
       }
 
       if (desktopAudioTrack) {
@@ -559,58 +262,11 @@ export default defineComponent({
       }
     };
 
-    // const videoTrackController = (tracks: JitsiLocalTrack[]) => {
-    //   if (tracks.length == 1) {
-    //     localTracks.value.push(tracks[0]);
-    //     void nextTick(() => {
-    //       localTracks.value[1].attach(localVideoTrack.value);
-    //     });
-    //     testReplaceAudio(localTracks.value[0], tracks[0], true);
-    //     roomAddTrack(localTracks.value[1]);
-    //   } else {
-    //     // web tracks
-    //     localTracks.value.push(tracks[1]);
-    //     void nextTick(() => {
-    //       localTracks.value[1].attach(localVideoTrack.value);
-    //     });
-    //     roomAddTrack(localTracks.value[1]);
-    //     testReplaceAudio(localTracks.value[0], tracks[0], false);
-    //   }
-    // };
-
     const { updateScreenState } = useScreen();
 
     const minimizeScreen = () => {
       updateScreenState();
       setSidebarState(false);
-    };
-
-    const handleMenuPosition = (ubication?: string) => {
-      if (ubication == 'actions') {
-        setOpenAdminPanel(!showAdminPanel.value);
-      } else {
-        isActions.value = false;
-        isOptions.value = true;
-        openOptionsMenu(!functionsOnMenuBar.renderPopupMenu);
-      }
-    };
-
-    const handleFunctionSelected = (interaction?: string, ID?: string) => {
-      if (functionsOnMenuBar.selectedButtonID == ID) {
-        objectFunctionalities[interaction as keyof Functionalities]?.();
-        return;
-      }
-      objectFunctionalities[interaction as keyof Functionalities]?.();
-    };
-
-    const handleEspecialBehaviour = (interaction: string) => {
-      objectFunctionalities[interaction as keyof Functionalities]?.();
-    };
-
-    const openResponsiveMenuOfFunctions = () => {
-      openFunctionResponsiveMenu(
-        !functionsOnMenuBar.renderResponsiveFunctionMenu
-      );
     };
 
     onClickOutside(target, () => {
@@ -619,35 +275,25 @@ export default defineComponent({
 
     return {
       userMe,
-      handleMenuPosition,
       isActions,
-      handleFunctionSelected,
       actionSelectionID,
       renderFunctionResponsiveMenu,
       openNetworkConfig,
       functionsOnMenuBar,
-      objectFunctionalities,
       isOptions,
-      handleEspecialBehaviour,
-      openResponsiveMenuOfFunctions,
       canSeeActionsMenu,
       toggleCamera,
       toggleMIC,
       iconsPeriferics,
       showAdminPanel,
       chatNotification,
-      notificationCount,
       waitingParticipants,
       iconsFunctions,
       toggleDesktopScreenCapture,
-      toogleHandUp,
-      toggleUsersList,
       isSidebarRender,
-      toogleChat,
       minimizeScreen,
       iconsOptions,
       amountOfNewMessages,
-      amountHandNotification,
       openAdminPanel,
       modifierClass,
       target,

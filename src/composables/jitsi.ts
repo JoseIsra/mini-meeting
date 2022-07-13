@@ -215,6 +215,7 @@ export function useJitsi() {
         room
           .addTrack(track)
           .then(() => {
+            console.log('TRACK UNIDO A LA SALA EN HANDLELOCALTRACK');
             if (track.getType() == 'video') {
               void track.mute();
             }
@@ -245,7 +246,21 @@ export function useJitsi() {
       'Uniendose a la conferencia, EVENTO CONFERENCE_JOINED, seteando joined a TRUE'
     );
     joined.value = true;
-    getLocalTracks();
+    localTracks.value.forEach((track) => {
+      room
+        .addTrack(track)
+        .then(() => {
+          console.log(
+            'TRACK UNIDO A LA SALA EN conferenceJoined-joined?',
+            joined.value
+          );
+          if (track.getType() == 'video') {
+            void track.mute();
+          }
+        })
+        .catch((error) => console.error(error));
+    });
+    // getLocalTracks();
     // requestInformationOnRoom();
   }
 
@@ -408,7 +423,7 @@ export function useJitsi() {
         console.table({ actor, reason });
       }
     );
-    void room.setSenderVideoConstraint(360);
+    // void room.setSenderVideoConstraint(360);
     commandsList.forEach((command) => {
       room.addCommandListener(command.name, command.listener);
     });
@@ -452,6 +467,7 @@ export function useJitsi() {
     );
 
     connection.connect({});
+    getLocalTracks();
   };
 
   return {

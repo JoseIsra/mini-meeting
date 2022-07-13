@@ -136,7 +136,7 @@ export default defineComponent({
     const isMicOn =
       window?.xprops?.isMicOn ||
       (route.query.isMicOn as string) == 'micro' ||
-      false;
+      true;
 
     const isHost =
       window?.xprops?.isHost ||

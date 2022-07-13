@@ -215,7 +215,9 @@ export function useJitsi() {
         room
           .addTrack(track)
           .then(() => {
-            void track.mute();
+            if (track.getType() == 'video') {
+              void track.mute();
+            }
           })
           .catch((error) => console.error(error));
       });
@@ -255,6 +257,7 @@ export function useJitsi() {
       id: _arg,
       user,
       date: Date.now(),
+      tracks: user._tracks,
     });
     if (!user.getDisplayName()) return;
     const dataUser = JSON.parse(user.getDisplayName()) as User;

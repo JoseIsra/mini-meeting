@@ -58,7 +58,7 @@
       </div>
     </div>
     <div
-      v-for="participant in usersOnScreen"
+      v-for="participant in admittedParticipants"
       :key="participant.id"
       :class="[
         'userVideoBox text-white',
@@ -126,13 +126,13 @@
       </div>
     </div>
     <!--  -->
-    <div class="userVideoBox --moreUsers" v-show="moreUsersIndicator">
+    <!-- moreUsersIndicator -->
+    <!-- <div class="userVideoBox --moreUsers" v-show="false">
       +{{ moreUsersAmount }}
     </div>
     <div v-for="(participant, index) in invisibleSlots" :key="index">
       <video
         :id="'video-' + participant.id"
-        :style="{ display: 'none' }"
         autoplay
         playsinline
         :ref="
@@ -151,7 +151,7 @@
         "
         autoplay
       ></audio>
-    </div>
+    </div> -->
   </section>
 </template>
 
